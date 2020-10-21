@@ -1,0 +1,32 @@
+galaxy_info:
+  role_name: libvirt_networks
+  author: Jakob Meng
+  description: Add/Modify/Delete libvirt virtual networks
+  company: Hochschule Bonn-Rhein-Sieg
+  license: license (GPLv3)
+
+  min_ansible_version: 2.9
+
+  platforms:
+  # Ref.: https://galaxy.ansible.com/api/v1/platforms/
+  - name: Debian
+    versions:
+    - buster
+    - bullseye
+    - bookworm
+
+  - name: EL
+    versions:
+    - 7
+    - 8
+
+  - name: Ubuntu
+    versions:
+    - bionic
+    - focal
+
+  galaxy_tags:
+  - development
+  - system
+
+dependencies: []

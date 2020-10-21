@@ -1,0 +1,372 @@
+---
+# Copyright (c) 2020 Jakob Meng, <jakobmeng@web.de>
+# vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
+# kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
+
+debconf_early_config:
+- name: 'apt-cacher-ng'
+  question: 'apt-cacher-ng/bindaddress'
+  value: '127.0.0.1 ::1'
+  vtype: 'string'
+- name: 'apt-cacher-ng'
+  question: 'apt-cacher-ng/tunnelenable'
+  value: 'false'
+  vtype: 'boolean'
+
+dhcpd_config:
+- copy:
+    content: |
+      # 2021 Jakob Meng, <jakobmeng@web.de>
+      #
+      # Configuration file for ISC dhcpd
+      #
+      # NOTE: On Ubuntu, if /etc/ltsp/dhcpd.conf exists, that will be used as configuration file instead of this file.
+
+      # option definitions common to all supported networks...
+      option domain-name "{{ dns_suffix }}";
+      option domain-name-servers 1.1.1.1;
+      option space pxelinux;
+      option pxelinux.magic code 208 = string;
+      option pxelinux.configfile code 209 = text;
+      option pxelinux.pathprefix code 210 = text;
+      option pxelinux.reboottime code 211 = unsigned integer 32;
+      option architecture-type code 93 = unsigned integer 16;
+
+      default-lease-time 600;
+      max-lease-time 7200;
+
+      # The ddns-updates-style parameter controls whether or not the server will
+      # attempt to do a DNS update when a lease is confirmed. We default to the
+      # behavior of the version 2 packages ('none', since DHCP v2 didn't
+      # have support for DDNS.)
+      ddns-update-style none;
+
+      # If this DHCP server is the official DHCP server for the local
+      # network, the authoritative directive should be uncommented.
+      authoritative;
+
+      # Use this to send dhcp log messages to a different log file (you also
+      # have to hack syslog.conf to complete the redirection).
+      log-facility local7;
+
+      subnet 192.168.155.0 netmask 255.255.255.0 {
+        option routers 192.168.155.2;
+        range 192.168.155.10 192.168.155.254;
+      } # subnet 192.168.155.0 netmask 255.255.255.0
+
+      {% for pxe_client in pxe_installer_clients %}
+      host {{ hostvars[pxe_client].inventory_hostname }} {
+        next-server {{ pxe_installer_host_address }};
+        option host-name "{{ hostvars[pxe_client].inventory_hostname }}";
+        if option architecture-type = 00:07 {
+          filename "{{ pxe_installer_distribution_filename_map
+                       [hostvars[pxe_client]['os_distribution_id']|join('_')|regex_replace('[^A-Za-z0-9 _-]', '_')]
+                       [hostvars[pxe_client]['os_architecture']]['UEFI'] }}";
+        } else {
+          filename "{{ pxe_installer_distribution_filename_map
+                       [hostvars[pxe_client]['os_distribution_id']|join('_')|regex_replace('[^A-Za-z0-9 _-]', '_')]
+                       [hostvars[pxe_client]['os_architecture']]['BIOS'] }}";
+        }
+        {{ hostvars[pxe_client].dhcpd_host_config|indent(width=2) }}
+      } # host {{ hostvars[pxe_client].inventory_hostname }}
+      {% endfor %}
+
+#
+#      {% for dhcpd_group in dhcpd_groups %}
+#      group {
+#      {% for dhcpd_subnet in dhcpd_group['subnets']|default([]) %}
+#        subnet dhcpd_subnet.number netmask dhcpd_subnet.netmask {
+#      {% if filename in dhcpd_subnet %}
+#          filename "{{ dhcpd_subnet.filename }}";
+#      {% endif %}
+#      {% for dhcpd_subnet_range in dhcpd_subnet['ranges']|default([]) %}
+#          range {{ dhcpd_subnet_range }};
+#      {% endfor %}
+#      {% for dhcpd_option in dhcpd_subnet['options']|default([]) %}
+#          option {{ dhcpd_option }};
+#      {% endfor %}
+#      {% for dhcpd_host in dhcpd_subnet['hosts']|default([]) %}
+#          host {{ dhcpd_host.hostname }} {
+#      {% for dhcpd_hardware in dhcpd_host['hardwares']|default([]) %}
+#            hardware {{ dhcpd_hardware }};
+#      {% endfor %}
+#      {% for dhcpd_fixed_address in dhcpd_host['fixed_addresses']|default([]) %}
+#            fixed-address {{ dhcpd_fixed_address }};
+#      {% endfor %}
+#          } # host
+#      {% endfor %}
+#        } # subnet
+#      {% endfor %}
+#      } # group
+#      {% endfor %}
+    dest: /etc/dhcp/dhcpd.conf
+    group: root
+    mode: u=rw,g=r,o=
+    owner: root
+- # Configure IPv4 interfaces that DHCP IPv4 service will listen to
+  lineinfile:
+    path: /etc/default/isc-dhcp-server
+    regexp: "^INTERFACESv4=.*"
+    line: 'INTERFACESv4="eth1"'
+- # Remove IPv6 interfaces to disable DHCP IPv6 service
+  lineinfile:
+    path: /etc/default/isc-dhcp-server
+    regexp: "^INTERFACESv6=.*"
+    line: 'INTERFACESv6=""'
+
+dhcpd6_service_enabled: no
+
+dhcpd6_service_state: 'stopped'
+
+httpd_config:
+- file:
+    path: /var/www/html
+    state: absent
+- file:
+    path: /etc/apache2/sites-enabled/000-default.conf
+    state: absent
+- copy:
+    content: |
+      <VirtualHost *:80>
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www
+
+        <Directory /var/www>
+          Options -Indexes
+          Require ip 192.168.155
+          Require ip 10.0.20.20
+          Require ip 127.
+          Require ip ::1
+        </Directory>
+
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+      </VirtualHost>
+    dest: /etc/apache2/sites-available/cloud-init.conf
+- file:
+    src: /etc/apache2/sites-available/cloud-init.conf
+    dest: /etc/apache2/sites-enabled/cloud-init.conf
+    state: link
+- apache2_module:
+    state: present
+    name: proxy
+- apache2_module:
+    state: present
+    name: proxy_http
+- apache2_module:
+    state: present
+    name: proxy_http2
+- apache2_module:
+    state: present
+    name: proxy_connect
+- apache2_module:
+    state: present
+    name: cache
+- apache2_module:
+    state: present
+    name: cache_disk
+- apache2_module:
+    state: present
+    name: expires
+- apache2_module:
+    state: present
+    name: headers
+- apache2_module:
+    state: present
+    name: ssl
+- copy:
+    content: |
+      Listen 8080
+
+      <VirtualHost *:8080>
+        ProxyRequests On
+        ProxyVia On
+        <Proxy "*">
+          Require ip 192.168.155
+          Require ip 10.0.20.20
+          Require ip 127.
+          Require ip ::1
+        </Proxy>
+
+        # Redirect to apt-cacher-ng
+        ProxyRemote http://archive.ubuntu.com http://127.0.0.1:3142/
+        ProxyRemote http://de.archive.ubuntu.com http://127.0.0.1:3142/
+        ProxyRemote http://deb.debian.org http://127.0.0.1:3142/
+
+        CacheRoot /var/cache/apache2/mod_cache_disk
+        CacheQuickHandler off
+        CacheIgnoreHeaders Set-Cookie
+        CacheLock on
+        # CacheLockMaxAge must be long enough to download files else caching wont work
+        CacheLockMaxAge 3600
+        CacheDetailHeader on
+        CacheHeader on
+        CacheDefaultExpire 86400
+        CacheMinFileSize 0
+        CacheMaxFileSize 16000000000
+        # Caching only works with http, not https
+        CacheEnable disk "http://*releases.ubuntu.com"
+
+        SSLProxyEngine off
+
+        # Use local reverse proxies to work around the limitation that caching is only possible with http but not https
+        ProxyRemote       "http://releases.ubuntu.com/"      "http://127.0.0.1:8081"
+        ProxyRemote       "http://old-releases.ubuntu.com/"  "http://127.0.0.1:8082"
+
+        ExpiresActive on
+        ExpiresDefault "access plus 30 days"
+
+        Header merge Cache-Control public
+        FileETag All
+
+        ErrorLog ${APACHE_LOG_DIR}/error_forward_proxy.log
+        CustomLog ${APACHE_LOG_DIR}/access_forward_proxy.log combined
+      </VirtualHost>
+    dest: /etc/apache2/sites-available/forward-proxy.conf
+- file:
+    src: /etc/apache2/sites-available/forward-proxy.conf
+    dest: /etc/apache2/sites-enabled/forward-proxy.conf
+    state: link
+- copy:
+    content: |
+      # Forward http requests via https to releases.ubuntu.com
+      Listen 8081
+      <VirtualHost *:8081>
+        ProxyRequests Off
+        SSLProxyEngine on
+        ProxyPass         "/"     "https://releases.ubuntu.com/"
+        ProxyPassReverse  "/"     "https://releases.ubuntu.com/"
+        ErrorLog ${APACHE_LOG_DIR}/error_reverse_proxy.log
+        CustomLog ${APACHE_LOG_DIR}/access_reverse_proxy.log combined
+      </VirtualHost>
+
+      # Forward http requests via https to old-releases.ubuntu.com
+      Listen 8082
+      <VirtualHost *:8082>
+        ProxyRequests Off
+        SSLProxyEngine on
+        ProxyPass         "/" "https://old-releases.ubuntu.com/"
+        ProxyPassReverse  "/" "https://old-releases.ubuntu.com/"
+        ErrorLog ${APACHE_LOG_DIR}/error_reverse_proxy.log
+        CustomLog ${APACHE_LOG_DIR}/access_reverse_proxy.log combined
+      </VirtualHost>
+    dest: /etc/apache2/sites-available/reverse-proxy.conf
+- file:
+    src: /etc/apache2/sites-available/reverse-proxy.conf
+    dest: /etc/apache2/sites-enabled/reverse-proxy.conf
+    state: link
+
+iptables_config:
+- # do SNAT for all packets coming from internal router network
+  iptables:
+    chain: POSTROUTING
+    destination: 0.0.0.0/0
+    jump: SNAT
+    out_interface: 'eth0'
+    source: 192.168.155.0/24
+    table: nat
+    to_source: 10.0.20.20
+
+iptables_persistence: yes
+
+libvirt_domain_autostart: no
+
+libvirt_hardware:
+- cpu: 'host-passthrough,cache.mode=passthrough'
+- vcpus: '4'
+- memory: '4096'
+- virt_type: 'kvm'
+- graphics: 'spice,listen=socket'
+- network: 'network=lan-bridge,model=virtio'
+- network: 'network=isolated-6,model=virtio'
+- disk: "vol='{{ libvirt_pool }}/{{ libvirt_volumes[0]['name'] }}',device=disk,bus=virtio"
+- disk: "vol='{{ libvirt_pool }}/{{ libvirt_configdrive }}',device=disk,bus=virtio,serial='cidata'"
+- os_variant: 'debian10'
+
+libvirt_netplan:
+  ethernets:
+    eth0:
+      dhcp4: false
+      dhcp6: false
+      accept-ra: false
+
+      addresses:
+      - 10.0.20.20/16
+
+      nameservers:
+        addresses:
+        - 10.0.0.1
+      routes:
+      - to: 0.0.0.0/0
+        via: 10.0.0.1
+    eth1:
+      dhcp4: false
+      dhcp6: false
+      accept-ra: false
+
+      addresses:
+      - 192.168.155.2/24
+
+libvirt_pool: 'default'
+
+libvirt_uri: 'qemu:///session'
+
+libvirt_volumes:
+- backing_vol: 'debian-11-genericcloud-amd64.qcow2'
+  backing_vol_format: 'qcow2'
+  capacity: 50G
+  format: 'qcow2'
+  linked: no
+  name: '{{ fqdn }}.qcow2'
+  pool: '{{ libvirt_pool }}'
+  prealloc_metadata: no
+  state: present
+
+meta_packages:
+- name: jm1-system-tools
+  depends:
+  - iptables-persistent # Used to (re)store iptables SNAT rules
+  - apt-cacher-ng
+  version: 2
+
+os_distribution_id:
+- 'Debian'
+- '11'
+
+pxe_installer_clients:
+- lvrt-lcl-session-srv-11-pxe-client-debian11-bios
+- lvrt-lcl-session-srv-13-pxe-client-debian11-uefi
+- lvrt-lcl-session-srv-14-pxe-client-ubuntu2004-bios
+- lvrt-lcl-session-srv-15-pxe-client-ubuntu2004-uefi
+- lvrt-lcl-session-srv-16-pxe-client-centos8-bios
+- lvrt-lcl-session-srv-17-pxe-client-centos8-uefi
+
+pxe_installer_host_address: 192.168.155.2
+
+sysctl_config:
+- copy:
+    content: |
+      # 2021 Jakob Meng, <jakobmeng@web.de>
+      net.ipv4.ip_forward = 0
+      net.ipv4.conf.eth0.forwarding = 1
+      net.ipv4.conf.eth1.forwarding = 1
+    dest: /etc/sysctl.d/10-ip-forward.conf
+# Apply changes using Ansible's sysctl module
+- sysctl:
+    name: net.ipv4.ip_forward
+    value: '0'
+    state: present
+    sysctl_file: /etc/sysctl.d/10-ip-forward.conf
+    sysctl_set: yes
+- sysctl:
+    name: net.ipv4.conf.eth0.forwarding
+    value: '1'
+    state: present
+    sysctl_file: /etc/sysctl.d/10-ip-forward.conf
+    sysctl_set: yes
+- sysctl:
+    name: net.ipv4.conf.eth1.forwarding
+    value: '1'
+    state: present
+    sysctl_file: /etc/sysctl.d/10-ip-forward.conf
+    sysctl_set: yes

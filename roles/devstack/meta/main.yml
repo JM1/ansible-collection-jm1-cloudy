@@ -1,0 +1,20 @@
+galaxy_info:
+  role_name: devstack
+  author: Jakob Meng
+  description: Setup an OpenStack cluster with DevStack
+  company: Hochschule Bonn-Rhein-Sieg
+  license: license (GPLv3)
+
+  min_ansible_version: 2.9
+
+  platforms:
+  # Ref.: https://galaxy.ansible.com/api/v1/platforms/
+  - name: Ubuntu
+    versions:
+    - bionic
+
+  galaxy_tags:
+  - development
+  - system
+
+dependencies: []

@@ -1,0 +1,165 @@
+---
+# Copyright (c) 2020-2021 Jakob Meng, <jakobmeng@web.de>
+# vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
+# kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
+
+iptables_config:
+- # do SNAT for all packets coming from internal network
+  iptables:
+    chain: POSTROUTING
+    destination: 0.0.0.0/0
+    jump: SNAT
+    out_interface: 'eth0'
+    source: 192.168.152.0/24
+    table: nat
+    to_source: 10.0.20.19
+- # do SNAT for all packets coming from internal network
+  iptables:
+    chain: POSTROUTING
+    destination: 0.0.0.0/0
+    jump: SNAT
+    out_interface: 'eth0'
+    source: 192.168.155.0/24
+    table: nat
+    to_source: 10.0.20.19
+
+iptables_persistence: yes
+
+libvirt_domain_autostart: no
+
+libvirt_hardware:
+- cpu: 'host-passthrough,cache.mode=passthrough'
+#- cpu: 'host,optional=svm,optional=vmx'
+- vcpus: '4'
+- memory: '8192'
+- virt_type: 'kvm'
+- graphics: 'spice,listen=socket'
+- network: 'network=lan-bridge,model=virtio'
+- network: 'network=isolated-3,model=virtio,mac=RANDOM'
+- disk: "vol='{{ libvirt_pool }}/{{ libvirt_volumes[0]['name'] }}',device=disk,bus=virtio"
+- disk: "vol='{{ libvirt_pool }}/{{ libvirt_configdrive }}',device=disk,bus=virtio,serial='cidata'"
+- os_variant: 'rhel8.0'
+
+libvirt_netplan:
+  ethernets:
+    eth0:
+      dhcp4: false
+      dhcp6: false
+      accept-ra: false
+
+      addresses:
+      - 10.0.20.19/16
+
+      nameservers:
+        addresses:
+        - 10.0.0.1
+      routes:
+      - to: 0.0.0.0/0
+        via: 10.0.0.1
+    eth1:
+      dhcp4: false
+      dhcp6: false
+      accept-ra: false
+
+      addresses:
+      - 192.168.152.2/24
+
+libvirt_pool: 'default'
+
+libvirt_uri: 'qemu:///session'
+
+libvirt_volumes:
+- backing_vol: 'CentOS-Stream-GenericCloud-8-20210603.0.x86_64.qcow2'
+  backing_vol_format: 'qcow2'
+  capacity: 75G
+  format: 'qcow2'
+  linked: no
+  name: '{{ fqdn }}.qcow2'
+  pool: '{{ libvirt_pool }}'
+  prealloc_metadata: no
+  state: present
+
+os_distribution_id:
+- 'CentOS'
+- '8'
+
+selinux_config:
+- # Put SELinux in permissive mode, logging actions that would be blocked
+  selinux:
+    policy: targeted
+    state: permissive
+
+# NOTE: Keep in sync with variable ssh_authorized_keys from group_vars/all.yml
+ssh_authorized_keys:
+- comment: >-
+    {{ lookup('pipe','whoami') + '@' + lookup('pipe','hostname') + ':' + lookup('env','HOME') + '/.ssh/id_rsa.pub' }}
+  key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub')|mandatory }}"
+  state: present
+  user: '{{ ansible_user }}'
+- comment: >-
+    {{ lookup('pipe','whoami') + '@' + lookup('pipe','hostname') + ':' + lookup('env','HOME') + '/.ssh/id_rsa.pub' }}
+  key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub')|mandatory }}"
+  state: present
+  user: '{{ tripleo_standalone_user }}'
+
+# NOTE: Keep in sync with variable sudoers_config from group_vars/all.yml
+sudoers_config:
+- lineinfile:
+    line: '{{ ansible_user }} ALL=(ALL) NOPASSWD:ALL'
+    path: /etc/sudoers.d/90-cloud-init-users
+    state: present
+- lineinfile:
+    line: '{{ tripleo_standalone_user }} ALL=(ALL) NOPASSWD:ALL'
+    path: /etc/sudoers.d/90-cloud-init-users
+    state: present
+
+sysctl_config:
+- copy:
+    content: |
+      # 2021 Jakob Meng, <jakobmeng@web.de>
+      net.ipv4.ip_forward = 0
+      net.ipv4.conf.eth0.forwarding = 0
+      net.ipv4.conf.eth1.forwarding = 1
+    dest: /etc/sysctl.d/10-ip-forward.conf
+# Apply changes using Ansible's sysctl module
+- sysctl:
+    name: net.ipv4.ip_forward
+    value: '0'
+    state: present
+    sysctl_file: /etc/sysctl.d/10-ip-forward.conf
+    sysctl_set: yes
+- sysctl:
+    name: net.ipv4.conf.eth0.forwarding
+    value: '0'
+    state: present
+    sysctl_file: /etc/sysctl.d/10-ip-forward.conf
+    sysctl_set: yes
+- sysctl:
+    name: net.ipv4.conf.eth1.forwarding
+    value: '1'
+    state: present
+    sysctl_file: /etc/sysctl.d/10-ip-forward.conf
+    sysctl_set: yes
+
+tripleo_standalone_control_virtual_ip: '192.168.152.3/24'
+
+tripleo_standalone_local_ip: '192.168.152.2/24'
+
+tripleo_standalone_neutron_public_interface: 'eth1'
+
+tripleo_standalone_user: 'stack'
+
+# NOTE: Keep in sync with variable users_config from group_vars/all.yml
+users_config:
+- name: root
+  #password: '*'
+  password_lock: yes
+  shell: '/bin/bash'
+- name: '{{ ansible_user }}'
+  #password: '*'
+  password_lock: yes
+  shell: '/bin/bash'
+- name: '{{ tripleo_standalone_user }}'
+  #password: '*'
+  password_lock: yes
+  shell: '/bin/bash'

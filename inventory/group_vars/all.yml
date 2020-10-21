@@ -1,0 +1,376 @@
+---
+# Copyright (c) 2020-2021 Jakob Meng, <jakobmeng@web.de>
+# vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
+# kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
+
+apt_keys: |
+  {{
+    {
+      'Debian_9': [
+        apt_keys_debian.stretch_stable,
+        apt_keys_debian.stretch_security_automatic,
+        apt_keys_debian.stretch_automatic
+      ],
+      'Debian_10': [
+        apt_keys_debian.buster_stable,
+        apt_keys_debian.buster_security_automatic,
+        apt_keys_debian.buster_automatic
+      ],
+      'Debian_11': [
+        apt_keys_debian.buster_stable,
+        apt_keys_debian.buster_security_automatic,
+        apt_keys_debian.buster_automatic
+      ],
+      'Ubuntu_18_04': [
+        apt_keys_ubuntu.ubuntu_2012_archive,
+        apt_keys_ubuntu.ubuntu_2012_cdimage
+      ],
+      'Ubuntu_20_04': [
+        apt_keys_ubuntu.ubuntu_2012_archive,
+        apt_keys_ubuntu.ubuntu_2012_cdimage,
+        apt_keys_ubuntu.ubuntu_2018_archive
+      ]
+    }[os_distribution_id|join('_')|regex_replace('[^A-Za-z0-9 _-]', '_')]
+  }}
+
+# apt_keys_debian is set in role jm1.pkg.apt_keys
+# apt_keys_ubuntu is set in role jm1.pkg.apt_keys
+
+apt_repositories: |
+  {{
+    {
+      'Debian_9': [
+        apt_repositories_debian_9.stretch.deb,
+        apt_repositories_debian_9.stretch_security.deb,
+        apt_repositories_debian_9.stretch_updates.deb
+      ],
+      'Debian_10': [
+        apt_repositories_debian_10.buster.deb,
+        apt_repositories_debian_10.buster_security.deb,
+        apt_repositories_debian_10.buster_updates.deb
+      ],
+      'Debian_11': [
+        apt_repositories_debian_11.bullseye.deb,
+        apt_repositories_debian_11.bullseye_security.deb,
+        apt_repositories_debian_11.bullseye_updates.deb
+      ],
+      'Ubuntu_18_04': [
+        apt_repositories_ubuntu_18_04.bionic.deb,
+        apt_repositories_ubuntu_18_04.bionic_partner.deb,
+        apt_repositories_ubuntu_18_04.bionic_security.deb,
+        apt_repositories_ubuntu_18_04.bionic_updates.deb
+      ],
+      'Ubuntu_20_04': [
+        apt_repositories_ubuntu_20_04.focal.deb,
+        apt_repositories_ubuntu_20_04.focal_partner.deb,
+        apt_repositories_ubuntu_20_04.focal_security.deb,
+        apt_repositories_ubuntu_20_04.focal_updates.deb
+      ]
+    }[os_distribution_id|join('_')|regex_replace('[^A-Za-z0-9 _-]', '_')]
+  }}
+
+# apt_repositories_debian_9 is set in role jm1.pkg.apt_repositories
+# apt_repositories_debian_10 is set in role jm1.pkg.apt_repositories
+# apt_repositories_debian_11 is set in role jm1.pkg.apt_repositories
+# apt_repositories_ubuntu_18_04 is set in role jm1.pkg.apt_repositories
+# apt_repositories_ubuntu_20_04 is set in role jm1.pkg.apt_repositories
+
+ansible_host: '{{ fqdn }}'
+
+ansible_python_interpreter: |-
+  {{ '/usr/bin/python' if os_distribution_id is defined and os_distribution_id == ['CentOS', '7'] else '/usr/bin/python3' }}
+
+ansible_user: ansible
+
+# cloudinit_metadata applies to libvirt domains only, but does not apply to OpenStack compute instances
+
+cloudinit_metadata_default: |
+  # meta-data configuration file for cloud-init
+  # Ref.: https://cloudinit.readthedocs.io/
+
+  instance_id: {{ fqdn }}
+
+# cloudinit_networkconfig applies to libvirt domains only, but does not apply to OpenStack compute instances
+
+cloudinit_networkconfig_default: |
+  # netplan-compatible configuration for cloud-init
+  #
+  # Ref.:
+  #  https://cloudinit.readthedocs.io/
+  #  https://netplan.io/reference
+
+  version: 2
+
+# cloudinit_userdata applies to libvirt domains and OpenStack compute instances
+
+cloudinit_userdata_default: |
+  #cloud-config
+
+  # user-data configuration file for cloud-init
+  # Ref.: https://cloudinit.readthedocs.io/
+
+  fqdn: {{ fqdn }}
+  hostname: {{ hostname }}
+
+  # Generate /etc/hosts using the template located in /etc/cloud/templates/hosts.*.tmpl
+  # NOTE: manage_etc_hosts is disabled because else changes to /etc/hosts will be overwritten on reboots.
+  #       As a workaround e.g. use variable filesystem_config_early below to edit /etc/hosts.
+  manage_etc_hosts: false
+
+  timezone: Europe/Berlin
+
+  # Disable SSH password authentication
+  ssh_pwauth: false
+
+  # Remove default host SSH keys
+  ssh_deletekeys: true
+
+  users:
+  - name: {{ ansible_user }}
+    # Generated with: echo secret | mkpasswd --method=SHA-512 --stdin
+    passwd: '$6$YS0ieyj7$WvBaz2uCVs6iATXx/ZdCpobaNsa4BygWO56aUgvKdJMdiUFW6U93nr7841Ld3Lb9XquSySs6p6wRjPB8fUoRY/'
+    #lock_passwd: true
+    shell: '/bin/bash'
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    ssh_authorized_keys:
+    {{ ssh_authorized_keys|selectattr('user', 'equalto', ansible_user)|selectattr('state', 'equalto', 'present')|map(attribute='key')|list|to_nice_yaml|indent(width=2) }}
+
+  # Apply changes e.g. to network after removal of /etc/network/interfaces
+  power_state:
+    mode: reboot
+
+  {% if os_distribution_id|first == 'Debian' %}
+  # Debian's OpenStack image does not include the resolvconf package,
+  # which is required for 'dns-nameserver' directive that Netplan uses
+  # in /etc/network/interfaces.d/50-cloud-init.cfg, hence we set the
+  # nameserver manually.
+  #
+  # Debian package resolvconf is not installed during cloud-init setup,
+  # because this will empty /etc/resolv.conf and somehow will not load
+  # dns-nameserver entries from /etc/network/interfaces.d/50-cloud-init.cfg !
+  #
+  # Ref.: https://bugs.launchpad.net/cloud-init/+bug/1850310
+  {% if (cloudinit_networkconfig|from_yaml)['ethernets']|default(None) %}
+  write_files:
+  {% for _, eth in ((cloudinit_networkconfig|from_yaml)['ethernets']|default({})).items() %}
+  {% for addr in eth['nameservers']['addresses']|default([]) %}
+  - content: |
+      nameserver {{ addr }}
+    append: true
+    path: /etc/resolv.conf
+  {% endfor %}
+  {% endfor %}
+  - content: |
+      # This file describes the network interfaces available on your system
+      # and how to activate them. For more information, see interfaces(5).
+
+      # The loopback network interface
+      auto lo
+      iface lo inet loopback
+
+      # Set this one last, so that cloud-init or user can
+      # override defaults.
+      source /etc/network/interfaces.d/*
+    owner: root:root
+    path: /etc/network/interfaces
+    permissions: a=r
+  {% endif %}
+  {% endif %}
+
+  {% if os_distribution_id|first == 'Debian' or
+        os_distribution_id|first == 'Ubuntu' or
+        os_distribution_id|first == 'CentOS' %}
+  # Update cache to prevent download errors during package install
+  package_update: true
+
+  # A working internet connection must have been established before package installation.
+  # cloud-init will set up the network before doing package installations.
+  # Ref.: https://cloudinit.readthedocs.io/en/latest/topics/boot.html
+  packages:
+  {% if os_distribution_id in [['Debian', '10'], ['Ubuntu','18.04']] %}
+  - python # Required for Ansible
+  {% endif %}
+  - python3 # Required for Ansible
+  {% if os_distribution_id in [['Debian', '10']] %}
+  - python-apt # Required for Ansible's apt module
+  {% endif %}
+  {% if os_distribution_id in [['Debian', '11'], ['Ubuntu','20.04']] %}
+  - python3-apt # Required for Ansible's apt module
+  - gpg # Required for Ansible's apt_key module
+  {% endif %}
+  {% endif %}
+
+  bootcmd:
+  {% if os_distribution_id|first == 'Ubuntu' or os_distribution_id == ['Debian', '11'] %}
+  # Disable Predictable Network Interface Names
+  # Ref.:
+  #  https://www.freedesktop.org/wiki/Software/systemd/PredictableNetworkInterfaceNames/
+  #  https://unix.stackexchange.com/a/397901/188542
+  - cloud-init-per once no_systemd_networkd_default_link ln -s /dev/null /etc/systemd/network/99-default.link
+  - cloud-init-per once update_initramfs                 update-initramfs -u -k all
+  - cloud-init-per once systemd_daemon_reload            systemctl daemon-reload
+  # Reload network kernel modules to apply changes
+  - >
+    cloud-init-per once reload_net_modules sh -c '
+      for f in /sys/class/net/*; do
+        dev=$(basename "$f") && \
+        driver=$(readlink "$f/device/driver/module") && \
+        basename "$driver";
+      done | sort | uniq | while IFS= read -r mod; do \
+        rmmod $mod && \
+        modprobe $mod;
+      done;
+    '
+  # Reboot to apply network settings and finish cloud-init config
+  # This dirty hack will reboot on first boot only. Because of the reboot cloud-init-per will not mark this task as
+  # done, hence the workaround with file /var/lib/cloud/reboot-hack.
+  - >
+    cloud-init-per once reboot_hack sh -c '
+      if [ ! -e /var/lib/cloud/reboot-hack ]; then
+        touch /var/lib/cloud/reboot-hack;
+        reboot;
+      else
+        rm /var/lib/cloud/reboot-hack
+      fi
+    '
+  {% endif %}
+  # Stop SSH to prevent Ansible from connecting to the host before it does its final reboot
+  - cloud-init-per once mask_ssh_service_once  systemctl mask --runtime --now ssh.service
+  - cloud-init-per once mask_sshd_service_once systemctl mask --runtime --now sshd.service
+
+  runcmd:
+  {% if os_distribution_id|first in ['CentOS', 'Red Hat Enterprise Linux'] %}
+  - yum autoremove -y rpcbind nfs-utils
+  {% endif %}
+  {% if os_distribution_id|first in ['Debian', 'Ubuntu'] %}
+  - DEBIAN_FRONTEND=noninteractive DEBIAN_PRIORITY=critical apt-get purge -y nfs-common rpcbind
+  {% endif %}
+  {% if os_distribution_id|first == 'Debian' %}
+  # Debian always adds debian to sudoers even if cloud-init does not create a debian user by default
+  # We can safely remove this file because cloud-init will add users to /etc/sudoers.d/90-cloud-init-users instead
+  - rm /etc/sudoers.d/debian-cloud-init
+  # cloud-init manages network config in /etc/network/interfaces.d/50-cloud-init.cfg
+  - sed -i -e 's/allow-hotplug eth/#allow-hotplug eth/g' /etc/network/interfaces
+  - sed -i -e 's/iface eth/#iface eth/g' /etc/network/interfaces
+  {% endif %}
+  {% if os_distribution_id|first in ['CentOS', 'Red Hat Enterprise Linux'] %}
+  # We can remove the default config for network device ens3 because
+  # Predictable Network Interface Names are not used and thus cloud-init manages
+  # network config in /etc/sysconfig/network-scripts/ifcfg-eth* files.
+  - rm -v /etc/sysconfig/network-scripts/ifcfg-ens3*
+  {% endif %}
+
+connection_delay: 0
+
+# delay connections e.g. to give servers enough time to finish cloud-init and possibly reboot afterwards
+connection_delay_cloudinit: 45
+
+connection_retries: 15
+
+connection_timeout: 30
+
+dns_suffix: home.arpa
+
+filesystem_config_early:
+# Option manage_etc_hosts is disabled in cloud-init userdata config because this would overwrite changes to /etc/hosts
+# on reboots. Instead we add an entry for this host using Ansible's lineinfile module.
+# Ref.:
+#  https://github.com/canonical/cloud-init/blob/main/templates/hosts.debian.tmpl
+#  https://github.com/canonical/cloud-init/blob/main/templates/hosts.redhat.tmpl
+- lineinfile:
+    path: /etc/hosts
+    search_string: '.1 {{ fqdn }} {{ hostname }}'
+    line: "{{ '{ip} {fqdn} {hostname}'.format(
+                ip='127.0.0.1' if os_distribution_id|first in ['CentOS', 'Red Hat Enterprise Linux'] else '127.0.1.1',
+                fqdn=fqdn, hostname=hostname) }}"
+    owner: root
+    group: root
+    mode: '0644'
+- lineinfile:
+    path: /etc/hosts
+    search_string: '::1 {{ fqdn }} {{ hostname }}'
+    line: '::1 {{ fqdn }} {{ hostname }}'
+    owner: root
+    group: root
+    mode: '0644'
+
+fqdn: '{{ hostname }}.{{ dns_suffix }}'
+
+groups_config: []
+
+hostname: '{{ inventory_hostname }}'
+
+# os_distribution_id is set in host_vars
+
+ssh_authorized_keys:
+- comment: >-
+    {{ lookup('pipe','whoami') + '@' + lookup('pipe','hostname') + ':' + lookup('env','HOME') + '/.ssh/id_rsa.pub' }}
+  key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub')|mandatory }}"
+  state: present
+  user: '{{ ansible_user }}'
+
+sshd_config: "{{
+  lookup('vars', 'sshd_config_' + os_distribution_id|first|lower|regex_replace('[^A-Za-z0-9 _-]', '_'))|default([]) }}"
+
+sshd_config_centos:
+- lineinfile:
+    path: /etc/ssh/sshd_config
+    regex: '^#*PasswordAuthentication .*'
+    line: 'PasswordAuthentication no'
+- lineinfile:
+    path: /etc/ssh/sshd_config
+    regex: '^#*PermitRootLogin .*'
+    line: 'PermitRootLogin no'
+
+sshd_config_debian:
+- lineinfile:
+    path: /etc/ssh/sshd_config
+    regex: '^#*PasswordAuthentication .*'
+    line: 'PasswordAuthentication no'
+- debconf:
+    # Supported since Debian 10 (Buster) and Ubuntu 18.04 LTS (Bionic Beaver)
+    name: openssh-server
+    question: openssh-server/password-authentication
+    value: false
+    vtype: boolean
+- lineinfile:
+    path: /etc/ssh/sshd_config
+    regex: '^#*PermitRootLogin .*'
+    line: 'PermitRootLogin no'
+- debconf:
+    name: openssh-server
+    question: openssh-server/permit-root-login
+    value: false
+    vtype: boolean
+
+sshd_config_red_hat_enterprise_linux: '{{ sshd_config_centos }}'
+sshd_config_ubuntu: '{{ sshd_config_debian }}'
+
+state: present # or absent
+
+sudoers_config:
+- lineinfile:
+    line: '{{ ansible_user }} ALL=(ALL) NOPASSWD:ALL'
+    path: /etc/sudoers.d/90-cloud-init-users
+    state: present
+
+users_config:
+#
+# password and password_lock are mutually exclusive
+#
+# Expiring the root account might cause problems during package installation, e.g. setting up libvirt-daemon-system on
+# Debian 10 (Buster) fails with error message:
+#   Your account has expired; please contact your system administrator
+#   chfn: PAM: Authentication failure
+#   adduser: `/bin/chfn -f Libvirt Qemu libvirt-qemu' returned error code 1. Exiting.
+#   dpkg: error processing package libvirt-daemon-system (--configure):
+#    installed libvirt-daemon-system package post-installation script subprocess returned error exit status 1
+#
+- name: root
+  #password: '*'
+  password_lock: yes
+  shell: '/bin/bash'
+- name: '{{ ansible_user }}'
+  #password: '*'
+  password_lock: yes
+  shell: '/bin/bash'

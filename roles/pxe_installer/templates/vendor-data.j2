@@ -1,0 +1,8 @@
+{{ hostvars[item.0]['cloudinit_vendordata'] if 'cloudinit_vendordata' in hostvars[item.0] else
+   lookup('file',
+    'vendor-data-'
+    + hostvars[item.0]['os_distribution_id']|join('-')|lower|regex_replace('[^a-z0-9-]', '-')
+    + '-'
+    + hostvars[item.0]['os_architecture']|lower|regex_replace('[^a-z0-9-]', '-')
+   )
+}}

@@ -1,0 +1,10 @@
+; 2020 Jakob Meng, <jakobmeng@web.de>
+; kate: syntax INI Files; tab-indents on; replace-tabs off;
+
+; NOTE: Keep these options in sync with flake8 command line arguments of Ansible Galaxy Flake8Linter at
+;       https://github.com/ansible/galaxy/blob/master/galaxy/importer/linters/__init__.py
+
+[flake8]
+extend_ignore = E402
+select = E,F,W
+max_line_length = 160

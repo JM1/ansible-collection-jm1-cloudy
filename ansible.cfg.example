@@ -1,0 +1,38 @@
+;; Copyright (c) 2020-2021 Jakob Meng, <jakobmeng@web.de>
+;;
+;; Ansible Configuration Settings
+;;
+;; Ref.:
+;;  https://docs.ansible.com/ansible/latest/reference_appendices/config.html
+
+[defaults]
+
+;; project-local collections in [CWD]/ansible_collections/[NAMESPACE]/[COLLECTION_NAME]
+collections_paths = ./.cache/ansible/collections/:./collections:~/.ansible/collections:/usr/local/share/ansible/collections:/usr/share/ansible/collections
+
+;enable_task_debugger = True
+
+inventory = ./inventory/hosts.yml
+
+nocows = 1
+
+retry_files_enabled = False
+
+;; project-local roles in [CWD]/roles/[NAMESPACE].[ROLE_NAME]
+roles_path = ./.cache/ansible/roles/:./roles:~/.ansible/roles:/etc/ansible/roles:/usr/share/ansible/roles
+
+vault_password_file = ./.vault_pass.txt
+
+[ssh_connection]
+
+; "Pipelining, if supported by the connection plugin, reduces the number of network operations required to execute a
+;  module on the remote server, by executing many Ansible modules without actual file transfer. This can result in a
+;  very significant performance improvement when enabled. However this conflicts with privilege escalation (become).
+;  For example, when using ‘sudo:’ operations you must first disable ‘requiretty’ in /etc/sudoers on all managed hosts,
+;  which is why it is disabled by default. This option is disabled if ANSIBLE_KEEP_REMOTE_FILES is enabled. This is a
+;  global option, each connection plugin can override either by having more specific options or not supporting
+;  pipelining at all."
+; Ref.: https://docs.ansible.com/ansible/latest/reference_appendices/config.html
+pipelining = True
+
+ssh_args = -C -o ControlMaster=auto -o ControlPersist=30m -o StrictHostKeyChecking=accept-new -o 'UserKnownHostsFile=.ssh_known_hosts'

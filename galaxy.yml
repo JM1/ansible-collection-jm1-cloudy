@@ -1,0 +1,25 @@
+---
+authors:
+  - Jakob Meng (https://github.com/jm1)
+dependencies:
+  "ansible.netcommon": '0'
+  "ansible.posix": '0'
+  "community.general": '0'
+  "community.libvirt": '0'
+  "jm1.libvirt": '>=2021.9.7'
+  "jm1.pkg": '>=2021.8.25'
+  "jm1.packages": '>=2021.9.17'
+  "jm1.openstack": '>=2021.9.7'
+  "openstack.cloud": '>=1.5.0'
+description: null
+documentation: https://github.com/jm1/ansible-collection-jm1-cloudy/tree/master/docs
+homepage: https://github.com/jm1/ansible-collection-jm1-cloudy
+issues: https://github.com/jm1/ansible-collection-jm1-cloudy/issues
+#license: GPL-3.0-or-later
+license_file: LICENSE.md
+name: cloudy
+namespace: jm1
+readme: README.md
+repository: https://github.com/jm1/ansible-collection-jm1-cloudy
+tags: null
+version: 2021.9.20

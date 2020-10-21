@@ -1,0 +1,28 @@
+---
+# Copyright (c) 2020-2021 Jakob Meng, <jakobmeng@web.de>
+# vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
+# kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
+
+- name: Change debconf database
+  when: debconf_config is iterable and debconf_config is not mapping # list
+  loop: '{{ debconf_config if debconf_config is iterable and debconf_config is not mapping else [] }}'
+  debconf: '{{ item }}'
+  register: debconf_list_result
+  notify:
+  - 'Reconfigure debian packages to apply debconf database changes'
+
+- name: Change debconf database
+  when: debconf_config is mapping # dictionary
+  debconf: '{{ item }}'
+  register: debconf_dict_result
+  notify:
+  - 'Reconfigure debian package to apply debconf database changes'
+
+- name: Debug role variables
+  debug:
+    msg:
+      debconf_list_result: '{{ debconf_list_result }}'
+      debconf_dict_result: '{{ debconf_dict_result }}'
+  tags:
+    - never
+    - debug

@@ -1,0 +1,65 @@
+---
+# Copyright (c) 2021 Jakob Meng, <jakobmeng@web.de>
+# vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
+# kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
+
+# NOTE: Role jm1.pkg.setup uses variable distribution_id which is defined by role jm1.common. If Ansible only runs plays
+#       and tasks with specific tags, then jm1.common is not automatically run by jm1.pkg.setup because tags are not
+#       inherited across import_role. As a workaround we run jm1.common here explicitly.
+- name: Load variables to identify OS
+  import_role:
+    name: jm1.common # If Ansible raises "ERROR! the role 'jm1.common' was not found" then you might use the
+                     # ansible-galaxy and the provided requirements.yml to install all missing role dependencies.
+
+- name: Install dependencies of collection jm1.pkg
+  import_role:
+    name: jm1.pkg.setup # If Ansible raises "ERROR! the role 'jm1.pkg.setup' was not found" then you might use the
+                        # ansible-galaxy and the provided requirements.yml to install all missing role dependencies.
+
+- name: Install necessary tools
+  jm1.pkg.meta_pkg:
+    name: "jm1-svc-devstack"
+    version: "1"
+    depends:
+    # setfacl tool is used to set permissions on temporary files when becoming an unprivileged user
+    # Ref.: https://stackoverflow.com/questions/46352173/ansible-failed-to-set-permissions-on-the-temporary#comment116424403_56379678
+    - acl
+    - git
+
+- name: Get DevStack user info
+  getent:
+    database: passwd
+    key: '{{ devstack_user }}'
+
+- name: Extract home directory of DevStack user
+  set_fact:
+    devstack_user_home: '{{ getent_passwd[devstack_user][4] }}'
+
+- assert:
+    that: devstack_user_home|length > 0
+
+- name: Git clone DevStack repository to {{ devstack_user }}'s home
+  become: yes
+  become_user: '{{ devstack_user }}'
+  git:
+    depth: 1
+    dest: '{{ devstack_user_home }}/devstack'
+    repo: 'https://opendev.org/openstack/devstack'
+
+- name: Create DevStack config
+  template:
+    dest: '{{ devstack_user_home }}/devstack/local.conf'
+    group: '{{ devstack_user }}'
+    mode: u=rw,g=r,o=
+    owner: '{{ devstack_user }}'
+    src: local.conf.j2
+
+- name: Run DevStack setup script
+  become: yes
+  become_user: '{{ devstack_user }}'
+  command:
+    chdir: '{{ devstack_user_home }}/devstack'
+    cmd: ./stack.sh
+    creates: '{{ devstack_user_home }}/devstack/.stackenv'
+  register: devstack_stack_sh_result
+  tags: ['devstack_stack_sh_result']

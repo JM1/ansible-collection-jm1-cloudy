@@ -1,0 +1,112 @@
+---
+# Copyright (c) 2021 Jakob Meng, <jakobmeng@web.de>
+# vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
+# kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
+
+# pxe_installer_clients is set in host_vars
+
+pxe_installer_distribution_filename_map:
+  CentOS_7:
+    x86_64:
+      UEFI: 'CentOS_7/amd64/shimx64.efi'
+      BIOS: 'CentOS_7/amd64/pxelinux.0'
+  CentOS_8:
+    x86_64:
+      UEFI: 'CentOS_8/amd64/shimx64.efi'
+      BIOS: 'CentOS_8/amd64/pxelinux.0'
+  Debian_10:
+    x86_64:
+      UEFI: 'Debian_10/amd64/debian-installer/amd64/bootnetx64.efi'
+      BIOS: 'Debian_10/amd64/pxelinux.0'
+  Debian_11:
+    x86_64:
+      UEFI: 'Debian_11/amd64/debian-installer/amd64/bootnetx64.efi'
+      BIOS: 'Debian_11/amd64/pxelinux.0'
+  # TODO: Add support for Red Hat Enterprise Linux
+  #Red_Hat_Enterprise_Linux_7:
+  #  x86_64:
+  #    UEFI: 'Red_Hat_Enterprise_Linux_7/amd64/shimx64.efi'
+  #    BIOS: 'Red_Hat_Enterprise_Linux_7/amd64/pxelinux.0'
+  #Red_Hat_Enterprise_Linux_8:
+  #  x86_64:
+  #    UEFI: 'Red_Hat_Enterprise_Linux_8/amd64/shimx64.efi'
+  #    BIOS: 'Red_Hat_Enterprise_Linux_8/amd64/pxelinux.0'
+  Ubuntu_18_04:
+    x86_64:
+      UEFI: 'Ubuntu_18.04/amd64/grubnetx64.efi'
+      BIOS: 'Ubuntu_18.04/amd64/pxelinux.0'
+  Ubuntu_20_04:
+    x86_64:
+      UEFI: 'Ubuntu_20.04/amd64/grubnetx64.efi'
+      BIOS: 'Ubuntu_20.04/amd64/pxelinux.0'
+
+# NOTE: CentOS full isos are required because we access their rpm's.
+pxe_installer_files_centos_7_amd64:
+  'https://mirror.eu.oneandone.net/linux/distributions/centos/7/isos/x86_64/CentOS-7-x86_64-DVD-2009.iso'
+
+pxe_installer_files_centos_8_amd64:
+  'https://mirror.eu.oneandone.net/linux/distributions/centos/8/isos/x86_64/CentOS-8.4.2105-x86_64-dvd1.iso'
+
+pxe_installer_files_debian_10_amd64:
+  'https://deb.debian.org/debian/dists/buster/main/installer-amd64/current/images/netboot/netboot.tar.gz'
+
+pxe_installer_files_debian_11_amd64:
+  'https://deb.debian.org/debian/dists/bullseye/main/installer-amd64/current/images/netboot/netboot.tar.gz'
+
+# NOTE: Unencrypted http connections are used here because caching is not possible with encrypted https connections.
+#       Use a proxy to transparently upgrade http connections to https connections!
+# NOTE: After changing iso urls make sure to delete and rebuild the whole directory tree because initrd's must match!
+pxe_installer_files_ubuntu_1804_amd64:
+  efi: 'http://archive.ubuntu.com/ubuntu/dists/bionic/main/uefi/grub2-amd64/current/grubnetx64.efi.signed'
+  iso: 'http://releases.ubuntu.com/bionic/ubuntu-18.04.6-live-server-amd64.iso'
+  pxe: 'http://archive.ubuntu.com/ubuntu/dists/bionic/main/installer-amd64/current/images/netboot/netboot.tar.gz'
+
+pxe_installer_files_ubuntu_2004_amd64:
+  efi: 'http://archive.ubuntu.com/ubuntu/dists/focal/main/uefi/grub2-amd64/current/grubnetx64.efi.signed'
+  iso: 'http://releases.ubuntu.com/focal/ubuntu-20.04.3-live-server-amd64.iso'
+  pxe: 'http://archive.ubuntu.com/ubuntu/dists/focal/main/installer-amd64/current/legacy-images/netboot/netboot.tar.gz'
+
+# NOTE: For newer Ubuntu releases such as 21.04 use e.g. netboot.tar.gz from older releases
+
+# pxe_installer_host_address is set in host_vars
+
+# NOTE: Base path of httpd which points to scheme://authority/.
+pxe_installer_httpd_root: |-
+  {{
+    {
+      'CentOS': pxe_installer_httpd_root_centos,
+      'Debian': pxe_installer_httpd_root_debian,
+      'Red_Hat_Enterprise_Linux': pxe_installer_httpd_root_red_hat_enterprise_linux,
+      'Ubuntu': pxe_installer_httpd_root_ubuntu
+    }[distribution_id|first|regex_replace('[^A-Za-z0-9 _-]', '_')]
+  }}
+
+pxe_installer_httpd_root_centos: '{{ pxe_installer_httpd_root_red_hat_enterprise_linux }}'
+pxe_installer_httpd_root_debian: '/var/www'
+pxe_installer_httpd_root_red_hat_enterprise_linux: '/var/lib/httpd'
+pxe_installer_httpd_root_ubuntu: '{{ pxe_installer_httpd_root_debian }}'
+
+pxe_installer_kernel_parameters: ''
+
+pxe_installer_kernel_parameters_centos_7_amd64: '{{ pxe_installer_kernel_parameters }}'
+pxe_installer_kernel_parameters_centos_8_amd64: '{{ pxe_installer_kernel_parameters }}'
+pxe_installer_kernel_parameters_debian_10_amd64: '{{ pxe_installer_kernel_parameters }}'
+pxe_installer_kernel_parameters_debian_11_amd64: '{{ pxe_installer_kernel_parameters }}'
+pxe_installer_kernel_parameters_ubuntu_1804_amd64: '{{ pxe_installer_kernel_parameters }}'
+pxe_installer_kernel_parameters_ubuntu_2004_amd64: '{{ pxe_installer_kernel_parameters }}'
+
+# NOTE: Base path of tftpd which points to scheme://authority/.
+pxe_installer_tftpd_root: |-
+  {{
+    {
+      'CentOS': pxe_installer_tftpd_root_centos,
+      'Debian': pxe_installer_tftpd_root_debian,
+      'Red_Hat_Enterprise_Linux': pxe_installer_tftpd_root_red_hat_enterprise_linux,
+      'Ubuntu': pxe_installer_tftpd_root_ubuntu
+    }[distribution_id|first|regex_replace('[^A-Za-z0-9 _-]', '_')]
+  }}
+
+pxe_installer_tftpd_root_centos: '{{ pxe_installer_tftpd_root_red_hat_enterprise_linux }}'
+pxe_installer_tftpd_root_debian: '/srv/tftp'
+pxe_installer_tftpd_root_red_hat_enterprise_linux: '/var/lib/tftpboot'
+pxe_installer_tftpd_root_ubuntu: '{{ pxe_installer_tftpd_root_debian }}'

@@ -1,0 +1,59 @@
+---
+# Copyright (c) 2020 Jakob Meng, <jakobmeng@web.de>
+# vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
+# kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
+
+#debconf_early_config:
+#- name: 'tzdata'
+#  question: 'tzdata/Zones/Etc'
+#  #value: 'UTC'
+#  value: 'GMT+1'
+#  vtype: 'select'
+#
+#debconf_config:
+#- name: 'tzdata'
+#  question: 'tzdata/Zones/Etc'
+#  value: 'UTC'
+#  vtype: 'select'
+#- name: 'tzdata'
+#  question: 'tzdata/Areas'
+#  value: 'Etc'
+#  vtype: 'select'
+
+libvirt_domain_autostart: no
+
+libvirt_netplan:
+  ethernets:
+    eth0:
+      dhcp4: false
+      dhcp6: false
+      accept-ra: false
+
+      addresses:
+      - 10.0.20.13/16
+
+      nameservers:
+        addresses:
+        - 10.0.0.1
+      routes:
+      - to: 0.0.0.0/0
+        via: 10.0.0.1
+
+libvirt_pool: 'default'
+
+libvirt_uri: 'qemu:///session'
+
+libvirt_volumes:
+- backing_vol: 'debian-10.5.1-20200830-openstack-amd64.qcow2'
+  backing_vol_format: 'qcow2'
+  capacity: 5G
+  format: 'qcow2'
+  linked: no
+  name: '{{ fqdn }}.qcow2'
+  pool: '{{ libvirt_pool }}'
+  prealloc_metadata: no
+  state: present
+
+os_distribution_id:
+- 'Debian'
+- '10'

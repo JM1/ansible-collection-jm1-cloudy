@@ -1,0 +1,88 @@
+---
+# Copyright (c) 2021 Jakob Meng, <jakobmeng@web.de>
+# vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
+# kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
+
+# NOTE: Role jm1.pkg.setup uses variable distribution_id which is defined by role jm1.common. If Ansible only runs plays
+#       and tasks with specific tags, then jm1.common is not automatically run by jm1.pkg.setup because tags are not
+#       inherited across import_role. As a workaround we run jm1.common here explicitly.
+- name: Load variables to identify OS
+  import_role:
+    name: jm1.common # If Ansible raises "ERROR! the role 'jm1.common' was not found" then you might use the
+                     # ansible-galaxy and the provided requirements.yml to install all missing role dependencies.
+
+- name: Install dependencies of collection jm1.pkg
+  import_role:
+    name: jm1.pkg.setup # If Ansible raises "ERROR! the role 'jm1.pkg.setup' was not found" then you might use the
+                        # ansible-galaxy and the provided requirements.yml to install all missing role dependencies.
+
+- name: Fetch Yum repository of TripleO
+  get_url:
+    url: '{{ tripleo_standalone_repo_uri }}'
+    dest: /etc/yum.repos.d/delorean.repo
+    mode: u=rw,g=r,o=r
+  register: get_tripleo_repo
+
+- name: Install necessary tools
+  become: yes
+  jm1.pkg.meta_pkg:
+    name: "jm1-svc-tripleo-standalone"
+    version: "1"
+    depends:
+    # setfacl tool is used to set permissions on temporary files when becoming an unprivileged user
+    # Ref.: https://stackoverflow.com/questions/46352173/ansible-failed-to-set-permissions-on-the-temporary#comment116424403_56379678
+    - acl
+    # Tool to manage TripleO's Yum repositories
+    - python3-tripleo-repos
+
+- name: Enable Yum repositories of TripleO standalone
+  when: get_tripleo_repo.changed
+  # tripleo-repos always triggers a change event because it will remove and add Yum repositories each time it runs
+  command:
+    chdir: '{{ tripleo_standalone_home_dir }}'
+    cmd: tripleo-repos -b {{ tripleo_standalone_branch }} {{ tripleo_standalone_repos }}
+
+- name: Install TripleO client (may take a while)
+  dnf:
+    name: python3-tripleoclient
+    # "We recommend disabling EPEL when using RDO packages due to updates in EPEL breaking backwards compatibility. Or,
+    #  preferably pin package versions using the yum-versionlock plugin."
+    # Ref.: https://docs.openstack.org/mitaka/install-guide-rdo/environment-packages.html
+    disablerepo: epel
+    state: present
+
+- name: Prepare TripleO container parameters
+  become: yes
+  become_user: '{{ tripleo_standalone_user }}'
+  shell:
+    chdir: '{{ tripleo_standalone_home_dir }}'
+    cmd: |-
+      openstack tripleo container image prepare default \
+        --output-env-file '{{ tripleo_standalone_home_dir }}/containers-prepare-parameters.yaml'
+    creates: '{{ tripleo_standalone_home_dir }}/containers-prepare-parameters.yaml'
+  environment:
+    # Work around Ansible error "[Errno 13] Permission denied: '/home/ansible/.tripleo'"
+    SUDO_USER: '{{ tripleo_standalone_user }}'
+
+- name: Create TripleO standalone config
+  template:
+    dest: '{{ tripleo_standalone_home_dir }}/standalone_parameters.yaml'
+    group: '{{ tripleo_standalone_user }}'
+    mode: u=rw,g=r,o=
+    owner: '{{ tripleo_standalone_user }}'
+    src: standalone_parameters.yaml.j2
+
+- name: Deploy TripleO standalone
+  shell:
+    chdir: '{{ tripleo_standalone_home_dir }}'
+    cmd: |-
+      openstack tripleo deploy \
+        --templates \
+        --local-ip={{ tripleo_standalone_local_ip|mandatory }} \
+        --control-virtual-ip {{ tripleo_standalone_control_virtual_ip|mandatory|ipaddr('address') }} \
+        -e /usr/share/openstack-tripleo-heat-templates/environments/standalone/standalone-tripleo.yaml \
+        -r /usr/share/openstack-tripleo-heat-templates/roles/Standalone.yaml \
+        -e '{{ tripleo_standalone_home_dir }}/containers-prepare-parameters.yaml' \
+        -e '{{ tripleo_standalone_home_dir }}/standalone_parameters.yaml' \
+        --output-dir '{{ tripleo_standalone_home_dir }}'
+    creates: '{{ tripleo_standalone_home_dir }}/tripleo-standalone-passwords.yaml'

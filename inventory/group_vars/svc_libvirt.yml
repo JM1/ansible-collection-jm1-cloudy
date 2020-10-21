@@ -1,0 +1,231 @@
+---
+# Copyright (c) 2020 Jakob Meng, <jakobmeng@web.de>
+# vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
+# kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
+
+libvirt_host_become: yes
+
+libvirt_hypervisors:
+- qemu
+
+libvirt_images:
+- checksum: sha256:1db30c9c272fb37b00111b93dcebff16c278384755bdbe158559e9c240b73b80
+  format: 'qcow2'
+  image: https://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud-2003.qcow2
+  name: CentOS-7-x86_64-GenericCloud-2003.qcow2
+  pool: 'default'
+  state: present
+- checksum: sha256:3510fc7deb3e1939dbf3fe6f65a02ab1efcc763480bc352e4c06eca2e4f7c2a2
+  format: 'qcow2'
+  image: https://cloud.centos.org/centos/8/x86_64/images/CentOS-8-GenericCloud-8.4.2105-20210603.0.x86_64.qcow2
+  name: CentOS-8-GenericCloud-8.4.2105-20210603.0.x86_64.qcow2
+  pool: 'default'
+  state: present
+- checksum: sha256:8e22e67687b81e38c7212fc30c47cb24cbc4935c0f2459ed139f498397d1e7cd
+  format: 'qcow2'
+  image: https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-20210603.0.x86_64.qcow2
+  name: CentOS-Stream-GenericCloud-8-20210603.0.x86_64.qcow2
+  pool: 'default'
+  state: present
+- checksum: sha256:85c43e90a13f5c1021afd07f843ace498b4bca4ff71b8e5c50d70e2566a304aa
+  format: 'qcow2'
+  image: https://cdimage.debian.org/cdimage/openstack/archive/10.5.1-20200830/debian-10.5.1-20200830-openstack-amd64.qcow2
+  name: debian-10.5.1-20200830-openstack-amd64.qcow2
+  pool: 'default'
+  state: present
+- # no checksum because image is updated every week
+  format: 'qcow2'
+  image: https://cdimage.debian.org/images/cloud/bullseye/latest/debian-11-genericcloud-amd64.qcow2
+  name: debian-11-genericcloud-amd64.qcow2
+  pool: 'default'
+  state: present
+- # no checksum because image is updated every week
+  format: 'qcow2'
+  image: https://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64.img
+  name: ubuntu-18.04-server-cloudimg-amd64.img
+  pool: 'default'
+  state: present
+- # no checksum because image is updated every week
+  format: 'qcow2'
+  image: https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img
+  name: ubuntu-20.04-server-cloudimg-amd64.img
+  pool: 'default'
+  state: present
+
+libvirt_uri: 'qemu:///system'
+
+libvirt_network_template_bridge: |
+    <network>
+      {% if item.uuid|default(None) != None %}
+      <uuid>{{ item.uuid }}</uuid>
+      {% endif %}
+      <name>{{ item.name }}</name>
+      {% if item.forward.interfaces|default(None) != None %}
+      <forward mode='bridge'>
+        {% for interface in item.forward.interfaces %}
+          <interface dev="{{ interface.dev }}"/>
+        {% endfor %}
+      </forward>
+      {% else %}
+      <forward mode='bridge' />
+      {% endif %}
+      {% if item.bridge|default(None) != None %}
+      <bridge
+        name='{{ item.bridge.name }}'
+      {% if 'stp' in item.bridge %}
+        stp='{{ 'on' if item.bridge.stp|default(True) else 'off' }}'
+      {% endif %}
+      {% if 'delay' in item.bridge %}
+        delay='{{ item.bridge.delay|default('0') }}'
+      {% endif %}
+      />
+      {% endif %}
+    </network>
+
+libvirt_network_template_isolated: |
+    <network>
+      {% if item.uuid|default(None) != None %}
+      <uuid>{{ item.uuid }}</uuid>
+      {% endif %}
+      <name>{{ item.name }}</name>
+      <bridge
+        name='{{ item.bridge.name }}'
+      {% if 'stp' in item.bridge %}
+        stp='{{ 'on' if item.bridge.stp|default(True) else 'off' }}'
+      {% endif %}
+      {% if 'delay' in item.bridge %}
+        delay='{{ item.bridge.delay|default('0') }}'
+      {% endif %}
+      />
+      {% if item.domain|default(None) != None %}
+      <domain
+        name='{{ item.domain.name }}'
+      {% if 'localOnly' in item.domain %}
+        localOnly='{{ 'yes' if item.domain.localOnly|default(False) else 'no' }}'
+      {% endif %}
+      />
+      {% endif %}
+      {% if item.mtu.size|default(None) != None %}
+      <mtu size="{{ item.mtu.size }}"/>
+      {% endif %}
+      {% if item.ip|default(None) != None %}
+      {% if item.ip.dhcp|default(None) != None %}
+      <ip address='{{ item.ip.address }}' netmask='{{ item.ip.netmask }}'>
+        <dhcp>
+          <range
+            start='{{ item.ip.dhcp.range.start }}'
+            end='{{ item.ip.dhcp.range.end }}'
+          />
+        </dhcp>
+      </ip>
+      {% else %}
+      <ip address='{{ item.ip.address }}' netmask='{{ item.ip.netmask }}'>
+      </ip>
+      {% endif %}
+      {% endif %}
+    </network>
+
+libvirt_network_template_nat: |
+    <network>
+      {% if item.uuid|default(None) != None %}
+      <uuid>{{ item.uuid }}</uuid>
+      {% endif %}
+      <name>{{ item.name }}</name>
+      <forward mode='nat'/>
+      <bridge
+        name='{{ item.bridge.name }}'
+      {% if 'stp' in item.bridge %}
+        stp='{{ 'on' if item.bridge.stp|default(True) else 'off' }}'
+      {% endif %}
+      {% if 'delay' in item.bridge %}
+        delay='{{ item.bridge.delay|default('0') }}'
+      {% endif %}
+      />
+      {% if item.ip.dhcp|default(None) != None %}
+      <ip address='{{ item.ip.address }}' netmask='{{ item.ip.netmask }}'>
+        <dhcp>
+          <range
+            start='{{ item.ip.dhcp.range.start }}'
+            end='{{ item.ip.dhcp.range.end }}'
+          />
+        </dhcp>
+      </ip>
+      {% else %}
+      <ip address='{{ item.ip.address }}' netmask='{{ item.ip.netmask }}'>
+      </ip>
+      {% endif %}
+      {% if item.domain|default(None) != None %}
+      <domain
+        name='{{ item.domain.name }}'
+      {% if 'localOnly' in item.domain %}
+        localOnly='{{ 'yes' if item.domain.localOnly|default(False) else 'no' }}'
+      {% endif %}
+      />
+      {% endif %}
+      {% if item.mtu.size|default(None) != None %}
+      <mtu size="{{ item.mtu.size }}"/>
+      {% endif %}
+    </network>
+
+libvirt_network_template_route: |
+    <network>
+      {% if item.uuid|default(None) != None %}
+      <uuid>{{ item.uuid }}</uuid>
+      {% endif %}
+      <name>{{ item.name }}</name>
+      <forward mode='route'
+      {% if item.forward.dev|default(None) != None %}
+        dev='{{ item.forward.dev }}'
+      {% endif %}
+      />
+      <bridge
+        name='{{ item.bridge.name }}'
+      {% if 'stp' in item.bridge %}
+        stp='{{ 'on' if item.bridge.stp|default(True) else 'off' }}'
+      {% endif %}
+      {% if 'delay' in item.bridge %}
+        delay='{{ item.bridge.delay|default('0') }}'
+      {% endif %}
+      />
+      <ip address='{{ item.ip.address }}' netmask='{{ item.ip.netmask }}'>
+      {% if item.ip.dhcp|default(None) != None %}
+        <dhcp>
+          <range
+            start='{{ item.ip.dhcp.range.start }}'
+            end='{{ item.ip.dhcp.range.end }}'
+          />
+        </dhcp>
+      {% endif %}
+      </ip>
+      {% if item.domain|default(None) != None %}
+      <domain
+        name='{{ item.domain.name }}'
+      {% if 'localOnly' in item.domain %}
+        localOnly='{{ 'yes' if item.domain.localOnly|default(False) else 'no' }}'
+      {% endif %}
+      />
+      {% endif %}
+      {% if item.mtu.size|default(None) != None %}
+      <mtu size="{{ item.mtu.size }}"/>
+      {% endif %}
+    </network>
+
+libvirt_pool_template_dir: |
+    <pool type='dir'>
+      <name>{{ item.name }}</name>
+    {% if item.uuid|default(None) != None %}
+      <uuid>{{ item.uuid }}</uuid>
+    {% endif %}
+      <source>
+      </source>
+      <target>
+        <path>{{ item.target.path|default('/var/lib/libvirt/images') }}</path>
+    {% if item.target.permissions|default(None) != None %}
+        <permissions>
+          <mode>{{ item.target.permissions.mode|default('0711') }}</mode>
+          <owner>{{ item.target.permissions.owner|default('0') }}</owner>
+          <group>{{ item.target.permissions.group|default('0') }}</group>
+        </permissions>
+    {% endif %}
+      </target>
+    </pool>

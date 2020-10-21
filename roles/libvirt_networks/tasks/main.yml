@@ -1,0 +1,78 @@
+---
+# Copyright (c) 2020-2021 Jakob Meng, <jakobmeng@web.de>
+# vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
+# kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
+
+- name: Add/Modify/Remove virtual networks
+  loop: '{{ libvirt_networks|default([]) }}'
+  jm1.libvirt.net_xml:
+    ignore: '{{ item.ignore|default(omit) }}'
+    state: "{{ 'present' if item.state|default('present') != 'absent' else 'absent' }}"
+    uri: '{{ libvirt_uri }}'
+    # We want to be able to use the loop variable 'item' within the xml string, i.e. the xml string might be a Jinja2
+    # template. If we would pass the templated xml string directly, then Ansible would evaluate the template before the
+    # loop variable 'item' is available, hence we could not use 'item' in the Jinja2 template. As a workaround we use
+    # an indirection with lookup('vars',...) which evaluates the template when 'item' is set.
+    xml: "{{ item.xml if item.xml|default(None) != None else
+             lookup('template', item.xml_file) if item.xml_file|default(None) != None else
+             lookup('vars', item.xml_var) }}"
+  register: libvirt_net_result
+  notify:
+  - 'Stop libvirt virtual networks for changes to take effect'
+  - 'Start/Stop libvirt virtual networks'
+
+- name: Extract names of virtual networks
+  loop: '{{ libvirt_net_result.results|default([]) }}'
+  xml:
+    content: "text"
+    xmlstring: '{{ item.xml }}'
+    xpath: "/network/name"
+  register: libvirt_net_names_result
+
+- name: Autostart virtual networks
+  loop: '{{ libvirt_net_result.results|zip(libvirt_net_names_result.results, libvirt_networks)|list }}'
+  when: item.2.state|default('present') != 'absent'
+  community.libvirt.virt_net:
+    autostart: "{{ item.2.autostart|default(True) }}"
+    name: "{{ item.1.matches[0]['name']|mandatory }}"
+    uri: '{{ libvirt_uri }}'
+
+- name: Create QEMU config directory, e.g. used by qemu-bridge-helper
+  when: libvirt_networks|default([])|selectattr('acl', 'defined')|list|length > 0
+  file:
+    path: /etc/qemu
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+
+- name: Allow/deny access to QEMU bridges for unprivileged users
+  # Ref.:
+  # https://wiki.qemu.org/Features/HelperNetworking
+  # https://github.com/qemu/qemu/blob/master/qemu-bridge-helper.c
+  loop: '{{ libvirt_networks|default([]) }}'
+  when: item.state|default('present') != 'absent' and 'acl' in item
+  lineinfile:
+    create: yes
+    line: '{{ item.acl }} {{ item.bridge.name }}'
+    path: /etc/qemu/bridge.conf
+    regexp: '\\ {{ item.bridge.name }}$'
+    state: present
+
+- name: Revoke access to QEMU bridges for unprivileged users
+  loop: '{{ libvirt_networks|default([]) }}'
+  when:  item.state|default('present') == 'absent' and 'acl' in item
+  lineinfile:
+    path: /etc/qemu/bridge.conf
+    regexp: '\\ {{ item.bridge.name }}$'
+    state: absent
+
+- name: Start/Stop virtual networks now
+  meta: flush_handlers
+
+- name: Debug role variables
+  debug:
+    msg:
+      libvirt_net_names_result: '{{ libvirt_net_names_result }}'
+      libvirt_net_result: '{{ libvirt_net_result }}'
+  tags:
+    - never
+    - debug

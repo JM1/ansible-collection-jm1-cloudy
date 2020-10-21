@@ -1,0 +1,71 @@
+# Requirements File for pip
+#
+# Usage with pip:
+#  # Upgrade pip because an outdated `pip` version is the single most common cause of installation problems
+#  pip3 install --user --upgrade pip
+#  pip3 install --user --requirement pip-requirements.txt
+#
+# Usage with pipenv:
+#  export PIPENV_VENV_IN_PROJECT=1 # optional
+#  pipenv install --requirements pip-requirements.txt
+#  pipenv shell
+#
+# Ref.: https://pip.pypa.io/en/latest/reference/pip_install/
+
+# Python module ansible vs. ansible-core see Ansible's Installation Guide and Ansible's Release / Maintenance pages.
+#
+# Ref.:
+#  https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html
+#  https://docs.ansible.com/ansible/devel/reference_appendices/release_and_maintenance.html
+ansible >= 3.2.0
+#ansible-base >= 2.10.0
+#ansible-core >= 2.11.0
+
+# Ansible's seboolean and selinux modules require Python packages libselinux-python and libsemanage-python
+libselinux-python
+libsemanage-python
+
+# libvirt-python requires libvirt C headers and compilers.
+#
+# On Debian 10 (Buster), Debian 11 (Bullseye), Ubuntu 18.04 LTS (Bionic Beaver) and Ubuntu 20.04 LTS (Focal Fossa)
+# install them with e.g.
+#  apt-get install gcc pkg-config python3-all-dev libvirt-dev
+#
+# On Red Hat Enterprise Linux (RHEL) 7 / CentOS 7 install them with e.g.
+#  yum install gcc libvirt-devel python3-devel python36-nose python36-lxml
+#
+# On Red Hat Enterprise Linux (RHEL) 8 / CentOS 8 install them with e.g.
+#  yum install gcc libvirt-devel python3-devel python3-nose python3-lxml
+#
+# Ref.:
+#  https://packages.debian.org/source/buster/libvirt-python
+#  http://vault.centos.org/8.3.2011/AppStream/Source/SPackages/libvirt-python-6.0.0-1.module_el8.3.0+555+a55c8938.src.rpm 
+libvirt-python >= 4.0.0
+
+lxml >= 4.2.0
+
+# Python module netaddr is required for Ansible's ipaddr filter
+netaddr
+
+# Install OpenStack SDK and OpenStackClient from OpenStack Train to be compatible with older OS's and Python 2
+#
+# Some functionality of Ansible's OpenStack collection is not available with OpenStack SDK 0.17.2 from
+# Debian 10 (Buster). OpenStack SDK 0.11.3 from Ubuntu 18.04 LTS (Bionic Beaver) is not supported at all.
+# Both SDK releases are old and unsupported by upstream.
+#
+# Last version that was published to PyPI for Python 2 is OpenStack SDK 0.45.0 which got released with
+# OpenStack Ussuri, but this release cannot be imported due to a bug.
+#
+# As a workaround use OpenStack SDK 0.36.5 (and compatible OpenStackClient 4.0.2) from OpenStack Train.
+#
+# Ref.: https://ask.openstack.org/en/question/128326/
+#
+openstacksdk >= 0.36.5
+
+# Ansible's ipmi_boot and ipmi_power modules require Python package pyghmi
+pyghmi
+
+# Newer OpenStack SDK releases require an upgrade of OpenStackClient
+python-openstackclient >= 4.0.2
+
+pip >= 20.0.0

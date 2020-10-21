@@ -1,0 +1,34 @@
+# Ignore private user config
+ansible.cfg
+
+# Ignore vaults and vault passwords file
+**/vault.yml
+.vault_pass.txt
+
+# Ignore auto-created Ansible files and folders
+**/*.retry
+**/~ansible
+
+# Ignore generated files
+build/
+
+# Ignore cached files, e.g. roles and collections from Ansible Galaxy
+.cache/
+
+# Ignore pipenv's virtualenv
+.venv/
+
+# Ignore pipenv's Pipfile and Pipfile.lock because they will be generated from pip-requirements.txt
+Pipfile
+Pipfile.*
+
+# Ignore SSH known hosts
+.ssh_known_hosts
+.ssh_known_hosts.*
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+!.gitignore

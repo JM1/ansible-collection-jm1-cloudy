@@ -1,0 +1,40 @@
+---
+# Copyright (c) 2021 Jakob Meng, <jakobmeng@web.de>
+# vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
+# kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
+
+- name: 'Apply GRUB2 configuration on CentOS and Red Hat Enterprise Linux'
+  listen: 'Apply GRUB2 configuration'
+  when: distribution_id|first in ['CentOS', 'Red Hat Enterprise Linux']
+  shell:
+    cmd: |-
+      if [ -l /etc/grub2.cfg ] && readlink -f -q /etc/grub2.cfg; then \
+        grub2-mkconfig -o "$(readlink -f /etc/grub2.cfg)"; \
+      fi && \
+      if [ -l /etc/grub2-efi.cfg ] && readlink -f -q /etc/grub2-efi.cfg; then \
+        grub2-mkconfig -o "$(readlink -f /etc/grub2-efi.cfg)"; \
+      fi && \
+      if [ ! -l /etc/grub2-efi.cfg ] && [ ! -l /etc/grub2-efi.cfg ] && [ -e /boot/grub2/grub.cfg ]; then \
+        grub2-mkconfig -o /boot/grub2/grub.cfg; \
+      fi && \
+      {% if distribution_id|first == 'CentOS' %}
+      release=centos; \
+      {% elif distribution_id|first == 'Red Hat Enterprise Linux' %}
+      release=redhat; \
+      {% endif %}
+      if [ ! -l /etc/grub2-efi.cfg ] && [ ! -l /etc/grub2-efi.cfg ] && [ -e /boot/efi/EFI/$release/grub.cfg ]; then \
+        grub2-mkconfig -o /boot/efi/EFI/$release/grub.cfg; \
+      fi
+  notify:
+  - "Reboot after GRUB2 configuration changes have been applied successfully"
+
+- name: 'Apply GRUB2 configuration on Debian and Ubuntu'
+  listen: 'Apply GRUB2 configuration'
+  when: distribution_id|first in ['Debian', 'Ubuntu']
+  command:
+    cmd: 'update-grub'
+  notify:
+  - "Reboot after GRUB2 configuration changes have been applied successfully"
+
+- name: 'Reboot after GRUB2 configuration changes have been applied successfully'
+  reboot:

@@ -1,0 +1,561 @@
+---
+# Copyright (c) 2020-2021 Jakob Meng, <jakobmeng@web.de>
+# vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
+# kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
+
+# First bootstrap machines, e.g. install the operating system;
+# Then provision them, e.g. configure and run services.
+
+# NOTE: All hosts must be reachable from the Ansible controller. Delegation is not implemented because
+#       Ansible does not support delegation of playbooks or roles, only delegation of tasks is supported.
+
+# NOTE: Roles further down the playbook may depend on roles listed before, possibly both run on different hosts.
+#       So in general it is not safe to run all roles of a single host and only then continue with the next host.
+#       Instead ensure that a role has completed sucessfully for all hosts of a single build level before proceeding
+#       to the next role.
+
+################################################################################
+## Setup bare-metal servers, libvirt domains and OpenStack compute instances ###
+
+############################## bare-metal servers ##############################
+
+- name: Setup bare-metal servers
+  hosts:
+  - bmtl
+  any_errors_fatal: yes
+  # do not become root because connection is local
+  connection: local # Assign libvirt_uri to setup a connection to the libvirt host
+  vars:
+    # For local connections use Python interpreter that is being used by Ansible on the controller.
+    #
+    # Rationale:
+    # For local connections Ansible will not necessarily use the same Python interpreter that is being used by Ansible
+    # on the controller. If Ansible on the controller is run from a virtual environment aka virtualenv, then Ansible
+    # will use interpreter discovery to choose a Python interpreter for local connections anyway. To reuse the Python
+    # interpreter from the controller, ansible_python_interpreter has to be set to ansible_playbook_python explicitly.
+    #
+    # Ref.:
+    #  https://github.com/ansible/ansible/issues/16724
+    #  https://willthames.github.io/2018/07/01/connection-local-vs-delegate_to-localhost.html
+    #  https://docs.ansible.com/ansible/latest/user_guide/playbooks_delegation.html
+    #  https://docs.ansible.com/ansible/latest/reference_appendices/interpreter_discovery.html
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+  gather_facts: no
+  serial: 1
+
+  roles:
+  - name: Manage IPMI devices, e.g. machine power state and its boot device
+    role: jm1.cloudy.ipmi
+    tags: ["jm1.cloudy.ipmi"]
+  # NOTE: Have a look at host lvrt-lcl-session-srv-10-pxe-server-debian11 on how to provision bare-metal servers.
+
+- name: Group bare-metal servers
+  hosts:
+  - bmtl
+  any_errors_fatal: yes
+  gather_facts: no
+  post_tasks:
+  - name: Group bare-metal servers by power state
+    group_by:
+      key: "bmtl_{{ state }}_{{ ipmi_power_state }}"
+      parents: [ bmtl ]
+    changed_when: no
+    tags:
+    - always
+
+######################### OpenStack compute instances ##########################
+
+- name: Setup OpenStack servers
+  hosts:
+  # Exclude meta hosts such as ostk-prj-*-srv-horizon, e.g.:
+  #- ostk:!ostk-prj-admin-srv-horizon:!ostk-prj-jm1-srv-horizon
+  - ostk
+  any_errors_fatal: yes
+  connection: local # Connection to OpenStack is handled by OpenStack SDK and Ansible's OpenStack modules
+  vars:
+    # For local connections use Python interpreter that is being used by Ansible on the controller.
+    #
+    # Rationale:
+    # For local connections Ansible will not necessarily use the same Python interpreter that is being used by Ansible
+    # on the controller. If Ansible on the controller is run from a virtual environment aka virtualenv, then Ansible
+    # will use interpreter discovery to choose a Python interpreter for local connections anyway. To reuse the Python
+    # interpreter from the controller, ansible_python_interpreter has to be set to ansible_playbook_python explicitly.
+    #
+    # Ref.:
+    #  https://github.com/ansible/ansible/issues/16724
+    #  https://willthames.github.io/2018/07/01/connection-local-vs-delegate_to-localhost.html
+    #  https://docs.ansible.com/ansible/latest/user_guide/playbooks_delegation.html
+    #  https://docs.ansible.com/ansible/latest/reference_appendices/interpreter_discovery.html
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+  gather_facts: no
+
+  roles:
+  - name: Setup OpenStack block storage volumes
+    role: jm1.cloudy.openstack_volumes
+    tags: ["jm1.cloudy.openstack_volumes"]
+  - name: Setup OpenStack servers
+    role: jm1.cloudy.openstack_server
+    tags: ["jm1.cloudy.openstack_server"]
+  - name: Manage OpenStack server state
+    role: jm1.cloudy.openstack_server_state
+    tags: ["jm1.cloudy.openstack_server_state"]
+  - name: Generate OpenStack Netplan configuration facts
+    role: jm1.cloudy.openstack_server_netplan
+    tags: ["jm1.cloudy.openstack_server_netplan"]
+    when: openstack_netplan is not defined}
+    # openstack_netplan fact might be used to get ip address of OpenStack compute instance
+
+- name: Group OpenStack servers
+  hosts:
+  # Exclude meta hosts such as ostk-prj-*-srv-horizon, e.g.:
+  #- ostk:!ostk-prj-admin-srv-horizon:!ostk-prj-jm1-srv-horizon
+  - ostk
+  any_errors_fatal: yes
+  gather_facts: no
+  post_tasks:
+  - name: Group OpenStack servers by server state
+    group_by:
+      key: "ostk_{{ state }}_{{ openstack_server_state }}"
+      parents: [ ostk ]
+    changed_when: no
+    tags:
+    - always
+
+############################### libvirt domains ################################
+
+- name: Setup libvirt block storage volumes and domains
+  hosts:
+  - lvrt
+  any_errors_fatal: yes
+  # do not become root because connection is local
+  connection: local # Assign libvirt_uri to setup a connection to the libvirt host
+  vars:
+    # For local connections use Python interpreter that is being used by Ansible on the controller.
+    #
+    # Rationale:
+    # For local connections Ansible will not necessarily use the same Python interpreter that is being used by Ansible
+    # on the controller. If Ansible on the controller is run from a virtual environment aka virtualenv, then Ansible
+    # will use interpreter discovery to choose a Python interpreter for local connections anyway. To reuse the Python
+    # interpreter from the controller, ansible_python_interpreter has to be set to ansible_playbook_python explicitly.
+    #
+    # Ref.:
+    #  https://github.com/ansible/ansible/issues/16724
+    #  https://willthames.github.io/2018/07/01/connection-local-vs-delegate_to-localhost.html
+    #  https://docs.ansible.com/ansible/latest/user_guide/playbooks_delegation.html
+    #  https://docs.ansible.com/ansible/latest/reference_appendices/interpreter_discovery.html
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+  gather_facts: no
+  serial: 1
+
+  roles:
+  - name: Setup libvirt block storage volumes
+    role: jm1.cloudy.libvirt_volumes
+    tags: ["jm1.cloudy.libvirt_volumes"]
+  - name: Setup libvirt servers
+    role: jm1.cloudy.libvirt_server
+    tags: ["jm1.cloudy.libvirt_server"]
+  - name: Manage libvirt server state
+    role: jm1.cloudy.libvirt_server_state
+    tags: ["jm1.cloudy.libvirt_server_state"]
+
+- name: Group libvirt domains
+  hosts:
+  - lvrt
+  any_errors_fatal: yes
+  # do not become root because connection is local
+  connection: local # Assign libvirt_uri to setup a connection to the libvirt host
+  vars:
+    # For local connections use Python interpreter that is being used by Ansible on the controller.
+    #
+    # Rationale:
+    # For local connections Ansible will not necessarily use the same Python interpreter that is being used by Ansible
+    # on the controller. If Ansible on the controller is run from a virtual environment aka virtualenv, then Ansible
+    # will use interpreter discovery to choose a Python interpreter for local connections anyway. To reuse the Python
+    # interpreter from the controller, ansible_python_interpreter has to be set to ansible_playbook_python explicitly.
+    #
+    # Ref.:
+    #  https://github.com/ansible/ansible/issues/16724
+    #  https://willthames.github.io/2018/07/01/connection-local-vs-delegate_to-localhost.html
+    #  https://docs.ansible.com/ansible/latest/user_guide/playbooks_delegation.html
+    #  https://docs.ansible.com/ansible/latest/reference_appendices/interpreter_discovery.html
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+  gather_facts: no
+
+  post_tasks:
+  - name: Group libvirt domains by domain state
+    group_by:
+      key: "lvrt_{{ state }}_{{ libvirt_domain_state }}"
+      parents: [ lvrt ]
+    changed_when: no
+    tags:
+    - always
+
+################################################################################
+###################################### OS ######################################
+
+- hosts:
+  - bmtl_present_on
+  - lvrt_present_running
+  - ostk_present_active
+  any_errors_fatal: yes
+  gather_facts: no
+  tasks:
+    - name: Wait for host to become usable
+      when: state == 'present'
+      wait_for:
+        port: '{{ ansible_port|default(22) }}'
+        host: '{{ (ansible_ssh_host|default(ansible_host))|default(hostname) }}'
+        search_regex: OpenSSH
+        connect_timeout: '{{ connection_timeout }}'
+        # no delay here because the various roles already wait for initial setup and reboot
+      vars:
+        ansible_connection: local
+        # For local connections use Python interpreter that is being used by Ansible on the controller.
+        #
+        # Rationale:
+        # For local connections Ansible will not necessarily use the same Python interpreter that is being used by Ansible
+        # on the controller. If Ansible on the controller is run from a virtual environment aka virtualenv, then Ansible
+        # will use interpreter discovery to choose a Python interpreter for local connections anyway. To reuse the Python
+        # interpreter from the controller, ansible_python_interpreter has to be set to ansible_playbook_python explicitly.
+        #
+        # Ref.:
+        #  https://github.com/ansible/ansible/issues/16724
+        #  https://willthames.github.io/2018/07/01/connection-local-vs-delegate_to-localhost.html
+        #  https://docs.ansible.com/ansible/latest/user_guide/playbooks_delegation.html
+        #  https://docs.ansible.com/ansible/latest/reference_appendices/interpreter_discovery.html
+        ansible_python_interpreter: "{{ ansible_playbook_python }}"
+      retries: '{{ connection_retries }}'
+
+      tags: ['wait_for']
+
+- name: Perform basic configuration of operating system
+  hosts:
+  - bmtl_present_on
+  - lvrt_present_running
+  - ostk_present_active
+  any_errors_fatal: yes
+  become: yes
+  gather_facts: yes
+
+  roles:
+  # SSH known hosts are managed via Ansible config with option StrictHostKeyChecking=accept-new. Previously, role
+  # jm1.known_hosts was used to manage SSH known hosts but this role does not work with newer ansible releases because
+  # those offer any functionality to extract the ssh config file. Or you might not use the ssh connection plugin at all!
+
+  - name: Change cloud-init configuration
+    role: jm1.cloudy.cloudinit
+    tags: ["jm1.cloudy.cloudinit"]
+
+#  - name: Change ifupdown configuration
+#    role: jm1.cloudy.ifupdown
+#    tags: ["jm1.cloudy.ifupdown"]
+#    when: os_distribution_id|first in ['Debian', 'Ubuntu']
+
+  - name: Change Netplan configuration
+    role: jm1.netplan
+    tags: ["jm1.netplan"]
+    when: os_distribution_id|first in ['Debian', 'Ubuntu']
+
+  - name: Change debconf database early
+    role: jm1.cloudy.debconf
+    tags: ["jm1.cloudy.debconf"]
+    vars:
+      debconf_config: '{{ debconf_early_config }}'
+      debconf_reconfigure: no
+    when: debconf_early_config is defined and os_distribution_id|first in ['Debian', 'Ubuntu']
+
+  - name: Manage files, directories, links and more early
+    role: jm1.filesystem
+    tags: ["jm1.filesystem_early"]
+    vars:
+      filesystem_config: '{{ filesystem_config_early }}'
+    when: filesystem_config_early is defined
+
+  - name: Manage services early, e.g. systemd units and SysV services
+    role: jm1.services
+    tags: ["jm1.services_early"]
+    vars:
+      services_config: '{{ services_config_early }}'
+    when: services_config_early is defined
+
+  # Role jm1.pkg.setup will use Ansible's apt module to install packages. As a side effect will install the apt python
+  # module if it is not already installed. This is necessary as Ansible's apt_repository module will need the apt python
+  # package as well but cannot install it itself because we remove the /etc/apt/sources.list in next step.
+  - name: Install dependencies of collection jm1.pkg
+    role: jm1.pkg.setup
+    tags: ["jm1.pkg.setup"]
+
+  # Remove /etc/apt/sources.list before apt repositories will be added to /etc/apt/sources.list.d/ by
+  # jm1.pkg.apt_repositories, else Ansible's apt_repository module might skip repositories if they are present in
+  # /etc/apt/sources.list.
+  - name: Remove /etc/apt/sources.list
+    role: jm1.pkg.apt_sources_list_removal
+    tags: ["jm1.pkg.apt_sources_list_removal"]
+    when: os_distribution_id|first in ['Debian', 'Ubuntu']
+    vars:
+      force_apt_sources_list_removal: yes
+
+  - name: Manage apt keys
+    role: jm1.pkg.apt_keys
+    tags: ["jm1.pkg.apt_keys"]
+    when: os_distribution_id|first in ['Debian', 'Ubuntu']
+
+  - name: Manage apt repositories
+    role: jm1.pkg.apt_repositories
+    tags: ["jm1.pkg.apt_repositories"]
+    when: os_distribution_id|first in ['Debian', 'Ubuntu']
+
+  - name: Setup local groups
+    role: jm1.cloudy.groups
+    tags: ["jm1.cloudy.groups"]
+
+  - name: Setup local users
+    role: jm1.cloudy.users
+    tags: ["jm1.cloudy.users"]
+
+  - name: Setup SSH authorized keys
+    role: jm1.cloudy.ssh_authorized_keys
+    tags: ["jm1.cloudy.ssh_authorized_keys"]
+
+  - name: Setup sudoers
+    role: jm1.sudoers
+    tags: ["jm1.sudoers"]
+
+  - name: Manage kernel parameters
+    role: jm1.sysctl
+    tags: ["jm1.sysctl"]
+
+# Local users and groups setup might have changed settings of the Ansible user. For these changes to take effect, we
+# break here for a logout and login. Failing to do so might cause strange behaviour like error messages during package
+# installation:
+#   Setting up libvirt-daemon-system (5.0.0-4+deb10u1) ...
+#   Your account has expired; please contact your system administrator
+#   chfn: PAM: Authentication failure
+#   adduser: `/bin/chfn -f Libvirt Qemu libvirt-qemu' returned error code 1. Exiting.
+
+- name: Perform advanced configuration of operating system
+  hosts:
+  - bmtl_present_on
+  - lvrt_present_running
+  - ostk_present_active
+  any_errors_fatal: yes
+  become: yes
+  gather_facts: yes
+
+  roles:
+  - name: Manage packages
+    role: jm1.cloudy.packages
+    tags: ["jm1.cloudy.packages"]
+
+  - name: Manage meta packages
+    role: jm1.cloudy.meta_packages
+    tags: ["jm1.cloudy.meta_packages"]
+
+  - name: Manage partitions, encrypted (LUKS) devices, LVM volume groups, LVM volumes, filesystems and mountpoints
+    # Role is run after package install because parted and filesystem tools may have to be installed first
+    # Role is run before debconf changes are applied because packages may use filesystems created here
+    role: jm1.cloudy.storage
+    tags: ["jm1.cloudy.storage"]
+
+  - name: Manage iptables rules
+    role: jm1.iptables
+    tags: ["jm1.iptables"]
+
+  - name: Manage sshd service
+    role: jm1.sshd
+    tags: ["jm1.sshd"]
+
+  - name: Manage files, directories, links and more
+    role: jm1.filesystem
+    tags: ["jm1.filesystem"]
+
+  - name: Manage GRUB2 configuration
+    role: jm1.cloudy.grub
+    tags: ["jm1.cloudy.grub"]
+
+  - name: Generate initial ramdisk / initramfs images
+    role: jm1.cloudy.initrd
+    tags: ["jm1.cloudy.initrd"]
+
+  - name: Manage SELinux booleans, policy and state
+    role: jm1.cloudy.selinux
+    tags: ["jm1.cloudy.selinux"]
+
+  - name: Install Ansible
+    role: jm1.packages.ansible
+    tags: ["jm1.packages.ansible"]
+    when: inventory_hostname in groups.pkg_ansible
+
+  - name: Install Git
+    role: jm1.packages.git
+    tags: ["jm1.packages.git"]
+    when: inventory_hostname in groups.pkg_git
+
+  - name: Change debconf database
+    role: jm1.cloudy.debconf
+    tags: ["jm1.cloudy.debconf"]
+    when: os_distribution_id|first in ['Debian', 'Ubuntu']
+
+################################################################################
+################################ OpenStack Meta ################################
+
+- name: Setup OpenStack compute flavors, images, keypairs and security groups
+  hosts: []
+  # List meta hosts such as ostk-prj-*-srv-horizon, e.g.:
+  #- ostk-prj-admin-srv-horizon
+  #- ostk-prj-jm1-srv-horizon
+  any_errors_fatal: yes
+  connection: local # Connection to OpenStack is handled by OpenStack SDK and Ansible's OpenStack modules
+  vars:
+    # For local connections use Python interpreter that is being used by Ansible on the controller.
+    #
+    # Rationale:
+    # For local connections Ansible will not necessarily use the same Python interpreter that is being used by Ansible
+    # on the controller. If Ansible on the controller is run from a virtual environment aka virtualenv, then Ansible
+    # will use interpreter discovery to choose a Python interpreter for local connections anyway. To reuse the Python
+    # interpreter from the controller, ansible_python_interpreter has to be set to ansible_playbook_python explicitly.
+    #
+    # Ref.:
+    #  https://github.com/ansible/ansible/issues/16724
+    #  https://willthames.github.io/2018/07/01/connection-local-vs-delegate_to-localhost.html
+    #  https://docs.ansible.com/ansible/latest/user_guide/playbooks_delegation.html
+    #  https://docs.ansible.com/ansible/latest/reference_appendices/interpreter_discovery.html
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+  gather_facts: no
+
+  roles:
+  - role: jm1.cloudy.openstack_compute_flavors
+    tags: ["jm1.cloudy.openstack_compute_flavors"]
+
+  - role: jm1.cloudy.openstack_images
+    tags: ["jm1.cloudy.openstack_images"]
+
+  - role: jm1.cloudy.openstack_keypairs
+    tags: ["jm1.cloudy.openstack_keypairs"]
+
+  - role: jm1.cloudy.openstack_networks
+    tags: ["jm1.cloudy.openstack_networks"]
+
+  - role: jm1.cloudy.openstack_security_groups
+    tags: ["jm1.cloudy.openstack_security_groups"]
+
+################################################################################
+################################### Services ###################################
+
+- name: Manage services on virtual machines
+  hosts:
+  - lvrt_present_running
+  - ostk_present_active
+  any_errors_fatal: yes
+  become: yes
+  gather_facts: yes
+
+  roles:
+  - name: Install QEMU Guest Agent
+    role: jm1.packages.qemu_guest_agent
+    tags: ["jm1.packages.qemu_guest_agent"]
+
+- name: Manage services
+  hosts:
+  - bmtl_present_on
+  - lvrt_present_running
+  - ostk_present_active
+  any_errors_fatal: yes
+  become: yes
+  gather_facts: yes # required when using e.g. ansible_env in inventory
+
+  roles:
+  - name: Setup a DevStack environment
+    role: jm1.cloudy.devstack
+    tags: ["jm1.cloudy.devstack"]
+    when: inventory_hostname in groups.svc_devstack
+
+  - name: Prepare server installation using PXE network boot
+    role: jm1.cloudy.pxe_installer
+    tags: ["jm1.cloudy.pxe_installer"]
+    when: inventory_hostname in groups.svc_pxe_installer
+
+  - name: Deploy TripleO standalone
+    role: jm1.cloudy.tripleo_standalone
+    tags: ["jm1.cloudy.tripleo_standalone"]
+    when: inventory_hostname in groups.svc_tripleo_standalone
+
+  - name: Manage dhcpd service
+    role: jm1.dhcpd
+    tags: ["jm1.dhcpd"]
+    when: inventory_hostname in groups.svc_dhcpd
+
+  - name: Manage httpd service
+    role: jm1.httpd
+    tags: ["jm1.httpd"]
+    when: inventory_hostname in groups.svc_httpd
+
+  - name: Manage tftpd service
+    role: jm1.tftpd
+    tags: ["jm1.tftpd"]
+    when: inventory_hostname in groups.svc_tftpd
+
+  - name: Manage services, e.g. systemd units and SysV services
+    role: jm1.services
+    tags: ["jm1.services"]
+
+- name: Prepare libvirt hosts
+  hosts:
+  # TODO: Why is svc_libvirt not excluded with ':&svc_libvirt'?
+  - lvrt-lcl-system
+  - bmtl_present_on
+  - lvrt_present_running
+  - ostk_present_active
+  any_errors_fatal: yes
+  become: yes
+  gather_facts: yes # required when using e.g. ansible_env in inventory
+  serial: 1
+
+  roles:
+  - name: Satisfy jm1.libvirt's requirements
+    role: jm1.libvirt.setup
+    tags: ["jm1.libvirt.setup"]
+    when: inventory_hostname in groups.svc_libvirt
+
+  - name: Setup libvirt platform with KVM/QEMU driver
+    role: jm1.packages.libvirt_qemu
+    tags: ["jm1.packages.libvirt_qemu"]
+    when: inventory_hostname in groups.svc_libvirt and libvirt_hypervisors is defined and 'qemu' in libvirt_hypervisors
+
+  - name: Enable KVM nested virtualization and reload kernel modules if necessary
+    role: jm1.kvm_nested_virtualization
+    tags: ["jm1.kvm_nested_virtualization"]
+    vars:
+      reload_module: yes
+      state: present
+    when: inventory_hostname in groups.svc_libvirt and libvirt_hypervisors is defined and 'qemu' in libvirt_hypervisors
+
+- name: Setup libvirt storage pools, images and networks
+  hosts:
+  # TODO: Why is svc_libvirt not excluded with ':&svc_libvirt'?
+  - lvrt-lcl-session
+  - lvrt-lcl-system
+  - bmtl_present_on
+  - lvrt_present_running
+  - ostk_present_active
+  any_errors_fatal: yes
+  become: "{{ libvirt_host_become if libvirt_host_become is defined else 'yes' }}"
+  gather_facts: yes # required when using e.g. ansible_env in inventory
+
+  roles:
+  - name: Setup libvirt storage pools
+    role: jm1.cloudy.libvirt_pools
+    tags: ["jm1.cloudy.libvirt_pools"]
+    when: inventory_hostname in groups.svc_libvirt
+
+  - name: Setup OS images as libvirt block storage volumes
+    role: jm1.cloudy.libvirt_images
+    tags: ["jm1.cloudy.libvirt_images"]
+    when: inventory_hostname in groups.svc_libvirt
+
+  - name: Setup libvirt virtual networks
+    role: jm1.cloudy.libvirt_networks
+    tags: ["jm1.cloudy.libvirt_networks"]
+    when: inventory_hostname in groups.svc_libvirt
+
+################################################################################

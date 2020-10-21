@@ -1,0 +1,62 @@
+---
+# Copyright (c) 2021 Jakob Meng, <jakobmeng@web.de>
+# vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
+# kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
+
+# Handlers use variable distribution_id which is defined by role jm1.common
+- name: Load variables to identify OS
+  import_role:
+    name: jm1.common # If Ansible raises "ERROR! the role 'jm1.common' was not found" then you might use the
+                     # ansible-galaxy and the provided requirements.yml to install all missing role dependencies.
+
+- name: Change blocks in files
+  loop: '{{ grub_config|default([]) }}'
+  when: "'blockinfile' in item"
+  blockinfile: "{{ item['blockinfile'] }}"
+  register: grub_config_blockinfile_result
+  notify:
+  - 'Apply GRUB2 configuration'
+
+- name: Copy files
+  loop: '{{ grub_config|default([]) }}'
+  when: "'copy' in item"
+  copy: "{{ item['copy'] }}"
+  register: grub_config_copy_result
+  notify:
+  - 'Apply GRUB2 configuration'
+
+- name: Manage files
+  loop: '{{ grub_config|default([]) }}'
+  when: "'file' in item"
+  file: "{{ item['file'] }}"
+  register: grub_config_file_result
+  notify:
+  - 'Apply GRUB2 configuration'
+
+- name: Change lines in files
+  loop: '{{ grub_config|default([]) }}'
+  when: "'lineinfile' in item"
+  lineinfile: "{{ item['lineinfile'] }}"
+  register: grub_config_lineinfile_result
+  notify:
+  - 'Apply GRUB2 configuration'
+
+- name: Generate files from templates
+  loop: '{{ grub_config|default([]) }}'
+  when: "'template' in item"
+  template: "{{ item['template'] }}"
+  register: grub_config_template_result
+  notify:
+  - 'Apply GRUB2 configuration'
+
+- name: Debug role variables
+  debug:
+    msg:
+      grub_config_blockinfile_result: '{{ grub_config_blockinfile_result }}'
+      grub_config_copy_result: '{{ grub_config_copy_result }}'
+      grub_config_file_result: '{{ grub_config_file_result }}'
+      grub_config_lineinfile_result: '{{ grub_config_lineinfile_result }}'
+      grub_config_template_result: '{{ grub_config_template_result }}'
+  tags:
+    - never
+    - debug
