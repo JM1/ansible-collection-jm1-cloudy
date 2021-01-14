@@ -1,7 +1,7 @@
 galaxy_info:
   role_name: sudoers
   author: Jakob Meng
-  description: Manage sudo configuration
+  description: Manage sudo(ers.d) configuration
   company: Hochschule Bonn-Rhein-Sieg
   license: license (GPLv3)
 
