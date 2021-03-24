@@ -5,8 +5,7 @@ TODO.
 **Tested OS images**
 - [Cloud images](https://cdimage.debian.org/cdimage/openstack/current/) and
   [Docker images](https://hub.docker.com/_/debian) of `Debian 10 (Buster)` \[`amd64`\]
-- [Cloud images](https://cdimage.debian.org/cdimage/openstack/testing/) and
-  [Docker images](https://hub.docker.com/_/debian) of `Debian 11 (Bullseye)` \[`amd64`\]
+- [Docker images](https://hub.docker.com/_/debian) of `Debian 11 (Bullseye)` \[`amd64`\]
 
 Available on Ansible Galaxy: [jm1.sudoers](https://galaxy.ansible.com/jm1/sudoers)
 
