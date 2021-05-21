@@ -1,0 +1,57 @@
+---
+# Tasks for Debian and Ubuntu have been unified in a single file because of similarities between both distributions.
+
+# No need to update apt cache here because role jm1.pkg.setup handles apt cache updates already
+
+- name: Satisfy requirements
+  jm1.pkg.meta_pkg:
+    name: "jm1-dhcpd"
+    version: "1"
+    depends:
+    - isc-dhcp-server
+
+# "If you are here to restrict what interfaces should dhcpd listen on,
+#  be aware that dhcpd listens *only* on interfaces for which it finds subnet
+#  declaration in dhcpd.conf. It means that explicitly enumerating interfaces
+#  also on command line should not be required in most cases."
+# Ref.: /etc/sysconfig/dhcpd on Red Hat Enterprise Linux or CentOS
+
+- name: Configure /etc/dhcp/dhcpd.conf
+  template:
+    dest: /etc/dhcp/dhcpd.conf
+    group: root
+    mode: u=rw,g=r,o=
+    owner: root
+    src: etc/dhcp/dhcpd.conf.j2
+
+- name: Configure /etc/dhcp/dhcpd6.conf
+  template:
+    dest: /etc/dhcp/dhcpd6.conf
+    group: root
+    mode: u=rw,g=r,o=
+    owner: root
+    src: etc/dhcp/dhcpd6.conf.j2
+
+- name: Manage isc-dhcp-server service on Debian
+  # Debian provides a single service for DHCP IPv4 and DHCP IPv6 only
+  when: distribution_id|first == 'Debian'
+  service:
+    name: isc-dhcp-server
+    state: '{{ dhcpd_service_state }}'
+    enabled: '{{ dhcpd_service_enabled }}'
+
+- name: Manage isc-dhcp-server services on Ubuntu
+  # Ubuntu provides different services for DHCP IPv4 and DHCP IPv6
+  when: distribution_id|first == 'Ubuntu'
+  block:
+  - name: Manage isc-dhcp-server.service
+    service:
+      name: isc-dhcp-server.service
+      state: '{{ dhcpd_service_state }}'
+      enabled: '{{ dhcpd_service_enabled }}'
+
+  - name: Manage isc-dhcp-server6.service
+    service:
+      name: isc-dhcp-server6.service
+      state: '{{ dhcpd6_service_state }}'
+      enabled: '{{ dhcpd6_service_enabled }}'
