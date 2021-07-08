@@ -1,0 +1,10 @@
+---
+- name: 'Apply Netplan configuration'
+  command:
+    cmd: 'netplan apply'
+  notify:
+  # To apply device name changes it might be required to reboot
+  - "Reboot after Netplan configuration changes have been applied successfully"
+
+- name: 'Reboot after Netplan configuration changes have been applied successfully'
+  reboot:
