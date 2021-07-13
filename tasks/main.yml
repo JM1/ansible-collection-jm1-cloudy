@@ -13,6 +13,69 @@
     name: jm1.pkg.setup # If Ansible raises "ERROR! the role 'jm1.pkg.setup' was not found" then you might use the
                         # ansible-galaxy and the provided requirements.yml to install all missing role dependencies.
 
-- name: Load tasks specific to OS
-  include_tasks: "setup-{{ ansible_facts['distribution'] }}.yml"
-  when: ansible_facts['distribution'] in [ 'CentOS', 'Debian', 'Red Hat Enterprise Linux', 'Ubuntu' ]
+# No need to update apt cache here because role jm1.pkg.setup handles apt cache updates already
+- name: Satisfy requirements on Debian and Ubuntu
+  when: distribution_id|first in ['Debian', 'Ubuntu']
+  jm1.pkg.meta_pkg:
+    name: "jm1-dhcpd"
+    version: "1"
+    depends:
+    - isc-dhcp-server
+
+- name: Satisfy requirements on Red Hat Enterprise Linux 7 and CentOS 7
+  when: distribution_id|first in ['CentOS', 'Red Hat Enterprise Linux'] and distribution_id|last == '7'
+  jm1.pkg.meta_pkg:
+    name: "jm1-dhcpd"
+    version: "1"
+    depends:
+    - dhcp
+
+- name: Satisfy requirements on Red Hat Enterprise Linux 8 and CentOS 8
+  when: distribution_id|first in ['CentOS', 'Red Hat Enterprise Linux'] and distribution_id|last == '8'
+  jm1.pkg.meta_pkg:
+    name: "jm1-dhcpd"
+    version: "1"
+    depends:
+    - dhcp-server
+
+# "If you are here to restrict what interfaces should dhcpd listen on,
+#  be aware that dhcpd listens *only* on interfaces for which it finds subnet
+#  declaration in dhcpd.conf. It means that explicitly enumerating interfaces
+#  also on command line should not be required in most cases."
+# Ref.: /etc/sysconfig/dhcpd on Red Hat Enterprise Linux or CentOS
+
+- name: Configure /etc/dhcp/dhcpd.conf
+  template:
+    dest: /etc/dhcp/dhcpd.conf
+    group: root
+    mode: u=rw,g=r,o=
+    owner: root
+    src: etc/dhcp/dhcpd.conf.j2
+  notify:
+  - 'Restart DHCP IPv4 service to apply changes'
+
+- name: Configure /etc/dhcp/dhcpd6.conf
+  template:
+    dest: /etc/dhcp/dhcpd6.conf
+    group: root
+    mode: u=rw,g=r,o=
+    owner: root
+    src: etc/dhcp/dhcpd6.conf.j2
+  notify:
+  - 'Restart DHCP IPv6 service to apply changes'
+
+# Debian provides a single service for DHCP IPv4 and DHCP IPv6 only
+# CentOS, Red Hat Enterprise Linux and Ubuntu provide different services for DHCP IPv4 and DHCP IPv6
+
+- name: Manage DHCP IPv4 (and DHCP IPv6) service
+  service:
+    name: '{{ dhcpd_service_name }}'
+    state: '{{ dhcpd_service_state }}'
+    enabled: '{{ dhcpd_service_enabled }}'
+
+- name: Manage DHCP IPv6 service
+  when: distribution_id|first != 'Debian'
+  service:
+    name: '{{ dhcpd6_service_name }}'
+    state: '{{ dhcpd6_service_state }}'
+    enabled: '{{ dhcpd6_service_enabled }}'
