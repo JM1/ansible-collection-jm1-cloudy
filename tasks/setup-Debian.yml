@@ -1,6 +1,4 @@
 ---
-# Tasks for Debian and Ubuntu have been unified in a single file because of similarities between both distributions.
-
 # No need to update apt cache here because role jm1.pkg.setup handles apt cache updates already
 
 - name: Satisfy requirements
@@ -23,6 +21,8 @@
     mode: u=rw,g=r,o=
     owner: root
     src: etc/dhcp/dhcpd.conf.j2
+  notify:
+  - 'Restart DHCP IPv4 service to apply changes'
 
 - name: Configure /etc/dhcp/dhcpd6.conf
   template:
@@ -31,27 +31,13 @@
     mode: u=rw,g=r,o=
     owner: root
     src: etc/dhcp/dhcpd6.conf.j2
+  notify:
+  - 'Restart DHCP IPv6 service to apply changes'
 
-- name: Manage isc-dhcp-server service on Debian
-  # Debian provides a single service for DHCP IPv4 and DHCP IPv6 only
-  when: distribution_id|first == 'Debian'
+# Debian provides a single service for DHCP IPv4 and DHCP IPv6 only
+
+- name: Manage DHCP IPv4 and DHCP IPv6 service
   service:
-    name: isc-dhcp-server
+    name: '{{ dhcpd_service_name }}'
     state: '{{ dhcpd_service_state }}'
     enabled: '{{ dhcpd_service_enabled }}'
-
-- name: Manage isc-dhcp-server services on Ubuntu
-  # Ubuntu provides different services for DHCP IPv4 and DHCP IPv6
-  when: distribution_id|first == 'Ubuntu'
-  block:
-  - name: Manage isc-dhcp-server.service
-    service:
-      name: isc-dhcp-server.service
-      state: '{{ dhcpd_service_state }}'
-      enabled: '{{ dhcpd_service_enabled }}'
-
-  - name: Manage isc-dhcp-server6.service
-    service:
-      name: isc-dhcp-server6.service
-      state: '{{ dhcpd6_service_state }}'
-      enabled: '{{ dhcpd6_service_enabled }}'

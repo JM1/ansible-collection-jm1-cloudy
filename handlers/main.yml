@@ -1,0 +1,12 @@
+---
+- name: 'Restart DHCP IPv4 service to apply changes'
+  when: dhcpd_service_state != 'stopped'
+  service:
+    name: '{{ dhcpd_service_name }}'
+    state: restarted
+
+- name: 'Restart DHCP IPv6 service to apply changes'
+  when: dhcpd6_service_state != 'stopped'
+  service:
+    name: '{{ dhcpd6_service_name }}'
+    state: restarted

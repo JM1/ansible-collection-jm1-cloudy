@@ -29,6 +29,8 @@
     mode: u=rw,g=r,o=
     owner: root
     src: etc/dhcp/dhcpd.conf.j2
+  notify:
+  - 'Restart DHCP IPv4 service to apply changes'
 
 - name: Configure /etc/dhcp/dhcpd6.conf
   template:
@@ -37,15 +39,17 @@
     mode: u=rw,g=r,o=
     owner: root
     src: etc/dhcp/dhcpd6.conf.j2
+  notify:
+  - 'Restart DHCP IPv6 service to apply changes'
 
-- name: Manage dhcpd.service
+- name: Manage DHCP IPv4 service
   service:
-    name: dhcpd.service
+    name: '{{ dhcpd_service_name }}'
     state: '{{ dhcpd_service_state }}'
     enabled: '{{ dhcpd_service_enabled }}'
 
-- name: Manage dhcpd6.service
+- name: Manage DHCP IPv6 service
   service:
-    name: dhcpd6.service
+    name: '{{ dhcpd6_service_name }}'
     state: '{{ dhcpd6_service_state }}'
     enabled: '{{ dhcpd6_service_enabled }}'
