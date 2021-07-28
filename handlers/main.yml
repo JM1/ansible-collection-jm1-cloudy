@@ -1,0 +1,12 @@
+---
+- name: 'Store iptables rules on CentOS and Red Hat Enterprise Linux'
+  when: distribution_id|first in ['CentOS', 'Red Hat Enterprise Linux'] and
+        iptables_service_state not in ['stopped', 'absent'] and
+        iptables_persistence
+  command: service iptables save
+
+- name: 'Store iptables rules on Debian and Ubuntu'
+  when: distribution_id|first in ['Debian', 'Ubuntu'] and
+        iptables_service_state not in ['stopped', 'absent'] and
+        iptables_persistence
+  command: netfilter-persistent save
