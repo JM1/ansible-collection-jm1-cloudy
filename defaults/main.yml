@@ -277,7 +277,7 @@ dhcpd_config_ubuntu_20_04: '{{ dhcpd_config_ubuntu_18_04 }}'
 
 dhcpd_service_enabled: yes
 
-dhcpd_service_name: |
+dhcpd_service_name: |-
   {{
     {
       'CentOS_7': 'dhcpd.service',
@@ -423,7 +423,7 @@ dhcpd6_config_ubuntu_20_04: '{{ dhcpd6_config_debian_10 }}'
 
 dhcpd6_service_enabled: yes
 
-dhcpd6_service_name: |
+dhcpd6_service_name: |-
   {{
     {
       'CentOS_7': 'dhcpd6.service',
