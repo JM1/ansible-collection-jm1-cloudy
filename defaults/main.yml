@@ -7,7 +7,7 @@ tftpd_config: []
 
 tftpd_service_enabled: yes
 
-tftpd_service_name: |
+tftpd_service_name: |-
   {{
     {
       'CentOS_7': 'tftp.service',
