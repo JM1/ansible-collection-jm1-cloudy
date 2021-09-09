@@ -1,0 +1,6 @@
+---
+roles:
+- jm1.common
+
+collections:
+- jm1.pkg
