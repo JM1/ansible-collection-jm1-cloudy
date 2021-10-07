@@ -44,143 +44,97 @@
 #  also on command line should not be required in most cases."
 # Ref.: /etc/sysconfig/dhcpd on Red Hat Enterprise Linux or CentOS
 
-- name: Configure /etc/dhcp/dhcpd.conf
-  when: dhcpd_config is string
-  template:
-    dest: /etc/dhcp/dhcpd.conf
-    group: root
-    mode: u=rw,g=r,o=
-    owner: root
-    src: etc/dhcp/dhcpd.conf.j2
-  notify:
-  - 'Restart DHCP IPv4 service to apply changes'
-
 - name: Change blocks in dhcpd configuration
+  loop: '{{ dhcpd_config|default([]) }}'
   when: "'blockinfile' in item"
-  loop: '{{ dhcpd_config if dhcpd_config is defined and
-            dhcpd_config is iterable and (dhcpd_config is not string and dhcpd_config is not mapping)
-            else [] }}'
   blockinfile: "{{ item['blockinfile'] }}"
   register: dhcpd_config_blockinfile_result
   notify:
   - 'Restart DHCP IPv4 service to apply changes'
 
 - name: Copy files to dhcpd configuration
+  loop: '{{ dhcpd_config|default([]) }}'
   when: "'copy' in item"
-  loop: '{{ dhcpd_config if dhcpd_config is defined and
-            dhcpd_config is iterable and (dhcpd_config is not string and dhcpd_config is not mapping)
-            else [] }}'
   copy: "{{ item['copy'] }}"
   register: dhcpd_config_copy_result
   notify:
   - 'Restart DHCP IPv4 service to apply changes'
 
 - name: Change debconf selections for dhcpd
+  loop: '{{ dhcpd_config|default([]) }}'
   when: "'debconf' in item"
-  loop: '{{ dhcpd_config if dhcpd_config is defined and
-            dhcpd_config is iterable and (dhcpd_config is not string and dhcpd_config is not mapping)
-            else [] }}'
   debconf: "{{ item['debconf'] }}"
   register: dhcpd_config_debconf_result
   notify:
   - 'Restart DHCP IPv4 service to apply changes'
 
 - name: Manage files in dhcpd configuration
+  loop: '{{ dhcpd_config|default([]) }}'
   when: "'file' in item"
-  loop: '{{ dhcpd_config if dhcpd_config is defined and
-            dhcpd_config is iterable and (dhcpd_config is not string and dhcpd_config is not mapping)
-            else [] }}'
   file: "{{ item['file'] }}"
   register: dhcpd_config_file_result
   notify:
   - 'Restart DHCP IPv4 service to apply changes'
 
 - name: Change lines in dhcpd configuration
+  loop: '{{ dhcpd_config|default([]) }}'
   when: "'lineinfile' in item"
-  loop: '{{ dhcpd_config if dhcpd_config is defined and
-            dhcpd_config is iterable and (dhcpd_config is not string and dhcpd_config is not mapping)
-            else [] }}'
   lineinfile: "{{ item['lineinfile'] }}"
   register: dhcpd_config_lineinfile_result
   notify:
   - 'Restart DHCP IPv4 service to apply changes'
 
 - name: Generate dhcpd configuration from templates
+  loop: '{{ dhcpd_config|default([]) }}'
   when: "'template' in item"
-  loop: '{{ dhcpd_config if dhcpd_config is defined and
-            dhcpd_config is iterable and (dhcpd_config is not string and dhcpd_config is not mapping)
-            else [] }}'
   template: "{{ item['template'] }}"
   register: dhcpd_config_template_result
   notify:
   - 'Restart DHCP IPv4 service to apply changes'
 
-- name: Configure /etc/dhcp/dhcpd6.conf
-  when: dhcpd6_config is string
-  template:
-    dest: /etc/dhcp/dhcpd6.conf
-    group: root
-    mode: u=rw,g=r,o=
-    owner: root
-    src: etc/dhcp/dhcpd6.conf.j2
-  notify:
-  - 'Restart DHCP IPv6 service to apply changes'
-
 - name: Change blocks in dhcpd6 configuration
+  loop: '{{ dhcpd6_config|default([]) }}'
   when: "'blockinfile' in item"
-  loop: '{{ dhcpd6_config if dhcpd6_config is defined and
-            dhcpd6_config is iterable and (dhcpd6_config is not string and dhcpd6_config is not mapping)
-            else [] }}'
   blockinfile: "{{ item['blockinfile'] }}"
   register: dhcpd6_config_blockinfile_result
   notify:
   - 'Restart DHCP IPv6 service to apply changes'
 
 - name: Copy files to dhcpd6 configuration
+  loop: '{{ dhcpd6_config|default([]) }}'
   when: "'copy' in item"
-  loop: '{{ dhcpd6_config if dhcpd6_config is defined and
-            dhcpd6_config is iterable and (dhcpd6_config is not string and dhcpd6_config is not mapping)
-            else [] }}'
   copy: "{{ item['copy'] }}"
   register: dhcpd6_config_copy_result
   notify:
   - 'Restart DHCP IPv6 service to apply changes'
 
 - name: Change debconf selections for dhcpd6
+  loop: '{{ dhcpd6_config|default([]) }}'
   when: "'debconf' in item"
-  loop: '{{ dhcpd6_config if dhcpd6_config is defined and
-            dhcpd6_config is iterable and (dhcpd6_config is not string and dhcpd6_config is not mapping)
-            else [] }}'
   debconf: "{{ item['debconf'] }}"
   register: dhcpd6_config_debconf_result
   notify:
   - 'Restart DHCP IPv6 service to apply changes'
 
 - name: Manage files in dhcpd6 configuration
+  loop: '{{ dhcpd6_config|default([]) }}'
   when: "'file' in item"
-  loop: '{{ dhcpd6_config if dhcpd6_config is defined and
-            dhcpd6_config is iterable and (dhcpd6_config is not string and dhcpd6_config is not mapping)
-            else [] }}'
   file: "{{ item['file'] }}"
   register: dhcpd6_config_file_result
   notify:
   - 'Restart DHCP IPv6 service to apply changes'
 
 - name: Change lines in dhcpd6 configuration
+  loop: '{{ dhcpd6_config|default([]) }}'
   when: "'lineinfile' in item"
-  loop: '{{ dhcpd6_config if dhcpd6_config is defined and
-            dhcpd6_config is iterable and (dhcpd6_config is not string and dhcpd6_config is not mapping)
-            else [] }}'
   lineinfile: "{{ item['lineinfile'] }}"
   register: dhcpd6_config_lineinfile_result
   notify:
   - 'Restart DHCP IPv6 service to apply changes'
 
 - name: Generate dhcpd6 configuration from templates
+  loop: '{{ dhcpd6_config|default([]) }}'
   when: "'template' in item"
-  loop: '{{ dhcpd6_config if dhcpd6_config is defined and
-            dhcpd6_config is iterable and (dhcpd6_config is not string and dhcpd6_config is not mapping)
-            else [] }}'
   template: "{{ item['template'] }}"
   register: dhcpd6_config_template_result
   notify:
