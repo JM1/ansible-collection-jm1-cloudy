@@ -71,34 +71,6 @@ dhcpd_config:
       } # host {{ hostvars[pxe_client].inventory_hostname }}
       {% endfor %}
 
-#
-#      {% for dhcpd_group in dhcpd_groups %}
-#      group {
-#      {% for dhcpd_subnet in dhcpd_group['subnets']|default([]) %}
-#        subnet dhcpd_subnet.number netmask dhcpd_subnet.netmask {
-#      {% if filename in dhcpd_subnet %}
-#          filename "{{ dhcpd_subnet.filename }}";
-#      {% endif %}
-#      {% for dhcpd_subnet_range in dhcpd_subnet['ranges']|default([]) %}
-#          range {{ dhcpd_subnet_range }};
-#      {% endfor %}
-#      {% for dhcpd_option in dhcpd_subnet['options']|default([]) %}
-#          option {{ dhcpd_option }};
-#      {% endfor %}
-#      {% for dhcpd_host in dhcpd_subnet['hosts']|default([]) %}
-#          host {{ dhcpd_host.hostname }} {
-#      {% for dhcpd_hardware in dhcpd_host['hardwares']|default([]) %}
-#            hardware {{ dhcpd_hardware }};
-#      {% endfor %}
-#      {% for dhcpd_fixed_address in dhcpd_host['fixed_addresses']|default([]) %}
-#            fixed-address {{ dhcpd_fixed_address }};
-#      {% endfor %}
-#          } # host
-#      {% endfor %}
-#        } # subnet
-#      {% endfor %}
-#      } # group
-#      {% endfor %}
     dest: /etc/dhcp/dhcpd.conf
     group: root
     mode: u=rw,g=r,o=
