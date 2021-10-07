@@ -1,7 +1,6 @@
 ---
 roles:
 - jm1.common
-- jm1.dhcpd
 - jm1.known_hosts
 - jm1.kvm_nested_virtualization
 - jm1.netplan
@@ -20,3 +19,4 @@ collections:
 - jm1.pkg
 - jm1.openstack
 - openstack.cloud
+

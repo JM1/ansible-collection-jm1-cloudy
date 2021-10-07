@@ -481,8 +481,8 @@
     when: inventory_hostname in groups.svc_tripleo_standalone
 
   - name: Manage dhcpd service
-    role: jm1.dhcpd
-    tags: ["jm1.dhcpd"]
+    role: jm1.cloudy.dhcpd
+    tags: ["jm1.cloudy.dhcpd"]
     when: inventory_hostname in groups.svc_dhcpd
 
   - name: Manage httpd service
