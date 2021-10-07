@@ -3,7 +3,6 @@ roles:
 - jm1.common
 - jm1.kvm_nested_virtualization
 - jm1.netplan
-- jm1.sshd
 - jm1.sudoers
 - jm1.sysctl
 - jm1.tftpd
@@ -18,4 +17,3 @@ collections:
 - jm1.pkg
 - jm1.openstack
 - openstack.cloud
-

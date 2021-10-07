@@ -1,0 +1,19 @@
+---
+sshd_config: []
+# # Example
+# sshd_config:
+# - lineinfile:
+#     path: /etc/ssh/sshd_config
+#     regex: '^#PasswordAuthentication .*'
+#     line: 'PasswordAuthentication no'
+# - debconf:
+#     name: openssh-server
+#     question: openssh-server/password-authentication
+#     value: false
+#     vtype: boolean
+
+sshd_service_enabled: yes
+
+sshd_service_name: 'sshd'
+
+sshd_service_state: 'started'

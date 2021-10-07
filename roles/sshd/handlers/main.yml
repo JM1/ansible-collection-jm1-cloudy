@@ -1,0 +1,6 @@
+---
+- name: 'Restart sshd service to apply changes'
+  when: sshd_service_state != 'stopped'
+  service:
+    name: '{{ sshd_service_name }}'
+    state: restarted

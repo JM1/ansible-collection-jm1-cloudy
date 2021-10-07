@@ -362,8 +362,8 @@
     tags: ["jm1.iptables"]
 
   - name: Manage sshd service
-    role: jm1.sshd
-    tags: ["jm1.sshd"]
+    role: jm1.cloudy.sshd
+    tags: ["jm1.cloudy.sshd"]
 
   - name: Manage files, directories, links and more
     role: jm1.filesystem
