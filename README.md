@@ -90,6 +90,7 @@ Click on the name of an inventory, module, playbook or role to view that content
     * [libvirt_server_state](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/libvirt_server_state/README.md)
     * [libvirt_volumes](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/libvirt_volumes/README.md)
     * [meta_packages](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/meta_packages/README.md)
+    * [netplan](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/netplan/README.md)
     * [openstack_compute_flavors](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/openstack_compute_flavors/README.md)
     * [openstack_images](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/openstack_images/README.md)
     * [openstack_keypairs](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/openstack_keypairs/README.md)

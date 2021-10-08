@@ -252,8 +252,8 @@
 #    when: os_distribution_id|first in ['Debian', 'Ubuntu']
 
   - name: Change Netplan configuration
-    role: jm1.netplan
-    tags: ["jm1.netplan"]
+    role: jm1.cloudy.netplan
+    tags: ["jm1.cloudy.netplan"]
     when: os_distribution_id|first in ['Debian', 'Ubuntu']
 
   - name: Change debconf database early
