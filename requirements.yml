@@ -2,7 +2,6 @@
 roles:
 - jm1.common
 - jm1.kvm_nested_virtualization
-- jm1.sudoers
 - jm1.sysctl
 - jm1.tftpd
 

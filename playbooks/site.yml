@@ -318,8 +318,8 @@
     tags: ["jm1.cloudy.ssh_authorized_keys"]
 
   - name: Setup sudoers
-    role: jm1.sudoers
-    tags: ["jm1.sudoers"]
+    role: jm1.cloudy.sudoers
+    tags: ["jm1.cloudy.sudoers"]
 
   - name: Manage kernel parameters
     role: jm1.sysctl
