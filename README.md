@@ -107,6 +107,7 @@ Click on the name of an inventory, module, playbook or role to view that content
     * [packages](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/packages/README.md)
     * [pxe_installer](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/pxe_installer/README.md)
     * [selinux](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/selinux/README.md)
+    * [services](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/services/README.md)
     * [ssh_authorized_keys](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/ssh_authorized_keys/README.md)
     * [sshd](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/sshd/README.md)
     * [storage](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/storage/README.md)

@@ -272,8 +272,8 @@
     when: files_config_early is defined
 
   - name: Manage services early, e.g. systemd units and SysV services
-    role: jm1.services
-    tags: ["jm1.services_early"]
+    role: jm1.cloudy.services
+    tags: ["jm1.cloudy.services_early"]
     vars:
       services_config: '{{ services_config_early }}'
     when: services_config_early is defined
@@ -496,8 +496,8 @@
     when: inventory_hostname in groups.svc_tftpd
 
   - name: Manage services, e.g. systemd units and SysV services
-    role: jm1.services
-    tags: ["jm1.services"]
+    role: jm1.cloudy.services
+    tags: ["jm1.cloudy.services"]
 
 - name: Prepare libvirt hosts
   hosts:
