@@ -1,8 +1,6 @@
 ---
 roles:
 - jm1.common
-- jm1.httpd
-- jm1.tftpd
 
 collections:
 - jm1.pkg
