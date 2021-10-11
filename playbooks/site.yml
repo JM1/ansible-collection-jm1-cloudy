@@ -491,8 +491,8 @@
     when: inventory_hostname in groups.svc_httpd
 
   - name: Manage tftpd service
-    role: jm1.tftpd
-    tags: ["jm1.tftpd"]
+    role: jm1.cloudy.tftpd
+    tags: ["jm1.cloudy.tftpd"]
     when: inventory_hostname in groups.svc_tftpd
 
   - name: Manage services, e.g. systemd units and SysV services

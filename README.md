@@ -109,6 +109,7 @@ Click on the name of an inventory, module, playbook or role to view that content
     * [storage](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/storage/README.md)
     * [sudoers](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/sudoers/README.md)
     * [sysctl](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/sysctl/README.md)
+    * [tftpd](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/tftpd/README.md)
     * [tripleo_standalone](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/tripleo_standalone/README.md)
     * [users](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/users/README.md)
 

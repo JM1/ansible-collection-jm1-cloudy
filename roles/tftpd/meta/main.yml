@@ -1,0 +1,31 @@
+galaxy_info:
+  role_name: tftpd
+  author: Jakob Meng
+  description: Manage tftpd service
+  company: Hochschule Bonn-Rhein-Sieg
+  license: license (GPLv3)
+
+  min_ansible_version: 2.9
+
+  platforms:
+  # Ref.: https://galaxy.ansible.com/api/v1/platforms/
+  - name: Debian
+    versions:
+    - buster
+    - bullseye
+
+  - name: EL
+    versions:
+    - 7
+    - 8
+
+  - name: Ubuntu
+    versions:
+    - bionic
+    - focal
+
+  galaxy_tags:
+  - development
+  - system
+
+dependencies: []
