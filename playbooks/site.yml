@@ -265,11 +265,11 @@
     when: debconf_early_config is defined and os_distribution_id|first in ['Debian', 'Ubuntu']
 
   - name: Manage files, directories, links and more early
-    role: jm1.filesystem
-    tags: ["jm1.filesystem_early"]
+    role: jm1.cloudy.files
+    tags: ["jm1.cloudy.files_early"]
     vars:
-      filesystem_config: '{{ filesystem_config_early }}'
-    when: filesystem_config_early is defined
+      files_config: '{{ files_config_early }}'
+    when: files_config_early is defined
 
   - name: Manage services early, e.g. systemd units and SysV services
     role: jm1.services
@@ -366,8 +366,8 @@
     tags: ["jm1.cloudy.sshd"]
 
   - name: Manage files, directories, links and more
-    role: jm1.filesystem
-    tags: ["jm1.filesystem"]
+    role: jm1.cloudy.files
+    tags: ["jm1.cloudy.files"]
 
   - name: Manage GRUB2 configuration
     role: jm1.cloudy.grub

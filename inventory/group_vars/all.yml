@@ -114,7 +114,7 @@ cloudinit_userdata_default: |
 
   # Generate /etc/hosts using the template located in /etc/cloud/templates/hosts.*.tmpl
   # NOTE: manage_etc_hosts is disabled because else changes to /etc/hosts will be overwritten on reboots.
-  #       As a workaround e.g. use variable filesystem_config_early below to edit /etc/hosts.
+  #       As a workaround e.g. use variable files_config_early below to edit /etc/hosts.
   manage_etc_hosts: false
 
   timezone: Europe/Berlin
@@ -271,7 +271,7 @@ connection_timeout: 30
 
 dns_suffix: home.arpa
 
-filesystem_config_early:
+files_config_early:
 # Option manage_etc_hosts is disabled in cloud-init userdata config because this would overwrite changes to /etc/hosts
 # on reboots. Instead we add an entry for this host using Ansible's lineinfile module.
 # Ref.:

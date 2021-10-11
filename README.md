@@ -78,6 +78,7 @@ Click on the name of an inventory, module, playbook or role to view that content
     * [debconf](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/debconf/README.md)
     * [devstack](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/devstack/README.md)
     * [dhcpd](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/dhcpd/README.md)
+    * [files](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/files/README.md)
     * [groups](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/groups/README.md)
     * [grub](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/grub/README.md)
     * [initrd](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/initrd/README.md)
