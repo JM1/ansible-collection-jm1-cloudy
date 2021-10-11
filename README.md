@@ -81,6 +81,7 @@ Click on the name of an inventory, module, playbook or role to view that content
     * [files](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/files/README.md)
     * [groups](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/groups/README.md)
     * [grub](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/grub/README.md)
+    * [httpd](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/httpd/README.md)
     * [initrd](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/initrd/README.md)
     * [ipmi](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/ipmi/README.md)
     * [libvirt_images](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/libvirt_images/README.md)

@@ -486,8 +486,8 @@
     when: inventory_hostname in groups.svc_dhcpd
 
   - name: Manage httpd service
-    role: jm1.httpd
-    tags: ["jm1.httpd"]
+    role: jm1.cloudy.httpd
+    tags: ["jm1.cloudy.httpd"]
     when: inventory_hostname in groups.svc_httpd
 
   - name: Manage tftpd service
