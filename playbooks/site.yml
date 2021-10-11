@@ -322,8 +322,8 @@
     tags: ["jm1.cloudy.sudoers"]
 
   - name: Manage kernel parameters
-    role: jm1.sysctl
-    tags: ["jm1.sysctl"]
+    role: jm1.cloudy.sysctl
+    tags: ["jm1.cloudy.sysctl"]
 
 # Local users and groups setup might have changed settings of the Ansible user. For these changes to take effect, we
 # break here for a logout and login. Failing to do so might cause strange behaviour like error messages during package
