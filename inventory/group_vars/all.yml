@@ -9,17 +9,35 @@ apt_keys: |
       'Debian_9': [
         apt_keys_debian.stretch_stable,
         apt_keys_debian.stretch_security_automatic,
-        apt_keys_debian.stretch_automatic
+        apt_keys_debian.stretch_automatic,
+        apt_keys_debian.buster_stable,
+        apt_keys_debian.buster_security_automatic,
+        apt_keys_debian.buster_automatic,
+        apt_keys_debian.bullseye_stable,
+        apt_keys_debian.bullseye_security_automatic,
+        apt_keys_debian.bullseye_automatic
       ],
       'Debian_10': [
+        apt_keys_debian.stretch_stable,
+        apt_keys_debian.stretch_security_automatic,
+        apt_keys_debian.stretch_automatic,
         apt_keys_debian.buster_stable,
         apt_keys_debian.buster_security_automatic,
-        apt_keys_debian.buster_automatic
+        apt_keys_debian.buster_automatic,
+        apt_keys_debian.bullseye_stable,
+        apt_keys_debian.bullseye_security_automatic,
+        apt_keys_debian.bullseye_automatic
       ],
       'Debian_11': [
+        apt_keys_debian.stretch_stable,
+        apt_keys_debian.stretch_security_automatic,
+        apt_keys_debian.stretch_automatic,
         apt_keys_debian.buster_stable,
         apt_keys_debian.buster_security_automatic,
-        apt_keys_debian.buster_automatic
+        apt_keys_debian.buster_automatic,
+        apt_keys_debian.bullseye_stable,
+        apt_keys_debian.bullseye_security_automatic,
+        apt_keys_debian.bullseye_automatic
       ],
       'Ubuntu_18_04': [
         apt_keys_ubuntu.ubuntu_2012_archive,
