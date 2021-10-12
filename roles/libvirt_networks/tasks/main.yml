@@ -52,7 +52,10 @@
   when: item.state|default('present') != 'absent' and 'acl' in item
   lineinfile:
     create: yes
+    group: root
     line: '{{ item.acl }} {{ item.bridge.name }}'
+    mode: u=rw,g=r,o=r
+    owner: root
     path: /etc/qemu/bridge.conf
     regexp: '\\ {{ item.bridge.name }}$'
     state: present

@@ -129,12 +129,15 @@
       src: "{{ pxe_installer_httpd_root }}/archive/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/os/EFI/BOOT/grubx64.efi"
       dest: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/grubx64.efi.orig'
       remote_src: yes
+      mode: u=rwx,g=rx,o=rx
+      owner: root
+      group: root
     loop:
     - ['CentOS', '7', 'amd64']
     - ['CentOS', '8', 'amd64']
 
   - name: Patch CentOS 7 installer path in grubx64.efi
-    shell:
+    shell: # noqa command-instead-of-module
       chdir: '{{ pxe_installer_tftpd_root }}/CentOS_7/amd64'
       # /EFI/BOOT => /CentOS_7/amd64/grub
       cmd: |-
@@ -144,7 +147,7 @@
       creates: '{{ pxe_installer_tftpd_root }}/CentOS_7/amd64/grubx64.efi'
 
   - name: Patch CentOS 8 installer path in grubx64.efi
-    shell:
+    shell: # noqa command-instead-of-module
       chdir: '{{ pxe_installer_tftpd_root }}/CentOS_8/amd64'
       # /EFI/BOOT => /CentOS_8/amd64/grub
       cmd: |-
@@ -181,6 +184,9 @@
       src: "{{ pxe_installer_httpd_root }}/archive/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/os/isolinux/vmlinuz"
       dest: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/vmlinuz'
       remote_src: yes
+      mode: u=rw,g=r,o=r
+      owner: root
+      group: root
     loop:
     - ['CentOS', '7', 'amd64']
     - ['CentOS', '8', 'amd64']
@@ -190,6 +196,9 @@
       src: "{{ pxe_installer_httpd_root }}/archive/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/os/isolinux/initrd.img"
       dest: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/initrd.img'
       remote_src: yes
+      mode: u=rw,g=r,o=r
+      owner: root
+      group: root
     loop:
     - ['CentOS', '7', 'amd64']
     - ['CentOS', '8', 'amd64']
@@ -199,6 +208,9 @@
       content: |
         source $prefix/grub.cfg-$net_default_mac
       dest: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/grub/grub.cfg'
+      mode: u=rw,g=r,o=r
+      owner: root
+      group: root
     loop:
     - ['CentOS', '7', 'amd64']
     - ['CentOS', '8', 'amd64']
@@ -218,6 +230,9 @@
               kernel vmlinuz
               append initrd=initrd.img ip=dhcp inst.repo=http://{{ pxe_installer_host_address|mandatory }}/archive/{{ hostvars[item]['distribution_id']|join('_') }}/amd64/os/ inst.ks=http://{{ pxe_installer_host_address|mandatory }}/kickstarts/ks.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }} {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else lookup(vars, 'pxe_installer_kernel_parameters_' + hostvars[item]['distribution_id']|join('_')|lower + '_amd64') }} ---
       dest: "{{ pxe_installer_tftpd_root }}/{{ hostvars[item]['distribution_id']|join('_') }}/amd64/pxelinux.cfg/01-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}"
+      mode: u=rw,g=r,o=r
+      owner: root
+      group: root
     loop: '{{ pxe_installer_clients }}'
 
   - name: Create host-specific grub config for CentOS 7 and CentOS 8
@@ -242,6 +257,9 @@
             initrdefi /{{ hostvars[item]['distribution_id']|join('_') }}/amd64/initrd.img
         }
       dest: "{{ pxe_installer_tftpd_root }}/{{ hostvars[item]['distribution_id']|join('_') }}/amd64/grub/grub.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower }}"
+      mode: u=rw,g=r,o=r
+      owner: root
+      group: root
     loop: '{{ pxe_installer_clients }}'
 
   - name: Create httpd subdirectory for Kickstart files
@@ -324,6 +342,9 @@
       content: |
         source $prefix/grub.cfg-$net_default_mac
       dest: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/debian-installer/{{ item.2 }}/grub/grub.cfg'
+      mode: u=rw,g=r,o=r
+      owner: root
+      group: root
     loop:
     - ['Debian', '10', 'amd64']
     - ['Debian', '11', 'amd64']
@@ -343,6 +364,9 @@
               kernel /debian-installer/amd64/linux
               append vga=788 initrd=/debian-installer/amd64/initrd.gz auto=true hostname=unassigned-hostname domain=unassigned-domain url=tftp://{{ pxe_installer_host_address|mandatory }}/Debian_10/amd64/preseed.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }} {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else pxe_installer_kernel_parameters_debian_10_amd64 }} ---
       dest: "{{ pxe_installer_tftpd_root }}/Debian_10/amd64/debian-installer/amd64/pxelinux.cfg/01-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}"
+      mode: u=rw,g=r,o=r
+      owner: root
+      group: root
     loop: '{{ pxe_installer_clients }}'
 
   - name: Create host-specific grub config for Debian 10 (Buster)
@@ -366,6 +390,9 @@
             initrd /Debian_10/amd64/debian-installer/amd64/initrd.gz
         }
       dest: "{{ pxe_installer_tftpd_root }}/Debian_10/amd64/debian-installer/amd64/grub/grub.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower }}"
+      mode: u=rw,g=r,o=r
+      owner: root
+      group: root
     loop: '{{ pxe_installer_clients }}'
 
   - name: Create host-specific pxelinux config for Debian 11 (Bullseye)
@@ -383,6 +410,9 @@
               kernel /debian-installer/amd64/linux
               append vga=788 initrd=/debian-installer/amd64/initrd.gz auto=true hostname=unassigned-hostname domain=unassigned-domain url=tftp://{{ pxe_installer_host_address|mandatory }}/Debian_11/amd64/preseed.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }} {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else pxe_installer_kernel_parameters_debian_11_amd64 }} ---
       dest: "{{ pxe_installer_tftpd_root }}/Debian_11/amd64/debian-installer/amd64/pxelinux.cfg/01-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}"
+      mode: u=rw,g=r,o=r
+      owner: root
+      group: root
     loop: '{{ pxe_installer_clients }}'
 
   - name: Create host-specific grub config for Debian 11 (Bullseye)
@@ -406,6 +436,9 @@
             initrd /Debian_11/amd64/debian-installer/amd64/initrd.gz
         }
       dest: "{{ pxe_installer_tftpd_root }}/Debian_11/amd64/debian-installer/amd64/grub/grub.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower }}"
+      mode: u=rw,g=r,o=r
+      owner: root
+      group: root
     loop: '{{ pxe_installer_clients }}'
 
   - name: Create host-specific preseed config
@@ -465,7 +498,7 @@
     - ['Ubuntu', '20.04', 'amd64']
 
   - name: Extract files from iso
-    shell:
+    command:
       chdir: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/'
       cmd: 7z x -aoa ubuntu.iso boot/grub/font.pf2 casper/initrd casper/vmlinuz
       creates: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/casper/initrd'
@@ -517,6 +550,9 @@
       content: |
         source $prefix/grub.cfg-$net_default_mac
       dest: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/grub/grub.cfg'
+      mode: u=rw,g=r,o=r
+      owner: root
+      group: root
     loop:
     - ['Ubuntu', '18.04', 'amd64']
     - ['Ubuntu', '20.04', 'amd64']
@@ -536,6 +572,9 @@
               kernel /casper/vmlinuz
               append initrd=/casper/initrd ip=dhcp url={{ pxe_installer_files_ubuntu_1804_amd64.iso }} autoinstall ds=nocloud-net;s=http://{{ pxe_installer_host_address|mandatory }}/cloud-init/{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}/ {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else pxe_installer_kernel_parameters_ubuntu_1804_amd64 }} ---
       dest: "{{ pxe_installer_tftpd_root }}/Ubuntu_18.04/amd64/pxelinux.cfg/01-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}"
+      mode: u=rw,g=r,o=r
+      owner: root
+      group: root
     loop: '{{ pxe_installer_clients }}'
 
   - name: Create host-specific grub config for Ubuntu 18.04 LTS (Bionic Beaver)
@@ -559,6 +598,9 @@
             initrd /Ubuntu_18.04/amd64/casper/initrd
         }
       dest: "{{ pxe_installer_tftpd_root }}/Ubuntu_18.04/amd64/grub/grub.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower }}"
+      mode: u=rw,g=r,o=r
+      owner: root
+      group: root
     loop: '{{ pxe_installer_clients }}'
 
   - name: Create host-specific pxelinux config for Ubuntu 20.04 LTS (Focal Fossa)
@@ -576,6 +618,9 @@
               kernel /casper/vmlinuz
               append initrd=/casper/initrd ip=dhcp url={{ pxe_installer_files_ubuntu_2004_amd64.iso }} autoinstall ds=nocloud-net;s=http://{{ pxe_installer_host_address|mandatory }}/cloud-init/{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}/ {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else pxe_installer_kernel_parameters_ubuntu_2004_amd64 }} ---
       dest: "{{ pxe_installer_tftpd_root }}/Ubuntu_20.04/amd64/pxelinux.cfg/01-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}"
+      mode: u=rw,g=r,o=r
+      owner: root
+      group: root
     loop: '{{ pxe_installer_clients }}'
 
   - name: Create host-specific grub config for Ubuntu 20.04 LTS (Focal Fossa)
@@ -599,6 +644,9 @@
             initrd /Ubuntu_20.04/amd64/casper/initrd
         }
       dest: "{{ pxe_installer_tftpd_root }}/Ubuntu_20.04/amd64/grub/grub.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower }}"
+      mode: u=rw,g=r,o=r
+      owner: root
+      group: root
     loop: '{{ pxe_installer_clients }}'
 
   - name: Create httpd subdirectories

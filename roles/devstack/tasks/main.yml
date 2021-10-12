@@ -27,16 +27,17 @@
   set_fact:
     devstack_user_home: '{{ getent_passwd[devstack_user][4] }}'
 
-- assert:
+- name: Verify that devstack_user_home is valid
+  assert:
     that: devstack_user_home|length > 0
 
 - name: Git clone DevStack repository to {{ devstack_user }}'s home
   become: yes
   become_user: '{{ devstack_user }}'
-  git:
+  git: # noqa git-latest
     depth: 1
     dest: '{{ devstack_user_home }}/devstack'
-    repo: 'https://opendev.org/openstack/devstack'
+    repo: 'https://opendev.org/openstack/devstack.git'
 
 - name: Create DevStack config
   template:

@@ -67,7 +67,7 @@
   fail:
     msg: |
         Compute instance {{ openstack_server_name }} is shelved, no modifications possible. Unshelve first to apply changes!
-  ignore_errors: yes
+  ignore_errors: yes # noqa ignore-errors
 
 - name: Create network ports and list server nics
   block:
@@ -196,7 +196,7 @@
       address in another nat_destination, then openstack.cloud.floating_ip will raise an error "server {server} already
       has a floating-ip on a different nat-destination than '{nat_destination}'".
       Ref.: https://storyboard.openstack.org/#!/story/2008181
-  ignore_errors: yes
+  ignore_errors: yes # noqa ignore-errors
   when: openstack_server_floating_ips is defined and openstack_server_floating_ips|length > 1
 
 - name: Attach floating ips

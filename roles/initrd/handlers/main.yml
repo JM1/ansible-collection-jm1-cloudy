@@ -5,7 +5,7 @@
 
 - name: 'Generate initramfs images'
   shell:
-    cmd: '{{ initrd_cmd }}'
+    cmd: '{{ initrd_cmd }}' # noqa command-instead-of-shell
   notify:
   - "Reboot to apply changes after initramfs images have been (re)generated"
 
