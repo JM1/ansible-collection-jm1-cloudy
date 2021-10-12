@@ -1,6 +1,5 @@
 ---
-roles:
-- jm1.common
+roles: []
 
 collections:
 - jm1.pkg

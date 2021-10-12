@@ -1,6 +1,5 @@
 ---
 roles:
-- jm1.common
 - jm1.kvm_nested_virtualization
 
 collections:

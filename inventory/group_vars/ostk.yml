@@ -13,7 +13,7 @@ cloudinit_userdata: |
   # Copied from cloudinit_userdata_default because its runcmd list is overridden here.
   # Lists or dictionaries in YAML files are not merged, hence in case of multiple entries
   # with the same key all but the last one are ignored.
-  {% if os_distribution_id|first == 'Ubuntu' %}
+  {% if distribution_id|first == 'Ubuntu' %}
   - ln -s /dev/null /etc/systemd/network/99-default.link
   - update-initramfs -u -k all
   {% endif %}
@@ -21,7 +21,7 @@ cloudinit_userdata: |
   - usermod -U ansible
   - passwd -d ansible
 
-# os_distribution_id is set in host_vars
+# distribution_id is set in host_vars
 
 # openstack_auth is set in cloud-specific group_vars
 
@@ -101,6 +101,6 @@ openstack_server_volumes: '{{ openstack_volumes[1:] if openstack_volumes is defi
 openstack_volumes:
 - bootable: yes
   display_name: '{{ openstack_server_name }}'
-  image: "{{ openstack_server_images[os_distribution_id|join('_')|regex_replace('[^A-Za-z0-9 _-]', '_')] }}"
+  image: "{{ openstack_server_images[distribution_id|join('_')|regex_replace('[^A-Za-z0-9 _-]', '_')] }}"
   size: 10
   state: present

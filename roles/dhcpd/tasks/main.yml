@@ -3,11 +3,6 @@
 # vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
 # kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
 
-- name: Load variables to identify OS
-  import_role:
-    name: jm1.common # If Ansible raises "ERROR! the role 'jm1.common' was not found" then you might use the
-                     # ansible-galaxy and the provided requirements.yml to install all missing role dependencies.
-
 - name: Install dependencies of collection jm1.pkg
   import_role:
     name: jm1.pkg.setup # If Ansible raises "ERROR! the role 'jm1.pkg.setup' was not found" then you might use the

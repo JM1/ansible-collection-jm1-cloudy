@@ -20,6 +20,10 @@
 #  value: 'Etc'
 #  vtype: 'select'
 
+distribution_id:
+- 'Debian'
+- '10'
+
 libvirt_domain_autostart: no
 
 libvirt_netplan:
@@ -53,7 +57,3 @@ libvirt_volumes:
   pool: '{{ libvirt_pool }}'
   prealloc_metadata: no
   state: present
-
-os_distribution_id:
-- 'Debian'
-- '10'

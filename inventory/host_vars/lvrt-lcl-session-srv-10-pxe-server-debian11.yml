@@ -60,11 +60,11 @@ dhcpd_config:
         option host-name "{{ hostvars[pxe_client].inventory_hostname }}";
         if option architecture-type = 00:07 {
           filename "{{ pxe_installer_distribution_filename_map
-                       [hostvars[pxe_client]['os_distribution_id']|join('_')|regex_replace('[^A-Za-z0-9 _-]', '_')]
+                       [hostvars[pxe_client]['distribution_id']|join('_')|regex_replace('[^A-Za-z0-9 _-]', '_')]
                        [hostvars[pxe_client]['os_architecture']]['UEFI'] }}";
         } else {
           filename "{{ pxe_installer_distribution_filename_map
-                       [hostvars[pxe_client]['os_distribution_id']|join('_')|regex_replace('[^A-Za-z0-9 _-]', '_')]
+                       [hostvars[pxe_client]['distribution_id']|join('_')|regex_replace('[^A-Za-z0-9 _-]', '_')]
                        [hostvars[pxe_client]['os_architecture']]['BIOS'] }}";
         }
         {{ hostvars[pxe_client].dhcpd_host_config|indent(width=2) }}
@@ -89,6 +89,10 @@ dhcpd_config:
 dhcpd6_service_enabled: no
 
 dhcpd6_service_state: 'stopped'
+
+distribution_id:
+- 'Debian'
+- '11'
 
 httpd_config:
 - file:
@@ -300,10 +304,6 @@ meta_packages:
   - iptables-persistent # Used to (re)store iptables SNAT rules
   - apt-cacher-ng
   version: 2
-
-os_distribution_id:
-- 'Debian'
-- '11'
 
 pxe_installer_clients:
 - lvrt-lcl-session-srv-11-pxe-client-debian11-bios

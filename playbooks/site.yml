@@ -249,12 +249,12 @@
 #  - name: Change ifupdown configuration
 #    role: jm1.cloudy.ifupdown
 #    tags: ["jm1.cloudy.ifupdown"]
-#    when: os_distribution_id|first in ['Debian', 'Ubuntu']
+#    when: distribution_id|first in ['Debian', 'Ubuntu']
 
   - name: Change Netplan configuration
     role: jm1.cloudy.netplan
     tags: ["jm1.cloudy.netplan"]
-    when: os_distribution_id|first in ['Debian', 'Ubuntu']
+    when: distribution_id|first in ['Debian', 'Ubuntu']
 
   - name: Change debconf database early
     role: jm1.cloudy.debconf
@@ -262,7 +262,7 @@
     vars:
       debconf_config: '{{ debconf_early_config }}'
       debconf_reconfigure: no
-    when: debconf_early_config is defined and os_distribution_id|first in ['Debian', 'Ubuntu']
+    when: debconf_early_config is defined and distribution_id|first in ['Debian', 'Ubuntu']
 
   - name: Manage files, directories, links and more early
     role: jm1.cloudy.files
@@ -291,19 +291,19 @@
   - name: Remove /etc/apt/sources.list
     role: jm1.pkg.apt_sources_list_removal
     tags: ["jm1.pkg.apt_sources_list_removal"]
-    when: os_distribution_id|first in ['Debian', 'Ubuntu']
+    when: distribution_id|first in ['Debian', 'Ubuntu']
     vars:
       force_apt_sources_list_removal: yes
 
   - name: Manage apt keys
     role: jm1.pkg.apt_keys
     tags: ["jm1.pkg.apt_keys"]
-    when: os_distribution_id|first in ['Debian', 'Ubuntu']
+    when: distribution_id|first in ['Debian', 'Ubuntu']
 
   - name: Manage apt repositories
     role: jm1.pkg.apt_repositories
     tags: ["jm1.pkg.apt_repositories"]
-    when: os_distribution_id|first in ['Debian', 'Ubuntu']
+    when: distribution_id|first in ['Debian', 'Ubuntu']
 
   - name: Setup local groups
     role: jm1.cloudy.groups
@@ -394,7 +394,7 @@
   - name: Change debconf database
     role: jm1.cloudy.debconf
     tags: ["jm1.cloudy.debconf"]
-    when: os_distribution_id|first in ['Debian', 'Ubuntu']
+    when: distribution_id|first in ['Debian', 'Ubuntu']
 
 ################################################################################
 ################################ OpenStack Meta ################################

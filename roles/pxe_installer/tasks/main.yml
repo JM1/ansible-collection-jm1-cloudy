@@ -23,14 +23,6 @@
 # https://docs.centos.org/en-US/centos/install-guide/Kickstart2/
 # https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html-single/performing_an_advanced_rhel_installation/index
 
-# NOTE: Role jm1.pkg.setup uses variable distribution_id which is defined by role jm1.common. If Ansible only runs plays
-#       and tasks with specific tags, then jm1.common is not automatically run by jm1.pkg.setup because tags are not
-#       inherited across import_role. As a workaround we run jm1.common here explicitly.
-- name: Load variables to identify OS
-  import_role:
-    name: jm1.common # If Ansible raises "ERROR! the role 'jm1.common' was not found" then you might use the
-                     # ansible-galaxy and the provided requirements.yml to install all missing role dependencies.
-
 - name: Install dependencies of collection jm1.pkg
   import_role:
     name: jm1.pkg.setup # If Ansible raises "ERROR! the role 'jm1.pkg.setup' was not found" then you might use the
@@ -212,7 +204,7 @@
     - ['CentOS', '8', 'amd64']
 
   - name: Create host-specific pxelinux config for CentOS 7 and CentOS 8
-    when: hostvars[item]['os_distribution_id'] in [['CentOS', '7'], ['CentOS', '8']]
+    when: hostvars[item]['distribution_id'] in [['CentOS', '7'], ['CentOS', '8']]
           and hostvars[item]['os_architecture'] == 'x86_64'
     copy:
       content: |
@@ -222,14 +214,14 @@
         display boot.msg
 
         label install
-              menu label {{ hostvars[item]['os_distribution_id']|join(' ') }} Kickstart Install (BIOS, AMD64)
+              menu label {{ hostvars[item]['distribution_id']|join(' ') }} Kickstart Install (BIOS, AMD64)
               kernel vmlinuz
-              append initrd=initrd.img ip=dhcp inst.repo=http://{{ pxe_installer_host_address|mandatory }}/archive/{{ hostvars[item]['os_distribution_id']|join('_') }}/amd64/os/ inst.ks=http://{{ pxe_installer_host_address|mandatory }}/kickstarts/ks.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }} {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else lookup(vars, 'pxe_installer_kernel_parameters_' + hostvars[item]['os_distribution_id']|join('_')|lower + '_amd64') }} ---
-      dest: "{{ pxe_installer_tftpd_root }}/{{ hostvars[item]['os_distribution_id']|join('_') }}/amd64/pxelinux.cfg/01-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}"
+              append initrd=initrd.img ip=dhcp inst.repo=http://{{ pxe_installer_host_address|mandatory }}/archive/{{ hostvars[item]['distribution_id']|join('_') }}/amd64/os/ inst.ks=http://{{ pxe_installer_host_address|mandatory }}/kickstarts/ks.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }} {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else lookup(vars, 'pxe_installer_kernel_parameters_' + hostvars[item]['distribution_id']|join('_')|lower + '_amd64') }} ---
+      dest: "{{ pxe_installer_tftpd_root }}/{{ hostvars[item]['distribution_id']|join('_') }}/amd64/pxelinux.cfg/01-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}"
     loop: '{{ pxe_installer_clients }}'
 
   - name: Create host-specific grub config for CentOS 7 and CentOS 8
-    when: hostvars[item]['os_distribution_id'] in [['CentOS', '7'], ['CentOS', '8']]
+    when: hostvars[item]['distribution_id'] in [['CentOS', '7'], ['CentOS', '8']]
           and hostvars[item]['os_architecture'] == 'x86_64'
     copy:
       content: |
@@ -244,12 +236,12 @@
         set menu_color_normal=cyan/blue
         set menu_color_highlight=white/blue
 
-        menuentry '{{ hostvars[item]['os_distribution_id']|join(' ') }} Kickstart Install (UEFI, AMD64)' {
+        menuentry '{{ hostvars[item]['distribution_id']|join(' ') }} Kickstart Install (UEFI, AMD64)' {
             set background_color=black
-            linuxefi /{{ hostvars[item]['os_distribution_id']|join('_') }}/amd64/vmlinuz ip=dhcp 'inst.repo=http://{{ pxe_installer_host_address|mandatory }}/archive/{{ hostvars[item]['os_distribution_id']|join('_') }}/amd64/os/' 'inst.ks=http://{{ pxe_installer_host_address|mandatory }}/kickstarts/ks.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}' {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else lookup(vars, 'pxe_installer_kernel_parameters_' + hostvars[item]['os_distribution_id']|join('_')|lower + '_amd64') }} ---
-            initrdefi /{{ hostvars[item]['os_distribution_id']|join('_') }}/amd64/initrd.img
+            linuxefi /{{ hostvars[item]['distribution_id']|join('_') }}/amd64/vmlinuz ip=dhcp 'inst.repo=http://{{ pxe_installer_host_address|mandatory }}/archive/{{ hostvars[item]['distribution_id']|join('_') }}/amd64/os/' 'inst.ks=http://{{ pxe_installer_host_address|mandatory }}/kickstarts/ks.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}' {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else lookup(vars, 'pxe_installer_kernel_parameters_' + hostvars[item]['distribution_id']|join('_')|lower + '_amd64') }} ---
+            initrdefi /{{ hostvars[item]['distribution_id']|join('_') }}/amd64/initrd.img
         }
-      dest: "{{ pxe_installer_tftpd_root }}/{{ hostvars[item]['os_distribution_id']|join('_') }}/amd64/grub/grub.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower }}"
+      dest: "{{ pxe_installer_tftpd_root }}/{{ hostvars[item]['distribution_id']|join('_') }}/amd64/grub/grub.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower }}"
     loop: '{{ pxe_installer_clients }}'
 
   - name: Create httpd subdirectory for Kickstart files
@@ -261,7 +253,7 @@
       group: nogroup
 
   - name: Create host-specific Kickstart files
-    when: hostvars[item]['os_distribution_id'] in [['CentOS', '7'], ['CentOS', '8']]
+    when: hostvars[item]['distribution_id'] in [['CentOS', '7'], ['CentOS', '8']]
           and hostvars[item]['os_architecture'] == 'x86_64'
           and 'kickstart_config' in hostvars[item]
     template:
@@ -337,7 +329,7 @@
     - ['Debian', '11', 'amd64']
 
   - name: Create host-specific pxelinux config for Debian 10 (Buster)
-    when: hostvars[item]['os_distribution_id'] == ['Debian', '10'] and hostvars[item]['os_architecture'] == 'x86_64'
+    when: hostvars[item]['distribution_id'] == ['Debian', '10'] and hostvars[item]['os_architecture'] == 'x86_64'
     copy:
       content: |
         default install
@@ -354,7 +346,7 @@
     loop: '{{ pxe_installer_clients }}'
 
   - name: Create host-specific grub config for Debian 10 (Buster)
-    when: hostvars[item]['os_distribution_id'] == ['Debian', '10'] and hostvars[item]['os_architecture'] == 'x86_64'
+    when: hostvars[item]['distribution_id'] == ['Debian', '10'] and hostvars[item]['os_architecture'] == 'x86_64'
     copy:
       content: |
         set timeout=5
@@ -377,7 +369,7 @@
     loop: '{{ pxe_installer_clients }}'
 
   - name: Create host-specific pxelinux config for Debian 11 (Bullseye)
-    when: hostvars[item]['os_distribution_id'] == ['Debian', '11'] and hostvars[item]['os_architecture'] == 'x86_64'
+    when: hostvars[item]['distribution_id'] == ['Debian', '11'] and hostvars[item]['os_architecture'] == 'x86_64'
     copy:
       content: |
         default install
@@ -394,7 +386,7 @@
     loop: '{{ pxe_installer_clients }}'
 
   - name: Create host-specific grub config for Debian 11 (Bullseye)
-    when: hostvars[item]['os_distribution_id'] == ['Debian', '11'] and hostvars[item]['os_architecture'] == 'x86_64'
+    when: hostvars[item]['distribution_id'] == ['Debian', '11'] and hostvars[item]['os_architecture'] == 'x86_64'
     copy:
       content: |
         set timeout=5
@@ -417,10 +409,10 @@
     loop: '{{ pxe_installer_clients }}'
 
   - name: Create host-specific preseed config
-    when: hostvars[item]['os_distribution_id'] in [['Debian', '10'], ['Debian', '11']]
+    when: hostvars[item]['distribution_id'] in [['Debian', '10'], ['Debian', '11']]
           and hostvars[item]['os_architecture'] == 'x86_64'
     template:
-      dest: "{{ pxe_installer_tftpd_root }}/{{ hostvars[item]['os_distribution_id']|join('_') }}/amd64/preseed.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}"
+      dest: "{{ pxe_installer_tftpd_root }}/{{ hostvars[item]['distribution_id']|join('_') }}/amd64/preseed.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}"
       group: root
       mode: u=rw,g=r,o=r
       owner: root
@@ -530,7 +522,7 @@
     - ['Ubuntu', '20.04', 'amd64']
 
   - name: Create host-specific pxelinux config for Ubuntu 18.04 LTS (Bionic Beaver)
-    when: hostvars[item]['os_distribution_id'] == ['Ubuntu', '18.04'] and hostvars[item]['os_architecture'] == 'x86_64'
+    when: hostvars[item]['distribution_id'] == ['Ubuntu', '18.04'] and hostvars[item]['os_architecture'] == 'x86_64'
     copy:
       content: |
         default install
@@ -547,7 +539,7 @@
     loop: '{{ pxe_installer_clients }}'
 
   - name: Create host-specific grub config for Ubuntu 18.04 LTS (Bionic Beaver)
-    when: hostvars[item]['os_distribution_id'] == ['Ubuntu', '18.04'] and hostvars[item]['os_architecture'] == 'x86_64'
+    when: hostvars[item]['distribution_id'] == ['Ubuntu', '18.04'] and hostvars[item]['os_architecture'] == 'x86_64'
     copy:
       content: |
         set timeout=5
@@ -570,7 +562,7 @@
     loop: '{{ pxe_installer_clients }}'
 
   - name: Create host-specific pxelinux config for Ubuntu 20.04 LTS (Focal Fossa)
-    when: hostvars[item]['os_distribution_id'] == ['Ubuntu', '20.04'] and hostvars[item]['os_architecture'] == 'x86_64'
+    when: hostvars[item]['distribution_id'] == ['Ubuntu', '20.04'] and hostvars[item]['os_architecture'] == 'x86_64'
     copy:
       content: |
         default install
@@ -587,7 +579,7 @@
     loop: '{{ pxe_installer_clients }}'
 
   - name: Create host-specific grub config for Ubuntu 20.04 LTS (Focal Fossa)
-    when: hostvars[item]['os_distribution_id'] == ['Ubuntu', '20.04'] and hostvars[item]['os_architecture'] == 'x86_64'
+    when: hostvars[item]['distribution_id'] == ['Ubuntu', '20.04'] and hostvars[item]['os_architecture'] == 'x86_64'
     copy:
       content: |
         set timeout=5
@@ -610,7 +602,7 @@
     loop: '{{ pxe_installer_clients }}'
 
   - name: Create httpd subdirectories
-    when: hostvars[item]['os_distribution_id'] in [['Ubuntu', '18.04'], ['Ubuntu', '20.04']]
+    when: hostvars[item]['distribution_id'] in [['Ubuntu', '18.04'], ['Ubuntu', '20.04']]
           and hostvars[item]['os_architecture'] == 'x86_64'
     file:
       path: "{{ pxe_installer_httpd_root }}/cloud-init/{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}"
@@ -621,7 +613,7 @@
     loop: "{{ pxe_installer_clients }}"
 
   - name: Create host-specific cloud-init data
-    when: hostvars[item.0]['os_distribution_id'] in [['Ubuntu', '18.04'], ['Ubuntu', '20.04']]
+    when: hostvars[item.0]['distribution_id'] in [['Ubuntu', '18.04'], ['Ubuntu', '20.04']]
           and hostvars[item.0]['os_architecture'] == 'x86_64'
           and ('cloudinit_' + item.1|replace('-','')) in hostvars[item.0]
     template:

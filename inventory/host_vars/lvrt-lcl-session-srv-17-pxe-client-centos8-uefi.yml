@@ -13,6 +13,10 @@ dhcpd_host_config: |-
   hardware ethernet 52:54:00:aa:bb:06;
   fixed-address 192.168.155.16;
 
+distribution_id:
+- 'CentOS'
+- '8'
+
 kickstart_config: |
   #version=RHEL8
 
@@ -97,10 +101,6 @@ libvirt_volumes:
   state: present
 
 os_architecture: x86_64
-
-os_distribution_id:
-- 'CentOS'
-- '8'
 
 pxe_installer_client_mac: 52:54:00:aa:bb:06
 

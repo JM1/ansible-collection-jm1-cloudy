@@ -1,7 +1,7 @@
 {{ hostvars[item]['preseed_config'] if 'preseed_config' in hostvars[item] else
    lookup('file',
     'preseed.cfg-'
-    + hostvars[item]['os_distribution_id']|join('-')|lower|regex_replace('[^a-z0-9-]', '-')
+    + hostvars[item]['distribution_id']|join('-')|lower|regex_replace('[^a-z0-9-]', '-')
     + '-'
     + hostvars[item]['os_architecture']|lower|regex_replace('[^a-z0-9-]', '-')
    )

@@ -5,6 +5,10 @@
 
 devstack_user: stack
 
+distribution_id:
+- 'Ubuntu'
+- '20.04'
+
 libvirt_domain_autostart: no
 
 libvirt_hardware:
@@ -49,10 +53,6 @@ libvirt_volumes:
   pool: '{{ libvirt_pool }}'
   prealloc_metadata: yes
   state: present
-
-os_distribution_id:
-- 'Ubuntu'
-- '20.04'
 
 packages:
 - # Remove Python package simplejson which conflicts with DevStack

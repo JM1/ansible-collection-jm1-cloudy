@@ -51,6 +51,10 @@ dhcpd_host_config: |-
   hardware ethernet 52:54:00:aa:bb:04;
   fixed-address 192.168.155.14;
 
+distribution_id:
+- 'Ubuntu'
+- '20.04'
+
 libvirt_configdrive: !!null # disable cloud-init config drive
 
 libvirt_domain_autostart: no
@@ -80,10 +84,6 @@ libvirt_volumes:
   state: present
 
 os_architecture: x86_64
-
-os_distribution_id:
-- 'Ubuntu'
-- '20.04'
 
 pxe_installer_client_mac: 52:54:00:aa:bb:04
 

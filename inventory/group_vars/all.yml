@@ -30,7 +30,7 @@ apt_keys: |
         apt_keys_ubuntu.ubuntu_2012_cdimage,
         apt_keys_ubuntu.ubuntu_2018_archive
       ]
-    }[os_distribution_id|join('_')|regex_replace('[^A-Za-z0-9 _-]', '_')]
+    }[distribution_id|join('_')|regex_replace('[^A-Za-z0-9 _-]', '_')]
   }}
 
 # apt_keys_debian is set in role jm1.pkg.apt_keys
@@ -66,7 +66,7 @@ apt_repositories: |
         apt_repositories_ubuntu_20_04.focal_security.deb,
         apt_repositories_ubuntu_20_04.focal_updates.deb
       ]
-    }[os_distribution_id|join('_')|regex_replace('[^A-Za-z0-9 _-]', '_')]
+    }[distribution_id|join('_')|regex_replace('[^A-Za-z0-9 _-]', '_')]
   }}
 
 # apt_repositories_debian_9 is set in role jm1.pkg.apt_repositories
@@ -78,7 +78,7 @@ apt_repositories: |
 ansible_host: '{{ fqdn }}'
 
 ansible_python_interpreter: |-
-  {{ '/usr/bin/python' if os_distribution_id is defined and os_distribution_id == ['CentOS', '7'] else '/usr/bin/python3' }}
+  {{ '/usr/bin/python' if distribution_id is defined and distribution_id == ['CentOS', '7'] else '/usr/bin/python3' }}
 
 ansible_user: ansible
 
@@ -139,7 +139,7 @@ cloudinit_userdata_default: |
   power_state:
     mode: reboot
 
-  {% if os_distribution_id|first == 'Debian' %}
+  {% if distribution_id|first == 'Debian' %}
   # Debian's OpenStack image does not include the resolvconf package,
   # which is required for 'dns-nameserver' directive that Netplan uses
   # in /etc/network/interfaces.d/50-cloud-init.cfg, hence we set the
@@ -177,9 +177,9 @@ cloudinit_userdata_default: |
   {% endif %}
   {% endif %}
 
-  {% if os_distribution_id|first == 'Debian' or
-        os_distribution_id|first == 'Ubuntu' or
-        os_distribution_id|first == 'CentOS' %}
+  {% if distribution_id|first == 'Debian' or
+        distribution_id|first == 'Ubuntu' or
+        distribution_id|first == 'CentOS' %}
   # Update cache to prevent download errors during package install
   package_update: true
 
@@ -187,21 +187,21 @@ cloudinit_userdata_default: |
   # cloud-init will set up the network before doing package installations.
   # Ref.: https://cloudinit.readthedocs.io/en/latest/topics/boot.html
   packages:
-  {% if os_distribution_id in [['Debian', '10'], ['Ubuntu','18.04']] %}
+  {% if distribution_id in [['Debian', '10'], ['Ubuntu','18.04']] %}
   - python # Required for Ansible
   {% endif %}
   - python3 # Required for Ansible
-  {% if os_distribution_id in [['Debian', '10']] %}
+  {% if distribution_id in [['Debian', '10']] %}
   - python-apt # Required for Ansible's apt module
   {% endif %}
-  {% if os_distribution_id in [['Debian', '11'], ['Ubuntu','20.04']] %}
+  {% if distribution_id in [['Debian', '11'], ['Ubuntu','20.04']] %}
   - python3-apt # Required for Ansible's apt module
   - gpg # Required for Ansible's apt_key module
   {% endif %}
   {% endif %}
 
   bootcmd:
-  {% if os_distribution_id|first == 'Ubuntu' or os_distribution_id == ['Debian', '11'] %}
+  {% if distribution_id|first == 'Ubuntu' or distribution_id == ['Debian', '11'] %}
   # Disable Predictable Network Interface Names
   # Ref.:
   #  https://www.freedesktop.org/wiki/Software/systemd/PredictableNetworkInterfaceNames/
@@ -239,13 +239,13 @@ cloudinit_userdata_default: |
   - cloud-init-per once mask_sshd_service_once systemctl mask --runtime --now sshd.service
 
   runcmd:
-  {% if os_distribution_id|first in ['CentOS', 'Red Hat Enterprise Linux'] %}
+  {% if distribution_id|first in ['CentOS', 'Red Hat Enterprise Linux'] %}
   - yum autoremove -y rpcbind nfs-utils
   {% endif %}
-  {% if os_distribution_id|first in ['Debian', 'Ubuntu'] %}
+  {% if distribution_id|first in ['Debian', 'Ubuntu'] %}
   - DEBIAN_FRONTEND=noninteractive DEBIAN_PRIORITY=critical apt-get purge -y nfs-common rpcbind
   {% endif %}
-  {% if os_distribution_id|first == 'Debian' %}
+  {% if distribution_id|first == 'Debian' %}
   # Debian always adds debian to sudoers even if cloud-init does not create a debian user by default
   # We can safely remove this file because cloud-init will add users to /etc/sudoers.d/90-cloud-init-users instead
   - rm /etc/sudoers.d/debian-cloud-init
@@ -253,7 +253,7 @@ cloudinit_userdata_default: |
   - sed -i -e 's/allow-hotplug eth/#allow-hotplug eth/g' /etc/network/interfaces
   - sed -i -e 's/iface eth/#iface eth/g' /etc/network/interfaces
   {% endif %}
-  {% if os_distribution_id|first in ['CentOS', 'Red Hat Enterprise Linux'] %}
+  {% if distribution_id|first in ['CentOS', 'Red Hat Enterprise Linux'] %}
   # We can remove the default config for network device ens3 because
   # Predictable Network Interface Names are not used and thus cloud-init manages
   # network config in /etc/sysconfig/network-scripts/ifcfg-eth* files.
@@ -269,6 +269,8 @@ connection_retries: 15
 
 connection_timeout: 30
 
+# distribution_id is set in host_vars
+
 dns_suffix: home.arpa
 
 files_config_early:
@@ -281,7 +283,7 @@ files_config_early:
     path: /etc/hosts
     search_string: '.1 {{ fqdn }} {{ hostname }}'
     line: "{{ '{ip} {fqdn} {hostname}'.format(
-                ip='127.0.0.1' if os_distribution_id|first in ['CentOS', 'Red Hat Enterprise Linux'] else '127.0.1.1',
+                ip='127.0.0.1' if distribution_id|first in ['CentOS', 'Red Hat Enterprise Linux'] else '127.0.1.1',
                 fqdn=fqdn, hostname=hostname) }}"
     owner: root
     group: root
@@ -300,8 +302,6 @@ groups_config: []
 
 hostname: '{{ inventory_hostname }}'
 
-# os_distribution_id is set in host_vars
-
 ssh_authorized_keys:
 - comment: >-
     {{ lookup('pipe','whoami') + '@' + lookup('pipe','hostname') + ':' + lookup('env','HOME') + '/.ssh/id_rsa.pub' }}
@@ -310,7 +310,7 @@ ssh_authorized_keys:
   user: '{{ ansible_user }}'
 
 sshd_config: "{{
-  lookup('vars', 'sshd_config_' + os_distribution_id|first|lower|regex_replace('[^A-Za-z0-9 _-]', '_'))|default([]) }}"
+  lookup('vars', 'sshd_config_' + distribution_id|first|lower|regex_replace('[^A-Za-z0-9 _-]', '_'))|default([]) }}"
 
 sshd_config_centos:
 - lineinfile:

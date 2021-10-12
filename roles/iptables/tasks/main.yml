@@ -6,11 +6,6 @@
 - name: Prepare system to persist iptables rules across reboots
   when: iptables_persistence
   block:
-  - name: Load variables to identify OS
-    import_role:
-      name: jm1.common # If Ansible raises "ERROR! the role 'jm1.common' was not found" then you might use the
-                       # ansible-galaxy and the provided requirements.yml to install all missing role dependencies.
-
   - name: Install dependencies of collection jm1.pkg
     import_role:
       name: jm1.pkg.setup # If Ansible raises "ERROR! the role 'jm1.pkg.setup' was not found" then you might use the
