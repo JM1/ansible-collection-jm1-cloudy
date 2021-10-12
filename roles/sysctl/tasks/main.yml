@@ -12,7 +12,7 @@
 - name: Copy files to sysctl configuration
   loop: '{{ sysctl_config|default([]) }}'
   when: "'copy' in item"
-  copy: "{{ item['copy'] }}"
+  copy: "{{ item['copy'] }}" # noqa risky-file-permissions
   register: sysctl_config_copy_result
 
 - name: Manage files in sysctl configuration
@@ -36,7 +36,7 @@
 - name: Generate sysctl configuration from templates
   loop: '{{ sysctl_config|default([]) }}'
   when: "'template' in item"
-  template: "{{ item['template'] }}"
+  template: "{{ item['template'] }}" # noqa risky-file-permissions
   register: sysctl_config_template_result
 
 - name: Debug role variables

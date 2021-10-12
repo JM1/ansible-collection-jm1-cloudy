@@ -8,7 +8,7 @@
 - name: Assemble configuration files from fragments
   loop: '{{ files_config|default([]) }}'
   when: "'assemble' in item"
-  assemble: "{{ item['assemble'] }}"
+  assemble: "{{ item['assemble'] }}" # noqa risky-file-permissions
   register: files_config_assemble_result
 
 - name: Change blocks in files
@@ -20,7 +20,7 @@
 - name: Copy files
   loop: '{{ files_config|default([]) }}'
   when: "'copy' in item"
-  copy: "{{ item['copy'] }}"
+  copy: "{{ item['copy'] }}" # noqa risky-file-permissions
   register: files_config_copy_result
 
 - name: Fetch remote files
@@ -44,7 +44,7 @@
 - name: Access git repositories
   loop: '{{ files_config|default([]) }}'
   when: "'git' in item"
-  git: "{{ item['git'] }}"
+  git: "{{ item['git'] }}" # noqa git-latest
   register: files_config_git_result
 
 - name: Change lines in files
@@ -74,7 +74,7 @@
 - name: Generate files from templates
   loop: '{{ files_config|default([]) }}'
   when: "'template' in item"
-  template: "{{ item['template'] }}"
+  template: "{{ item['template'] }}" # noqa risky-file-permissions
   register: files_config_template_result
 
 - name: Unpack archives

@@ -19,7 +19,7 @@
 - name: Copy files
   loop: '{{ initrd_config|default([]) }}'
   when: "'copy' in item"
-  copy: "{{ item['copy'] }}"
+  copy: "{{ item['copy'] }}" # noqa risky-file-permissions
   register: initrd_config_copy_result
   notify:
   - 'Generate initramfs images'
@@ -43,7 +43,7 @@
 - name: Generate files from templates
   loop: '{{ initrd_config|default([]) }}'
   when: "'template' in item"
-  template: "{{ item['template'] }}"
+  template: "{{ item['template'] }}" # noqa risky-file-permissions
   register: initrd_config_template_result
   notify:
   - 'Generate initramfs images'

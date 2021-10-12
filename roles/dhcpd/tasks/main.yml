@@ -50,7 +50,7 @@
 - name: Copy files to dhcpd configuration
   loop: '{{ dhcpd_config|default([]) }}'
   when: "'copy' in item"
-  copy: "{{ item['copy'] }}"
+  copy: "{{ item['copy'] }}" # noqa risky-file-permissions
   register: dhcpd_config_copy_result
   notify:
   - 'Restart DHCP IPv4 service to apply changes'
@@ -82,7 +82,7 @@
 - name: Generate dhcpd configuration from templates
   loop: '{{ dhcpd_config|default([]) }}'
   when: "'template' in item"
-  template: "{{ item['template'] }}"
+  template: "{{ item['template'] }}" # noqa risky-file-permissions
   register: dhcpd_config_template_result
   notify:
   - 'Restart DHCP IPv4 service to apply changes'
@@ -98,7 +98,7 @@
 - name: Copy files to dhcpd6 configuration
   loop: '{{ dhcpd6_config|default([]) }}'
   when: "'copy' in item"
-  copy: "{{ item['copy'] }}"
+  copy: "{{ item['copy'] }}" # noqa risky-file-permissions
   register: dhcpd6_config_copy_result
   notify:
   - 'Restart DHCP IPv6 service to apply changes'
@@ -130,7 +130,7 @@
 - name: Generate dhcpd6 configuration from templates
   loop: '{{ dhcpd6_config|default([]) }}'
   when: "'template' in item"
-  template: "{{ item['template'] }}"
+  template: "{{ item['template'] }}" # noqa risky-file-permissions
   register: dhcpd6_config_template_result
   notify:
   - 'Restart DHCP IPv6 service to apply changes'

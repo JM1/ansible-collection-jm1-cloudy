@@ -26,7 +26,7 @@
 - name: Copy files to sshd configuration
   loop: '{{ sshd_config|default([]) }}'
   when: "'copy' in item"
-  copy: "{{ item['copy'] }}"
+  copy: "{{ item['copy'] }}" # noqa risky-file-permissions
   register: sshd_config_copy_result
   notify:
   - 'Restart sshd service to apply changes'
@@ -58,7 +58,7 @@
 - name: Generate sshd configuration from templates
   loop: '{{ sshd_config|default([]) }}'
   when: "'template' in item"
-  template: "{{ item['template'] }}"
+  template: "{{ item['template'] }}" # noqa risky-file-permissions
   register: sshd_config_template_result
   notify:
   - 'Restart sshd service to apply changes'

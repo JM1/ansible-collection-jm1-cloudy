@@ -12,7 +12,7 @@
 - name: Copy files to sudo configuration
   loop: '{{ sudoers_config|default([]) }}'
   when: "'copy' in item"
-  copy: "{{ item['copy'] }}"
+  copy: "{{ item['copy'] }}" # noqa risky-file-permissions
   register: sudoers_config_copy_result
 
 - name: Manage files in sudo configuration
@@ -30,7 +30,7 @@
 - name: Generate sudo configuration from templates
   loop: '{{ sudoers_config|default([]) }}'
   when: "'template' in item"
-  template: "{{ item['template'] }}"
+  template: "{{ item['template'] }}" # noqa risky-file-permissions
   register: sudoers_config_template_result
 
 - name: Debug role variables

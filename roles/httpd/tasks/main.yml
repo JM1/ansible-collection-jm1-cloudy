@@ -43,7 +43,7 @@
 - name: Copy files to httpd configuration
   loop: '{{ httpd_config|default([]) }}'
   when: "'copy' in item"
-  copy: "{{ item['copy'] }}"
+  copy: "{{ item['copy'] }}" # noqa risky-file-permissions
   register: httpd_config_copy_result
   notify:
   - 'Restart httpd service to apply changes'
@@ -75,7 +75,7 @@
 - name: Generate httpd configuration from templates
   loop: '{{ httpd_config|default([]) }}'
   when: "'template' in item"
-  template: "{{ item['template'] }}"
+  template: "{{ item['template'] }}" # noqa risky-file-permissions
   register: httpd_config_template_result
   notify:
   - 'Restart httpd service to apply changes'

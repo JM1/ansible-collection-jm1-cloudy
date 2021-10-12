@@ -14,7 +14,7 @@
 - name: Copy files to cloud-init configuration
   loop: '{{ cloudinit_config|default([]) }}'
   when: "'copy' in item"
-  copy: "{{ item['copy'] }}"
+  copy: "{{ item['copy'] }}" # noqa risky-file-permissions
   register: cloudinit_config_copy_result
   notify:
   - 'Apply cloud-init configuration'
@@ -46,7 +46,7 @@
 - name: Generate cloud-init configuration from templates
   loop: '{{ cloudinit_config|default([]) }}'
   when: "'template' in item"
-  template: "{{ item['template'] }}"
+  template: "{{ item['template'] }}" # noqa risky-file-permissions
   register: cloudinit_config_template_result
   notify:
   - 'Apply cloud-init configuration'

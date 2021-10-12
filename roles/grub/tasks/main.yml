@@ -14,7 +14,7 @@
 - name: Copy files
   loop: '{{ grub_config|default([]) }}'
   when: "'copy' in item"
-  copy: "{{ item['copy'] }}"
+  copy: "{{ item['copy'] }}" # noqa risky-file-permissions
   register: grub_config_copy_result
   notify:
   - 'Apply GRUB2 configuration'
@@ -38,7 +38,7 @@
 - name: Generate files from templates
   loop: '{{ grub_config|default([]) }}'
   when: "'template' in item"
-  template: "{{ item['template'] }}"
+  template: "{{ item['template'] }}" # noqa risky-file-permissions
   register: grub_config_template_result
   notify:
   - 'Apply GRUB2 configuration'

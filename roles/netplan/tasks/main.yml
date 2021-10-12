@@ -26,7 +26,7 @@
 - name: Copy files to Netplan configuration
   loop: '{{ netplan_config|default([]) }}'
   when: "'copy' in item"
-  copy: "{{ item['copy'] }}"
+  copy: "{{ item['copy'] }}" # noqa risky-file-permissions
   register: netplan_config_copy_result
   notify:
   - 'Apply Netplan configuration'
@@ -58,7 +58,7 @@
 - name: Generate Netplan configuration from templates
   loop: '{{ netplan_config|default([]) }}'
   when: "'template' in item"
-  template: "{{ item['template'] }}"
+  template: "{{ item['template'] }}" # noqa risky-file-permissions
   register: netplan_config_template_result
   notify:
   - 'Apply Netplan configuration'

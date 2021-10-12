@@ -35,7 +35,7 @@
 - name: Copy files to tftpd configuration
   loop: '{{ tftpd_config|default([]) }}'
   when: "'copy' in item"
-  copy: "{{ item['copy'] }}"
+  copy: "{{ item['copy'] }}" # noqa risky-file-permissions
   register: tftpd_config_copy_result
   notify:
   - 'Restart tftpd service to apply changes'
@@ -67,7 +67,7 @@
 - name: Generate tftpd configuration from templates
   loop: '{{ tftpd_config|default([]) }}'
   when: "'template' in item"
-  template: "{{ item['template'] }}"
+  template: "{{ item['template'] }}" # noqa risky-file-permissions
   register: tftpd_config_template_result
   notify:
   - 'Restart tftpd service to apply changes'
