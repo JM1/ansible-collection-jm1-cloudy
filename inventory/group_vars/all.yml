@@ -219,7 +219,7 @@ cloudinit_userdata_default: |
   {% endif %}
 
   bootcmd:
-  {% if distribution_id|first == 'Ubuntu' or distribution_id == ['Debian', '11'] %}
+  {% if distribution_id|first in ['Debian', 'Ubuntu'] %}
   # Disable Predictable Network Interface Names
   # Ref.:
   #  https://www.freedesktop.org/wiki/Software/systemd/PredictableNetworkInterfaceNames/
