@@ -527,6 +527,7 @@ preseed_config: |
     chmod -R 600 /target/home/{{ ansible_user }}/.ssh/authorized_keys && \
     chown -R 1000:1000 /target/home/{{ ansible_user }}/.ssh && \
     echo '{{ ansible_user }} ALL=(ALL) NOPASSWD: ALL' > /target/etc/sudoers.d/ansible && \
+    chmod 440 /target/etc/sudoers.d/ansible && \
     sed -i -e 's/^{{ ansible_user }}:\$/{{ ansible_user }}:!\$/g' /target/etc/shadow
 
 pxe_installer_client_mac: 52:54:00:aa:bb:02

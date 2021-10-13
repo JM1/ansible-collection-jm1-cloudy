@@ -368,7 +368,11 @@ state: present # or absent
 
 sudoers_config:
 - lineinfile:
+    create: no # assert that file exist else system is probably not setup using cloud-init
+    group: root
     line: '{{ ansible_user }} ALL=(ALL) NOPASSWD:ALL'
+    mode: u=r,g=r,o=
+    owner: root
     path: /etc/sudoers.d/90-cloud-init-users
     state: present
 
