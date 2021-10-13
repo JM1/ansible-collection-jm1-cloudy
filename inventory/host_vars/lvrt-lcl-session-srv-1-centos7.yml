@@ -12,8 +12,15 @@ libvirt_domain_autostart: no
 libvirt_netplan:
   ethernets:
     eth0:
-      dhcp4: false
-      dhcp6: false
+      # When dhcp4 is set here then cloud-init on CentOS 7 will set BOOTPROTO=dhcp instead of BOOTPROTO=none in
+      # /etc/sysconfig/network-scripts/ifcfg-eth0 so static ip addresses are ignored. To workaround this bug, the dhcp4
+      # setting is not defined here which causes cloud-init to use BOOTPROTO=none.
+      #dhcp4: false
+
+      # When dhcp4 is set here then cloud-init on CentOS 7 will set IPV6INIT=yes and DHCPV6C=yes in
+      # /etc/sysconfig/network-scripts/ifcfg-eth0 which will cause long boot delays while system is waiting on the
+      # network. To workaround this bug, the dhcp6 setting is not defined here.
+      #dhcp6: false
       accept-ra: false
 
       addresses:
