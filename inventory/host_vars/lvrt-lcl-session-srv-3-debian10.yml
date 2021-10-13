@@ -48,7 +48,7 @@ libvirt_pool: 'default'
 libvirt_uri: 'qemu:///session'
 
 libvirt_volumes:
-- backing_vol: 'debian-10.5.1-20200830-openstack-amd64.qcow2'
+- backing_vol: 'debian-10-genericcloud-amd64.qcow2'
   backing_vol_format: 'qcow2'
   capacity: 5G
   format: 'qcow2'

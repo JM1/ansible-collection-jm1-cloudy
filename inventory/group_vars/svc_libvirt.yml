@@ -27,10 +27,10 @@ libvirt_images:
   name: CentOS-Stream-GenericCloud-8-20210603.0.x86_64.qcow2
   pool: 'default'
   state: present
-- checksum: sha256:85c43e90a13f5c1021afd07f843ace498b4bca4ff71b8e5c50d70e2566a304aa
+- # no checksum because image is updated every week
   format: 'qcow2'
-  image: https://cdimage.debian.org/cdimage/openstack/archive/10.5.1-20200830/debian-10.5.1-20200830-openstack-amd64.qcow2
-  name: debian-10.5.1-20200830-openstack-amd64.qcow2
+  image: https://cdimage.debian.org/images/cloud/buster/latest/debian-10-genericcloud-amd64.qcow2
+  name: debian-10-genericcloud-amd64.qcow2
   pool: 'default'
   state: present
 - # no checksum because image is updated every week
