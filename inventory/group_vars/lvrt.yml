@@ -11,7 +11,7 @@ cloudinit_metadata: '{{ cloudinit_metadata_default }}'
 
 cloudinit_networkconfig: |
   {{ cloudinit_networkconfig_default }}
-  {{ libvirt_netplan|to_nice_yaml if libvirt_netplan }}
+  {{ libvirt_netplan|to_nice_yaml if libvirt_netplan else '' }}
 
 cloudinit_userdata: '{{ cloudinit_userdata_default }}'
 
