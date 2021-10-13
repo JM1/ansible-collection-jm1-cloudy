@@ -55,7 +55,7 @@
     name: '{{ libvirt_domain }}'
     hardware: '{{ libvirt_hardware }}'
     state: '{{ state }}'
-  notify: 'Wait for libvirt domain to setup, reboot and become usable'
+  notify: 'Start libvirt domain once created'
 
 - name: Remove cloud-init config drive volume
   when: state == 'absent' and libvirt_configdrive|default(None) != None
@@ -72,13 +72,5 @@
     name: '{{ libvirt_domain }}'
     uri: '{{ libvirt_uri }}'
 
-- name: Start domain
-  when: state == 'present' and libvirt_domain_autostart and libvirt_domain_state == 'running'
-  community.libvirt.virt:
-    name: '{{ libvirt_domain }}'
-    state: running
-    uri: '{{ libvirt_uri }}'
-  notify: 'Wait for libvirt domain to setup, reboot and become usable'
-
-- name: Wait for domain now
+- name: Start and wait for libvirt domain now
   meta: flush_handlers
