@@ -535,3 +535,6 @@ pxe_installer_client_mac: 52:54:00:aa:bb:01
 pxe_installer_kernel_parameters: >-
   console=tty0 console=ttyS0,115200 earlyprintk=ttyS0,115200 consoleblank=0 systemd.show_status=true
   http_proxy=http://192.168.155.2:8080/
+
+# sudo configuration is done in preseed_config
+sudoers_config: []
