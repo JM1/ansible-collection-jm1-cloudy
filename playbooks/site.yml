@@ -249,12 +249,16 @@
 #  - name: Change ifupdown configuration
 #    role: jm1.cloudy.ifupdown
 #    tags: ["jm1.cloudy.ifupdown"]
-#    when: distribution_id|first in ['Debian', 'Ubuntu']
+#    vars:
+#      ifupdown_config: '{{ ifupdown_config_early }}'
+#    when: ifupdown_config_early is defined
 
-  - name: Change Netplan configuration
+  - name: Change Netplan configuration early
     role: jm1.cloudy.netplan
     tags: ["jm1.cloudy.netplan"]
-    when: distribution_id|first in ['Debian', 'Ubuntu']
+    vars:
+      netplan_config: '{{ netplan_config_early }}'
+    when: netplan_config_early is defined
 
   - name: Change debconf database early
     role: jm1.cloudy.debconf
@@ -380,6 +384,14 @@
   - name: Manage SELinux booleans, policy and state
     role: jm1.cloudy.selinux
     tags: ["jm1.cloudy.selinux"]
+
+#  - name: Change ifupdown configuration
+#    role: jm1.cloudy.ifupdown
+#    tags: ["jm1.cloudy.ifupdown"]
+
+  - name: Change Netplan configuration
+    role: jm1.cloudy.netplan
+    tags: ["jm1.cloudy.netplan"]
 
   - name: Install Ansible
     role: jm1.packages.ansible
