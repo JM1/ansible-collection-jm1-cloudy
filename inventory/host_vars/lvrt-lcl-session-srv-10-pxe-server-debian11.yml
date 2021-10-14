@@ -103,6 +103,8 @@ httpd_config:
     state: absent
 - copy:
     content: |
+      # 2021 Jakob Meng, <jakobmeng@web.de>
+
       <VirtualHost *:80>
         ServerAdmin webmaster@localhost
         DocumentRoot /var/www
@@ -152,6 +154,8 @@ httpd_config:
     name: ssl
 - copy:
     content: |
+      # 2021 Jakob Meng, <jakobmeng@web.de>
+
       Listen 8080
 
       <VirtualHost *:8080>
@@ -205,6 +209,8 @@ httpd_config:
     state: link
 - copy:
     content: |
+      # 2021 Jakob Meng, <jakobmeng@web.de>
+
       # Forward http requests via https to releases.ubuntu.com
       Listen 8081
       <VirtualHost *:8081>
