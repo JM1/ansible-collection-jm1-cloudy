@@ -1,0 +1,18 @@
+# 2021 Jakob Meng, <jakobmeng@web.de>
+[Unit]
+Description=Hardware fingerprinting service
+After=network.target
+
+[Service]
+Type=simple
+User={{ pxe_hwfp_daemon_user }}
+Group={{ pxe_hwfp_daemon_group }}
+WorkingDirectory={{ pxe_hwfp_virtualenv }}/opt/hwfp
+KillMode=mixed
+PrivateTmp=true
+ExecStart={{ pxe_hwfp_virtualenv }}/bin/uvicorn service:app --host {{ pxe_hwfp_daemon_host|mandatory }} --port {{ pxe_hwfp_daemon_port|mandatory }}
+ExecStop=/bin/kill -s TERM $MAINPID
+ExecReload=/bin/kill -s HUP $MAINPID
+
+[Install]
+WantedBy=multi-user.target

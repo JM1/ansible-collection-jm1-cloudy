@@ -1,0 +1,420 @@
+#!/bin/sh
+# vim:set fileformat=unix tabstop=8 shiftwidth=4 expandtab:
+# kate: end-of-line unix; space-indent on; indent-width 4; remove-trailing-spaces modified;
+#
+# Copyright (c) 2021 Jakob Meng, <jakobmeng@web.de>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+
+# NOTE: declare local variables first and initialize them later because return code of "local ..." is always 0
+
+set -e
+#set -x
+
+prg=$(basename "$0")
+
+version() {
+    cat << ____EOF
+$prg version 0.1
+Copyright (c) 2021 Jakob Meng, <jakobmeng@web.de>
+____EOF
+}
+
+help() {
+    cat << ____EOF
+Usage: $prg [OPTIONS] COMMAND [arg...]
+       $prg [ --help | -v | --version ]
+
+A script for hardware fingerprinting.
+
+Options:
+
+  -h, --help                      Print usage
+  -v, --version                   Print version information and quit
+
+Commands:
+
+    initrd      Create kernel (vmlinuz) and initrd (initrd.gz) that includes this script
+    report      Report hardware to hwfp service
+    help        Print usage
+
+Run '$prg COMMAND --help' for more information on a command.
+
+____EOF
+}
+
+stderr() {
+    local _msg
+    while read -r _msg
+    do
+        echo "$_msg" 2>&1
+    done
+}
+
+error() {
+    stderr << ____EOF
+ERROR: $*
+____EOF
+}
+
+warn() {
+    stderr << ____EOF
+WARN: $*
+____EOF
+}
+
+initrd() {
+    help() {
+        cat << ________EOF
+Usage:  $prg initrd [OPTIONS] PATH
+
+Create kernel (vmlinuz) and initrd (initrd.gz) that includes this script
+
+Options:
+      --debug                       Print commands issued by $prg
+      -h, --help                    Print usage
+________EOF
+    }
+
+    local _path=""
+    local _debug=""
+
+    if [ $# -eq 0 ]; then
+        stderr << ________EOF
+"$prg initrd" requires at least 1 argument(s).
+See '$prg initrd --help'.
+
+Usage:  $prg initrd [OPTIONS] PATH
+
+Create kernel (vmlinuz) and initrd (initrd.gz) that includes this script
+________EOF
+        return 255
+    fi
+
+    while [ -n "$1" ]; do
+        case "$1" in
+            "--debug")
+                _debug="yes"
+                ;;
+            "-h"|"--help")
+                help
+                return 0
+                ;;
+            -*)
+                error "unknown flag: $1"
+                return 255
+                ;;
+            *)
+                _path="$1"
+                shift
+                if [ $# -ne 0 ]; then
+                    stderr << ____________________EOF
+"$prg initrd" requires exactly one positional argument.
+See '$prg initrd --help'.
+
+Usage:  $prg initrd [OPTIONS] PATH
+
+Create kernel (vmlinuz) and initrd (initrd.gz) that includes this script
+____________________EOF
+                    return 255
+                fi
+                set -- 'FOR_NEXT_SHIFT_ONLY'
+                ;;
+        esac
+        shift
+    done
+
+    [ "$_debug" = "yes" ] && set -x
+
+    # _path can be a absolute or relative path
+
+    if [ -e "$_path/vmlinuz" ]; then
+        error "kernel $_path/vmlinuz already exists"
+        return 255
+    fi
+
+    if [ -e "$_path/initrd.gz" ]; then
+        error "initrd $_path/initrd.gz already exists"
+        return 255
+    fi
+
+    if [ -e "$_path" ] && [ ! -d "$_path" ]; then
+        error "path $_path is not a directory"
+        return 255
+    fi
+
+    local _fail=no
+    local _tmpdir=""
+    # create temporary directory in /var/lib because /tmp is often mounted with noexec or nodev
+    _tmpdir="$(mktemp --tmpdir=/var/lib --directory "hwfp_$(date +%Y%m%d%H%M%S).XXXXXX")"
+
+    set +e # workaround for https://stackoverflow.com/a/19789651/6490710
+    (
+        set -e
+
+        _prg="$(readlink -f "$0")"
+        _chroot="$_tmpdir/chroot"
+        debootstrap \
+            --include=linux-image-amd64,lshw,curl,busybox,pciutils,kmod,udev,sysv-rc,iproute2,isc-dhcp-client,ifupdown \
+            --exclude=initramfs-tools \
+            --variant=minbase \
+            bullseye "$_chroot/" http://deb.debian.org/debian/
+
+        mkdir "$_chroot/initrd" # for pivot_root in /sbin/init
+
+        cat << "________EOF" > "$_chroot/etc/fstab"
+# 2021 Jakob Meng, <jakobmeng@web.de>
+# /etc/fstab: static file system information.
+# Ref.: https://deb.debian.org/debian/dists/bullseye/main/installer-amd64/current/images/netboot/netboot.tar.gz
+#
+# <file system> <mount point> <type> <options>                 <dump> <pass>
+devpts          /dev/pts      devpts defaults                  0      0
+tmpfs           /run          tmpfs  nosuid,size=10%,mode=755  0      0
+proc            /proc         proc   defaults                  0      0
+sysfs           /sys          sysfs  noauto                    0      0
+________EOF
+
+        cat << "________EOF" > "$_chroot/sbin/init"
+#!/bin/sh -e
+# 2021 Jakob Meng, <jakobmeng@web.de>
+# /sbin/init from netboot initrd of Debian 11 (Bullseye)
+#
+# /lib/debian-installer/start-udev has been removed because sysv-rc will run /etc/rcS.d/S01udev
+#
+# Ref.: https://deb.debian.org/debian/dists/bullseye/main/installer-amd64/current/images/netboot/netboot.tar.gz
+
+# Set up filesystem as root and pivot into it.
+export PATH
+
+mount /proc
+umount initrd 2>/dev/null || true
+if mount -t tmpfs -o size=512M tmpfs /mnt ; then
+    :
+elif mount -t shm shm mnt; then
+    :
+else
+    mount -t ramfs ramfs /mnt
+fi
+umount /proc
+
+cp -a $(ls -1 / | grep -v '\(lost+found\|mnt\|proc\)') /mnt
+cd /mnt
+pivot_root . initrd
+mkdir -p /proc
+mount /proc
+mkdir -p /sys
+mount /sys
+
+# Close all open files on the initrd, and run busybox init.
+exec /usr/sbin/chroot . /bin/busybox init < /dev/console > /dev/console 2>&1
+________EOF
+        chmod u=rwx,g=rx,o=rx "$_chroot/sbin/init"
+
+        cat << "________EOF" > "$_chroot/etc/inittab"
+# 2021 Jakob Meng, <jakobmeng@web.de>
+# busybox init configuration
+
+# run /etc/rcS.d/S*udev etc.
+::sysinit:/etc/init.d/rcS
+
+# get ip via dhcp
+::sysinit:dhclient
+
+::wait:/sbin/hwfp report --debug
+::wait:/sbin/poweroff
+
+# convenience shells
+tty2::askfirst:-/bin/sh
+tty3::askfirst:-/bin/sh
+
+# logging
+tty4::respawn:/usr/bin/tail -f /var/log/syslog
+
+::ctrlaltdel:/sbin/reboot
+
+# re-exec init on receipt of SIGHUP/SIGUSR1
+::restart:/sbin/init
+________EOF
+
+        cat << "________EOF" > "$_chroot/init"
+#!/bin/sh -e
+# 2021 Jakob Meng, <jakobmeng@web.de>
+# /init from netboot initrd of Debian 11 (Bullseye)
+#
+# /lib/debian-installer/start-udev has been removed because sysv-rc will run /etc/rcS.d/S01udev later
+#
+# Ref.: https://deb.debian.org/debian/dists/bullseye/main/installer-amd64/current/images/netboot/netboot.tar.gz
+
+# used for initramfs
+export PATH
+
+mount /run
+mkdir -p /run/lock
+mount /proc
+mount /sys
+
+init='/bin/busybox init'
+for i in $(cat /proc/cmdline); do
+    case $i in
+        init=/init|init=init)
+            # Avoid endless loop
+            : ;;
+        init=*)
+            init=${i#init=} ;;
+        noshell)
+            sed -i '/^tty[23]/s/^/#/' /etc/inittab ;;
+    esac
+done
+
+exec $init
+________EOF
+
+        chmod u=rwx,g=rx,o=rx "$_chroot/init"
+
+        ln -s /bin/busybox "$_chroot/sbin/reboot"
+        ln -s /bin/busybox "$_chroot/sbin/poweroff"
+
+        cp --archive --dereference "$_prg" "$_chroot/sbin/hwfp"
+        chown root.root "$_chroot/sbin/hwfp"
+        chmod u=rwx,g=rx,o=rx "$_chroot/sbin/hwfp"
+
+        # create output path if it does not exist
+        [ ! -e "$_path" ] && mkdir -p "$_path/"
+
+        # copy kernel before cleaning up initrd
+        cp --archive --dereference "$_chroot/vmlinuz" "$_path/"
+
+        # save space in initrd
+        rm -rf "$_chroot/boot/initrd"* "$_chroot/boot/vmlinuz"* "$_chroot/var/cache/"* "$_chroot/var/lib/apt/lists/"*
+
+        (
+            set -e
+            _path="$(readlink -e "$_path")" # to absolute path
+            cd "$_chroot"
+            find . | cpio --quiet --format newc --create | gzip > "$_path/initrd.gz"
+        )
+    )
+    local errc=$?
+    set -e
+    [ $errc -ne 0 ] && _fail=yes
+
+    # first remove temporary dir and ...
+    if [ -n "$_tmpdir" ] && [ -d "$_tmpdir" ]; then
+        rm -r "$_tmpdir"
+    fi
+
+    # ... then return on error
+    if [ "$_fail" = "yes" ]; then
+        return 255
+    fi
+}
+
+report() {
+    help() {
+        cat << ________EOF
+Usage:  $prg report [OPTIONS]
+
+Report hardware to hwfp service
+
+Options:
+      -h, --help                    Print usage
+________EOF
+    }
+
+    local _debug=""
+
+    while [ -n "$1" ]; do
+        case "$1" in
+            "--debug")
+                _debug="yes"
+                ;;
+            "-h"|"--help")
+                help
+                return 0
+                ;;
+            *)
+                error "unknown flag: $1"
+                return 255
+                ;;
+        esac
+        shift
+    done
+
+    [ "$_debug" = "yes" ] && set -x
+
+    cd /tmp
+
+    # shellcheck disable=SC2154
+    if [ -z "$url" ]; then
+        error "kernel parameter \$url is not defined"
+        return 255
+    fi
+
+    dmesg > dmesg.txt
+    find /dev > find_dev.txt
+    ip link > ip_link.txt
+    ip addr > ip_addr.txt
+    lshw > lshw.txt
+    lsmod > lsmod.txt
+    lspci > lspci.txt
+    lspci -nn > lspci_nn.txt
+    lspci -vvv > lspci_vvv.txt
+
+    # shellcheck disable=SC2154
+    curl -v \
+        -F "files=@./dmesg.txt" \
+        -F "files=@./find_dev.txt" \
+        -F "files=@./ip_link.txt" \
+        -F "files=@./ip_addr.txt" \
+        -F "files=@./lshw.txt" \
+        -F "files=@./lsmod.txt" \
+        -F "files=@./lspci.txt" \
+        -F "files=@./lspci_nn.txt" \
+        -F "files=@./lspci_vvv.txt" \
+        "$url"
+}
+
+if [ $# -eq 0 ]; then
+    help
+    exit 1
+fi
+
+while [ -n "$1" ]; do
+    case "$1" in
+        "initrd"|"report"|"help")
+            ("$@")
+            exit $?
+            ;;
+        "-v"|"--version")
+            version
+            exit 0
+            ;;
+        "-h"|"--help")
+            help
+            exit 0
+            ;;
+        -*)
+            error "unknown flag: $1"
+            exit 1
+            ;;
+        *)
+            error "unknown command: $1"
+            exit 1
+            ;;
+    esac
+    shift
+done
+
+exit $?

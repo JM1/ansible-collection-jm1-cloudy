@@ -13,16 +13,22 @@ that demonstrates how to setup a cloud infrastructure using [libvirt][libvirt] a
   domains (QEMU/KVM based virtual machines) with [cloud-init][cloud-init-doc] and CentOS 7, CentOS 8,
   Debian 10 (Buster), Debian 11 (Bullseye), Ubuntu 18.04 LTS (Bionic Beaver) or Ubuntu 20.04 LTS (Focal Fossa)
 * Hosts [`lvrt-lcl-session-srv-10-*` to `lvrt-lcl-session-srv-17-*`][inventory-example] showcase automatic system
-  installation of CentOS 7/8 with Kickstart, of Debian 10/11 with Preseed and of Ubuntu 18.04/20.04 with Autoinstall,
-  each with [PXE network boot][pxe-installer] on BIOS and UEFI systems
+  installation of [CentOS 7/8 with Kickstart, of Debian 10/11 with Preseed and of Ubuntu 18.04/20.04 with Autoinstall][
+  pxe-installer], each with [PXE][pxe-wiki] network boot on BIOS and UEFI systems
 * Host [`lvrt-lcl-session-srv-20-*`][inventory-example] showcases how to ["quickly bring up a OpenStack environment 
   based on the latest versions of everything from git master"][devstack] with [DevStack][devstack]
 * Host [`lvrt-lcl-session-srv-21-*`][inventory-example] showcases how to
   [deploy TripleO standalone][tripleo-standalone-setup] on CentOS 8
+* Host [`lvrt-lcl-session-srv-30-*`][inventory-example] showcases how to [fingerprint and report hardware specifications
+  of systems][pxe-hwfp] which can be booted via [PXE][pxe-wiki]. Hosts `lvrt-lcl-session-srv-31-*` and
+  `lvrt-lcl-session-srv-32-*` demonstrate how a poweron-fingerprint-report-poweroff cycle works in practice.
 
 [cloud-init-doc]: https://cloudinit.readthedocs.io/
 [devstack]: https://docs.openstack.org/devstack/latest/
 [tripleo-standalone-setup]: https://docs.openstack.org/project-deploy-guide/tripleo-docs/latest/deployment/standalone.html
+[pxe-hwfp]: https://github.com/JM1/ansible-collection-jm1-cloudy/tree/master/roles/pxe_hwfp/
+[pxe-installer]: https://github.com/JM1/ansible-collection-jm1-cloudy/tree/master/roles/pxe_installer/
+[pxe-wiki]: https://en.wikipedia.org/wiki/Preboot_Execution_Environment
 
 This collection has been developed and tested for compatibility with:
 * Debian 10 (Buster)
@@ -105,6 +111,7 @@ Click on the name of an inventory, module, playbook or role to view that content
     * [openstack_server_state](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/openstack_server_state/README.md)
     * [openstack_volumes](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/openstack_volumes/README.md)
     * [packages](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/packages/README.md)
+    * [pxe_hwfp](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/pxe_hwfp/README.md)
     * [pxe_installer](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/pxe_installer/README.md)
     * [selinux](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/selinux/README.md)
     * [services](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/services/README.md)
@@ -314,7 +321,6 @@ Dig into your inventory and playbooks and customize them as needed.
 [ansible-cfg-example]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/ansible.cfg.example
 [inventory-example]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/inventory/
 [playbook-site-yml]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/playbooks/site.yml
-[pxe-installer]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/pxe_installer/tasks/main.yml
 
 ### Using content of this Collection
 

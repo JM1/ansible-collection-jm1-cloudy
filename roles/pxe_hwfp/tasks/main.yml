@@ -1,0 +1,189 @@
+---
+# Copyright (c) 2021 Jakob Meng, <jakobmeng@web.de>
+# vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
+# kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
+
+- name: Install dependencies of collection jm1.pkg
+  import_role:
+    name: jm1.pkg.setup # If Ansible raises "ERROR! the role 'jm1.pkg.setup' was not found" then you might use the
+                        # ansible-galaxy and the provided requirements.yml to install all missing role dependencies.
+
+- name: Satisfy requirements on CentOS and Red Hat Enterprise Linux
+  when: distribution_id|first in ['CentOS', 'Red Hat Enterprise Linux']
+  jm1.pkg.meta_pkg:
+    name: "jm1-svc-pxe-hwfp"
+    version: "1"
+    depends:
+    - debootstrap
+    - cpio
+    - p7zip # 7z
+    - python3
+    - python3-virtualenv
+    - tar
+    - xz
+
+- name: Satisfy requirements on Debian and Ubuntu
+  when: distribution_id|first in ['Debian', 'Ubuntu']
+  jm1.pkg.meta_pkg:
+    name: "jm1-svc-pxe-hwfp"
+    version: "1"
+    depends:
+    - debootstrap
+    - cpio
+    - p7zip-full # 7z
+    - python3
+    - python3-virtualenv
+    - tar
+    - xz-utils
+
+- name: Install multi python packages with version specifiers
+  pip:
+    name:
+    - fastapi[all]
+    - uvicorn[standard]
+    virtualenv: '{{ pxe_hwfp_virtualenv }}'
+    virtualenv_python: python3
+
+- name: Create hwfp service directory
+  file:
+    path: '{{ pxe_hwfp_virtualenv }}/opt/hwfp'
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+    owner: root
+    group: nogroup
+
+- name: Copy hwfp service files
+  copy:
+    src: 'opt/hwfp/'
+    dest: '{{ pxe_hwfp_virtualenv }}/opt/hwfp/'
+    mode: preserve
+    owner: root
+    group: nogroup
+
+- name: Copy hwfp script
+  copy:
+    src: 'usr/local/bin/hwfp'
+    dest: '/usr/local/bin/hwfp'
+    mode: u=rwx,g=rx,o=rx
+    owner: root
+    group: nogroup
+
+- name: Create hwfp systemd service
+  template:
+    dest: '/etc/systemd/system/hwfp.service'
+    group: root
+    mode: u=rw,g=r,o=r
+    owner: root
+    src: 'etc/systemd/system/hwfp.service.j2'
+  notify: "Restart hwfp's systemd service"
+
+- name: Create hwfp's database directory
+  file:
+    path: '/var/lib/hwfp'
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+    owner: '{{ pxe_hwfp_daemon_user }}'
+    group: '{{ pxe_hwfp_daemon_group }}'
+
+- name: Create tftpd subdirectories
+  file:
+    path: '{{ pxe_hwfp_tftpd_root }}/hwfp/{{ item }}'
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+    owner: root
+    group: nogroup
+  loop:
+  - 'amd64'
+
+- name: Download netboot archive
+  get_url:
+    url: "{{ lookup('vars', 'pxe_hwfp_files_' + item) }}"
+    dest: '{{ pxe_hwfp_tftpd_root }}/hwfp/{{ item }}/netboot.tar.gz'
+  loop:
+  - 'amd64'
+
+- name: Extract netboot archive
+  unarchive:
+    src: '{{ pxe_hwfp_tftpd_root }}/hwfp/{{ item }}/netboot.tar.gz'
+    dest: '{{ pxe_hwfp_tftpd_root }}/hwfp/{{ item }}/'
+    remote_src: yes
+    creates: '{{ pxe_hwfp_tftpd_root }}/hwfp/{{ item }}/debian-installer/{{ item }}/grubx64.efi'
+  loop:
+  - 'amd64'
+
+- name: Create kernel (vmlinuz) and initrd (initrd.gz) with hwfp script
+  shell:
+    chdir: '{{ pxe_hwfp_tftpd_root }}/hwfp/amd64/debian-installer/amd64/'
+    cmd: mv initrd.gz initrd.gz.orig && hwfp initrd .
+    creates: '{{ pxe_hwfp_tftpd_root }}/hwfp/amd64/debian-installer/amd64/initrd.gz.orig'
+
+- name: Patch path in grubx64.efi (will break UEFI Secure Boot signature)
+  shell:
+    chdir: '{{ pxe_hwfp_tftpd_root }}/hwfp/amd64'
+    cmd: |-
+      mv 'debian-installer/amd64/grubx64.efi' 'debian-installer/amd64/grubx64.efi.orig' && \
+      sed -e 's/\x64\x65\x62\x69\x61\x6E\x2D\x69\x6E\x73\x74\x61\x6C\x6C\x65\x72\x2F\x61\x6D\x64\x36\x34\x2F\x67\x72'\
+      '\x75\x62\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00/\x2F\x68\x77\x66\x70\x2F\x61\x6D\x64\x36\x34\x2F'\
+      '\x64\x65\x62\x69\x61\x6E\x2D\x69\x6E\x73\x74\x61\x6C\x6C\x65\x72\x2F\x61\x6D\x64\x36\x34\x2F\x67\x72\x75\x62'\
+      '\x00/g' 'debian-installer/amd64/grubx64.efi.orig' > 'debian-installer/amd64/grubx64.efi'
+    creates: '{{ pxe_hwfp_tftpd_root }}/hwfp/amd64/debian-installer/amd64/grubx64.efi.orig'
+
+# Command 'hwfp initrd' creates a initramfs image that has a uncompressed size of 256MB-512MB. During boot the kernel
+# has to unpack this rootfs image to memory. By default, the kernel will create a tmpfs with size limited to 50% of RAM.
+# This size is not sufficient and causes a kernel panic:
+#
+#  [    0.526537] Trying to unpack rootfs image as initramfs...
+#  [    1.651566] Initramfs unpacking failed: write error
+#  [    1.661442] Freeing initrd memory: 135464K
+#  ...
+#  [    1.742666] List of all partitions:
+#  [    1.743108] No filesystem could mount root, tried:
+#  [    1.743109]
+#  [    1.743749] Kernel panic - not syncing: VFS: Unable to mount root fs on unknown-block(1,0)
+#
+# To workaround this issue, rootfstype is changed from tmpfs (default) to ramfs with a fixed size of 524288KB with
+# kernel parameters 'rootfstype=ramfs ramdisk_size=524288'.
+#
+# Ref.: https://www.lightofdawn.org/blog/?viewDetailed=00128
+
+- name: Create host-specific pxelinux config for hwfp
+  copy:
+    content: |
+      default hwfp
+      timeout 20
+      prompt 0
+      menu hshift 4
+      menu width 70
+
+      label hwfp
+            menu label Hardware fingerprinting (BIOS, AMD64)
+            kernel /debian-installer/amd64/vmlinuz
+            append vga=788 rootfstype=ramfs ramdisk_size=524288 initrd=/debian-installer/amd64/initrd.gz url=http://{{ pxe_hwfp_daemon_host|mandatory }}:{{ pxe_hwfp_daemon_port|mandatory }}/ {{ pxe_hwfp_kernel_parameters }} ---
+    dest: "{{ pxe_hwfp_tftpd_root }}/hwfp/amd64/debian-installer/amd64/pxelinux.cfg/default"
+    mode: u=rw,g=r,o=r
+    owner: root
+    group: root
+
+- name: Create host-specific grub config for hwfp
+  copy:
+    content: |
+      set timeout=5
+
+      if loadfont font.pf2; then
+        set gfxmode=800x600
+        set gfxpayload=keep
+        terminal_output gfxterm
+      fi
+
+      set menu_color_normal=cyan/blue
+      set menu_color_highlight=white/blue
+
+      menuentry 'Hardware fingerprinting (UEFI, AMD64)' {
+          set background_color=black
+          linux /hwfp/amd64/debian-installer/amd64/vmlinuz vga=788 rootfstype=ramfs ramdisk_size=524288 url=http://{{ pxe_hwfp_daemon_host|mandatory }}:{{ pxe_hwfp_daemon_port|mandatory }}/ {{ pxe_hwfp_kernel_parameters }} ---
+          initrd /hwfp/amd64/debian-installer/amd64/initrd.gz
+      }
+    dest: "{{ pxe_hwfp_tftpd_root }}/hwfp/amd64/debian-installer/amd64/grub/grub.cfg"
+    mode: u=rw,g=r,o=r
+    owner: root
+    group: root

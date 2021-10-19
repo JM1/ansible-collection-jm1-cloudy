@@ -1,0 +1,195 @@
+---
+# Copyright (c) 2021 Jakob Meng, <jakobmeng@web.de>
+# vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
+# kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
+
+dhcpd_config:
+- copy:
+    content: |
+      # 2021 Jakob Meng, <jakobmeng@web.de>
+      #
+      # Configuration file for ISC dhcpd
+      #
+      # NOTE: On Ubuntu, if /etc/ltsp/dhcpd.conf exists, that will be used as configuration file instead of this file.
+
+      # option definitions common to all supported networks...
+      option domain-name "{{ dns_suffix }}";
+      option domain-name-servers 1.1.1.1;
+      option space pxelinux;
+      option pxelinux.magic code 208 = string;
+      option pxelinux.configfile code 209 = text;
+      option pxelinux.pathprefix code 210 = text;
+      option pxelinux.reboottime code 211 = unsigned integer 32;
+      option architecture-type code 93 = unsigned integer 16;
+
+      default-lease-time 600;
+      max-lease-time 7200;
+
+      # The ddns-updates-style parameter controls whether or not the server will
+      # attempt to do a DNS update when a lease is confirmed. We default to the
+      # behavior of the version 2 packages ('none', since DHCP v2 didn't
+      # have support for DDNS.)
+      ddns-update-style none;
+
+      # If this DHCP server is the official DHCP server for the local
+      # network, the authoritative directive should be uncommented.
+      authoritative;
+
+      # Use this to send dhcp log messages to a different log file (you also
+      # have to hack syslog.conf to complete the redirection).
+      log-facility local7;
+
+      subnet 192.168.156.0 netmask 255.255.255.0 {
+        option routers 192.168.156.2;
+        range 192.168.156.10 192.168.156.254;
+
+        next-server 192.168.156.2;
+        if option architecture-type = 00:07 {
+          filename "{{ pxe_hwfp_distribution_filename_map.x86_64.UEFI }}";
+        } else {
+          filename "{{ pxe_hwfp_distribution_filename_map.x86_64.BIOS }}";
+        }
+      } # subnet 192.168.156.0 netmask 255.255.255.0
+
+    dest: /etc/dhcp/dhcpd.conf
+    group: root
+    mode: u=rw,g=r,o=
+    owner: root
+- # Configure IPv4 interfaces that DHCP IPv4 service will listen to
+  lineinfile:
+    path: /etc/default/isc-dhcp-server
+    regexp: "^INTERFACESv4=.*"
+    line: 'INTERFACESv4="eth1"'
+- # Remove IPv6 interfaces to disable DHCP IPv6 service
+  lineinfile:
+    path: /etc/default/isc-dhcp-server
+    regexp: "^INTERFACESv6=.*"
+    line: 'INTERFACESv6=""'
+
+dhcpd6_service_enabled: no
+
+dhcpd6_service_state: 'stopped'
+
+distribution_id:
+- 'Debian'
+- '11'
+
+iptables_config:
+- # do SNAT for all packets coming from internal router network
+  iptables:
+    chain: POSTROUTING
+    destination: 0.0.0.0/0
+    jump: SNAT
+    out_interface: 'eth0'
+    source: 192.168.156.0/24
+    table: nat
+    to_source: 10.0.20.23
+
+iptables_persistence: yes
+
+libvirt_domain_autostart: no
+
+libvirt_hardware:
+- cpu: 'host'
+- vcpus: '4'
+- memory: '4096'
+- virt_type: 'kvm'
+- graphics: 'spice,listen=socket'
+- network: 'network=lan-bridge,model=virtio'
+- network: 'network=isolated-7,model=virtio'
+- disk: "vol='{{ libvirt_pool }}/{{ libvirt_volumes[0]['name'] }}',device=disk,bus=virtio"
+- disk: "vol='{{ libvirt_pool }}/{{ libvirt_configdrive }}',device=disk,bus=virtio,serial='cidata'"
+- os_variant: 'debian10'
+
+libvirt_netplan:
+  ethernets:
+    eth0:
+      dhcp4: false
+      dhcp6: false
+      accept-ra: false
+
+      addresses:
+      - 10.0.20.23/16
+
+      nameservers:
+        addresses:
+        - 10.0.0.1
+      routes:
+      - to: 0.0.0.0/0
+        via: 10.0.0.1
+    eth1:
+      dhcp4: false
+      dhcp6: false
+      accept-ra: false
+
+      addresses:
+      - 192.168.156.2/24
+
+libvirt_pool: 'default'
+
+libvirt_uri: 'qemu:///session'
+
+libvirt_volumes:
+- backing_vol: 'debian-11-genericcloud-amd64.qcow2'
+  backing_vol_format: 'qcow2'
+  capacity: 10G
+  format: 'qcow2'
+  linked: no
+  name: '{{ fqdn }}.qcow2'
+  pool: '{{ libvirt_pool }}'
+  prealloc_metadata: no
+  state: present
+
+meta_packages:
+- name: jm1-system-tools
+  depends:
+  - iptables-persistent # Used to (re)store iptables SNAT rules
+  version: 2
+
+pxe_hwfp_daemon_host: 192.168.156.2
+
+pxe_hwfp_daemon_user: hwfp
+
+sysctl_config:
+- copy:
+    content: |
+      # 2021 Jakob Meng, <jakobmeng@web.de>
+      net.ipv4.ip_forward = 0
+      net.ipv4.conf.eth0.forwarding = 1
+      net.ipv4.conf.eth1.forwarding = 1
+    dest: /etc/sysctl.d/10-ip-forward.conf
+# Apply changes using Ansible's sysctl module
+- sysctl:
+    name: net.ipv4.ip_forward
+    value: '0'
+    state: present
+    sysctl_file: /etc/sysctl.d/10-ip-forward.conf
+    sysctl_set: yes
+- sysctl:
+    name: net.ipv4.conf.eth0.forwarding
+    value: '1'
+    state: present
+    sysctl_file: /etc/sysctl.d/10-ip-forward.conf
+    sysctl_set: yes
+- sysctl:
+    name: net.ipv4.conf.eth1.forwarding
+    value: '1'
+    state: present
+    sysctl_file: /etc/sysctl.d/10-ip-forward.conf
+    sysctl_set: yes
+
+# users_config has been copied from group_vars/all.yml and supplemented with user hwfp
+# NOTE: Keep in sync with variable users_config from group_vars/all.yml
+users_config:
+- name: root
+  #password: '*'
+  password_lock: yes
+  shell: '/bin/bash'
+- name: '{{ ansible_user }}'
+  #password: '*'
+  password_lock: yes
+  shell: '/bin/bash'
+- name: '{{ pxe_hwfp_daemon_user }}'
+  password: '*'
+  shell: '/usr/sbin/nologin'
+  system: yes
