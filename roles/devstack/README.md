@@ -1,6 +1,8 @@
 # Ansible Role `jm1.cloudy.devstack`
 
-TODO.
+This role helps with quickly bringing up a complete OpenStack environment with [DevStack][devstack].
+
+[devstack]: https://docs.openstack.org/devstack/latest/
 
 **Tested OS images**
 - Cloud image of [`Debian 10 (Buster)` \[`amd64`\]](https://cdimage.debian.org/cdimage/openstack/current/)
@@ -14,19 +16,49 @@ Available on Ansible Galaxy in Collection [jm1.cloudy](https://galaxy.ansible.co
 
 ## Requirements
 
-TODO.
+Module `jm1.pkg.meta_pkg` from Collection [`jm1.pkg`][galaxy-jm1-pkg] is used to satisfy all package dependencies of
+this Collection [jm1.cloudy][galaxy-jm1-cloudy]. To install `jm1.pkg.meta_pkg` you may follow the steps described in
+[`README.md`][jm1-cloudy-readme] using the provided [`requirements.yml`][jm1-cloudy-requirements].
+
+[galaxy-jm1-cloudy]: https://galaxy.ansible.com/jm1/cloudy
+[galaxy-jm1-pkg]: https://galaxy.ansible.com/jm1/pkg
+[jm1-cloudy-readme]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/README.md
+[jm1-cloudy-requirements]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/requirements.yml
 
 ## Variables
 
-TODO.
+| Name                         | Default value                   | Required | Description |
+| ---------------------------- | ------------------------------- | -------- | ----------- |
+| `devstack_admin_password`    | `secret`                        | no       | Password for Horizon and Keystone (20 chars or less) |
+| `devstack_config`            | *refer to [`roles/devstack/defaults/main.yml`](defaults/main.yml)* | no | Content of `devstack/local.conf` which defines the OpenStack environment |
+| `devstack_database_password` | `{{ devstack_admin_password }}` | no       | Password to use for the database |
+| `devstack_rabbit_password`   | `{{ devstack_admin_password }}` | no       | Password to use for RabbitMQ |
+| `devstack_service_password`  | `{{ devstack_admin_password }}` | no       | Password to use for the service authentication |
+| `devstack_user`              | `stack`                         | no       | UNIX user that the `stack.sh` script is executed as |
+| `distribution_id`            | *depends on operating system*   | no       | List which uniquely identifies a distribution release, e.g. `[ 'Debian', '10' ]` for `Debian 10 (Buster)` |
 
 ## Dependencies
 
-TODO.
+| Name               | Description                                                                                                                                                 |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `jm1.pkg.setup`    | Installs necessary software for module `jm1.pkg.meta_pkg` from collection `jm1.pkg`. This role is called automatically, manual execution is *NOT* required. |
 
 ## Example Playbook
 
-TODO.
+```yml
+- hosts: all
+  roles:
+  - name: Setup an OpenStack cluster with DevStack
+    role: jm1.cloudy.devstack
+    tags: ["jm1.cloudy.devstack"]
+```
+
+For a complete example on how to use this role, refer to host `lvrt-lcl-session-srv-20-devstack` from the provided
+[examples inventory][inventory-example]. The top-level [`README.md`][jm1-cloudy-readme] describes how this host can be
+provisioned with playbook [`playbooks/site.yml`][playbook-site-yml].
+
+[inventory-example]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/inventory/
+[playbook-site-yml]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/playbooks/site.yml
 
 For instructions on how to run Ansible playbooks have look at Ansible's
 [Getting Started Guide](https://docs.ansible.com/ansible/latest/network/getting_started/first_playbook.html).
