@@ -1,7 +1,7 @@
 galaxy_info:
   role_name: dhcpd
   author: Jakob Meng
-  description: Manage dhcpd service
+  description: Manage DHCP IPv4 and DHCP IPv6 services
   company: Hochschule Bonn-Rhein-Sieg
   license: license (GPLv3)
 
