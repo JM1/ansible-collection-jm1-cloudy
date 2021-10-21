@@ -10,7 +10,5 @@
   command: service iptables save # noqa command-instead-of-module
 
 - name: 'Store iptables rules on Debian and Ubuntu'
-  when: distribution_id|first in ['Debian', 'Ubuntu'] and
-        iptables_service_state not in ['stopped', 'absent'] and
-        iptables_persistence
+  when: distribution_id|first in ['Debian', 'Ubuntu'] and iptables_persistence
   command: netfilter-persistent save
