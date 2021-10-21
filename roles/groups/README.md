@@ -1,6 +1,19 @@
 # Ansible Role `jm1.cloudy.groups`
 
-TODO.
+This role helps with managing UNIX groups from Ansible variables. It allows to add, modify and delete UNIX groups with
+variable `groups_config` which is defined as a list where each list item is a dictionary of parameters that will be
+passed to Ansible's [`group`][ansible-module-group] module. For example, to ensure group `libvirt` exists, define
+variable `groups_config` in `group_vars` or `host_vars` as such:
+
+```yml
+groups_config:
+- # Ensure system group libvirt exists
+  name: libvirt
+  state: present
+  system: yes
+```
+
+[ansible-module-group]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/group_module.html
 
 **Tested OS images**
 - Cloud image of [`Debian 10 (Buster)` \[`amd64`\]](https://cdimage.debian.org/cdimage/openstack/current/)
@@ -14,19 +27,39 @@ Available on Ansible Galaxy in Collection [jm1.cloudy](https://galaxy.ansible.co
 
 ## Requirements
 
-TODO.
+None.
 
 ## Variables
 
-TODO.
+| Name            | Default value | Required | Description |
+| --------------- | ------------- | -------- | ----------- |
+| `groups_config` | `[]`          | no       | List of parameter dictionaries for Ansible's [`group`][ansible-module-group] module |
 
 ## Dependencies
 
-TODO.
+None.
 
 ## Example Playbook
 
-TODO.
+```yml
+- hosts: all
+  vars:
+    # Variables are listed here for convenience and illustration.
+    # In a production setup, variables would be defined e.g. in
+    # group_vars and/or host_vars of an Ansible inventory.
+    # Ref.:
+    # https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html
+    # https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
+    groups_config:
+    - # Ensure system group libvirt exists
+      name: libvirt
+      state: present
+      system: yes
+  roles:
+  - name: Setup local groups
+    role: jm1.cloudy.groups
+    tags: ["jm1.cloudy.groups"]
+```
 
 For instructions on how to run Ansible playbooks have look at Ansible's
 [Getting Started Guide](https://docs.ansible.com/ansible/latest/network/getting_started/first_playbook.html).
