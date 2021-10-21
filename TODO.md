@@ -14,3 +14,7 @@
 
   Role `jm1.cloudy.openstack_server_netplan` sets Ansible fact `openstack_netplan`
   which is used in `inventory/group_vars/ostk.yml` to set variable `ansible_host`.
+
+* Add OpenStack-based hosts to example inventory to showcase OpenStack integration
+
+* Replace role `jm1.cloudy.tripleo_standalone` with tripleo.operator collection and its `playbooks/standalone.yml` play

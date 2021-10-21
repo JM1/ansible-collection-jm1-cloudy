@@ -40,6 +40,8 @@ tripleo_standalone_neutron_dns_domain: '{{ dns_suffix }}'
 tripleo_standalone_neutron_public_interface: !!null # is set in host_vars
 
 tripleo_standalone_parameters: |
+  # 2021 Jakob Meng, <jakobmeng@web.de>
+  # Ref.: https://opendev.org/openstack/tripleo-heat-templates/src/branch/master/overcloud.j2.yaml
   parameter_defaults:
     # domain name used by the host
     CloudDomain: {{ tripleo_standalone_cloud_domain }}
