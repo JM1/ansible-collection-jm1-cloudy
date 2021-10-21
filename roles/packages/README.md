@@ -1,6 +1,45 @@
 # Ansible Role `jm1.cloudy.packages`
 
-TODO.
+This role helps with managing packages from Ansible variables. It allows to install, upgrade and remove packages with
+variable `packages` which is defined in `group_vars` or `host_vars` either as
+
+* a list where each list item is a dictionary of parameters which will be passed to Ansible's [package][
+  ansible-module-package] module, e.g.
+
+```yml
+# packages as a list of dictionaries
+packages:
+- name:
+  - bash
+  - vim
+  state: 'present'
+- name:
+  - zsh
+  - nano
+  state: 'absent'
+```
+
+* a dictionary of parameters which will be passed to Ansible's [package][ansible-module-package] module, e.g.
+
+```yml
+# packages as a single dictionary
+packages:
+  name:
+  - bash
+  - vim
+  state: 'present'
+```
+
+* a list of packages which will be installed with Ansible's [package][ansible-module-package] module, e.g.
+
+```yml
+# packages as a list of strings
+packages:
+- bash
+- vim
+```
+
+[ansible-module-package]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/package_module.html
 
 **Tested OS images**
 - Cloud image of [`Debian 10 (Buster)` \[`amd64`\]](https://cdimage.debian.org/cdimage/openstack/current/)
@@ -14,19 +53,36 @@ Available on Ansible Galaxy in Collection [jm1.cloudy](https://galaxy.ansible.co
 
 ## Requirements
 
-TODO.
+None.
 
 ## Variables
 
-TODO.
+| Name       | Default value | Required | Description                               |
+| ---------- | ------------- | -------- | ----------------------------------------- |
+| `packages` | `[]`          | no       | List of parameter dictionaries, a single parameter dictionary or a list of strings for Ansible's [package][ansible-module-package] module |
 
 ## Dependencies
 
-TODO.
+None.
 
 ## Example Playbook
 
-TODO.
+```yml
+- hosts: all
+  vars:
+    # Variables are listed here for convenience and illustration.
+    # In a production setup, variables would be defined e.g. in
+    # group_vars and/or host_vars of an Ansible inventory.
+    # Ref.:
+    # https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html
+    # https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
+    packages:
+    - fzf
+  roles:
+  - name: Manage packages
+    role: jm1.cloudy.packages
+    tags: ["jm1.cloudy.packages"]
+```
 
 For instructions on how to run Ansible playbooks have look at Ansible's
 [Getting Started Guide](https://docs.ansible.com/ansible/latest/network/getting_started/first_playbook.html).
