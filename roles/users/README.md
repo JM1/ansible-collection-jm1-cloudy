@@ -1,6 +1,20 @@
 # Ansible Role `jm1.cloudy.users`
 
-TODO.
+This role helps with managing UNIX users from Ansible variables. It allows to add, modify and delete UNIX users with
+variable `users_config` which is defined as a list where each list item is a dictionary of parameters that will be
+passed to Ansible's [`user`][ansible-module-user] module. For example, to ensure an user for Ansible exists and its
+password is locked, define variable `users_config` in `group_vars` or `host_vars` as such:
+
+```yml
+users_config:
+- # Ensure user for Ansible exists and its password is lock
+  name: '{{ ansible_user }}'
+  password_lock: yes
+  shell: '/bin/bash'
+  state: present
+```
+
+[ansible-module-user]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/user_module.html
 
 **Tested OS images**
 - Cloud image of [`Debian 10 (Buster)` \[`amd64`\]](https://cdimage.debian.org/cdimage/openstack/current/)
@@ -14,19 +28,40 @@ Available on Ansible Galaxy in Collection [jm1.cloudy](https://galaxy.ansible.co
 
 ## Requirements
 
-TODO.
+None.
 
 ## Variables
 
-TODO.
+| Name           | Default value | Required | Description |
+| -------------- | ------------- | -------- | ----------- |
+| `users_config` | `[]`          | no       | List of parameter dictionaries for Ansible's [`user`][ansible-module-user] module |
 
 ## Dependencies
 
-TODO.
+None.
 
 ## Example Playbook
 
-TODO.
+```yml
+- hosts: all
+  vars:
+    # Variables are listed here for convenience and illustration.
+    # In a production setup, variables would be defined e.g. in
+    # group_vars and/or host_vars of an Ansible inventory.
+    # Ref.:
+    # https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html
+    # https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
+    users_config:
+    - # Ensure user for Ansible exists and its password is lock
+      name: '{{ ansible_user }}'
+      password_lock: yes
+      shell: '/bin/bash'
+      state: present
+  roles:
+  - name: Setup local users
+    role: jm1.cloudy.users
+    tags: ["jm1.cloudy.users"]
+```
 
 For instructions on how to run Ansible playbooks have look at Ansible's
 [Getting Started Guide](https://docs.ansible.com/ansible/latest/network/getting_started/first_playbook.html).
