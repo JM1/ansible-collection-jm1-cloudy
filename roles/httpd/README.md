@@ -58,7 +58,7 @@ this Collection [jm1.cloudy][galaxy-jm1-cloudy]. To install `jm1.pkg.meta_pkg` y
 
 [^supported-modules]: Supported Ansible modules are [`apache2_module`][ansible-module-apache2-module], [`blockinfile`][
 ansible-module-blockinfile], [`copy`][ansible-module-copy], [`debconf`][ansible-module-debconf], [`file`][
-ansible-module-file], [`lineinfile`][ansible-module-lineinfile], [`template`][ansible-module-template] modules.
+ansible-module-file], [`lineinfile`][ansible-module-lineinfile] and [`template`][ansible-module-template].
 
 [ansible-module-apache2-module]: https://docs.ansible.com/ansible/latest/collections/community/general/apache2_module_module.html
 [ansible-module-blockinfile]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/blockinfile_module.html

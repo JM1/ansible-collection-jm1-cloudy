@@ -57,7 +57,7 @@ ansible-module-blockinfile], [`copy`][ansible-module-copy], [`fetch`][ansible-mo
 ansible-module-file], [`get_url`][ansible-module-get-url], [`git`][ansible-module-git], [`lineinfile`][
 ansible-module-lineinfile], [`replace`][ansible-module-replace], [`slurp`][ansible-module-slurp], [`subversion`][
 ansible-module-subversion], [`template`][ansible-module-template], [`unarchive`][ansible-module-unarchive] and [`uri`][
-ansible-module-uri] modules.
+ansible-module-uri].
 
 [ansible-module-assemble]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/assemble_module.html
 [ansible-module-blockinfile]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/blockinfile_module.html
