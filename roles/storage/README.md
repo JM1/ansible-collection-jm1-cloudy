@@ -1,6 +1,32 @@
 # Ansible Role `jm1.cloudy.storage`
 
-TODO.
+This role helps with managing [partitions][redhat-filesystem], [encrypted (LUKS) devices][redhat-luks], [LVM volume
+groups, LVM volumes][redhat-lvm], [filesystems and mountpoints][redhat-filesystem] from Ansible variables. Role variable
+`storage_config` defines a list of tasks which will be run by this role. Each task calls an Ansible module similar to
+tasks in roles or playbooks except that [task keywords such as `name`, `notify` and `when`][playbooks-keywords] are
+ignored. For example, to create an ext4 primary partition on device `/dev/sdb`, define variable `storage_config` in
+`group_vars` or `host_vars` as such:
+
+```yml
+storage_config:
+- # Create ext4 primary partition on device /dev/sdb
+  parted:
+    device: /dev/sdb
+    fs_type: ext4
+    number: 1
+    state: present
+```
+
+When this role is executed, it will run all tasks listed in `storage_config` one after another. When `storage_config`
+includes `meta: flush_handlers` and `storage_reboot` evaluates to `yes`, then this role will reboot the system
+immediately and continue with remaining tasks in `storage_config` once the host has come up again. Once all tasks have
+finished, if anything has changed and `storage_reboot` evaluates to `yes`, then the system will be rebooted
+automatically.
+
+[playbooks-keywords]: https://docs.ansible.com/ansible/latest/reference_appendices/playbooks_keywords.html
+[redhat-filesystem]: https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html-single/managing_file_systems/index
+[redhat-luks]: https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/security_hardening/encrypting-block-devices-using-luks_security-hardening
+[redhat-lvm]: https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html-single/configuring_and_managing_logical_volumes/index
 
 **Tested OS images**
 - Cloud image of [`Debian 10 (Buster)` \[`amd64`\]](https://cdimage.debian.org/cdimage/openstack/current/)
@@ -14,19 +40,59 @@ Available on Ansible Galaxy in Collection [jm1.cloudy](https://galaxy.ansible.co
 
 ## Requirements
 
-TODO.
+None.
 
 ## Variables
 
-TODO.
+| Name             | Default value | Required | Description |
+| ---------------- | ------------- | -------- | ----------- |
+| `storage_config` | `[]`          | no       | List of tasks to run [^supported-modules] [^supported-actions] |
+| `storage_reboot` | `no`          | no       | Whether the system should be rebooted on `meta: flush_handlers` or after all changes have been applied |
+
+[^supported-modules]: Supported Ansible modules are [`crypttab`][ansible-module-crypttab], [`mount`][
+ansible-module-mount], [`luks_device`][ansible-module-luks-device], [`lvg`][ansible-module-lvg], [`lvol`][
+ansible-module-lvol] and [`parted`][ansible-module-parted].
+
+[^supported-actions]: Currently, the only supported Ansible action is [`meta: flush_handlers`][ansible-action-meta].
+
+[ansible-action-meta]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/meta_module.html
+[ansible-module-crypttab]: https://docs.ansible.com/ansible/latest/collections/community/general/crypttab_module.html
+[ansible-module-luks-device]: https://docs.ansible.com/ansible/latest/collections/community/crypto/luks_device_module.html
+[ansible-module-lvg]: https://docs.ansible.com/ansible/latest/collections/community/general/lvg_module.html
+[ansible-module-lvol]: https://docs.ansible.com/ansible/latest/collections/community/general/lvol_module.html
+[ansible-module-mount]: https://docs.ansible.com/ansible/latest/collections/ansible/posix/mount_module.html
+[ansible-module-parted]: https://docs.ansible.com/ansible/latest/collections/community/general/parted_module.html
 
 ## Dependencies
 
-TODO.
+None.
 
 ## Example Playbook
 
-TODO.
+```yml
+- hosts: all
+  vars:
+    # Variables are listed here for convenience and illustration.
+    # In a production setup, variables would be defined e.g. in
+    # group_vars and/or host_vars of an Ansible inventory.
+    # Ref.:
+    # https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html
+    # https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
+    storage_config:
+    - # Create ext4 primary partition on device /dev/sdb
+      parted:
+        device: /dev/sdb
+        fs_type: ext4
+        number: 1
+        state: present
+
+    # reboot system after changes have been applied
+    storage_reboot: yes
+  roles:
+  - name: Manage partitions, encrypted (LUKS) devices, LVM volume groups, LVM volumes, filesystems and mountpoints
+    role: jm1.cloudy.storage
+    tags: ["jm1.cloudy.storage"]
+```
 
 For instructions on how to run Ansible playbooks have look at Ansible's
 [Getting Started Guide](https://docs.ansible.com/ansible/latest/network/getting_started/first_playbook.html).
