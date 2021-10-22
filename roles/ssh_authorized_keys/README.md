@@ -5,7 +5,7 @@ modify and delete SSH public keys e.g. from `~/.ssh/authorized_keys` with variab
 is defined as a list where each list item is a dictionary of parameters that will be passed to Ansible's [authorized_key
 ][ansible-module-authorized-key] module. For example, to ensure that the public SSH (RSA) key of the current user who
 runs Ansible on the Ansible controller is present on an Ansible host, define variable `ssh_authorized_keys` in
-`group_vars` or `host_vars` as such:
+[`group_vars` or `host_vars`][ansible-inventory] as such:
 
 ```yml
 ssh_authorized_keys:
@@ -19,8 +19,9 @@ ssh_authorized_keys:
 When this role is executed, it will pass each item of the `ssh_authorized_keys` list one after another as parameters to
 Ansible's [authorized_key][ansible-module-authorized-key] module.
 
-[archlinux-wiki-ssh-keys]: https://wiki.archlinux.org/title/SSH_keys
+[ansible-inventory]: https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
 [ansible-module-authorized-key]: https://docs.ansible.com/ansible/latest/collections/ansible/posix/authorized_key_module.html
+[archlinux-wiki-ssh-keys]: https://wiki.archlinux.org/title/SSH_keys
 
 **Tested OS images**
 - Cloud image of [`Debian 10 (Buster)` \[`amd64`\]](https://cdimage.debian.org/cdimage/openstack/current/)

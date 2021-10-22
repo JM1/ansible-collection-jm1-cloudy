@@ -3,7 +3,8 @@
 This role helps with configuring [GRUB][grub-wiki] from Ansible variables. Role variable `grub_config` defines a list of
 tasks which will be run by this role. Each task calls an Ansible module similar to tasks in roles or playbooks except
 that [task keywords such as `name`, `notify` and `when`][playbooks-keywords] are ignored. For example, to enable IOMMU
-for PCI devices (and remove other parameters), define variable `grub_config` in `group_vars` or `host_vars` as such:
+for PCI devices (and remove other parameters), define variable `grub_config` in [`group_vars` or `host_vars`][
+ansible-inventory] as such:
 
 ```yml
 grub_config:
@@ -18,6 +19,7 @@ grub_config:
 Once all tasks have been run and if anything has changed, then the GRUB configuration will be (re)generated and the
 system will be rebooted automatically to apply the changes.
 
+[ansible-inventory]: https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
 [grub-wiki]: https://wiki.archlinux.org/title/GRUB
 [playbooks-keywords]: https://docs.ansible.com/ansible/latest/reference_appendices/playbooks_keywords.html
 

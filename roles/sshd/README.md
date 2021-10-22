@@ -4,7 +4,7 @@ This role helps with configuring the [OpenSSH server][sshd] aka `sshd` from Ansi
 allows to edit sshd's config file `/etc/ssh/sshd_config`. Variable `sshd_config` defines a list of tasks which will be
 run by this role. Each task calls an Ansible module similar to tasks in roles or playbooks except that [task keywords
 such as `name`, `notify` and `when`][playbooks-keywords] are ignored. For example, to disable password authentication
-and deny root login define variable `sshd_config` in `group_vars` or `host_vars` as such:
+and deny root login define variable `sshd_config` in [`group_vars` or `host_vars`][ansible-inventory] as such:
 
 ```yml
 sshd_config:
@@ -23,6 +23,7 @@ First, this role will install packages for OpenSSH server which match the distri
 has changed (and if `sshd_service_state` is not set to `stopped`), then sshd's service (set in `sshd_service_name`)
 is restarted to apply changes.
 
+[ansible-inventory]: https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
 [sshd]: https://www.openssh.com/
 [playbooks-keywords]: https://docs.ansible.com/ansible/latest/reference_appendices/playbooks_keywords.html
 

@@ -4,7 +4,8 @@ This role helps with managing [sudo][archlinux-wiki-sudo] from Ansible variables
 `/etc/sudoers` and files in `/etc/sudoers.d/`. Role variable `sudoers_config` defines a list of tasks which will be run
 by this role. Each task calls an Ansible module similar to tasks in roles or playbooks except that [task keywords such
 as `name`, `notify` and `when`][playbooks-keywords] are ignored. For example, to ensure that the Ansible user can gain
-full root privileges with `sudo`, define variable `sudoers_config` in `group_vars` or `host_vars` as such:
+full root privileges with `sudo`, define variable `sudoers_config` in [`group_vars` or `host_vars`][ansible-inventory]
+as such:
 
 ```yml
 sudoers_config:
@@ -21,6 +22,7 @@ sudoers_config:
 
 When this role is executed, it will run all tasks listed in `sudoers_config` one after another.
 
+[ansible-inventory]: https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
 [archlinux-wiki-sudo]: https://wiki.archlinux.org/title/Sudo
 [playbooks-keywords]: https://docs.ansible.com/ansible/latest/reference_appendices/playbooks_keywords.html
 

@@ -4,7 +4,8 @@ This role helps with managing [Netplan][netplan] [configuration][netplan-ref] fr
 `netplan_config` defines a list of tasks which will be run by this role. Each task calls an Ansible module similar to
 tasks in roles or playbooks except that [task keywords such as `name`, `notify` and `when`][playbooks-keywords] are
 ignored. For example, to assign static ip address `192.168.0.2`, DNS server `192.168.0.1` and default gateway
-`192.168.0.1` to network interface `eth0`, define variable `netplan_config` in `group_vars` or `host_vars` as such:
+`192.168.0.1` to network interface `eth0`, define variable `netplan_config` in [`group_vars` or `host_vars`][
+ansible-inventory] as such:
 
 ```yml
 netplan_config:
@@ -45,6 +46,7 @@ When this role is executed, it will run all tasks listed in `netplan_config`. On
 anything has changed, then the updated Netplan configuration will be applied (with `netplan apply`) and the system will
 be rebooted to apply more complex updates such as changes to the Netplan service itself.
 
+[ansible-inventory]: https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
 [jm1-cloudy-packages]: ../packages/
 [jm1-cloudy-services]: ../services/
 [netplan]: https://netplan.io/

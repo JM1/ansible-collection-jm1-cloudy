@@ -3,7 +3,7 @@
 This role helps with managing UNIX users from Ansible variables. It allows to add, modify and delete UNIX users with
 variable `users_config` which is defined as a list where each list item is a dictionary of parameters that will be
 passed to Ansible's [`user`][ansible-module-user] module. For example, to ensure an user for Ansible exists and its
-password is locked, define variable `users_config` in `group_vars` or `host_vars` as such:
+password is locked, define variable `users_config` in [`group_vars` or `host_vars`][ansible-inventory] as such:
 
 ```yml
 users_config:
@@ -14,6 +14,7 @@ users_config:
   state: present
 ```
 
+[ansible-inventory]: https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
 [ansible-module-user]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/user_module.html
 
 **Tested OS images**

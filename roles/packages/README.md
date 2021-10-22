@@ -1,7 +1,7 @@
 # Ansible Role `jm1.cloudy.packages`
 
 This role helps with managing packages from Ansible variables. It allows to install, upgrade and remove packages with
-variable `packages` which is defined in `group_vars` or `host_vars` either as
+variable `packages` which is defined in [`group_vars` or `host_vars`][ansible-inventory] either as
 
 * a list where each list item is a dictionary of parameters which will be passed to Ansible's [package][
   ansible-module-package] module, e.g.
@@ -39,6 +39,7 @@ packages:
 - vim
 ```
 
+[ansible-inventory]: https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
 [ansible-module-package]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/package_module.html
 
 **Tested OS images**

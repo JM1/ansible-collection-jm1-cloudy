@@ -4,8 +4,8 @@ This role helps with configuring the [Apache HTTP Server][httpd] aka `httpd` fro
 allows to edit config files in `/etc/apache2/` (on Debian) or `/etc/httpd/conf/` (on Red Hat Enterprise Linux). Variable
 `httpd_config` defines a list of tasks which will be run by this role. Each task calls an Ansible module similar to
 tasks in roles or playbooks except that [task keywords such as `name`, `notify` and `when`][playbooks-keywords] are
-ignored. For example, to drop Apache's default site on Debian define variable `httpd_config` in `group_vars` or
-`host_vars` as such:
+ignored. For example, to drop Apache's default site on Debian define variable `httpd_config` in [`group_vars` or
+`host_vars`][ansible-inventory] as such:
 
 ```yml
 httpd_config:
@@ -22,6 +22,7 @@ First, this role will install packages for Apache HTTP Server which match the di
 has changed (and if `httpd_service_state` is not set to `stopped`), then Apache's service (set in `httpd_service_name`)
 is restarted to apply changes.
 
+[ansible-inventory]: https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
 [httpd]: https://httpd.apache.org/
 [playbooks-keywords]: https://docs.ansible.com/ansible/latest/reference_appendices/playbooks_keywords.html
 

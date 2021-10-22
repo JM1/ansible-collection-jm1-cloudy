@@ -3,8 +3,8 @@
 This role helps with populating the [debconf][debconf-man] database from Ansible variables. It allows to insert new
 values into the debconf database and to (re)configure packages with variable `debconf_config` which is defined as a list
 where each list item is a dictionary of parameters that will be passed to Ansible's [debconf][ansible-module-debconf]
-module. For example, to select time zone `UTC` on Debian or Ubuntu, define variable `debconf_config` in `group_vars` or
-`host_vars` as such:
+module. For example, to select time zone `UTC` on Debian or Ubuntu, define variable `debconf_config` in [`group_vars` or
+`host_vars`][ansible-inventory] as such:
 
 ```yml
 debconf_config:
@@ -86,6 +86,7 @@ to update the debconf database with the new values. Unfortunately how to change 
 on the packages, details can be found in the `/var/lib/dpkg/info/*.postinst` scripts.
 :warning:
 
+[ansible-inventory]: https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
 [ansible-module-debconf]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/debconf_module.html
 [debconf-db-override]: https://github.com/zecrazytux/ansible-library-extra/issues/1#issuecomment-99636309
 [debconf-man]: https://manpages.debian.org/stable/debconf-doc/debconf.7.de.html

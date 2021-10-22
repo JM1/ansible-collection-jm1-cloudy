@@ -7,7 +7,8 @@ services and more from Ansible variables.
 Role variable `files_config` defines a list of tasks which will be run by this role. Each task calls an Ansible module
 similar to tasks in roles or playbooks except that [task keywords such as `name`, `notify` and `when`][
 playbooks-keywords] are ignored. For example, to ensure the inventory name for the current Ansible host being iterated
-over in the play is in `/etc/hosts` define variable `files_config` in `group_vars` or `host_vars` as such:
+over in the play is in `/etc/hosts` define variable `files_config` in [`group_vars` or `host_vars`][ansible-inventory]
+as such:
 
 ```yml
 files_config:
@@ -29,6 +30,7 @@ files_config:
     mode: '0644'
 ```
 
+[ansible-inventory]: https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
 [playbooks-keywords]: https://docs.ansible.com/ansible/latest/reference_appendices/playbooks_keywords.html
 
 **Tested OS images**

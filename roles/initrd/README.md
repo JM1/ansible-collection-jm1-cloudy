@@ -5,7 +5,7 @@ variable `initrd_config` defines a list of tasks which will be run by this role.
 similar to tasks in roles or playbooks except that [task keywords such as `name`, `notify` and `when`][
 playbooks-keywords] are ignored. For example, to [enable DRM (Direct Rendering Manager) kernel mode setting with
 NVIDIA's proprietary graphics card driver at the earliest possible occasion][nvidia-drm-kms], define variable
-`initrd_config` in `group_vars` or `host_vars` as such:
+`initrd_config` in [`group_vars` or `host_vars`][ansible-inventory] as such:
 
 ```yml
 initrd_config:
@@ -23,6 +23,7 @@ initrd_config:
 Once all tasks have been run and if anything has changed, then initramfs images will be (re)generated with `initrd_cmd`
 and the system will be rebooted automatically to apply the changes.
 
+[ansible-inventory]: https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
 [nvidia-drm-kms]: https://wiki.archlinux.org/title/Nvidia#DRM_kernel_mode_setting
 [playbooks-keywords]: https://docs.ansible.com/ansible/latest/reference_appendices/playbooks_keywords.html
 [ramfs-rootfs-initramfs]: https://docs.kernel.org/filesystems/ramfs-rootfs-initramfs.html

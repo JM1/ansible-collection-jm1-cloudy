@@ -4,7 +4,7 @@ This role helps with configuring a [tftp server][tftp-hpa] from Ansible variable
 file `/etc/default/tftpd-hpa` on Debian. Variable `tftpd_config` defines a list of tasks which will be run by this role.
 Each task calls an Ansible module similar to tasks in roles or playbooks except that [task keywords such as `name`,
 `notify` and `when`][playbooks-keywords] are ignored. For example, to bind tftpd to localhost on Debian define variable
-`tftpd_config` in `group_vars` or `host_vars` as such:
+`tftpd_config` in [`group_vars` or `host_vars`][ansible-inventory] as such:
 
 ```yml
 tftpd_config:
@@ -20,6 +20,7 @@ Next, it will run all tasks listed in `tftpd_config`. Once all tasks have finish
 `tftpd_service_state` is not set to `stopped`), then tftpd's service (set in `tftpd_service_name`) is restarted to apply
 changes.
 
+[ansible-inventory]: https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
 [playbooks-keywords]: https://docs.ansible.com/ansible/latest/reference_appendices/playbooks_keywords.html
 [tftp-hpa]: http://git.kernel.org/cgit/network/tftp/tftp-hpa.git
 

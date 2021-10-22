@@ -3,7 +3,7 @@
 This role helps with managing UNIX groups from Ansible variables. It allows to add, modify and delete UNIX groups with
 variable `groups_config` which is defined as a list where each list item is a dictionary of parameters that will be
 passed to Ansible's [`group`][ansible-module-group] module. For example, to ensure group `libvirt` exists, define
-variable `groups_config` in `group_vars` or `host_vars` as such:
+variable `groups_config` in [`group_vars` or `host_vars`][ansible-inventory] as such:
 
 ```yml
 groups_config:
@@ -13,6 +13,7 @@ groups_config:
   system: yes
 ```
 
+[ansible-inventory]: https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
 [ansible-module-group]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/group_module.html
 
 **Tested OS images**

@@ -4,7 +4,8 @@ This role helps with configuring DHCP IPv4 and DHCP IPv6 services from Ansible v
 files `/etc/dhcp/dhcpd.conf` and `/etc/dhcp/dhcpd6.conf` with variables `dhcpd_config` and `dhcpd6_config` which both
 define lists of tasks which will be run by this role. Each task calls an Ansible module similar to tasks in roles or
 playbooks except that [task keywords such as `name`, `notify` and `when`][playbooks-keywords] are ignored. For example,
-to configure a DHCP IPv4 service define variable `dhcpd_config` in `group_vars` or `host_vars` as such:
+to configure a DHCP IPv4 service define variable `dhcpd_config` in [`group_vars` or `host_vars`][ansible-inventory] as
+such:
 
 ```yml
 dhcpd_config:
@@ -22,6 +23,7 @@ Next, it will run all tasks listed in `dhcpd_config` and `dhcpd6_config`. Once a
 has changed (and if `dhcpd_service_state` or `dhcpd6_service_state` are not set to `stopped`), then the DHCP IPv4 and
 DHCP IPv6 services are restarted to apply changes.
 
+[ansible-inventory]: https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
 [playbooks-keywords]: https://docs.ansible.com/ansible/latest/reference_appendices/playbooks_keywords.html
 
 **Tested OS images**

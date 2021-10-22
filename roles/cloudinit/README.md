@@ -4,7 +4,7 @@ This role helps with changing the [cloud-init][cloud-init-doc] configuration, e.
 Role variable `cloudinit_config` defines a list of tasks which will be run by this role. Each task calls an Ansible 
 module similar to tasks in roles or playbooks except that [task keywords such as `name`, `notify` and `when`][
 playbooks-keywords] are ignored. For example, to disable cloud-init's network configuration, define variable
-`cloudinit_config` in `group_vars` or `host_vars` as such:
+`cloudinit_config` in [`group_vars` or `host_vars`][ansible-inventory] as such:
 
 ```yml
 cloudinit_config:
@@ -22,6 +22,7 @@ cloudinit_config:
 Once all tasks have been run and if anything has changed, then the system will automatically be rebooted to apply the
 cloud-init configuration.
 
+[ansible-inventory]: https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
 [cloud-init-doc]: https://cloudinit.readthedocs.io/
 [playbooks-keywords]: https://docs.ansible.com/ansible/latest/reference_appendices/playbooks_keywords.html
 

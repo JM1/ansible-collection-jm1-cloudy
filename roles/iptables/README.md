@@ -4,7 +4,7 @@ This role helps with managing [iptables][iptables] rules from Ansible variables.
 a list of tasks which will be run by this role. Each task calls an Ansible module similar to tasks in roles or playbooks
 except that [task keywords such as `name`, `notify` and `when`][playbooks-keywords] are ignored. For example, to enable
 [SNAT (source NAT)][snat-wiki] for all packets coming from an internal network define variable `iptables_config` in
-`group_vars` or `host_vars` as such:
+[`group_vars` or `host_vars`][ansible-inventory] as such:
 
 ```yml
 iptables_config:
@@ -27,6 +27,7 @@ specified in `distribution_id`) to persist iptables rules across reboots. Next, 
 `iptables_config`. Once all tasks have finished, if anything has changed and `iptables_persistence` evaluates to `yes`
 (and if `iptables_service_state` is not set to `stopped`), then all iptables rules are stored to survive reboots.
 
+[ansible-inventory]: https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
 [iptables]: https://wiki.archlinux.org/title/Iptables
 [playbooks-keywords]: https://docs.ansible.com/ansible/latest/reference_appendices/playbooks_keywords.html
 [snat-wiki]: https://en.wikipedia.org/wiki/SNAT

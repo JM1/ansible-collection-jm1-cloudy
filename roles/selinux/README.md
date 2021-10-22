@@ -5,7 +5,7 @@ This role helps with managing [SELinux][what-is-selinux] from Ansible variables.
 `selinux_config` defines a list of tasks which will be run by this role. Each task calls an Ansible module similar to
 tasks in roles or playbooks except that [task keywords such as `name`, `notify` and `when`][playbooks-keywords] are
 ignored. For example, to put SELinux in permissive mode so that actions will be logged instead of being blocked, define
-variable `selinux_config` in `group_vars` or `host_vars` as such:
+variable `selinux_config` in [`group_vars` or `host_vars`][ansible-inventory] as such:
 
 ```yml
 selinux_config:
@@ -23,6 +23,7 @@ install SELinux because presumably additional configuration is required to confi
 
 When this role is executed, it will run all tasks listed in `selinux_config`.
 
+[ansible-inventory]: https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
 [debian-wiki-selinux]: https://wiki.debian.org/SELinux
 [playbooks-keywords]: https://docs.ansible.com/ansible/latest/reference_appendices/playbooks_keywords.html
 [selinux-booleans]: https://www.redhat.com/sysadmin/selinux-policies-booleans

@@ -4,7 +4,7 @@ This role helps with managing meta packages [^meta-packages] from Ansible variab
 and remove meta packages [^meta-packages] with variable `meta_packages` which is defined as a list where each list item
 is a dictionary of parameters that will be passed to module [`jm1.pkg.meta_pkg`][jm1-pkg-meta-pkg] from collection
 [`jm1.pkg`][galaxy-jm1-pkg]. For example, to install helpful tools for Python development on Debian 11 (Bullseye),
-define variable `meta_packages` in `group_vars` or `host_vars` as such:
+define variable `meta_packages` in [`group_vars` or `host_vars`][ansible-inventory] as such:
 
 ```yml
 meta_packages:
@@ -21,6 +21,7 @@ meta_packages:
 
 [^meta-packages]: For rationale behind meta packages refer to description of the [`jm1.pkg.meta_pkg`][jm1-pkg-meta-pkg] module.
 
+[ansible-inventory]: https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
 [jm1-pkg-meta-pkg]: https://github.com/JM1/ansible-collection-jm1-pkg/blob/master/plugins/modules/meta_pkg.py
 
 **Tested OS images**
