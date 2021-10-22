@@ -33,12 +33,6 @@
   notify:
   - 'Reboot after partitions, encrypted (LUKS) devices, LVM devices, filesystems or mountpoints have been changed'
 
-- name: Manage entries in /etc/crypttab
-  when: "'crypttab' in item"
-  crypttab: "{{ item }}"
-  notify:
-  - 'Reboot after partitions, encrypted (LUKS) devices, LVM devices, filesystems or mountpoints have been changed'
-
 - name: Manage entries in /etc/fstab
   when: "'mount' in item"
   mount: "{{ item }}"
