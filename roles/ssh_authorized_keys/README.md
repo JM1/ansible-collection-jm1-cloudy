@@ -1,6 +1,26 @@
 # Ansible Role `jm1.cloudy.ssh_authorized_keys`
 
-TODO.
+This role helps with managing [SSH authorized keys][archlinux-wiki-ssh-keys] from Ansible variables. It allows to add,
+modify and delete SSH public keys e.g. from `~/.ssh/authorized_keys` with variable `ssh_authorized_keys`. This variable
+is defined as a list where each list item is a dictionary of parameters that will be passed to Ansible's [authorized_key
+][ansible-module-authorized-key] module. For example, to ensure that the public SSH (RSA) key of the current user who
+runs Ansible on the Ansible controller is present on an Ansible host, define variable `ssh_authorized_keys` in
+`group_vars` or `host_vars` as such:
+
+```yml
+ssh_authorized_keys:
+- comment: >-
+    {{ lookup('pipe','whoami') + '@' + lookup('pipe','hostname') + ':' + lookup('env','HOME') + '/.ssh/id_rsa.pub' }}
+  key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub')|mandatory }}"
+  state: present
+  user: '{{ ansible_user }}'
+```
+
+When this role is executed, it will pass each item of the `ssh_authorized_keys` list one after another as parameters to
+Ansible's [authorized_key][ansible-module-authorized-key] module.
+
+[archlinux-wiki-ssh-keys]: https://wiki.archlinux.org/title/SSH_keys
+[ansible-module-authorized-key]: https://docs.ansible.com/ansible/latest/collections/ansible/posix/authorized_key_module.html
 
 **Tested OS images**
 - Cloud image of [`Debian 10 (Buster)` \[`amd64`\]](https://cdimage.debian.org/cdimage/openstack/current/)
@@ -14,19 +34,39 @@ Available on Ansible Galaxy in Collection [jm1.cloudy](https://galaxy.ansible.co
 
 ## Requirements
 
-TODO.
+None.
 
 ## Variables
 
-TODO.
+| Name                  | Default value | Required | Description                               |
+| --------------------- | ------------- | -------- | ----------------------------------------- |
+| `ssh_authorized_keys` | `[]`          | no       | List of parameter dictionaries for Ansible's [authorized_key][ansible-module-authorized-key] module |
 
 ## Dependencies
 
-TODO.
+None.
 
 ## Example Playbook
 
-TODO.
+```yml
+- hosts: all
+  vars:
+    # Variables are listed here for convenience and illustration.
+    # In a production setup, variables would be defined e.g. in
+    # group_vars and/or host_vars of an Ansible inventory.
+    # Ref.:
+    # https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html
+    # https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
+    ssh_authorized_keys:
+    - # Add SSH public (RSA) keys from jm1's github account
+      key: https://github.com/jm1.keys
+      state: present
+      user: ansible
+  roles:
+  - name: Setup SSH authorized keys
+    role: jm1.cloudy.ssh_authorized_keys
+    tags: ["jm1.cloudy.ssh_authorized_keys"]
+```
 
 For instructions on how to run Ansible playbooks have look at Ansible's
 [Getting Started Guide](https://docs.ansible.com/ansible/latest/network/getting_started/first_playbook.html).
