@@ -6,6 +6,7 @@
 - name: Add/Remove compute flavors from OpenStack
   loop: '{{ openstack_compute_flavors|default([]) }}'
   openstack.cloud.compute_flavor: "{{ item
+    |dict2items|rejectattr('key', 'eq', 'projects')|list|items2dict
     |combine({} if 'auth' in item else {'auth': openstack_auth})
     |combine({} if 'cloud' in item else {'cloud': openstack_cloud})
     |combine({} if 'interface' in item else {'interface': openstack_interface})
@@ -25,9 +26,9 @@
 - name: Retrieve info about OpenStack projects
   loop: "{{ openstack_compute_flavors_per_project }}"
   openstack.cloud.project_info:
-    auth: '{{ openstack_auth }}'
-    cloud: '{{ openstack_cloud }}'
-    interface: '{{ openstack_interface|default(omit) }}'
+    auth: "{{ item.0.auth if 'auth' in item.0 else openstack_auth }}"
+    cloud: "{{ item.0.cloud if 'cloud' in item.0 else openstack_cloud }}"
+    interface: "{{ item.0.interface if 'interface' in item.0 else openstack_interface }}"
     name: '{{ item.1.name|mandatory }}'
     # might return more than one project per project name if project name is ambiguous
   register: openstack_project_info
@@ -46,9 +47,9 @@
 - name: Add/Remove compute flavors access from OpenStack projects
   loop: '{{ openstack_compute_flavors_per_project_info }}'
   openstack.cloud.project_access:
-    auth: '{{ openstack_auth }}'
-    cloud: '{{ openstack_cloud }}'
-    interface: '{{ openstack_interface|default(omit) }}'
+    auth: "{{ item.0.0.auth if 'auth' in item.0.0 else openstack_auth }}"
+    cloud: "{{ item.0.0.cloud if 'cloud' in item.0.0 else openstack_cloud }}"
+    interface: "{{ item.0.0.interface if 'interface' in item.0.0 else openstack_interface }}"
     resource_name: '{{ item.0.0.name }}'
     resource_type: 'nova_flavor'
     target_project_id: '{{ item.1.id }}'
