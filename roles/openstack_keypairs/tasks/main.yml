@@ -16,5 +16,5 @@
     |combine({} if 'cloud' in item else {'cloud': openstack_cloud})
     |combine({} if 'interface' in item else {'interface': openstack_interface})
     |combine({} if 'name' in item else {'name': (item.comment if 'comment' in item else item.user)|regex_replace('[^A-Za-z0-9 _-]', '')})
-    |combine({} if 'public_key' in item else {'public_key': item.key})
+    |combine({} if 'public_key' in item or 'key' not in item else {'public_key': item.key})
   }}"
