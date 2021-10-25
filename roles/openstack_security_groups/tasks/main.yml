@@ -6,6 +6,7 @@
 - name: Add/Remove OpenStack security groups
   loop: '{{ openstack_security_groups|default([]) }}'
   openstack.cloud.security_group: "{{ item
+    |dict2items|rejectattr('key', 'eq', 'rules')|list|items2dict
     |combine({} if 'auth' in item else {'auth': openstack_auth})
     |combine({} if 'cloud' in item else {'cloud': openstack_cloud})
     |combine({} if 'interface' in item else {'interface': openstack_interface})
@@ -14,17 +15,10 @@
 - name: Add/Remove rules from a OpenStack security group
   loop: "{{ openstack_security_groups|default([])|subelements('rules') }}"
   when: item.0.state == 'present'
-  openstack.cloud.security_group_rule:
-    auth: '{{ openstack_auth }}'
-    cloud: '{{ openstack_cloud }}'
-    direction: '{{ item.1.direction|default(omit) }}'
-    ethertype: '{{ item.1.ethertype|default(omit) }}'
-    interface: '{{ openstack_interface|default(omit) }}'
-    port_range_max: '{{ item.1.port_range_max|default(omit) }}'
-    port_range_min: '{{ item.1.port_range_min|default(omit) }}'
-    project: '{{ item.0.project|default(omit) }}'
-    protocol: '{{ item.1.protocol|default(omit) }}'
-    remote_group: '{{ item.1.remote_group|default(omit) }}'
-    remote_ip_prefix: '{{ item.1.remote_ip_prefix|default(omit) }}'
-    security_group: '{{ item.0.name|mandatory }}'
-    state: '{{ item.1.state|default(present) }}'
+  openstack.cloud.security_group_rule: "{{ item.1
+    |combine({'auth': item.0.auth if 'auth' in item.0 else openstack_auth})
+    |combine({'cloud': item.0.cloud if 'cloud' in item.0 else openstack_cloud})
+    |combine({'interface': item.0.interface if 'interface' in item.0 else openstack_interface})
+    |combine({'project': item.0.project} if 'project' in item.0 else {})
+    |combine({'security_group': item.0.name})
+  }}"
