@@ -88,7 +88,12 @@ Available on Ansible Galaxy in Collection [jm1.cloudy](https://galaxy.ansible.co
 
 ## Requirements
 
-None.
+This role uses module(s) from collections [`jm1.openstack`][galaxy-jm1-openstack] and [`openstack.cloud`][
+galaxy-openstack-cloud]. To install these collections you may follow the steps described in [`README.md`][
+jm1-cloudy-readme] using the provided [`requirements.yml`][jm1-cloudy-requirements].
+
+[jm1-cloudy-readme]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/README.md
+[jm1-cloudy-requirements]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/requirements.yml
 
 ## Variables
 
@@ -111,7 +116,9 @@ instead.
 
 ## Dependencies
 
-None.
+| Name                  | Description |
+| --------------------- | ----------- |
+| `jm1.openstack.setup` | Installs necessary software for module `jm1.openstack.image_import` from collection `jm1.openstack`. |
 
 ## Example Playbook
 

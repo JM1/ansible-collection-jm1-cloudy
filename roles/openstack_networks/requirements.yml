@@ -1,4 +1,6 @@
 ---
 roles: []
 
-collections: []
+collections:
+- jm1.openstack
+- openstack.cloud
