@@ -6,6 +6,7 @@
 - name: Load images into or remove images from OpenStack image repository
   loop: '{{ openstack_images|default([]) }}'
   jm1.openstack.image_import: "{{ item
+    |dict2items|rejectattr('key', 'eq', 'properties')|list|items2dict
     |combine({} if 'auth' in item else {'auth': openstack_auth})
     |combine({} if 'cloud' in item else {'cloud': openstack_cloud})
     |combine({} if 'interface' in item else {'interface': openstack_interface})
@@ -15,9 +16,9 @@
 - name: Set image properties in OpenStack image repository
   loop: '{{ openstack_image_import_result.results|zip(openstack_images)|list }}'
   openstack.cloud.image:
-    auth: "{{ openstack_auth }}"
-    cloud: '{{ openstack_cloud }}'
-    interface: '{{ openstack_interface|default(omit) }}'
+    auth: "{{ item.1.auth if 'auth' in item.1 else openstack_auth }}"
+    cloud: "{{ item.1.cloud if 'cloud' in item.1 else openstack_cloud }}"
+    interface: "{{ item.1.interface if 'interface' in item.1 else openstack_interface }}"
     name: '{{ item.0.id|default(item.0.name) }}'
     properties: '{{ item.1.properties }}'
   when:
