@@ -107,7 +107,6 @@ Click on the name of an inventory, module, playbook or role to view that content
     * [openstack_security_groups](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/openstack_security_groups/README.md)
     * [openstack_server](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/openstack_server/README.md)
     * [openstack_server_info](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/openstack_server_info/README.md)
-    * [openstack_server_netplan](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/openstack_server_netplan/README.md)
     * [openstack_server_state](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/openstack_server_state/README.md)
     * [openstack_volumes](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/openstack_volumes/README.md)
     * [packages](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/packages/README.md)

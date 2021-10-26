@@ -103,11 +103,6 @@
         {% endfor %}
       openstack_server_ports_info: !!null
 
-- name: Generate Netplan configuration facts
-  # openstack_netplan fact might be used in openstack_server_config.userdata
-  import_role:
-    name: "openstack_server_netplan"
-
 - name: List block storage volumes
   loop: "{{ ([openstack_server_config.boot_volume] if 'boot_volume' in openstack_server_config else []) +
             (openstack_server_config.volumes if 'volumes' in openstack_server_config else []) }}"
