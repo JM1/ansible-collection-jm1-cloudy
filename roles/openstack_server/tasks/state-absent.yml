@@ -4,43 +4,44 @@
 # kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
 
 - name: Detach floating ips
-  loop: "{{ openstack_server_floating_ips|default([]) }}"
-  openstack.cloud.floating_ip:
-    auth: '{{ openstack_auth }}'
-    cloud: '{{ openstack_cloud }}'
-    floating_ip_address: '{{ item.floating_ip_address|default(omit) }}'
-    interface: '{{ openstack_interface|default(omit) }}'
-    purge: '{{ item.purge|default(omit) }}'
-    server: '{{ openstack_server_name|mandatory }}'
-    state: absent
-    wait: yes
-  register: openstack_floating_ip_result
+  loop: "{{ openstack_server_floating_ips }}"
+  openstack.cloud.floating_ip: "{{ item
+    |combine({} if 'auth' in item else {'auth': openstack_auth})
+    |combine({} if 'cloud' in item else {'cloud': openstack_cloud})
+    |combine({} if 'interface' in item else {'interface': openstack_interface})
+    |combine({} if 'server' in item else {'server': openstack_server_name})
+    |dict2items|rejectattr('key', 'eq', 'state')|list|items2dict
+    |combine({'state': 'absent', 'wait': 'yes'})
+  }}"
+  register: openstack_server_floating_ips_result
 
 - name: Delete compute instance
   openstack.cloud.server:
-    auth: '{{ openstack_auth }}'
-    cloud: '{{ openstack_cloud }}'
-    delete_fip: '{{ openstack_server_delete_fip|default(omit) }}'
-    interface: '{{ openstack_interface|default(omit) }}'
-    name: '{{ openstack_server_name|mandatory }}'
+    auth: "{{ item.auth if 'auth' in openstack_server_config else openstack_auth }}"
+    cloud: "{{ item.cloud if 'cloud' in openstack_server_config else openstack_cloud }}"
+    delete_fip: "{{ item.delete_fip if 'delete_fip' in openstack_server_config else omit }}"
+    interface: "{{ item.interface if 'interface' in openstack_server_config else openstack_interface }}"
+    name: '{{ openstack_server_name }}'
     state: absent
   register: openstack_server_result
 
 - name: Delete network ports
-  loop: '{{ openstack_network_ports|default([]) }}'
+  loop: '{{ openstack_server_ports }}'
   openstack.cloud.port:
-    auth: '{{ openstack_auth }}'
-    cloud: '{{ openstack_cloud }}'
-    interface: '{{ openstack_interface|default(omit) }}'
+    auth: "{{ item.auth if 'auth' in item else openstack_auth }}"
+    cloud: "{{ item.cloud if 'cloud' in item else openstack_cloud }}"
+    interface: "{{ item.interface if 'interface' in item else openstack_interface }}"
     name: '{{ item.name|mandatory }}'
     state: absent
   when: item.network|default(None) != None # Only delete what might has been created
+  register: openstack_server_ports_result
 
 - name: Debug role variables
   debug:
     msg:
       openstack_server_result: '{{ openstack_server_result }}'
-      openstack_floating_ip_result: '{{ openstack_floating_ip_result }}'
+      openstack_server_floating_ips_result: '{{ openstack_server_floating_ips_result }}'
+      openstack_server_ports_result: '{{ openstack_server_ports_result }}'
   tags:
     - never
     - debug

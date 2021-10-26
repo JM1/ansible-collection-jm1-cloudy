@@ -23,80 +23,42 @@ cloudinit_userdata: |
 
 # distribution_id is set in host_vars
 
-# openstack_auth is set in cloud-specific group_vars
-
-# openstack_cloud is set in cloud-specific group_vars
+# openstack_auth, openstack_cloud and openstack_interface are set in cloud-specific group_vars
 
 # openstack_compute_flavors is set in cloud-specific group_vars
 # NOTE: Regular users are not allowed to define compute flavors!
-
-openstack_interface: '{{ omit }}'
 
 openstack_keypairs: "{{ ssh_authorized_keys|selectattr('user', 'equalto', ansible_user)|selectattr('state', 'equalto', 'present')|list }}"
 
 # openstack_netplan is generated in role openstack_server resp. openstack_server_netplan
 
-# openstack_network_ports is set in host_vars
-
-openstack_server_auto_ip: no
-
-# openstack_server_boot_from_volume is not set
-
-openstack_server_boot_volume: '{{ openstack_volumes|first if openstack_volumes is defined and openstack_volumes|length > 0 else None }}'
-
-openstack_server_config_drive: no
-
-# openstack_server_delete_fip is not set
-
-openstack_server_flavor: 'c2.m4'
-
-# openstack_server_flavor_include is not set
-
-# openstack_server_flavor_ram is not set
-
-# openstack_server_floating_ip_pools is not set
-
-# openstack_server_floating_ips is set in host_vars
-
-# openstack_server_image is not set
-
-# openstack_server_image_exclude is not set
+openstack_server_config:
+  auto_ip: no
+  boot_volume: '{{ openstack_volumes|first if openstack_volumes is defined and openstack_volumes|length > 0 else None }}'
+  config_drive: no
+  flavor: 'c2.m4'
+  # key_name is not set because it is set using cloudinit_userdata
+  security_groups:
+  - default
+  terminate_volume: no
+  userdata: '{{ cloudinit_userdata }}'
+  volumes: '{{ openstack_volumes[1:] if openstack_volumes is defined and openstack_volumes|length > 1 else [] }}'
 
 openstack_server_images:
-  CentOS_7: 'CentOS-7-x86_64-GenericCloud-2003.raw'
-  CentOS_8: 'CentOS-8-GenericCloud-8.2.2004-20200611.2.x86_64.raw'
-  Debian_10: 'debian-10.4.2-20200608-openstack-amd64.raw'
-  #Debian_11: 'debian-11-********-openstack-amd64.raw'
-  Ubuntu_18_04: 'ubuntu-18.04-server-cloudimg-amd64-20200908.raw'
-  #Ubuntu_20_04: 'ubuntu-20.04-server-cloudimg-amd64-20200616.raw'
-  Ubuntu_20_04: 'ubuntu-20.04-server-cloudimg-amd64-20201102.raw'
-
-# openstack_server_key_name is not set, because it is set using cloudinit_userdata aka openstack_server_userdata
-
-# openstack_server_meta is not set
+  CentOS_7: 'CentOS-7-x86_64-GenericCloud-2003-bios'
+  CentOS_8: 'CentOS-Stream-GenericCloud-8-20210603.0.x86_64-bios'
+  Debian_10: 'debian-10-genericcloud-amd64-bios'
+  Debian_11: 'debian-11-genericcloud-amd64-bios'
+  Ubuntu_18_04: 'ubuntu-18.04-server-cloudimg-amd64-bios'
+  Ubuntu_20_04: 'ubuntu-20.04-server-cloudimg-amd64-bios'
 
 openstack_server_name: '{{ fqdn }}'
 
-# openstack_server_network is not set
-
-# openstack_server_reuse_ips is not set
-
-# openstack_server_scheduler_hints is not set
-
-openstack_server_security_groups:
-- default
-
-openstack_server_terminate_volume: no
-
+# NOTE: Variable openstack_server_state has to be defined in this inventory else grouping by openstack_server_state in
+#       playbooks/site.yml fails because openstack_server_state is undefined.
 # Possible server states: [active, paused, suspended, shutoff, shelved, shelved_offloaded]
 # Ref.: https://docs.openstack.org/api-guide/compute/server_concepts.html
 openstack_server_state: active
-
-openstack_server_userdata: '{{ cloudinit_userdata }}'
-
-# openstack_server_volume_size is not set
-
-openstack_server_volumes: '{{ openstack_volumes[1:] if openstack_volumes is defined and openstack_volumes|length > 1 else [] }}'
 
 openstack_volumes:
 - bootable: yes

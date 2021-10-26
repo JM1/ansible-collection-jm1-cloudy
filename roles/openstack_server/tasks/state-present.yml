@@ -3,17 +3,12 @@
 # vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
 # kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
 
-- name: Fail if required vars are not set
-  fail:
-  when: >
-    openstack_server_name == None or openstack_server_name|length == 0 or
-    openstack_server_state == None or openstack_server_state|length == 0
-
 - name: Fail if vars have invalid values
   fail:
   when: >
     state not in ['present', 'absent'] or
-    openstack_server_state not in ['active', 'paused', 'suspended', 'shutoff', 'shelved', 'shelved_offloaded']
+    openstack_server_state not in ['active', 'paused', 'suspended', 'shutoff', 'shelved', 'shelved_offloaded'] or
+    'name' in openstack_server_config or 'state' in openstack_server_config
 
 - name: Load server facts
   import_role:
@@ -28,9 +23,9 @@
   - name: Unshelve server
     openstack.cloud.server_action:
       action: unshelve
-      auth: '{{ openstack_auth }}'
-      cloud: '{{ openstack_cloud }}'
-      interface: '{{ openstack_interface|default(omit) }}'
+      auth: "{{ openstack_server_config.auth if 'auth' in openstack_server_config else openstack_auth }}"
+      cloud: "{{ openstack_server_config.cloud if 'cloud' in openstack_server_config else openstack_cloud }}"
+      interface: "{{ openstack_server_config.interface if 'interface' in openstack_server_config else openstack_interface }}"
       server: '{{ openstack_server_name }}'
 
   - name: Wait for host to become usable
@@ -69,120 +64,94 @@
         Compute instance {{ openstack_server_name }} is shelved, no modifications possible. Unshelve first to apply changes!
   ignore_errors: yes # noqa ignore-errors
 
-- name: Create network ports and list server nics
+- name: Create/Delete network ports and list server nics
   block:
-  - name: Create network ports
-    loop: '{{ openstack_network_ports|default([]) }}'
-    openstack.cloud.port:
-      auth: '{{ openstack_auth }}'
-      admin_state_up: '{{ item.admin_state_up|default(omit) }}'
-      allowed_address_pairs: '{{ item.allowed_address_pairs|default([]) }}'
-      cloud: '{{ openstack_cloud }}'
-      device_id: '{{ item.device_id|default(omit) }}'
-      device_owner: '{{ item.device_owner|default(omit) }}'
-      extra_dhcp_opts: '{{ item.extra_dhcp_opts|default([]) }}'
-      fixed_ips: '{{ item.fixed_ips|default([]) }}'
-      interface: '{{ openstack_interface|default(omit) }}'
-      mac_address: '{{ item.mac_address|default(omit) }}'
-      name: '{{ item.name|mandatory }}'
-      network: '{{ item.network|mandatory }}'
-      no_security_groups: "{{ item.no_security_groups|default(omit) }}"
-      port_security_enabled: '{{ item.port_security_enabled|default(omit) }}'
-      region_name: '{{ item.region_name|default(omit) }}'
-      security_groups: '{{ item.security_groups|default(omit) }}'
-      state: present
-      vnic_type: '{{ item.vnic_type|default(omit) }}'
+  - name: Create/Delete network ports
+    loop: '{{ openstack_server_ports }}'
+    openstack.cloud.port: "{{ item
+      |combine({} if 'auth' in item else {'auth': openstack_auth})
+      |combine({} if 'cloud' in item else {'cloud': openstack_cloud})
+      |combine({} if 'interface' in item else {'interface': openstack_interface})
+    }}"
     when: item.network|default(None) != None
 
   - name: Retrieve network ports
-    loop: "{{ openstack_network_ports|default([]) }}"
+    loop: "{{ openstack_server_ports }}"
     openstack.cloud.port_info:
-      auth: '{{ openstack_auth }}'
-      cloud: '{{ openstack_cloud }}'
-      interface: '{{ openstack_interface|default(omit) }}'
+      auth: "{{ item.auth if 'auth' in item else openstack_auth }}"
+      cloud: "{{ item.cloud if 'cloud' in item else openstack_cloud }}"
+      interface: "{{ item.interface if 'interface' in item else openstack_interface }}"
       port: '{{ item.name }}'
     when: item.state|default('present') == 'present'
-    register: openstack_port_info_result
+    register: openstack_server_ports_info
 
   - name: Fail if network port does not exist or port name is ambiguous
-    loop: "{{ openstack_port_info_result.results|default([]) }}"
+    loop: "{{ openstack_server_ports_info.results|default([]) }}"
     fail:
       msg: 'Port {{ item.item.name }} does not exist or port name is ambiguous'
     when: item['openstack_ports']|length != 1
 
   - name: Prepare network port info
     set_fact:
-      _port_infos: "{{ openstack_port_info_result.results|default([])|map(attribute='openstack_ports')|list|flatten(levels=1) }}"
-      openstack_port_info_result: !!null
+      openstack_server_ports_info: "{{ openstack_server_ports_info.results|default([])|map(attribute='openstack_ports')|list|flatten(levels=1) }}"
 
   - name: Prepare server nics
     set_fact:
       openstack_server_nics: |-
-          {% for item in _port_infos -%}port-id={{ item.id }}{% if not loop.last %},{% endif %}{%- endfor %}
+        {% for item in openstack_server_ports_info %}
+        - port-id: {{ item.id }}
+        {% endfor %}
+      openstack_server_ports_info: !!null
 
 - name: Generate Netplan configuration facts
-  # openstack_netplan fact might be used in openstack_server_userdata
+  # openstack_netplan fact might be used in openstack_server_config.userdata
   import_role:
     name: "openstack_server_netplan"
 
 - name: List block storage volumes
-  loop: "{{ ([openstack_server_boot_volume] if openstack_server_boot_volume|default(None) != None else [])
-            + openstack_server_volumes|default([]) }}"
+  loop: "{{ ([openstack_server_config.boot_volume] if 'boot_volume' in openstack_server_config else []) +
+            (openstack_server_config.volumes if 'volumes' in openstack_server_config else []) }}"
   openstack.cloud.volume_info:
     auth: '{{ openstack_auth }}'
     cloud: '{{ openstack_cloud }}'
-    interface: '{{ openstack_interface|default(omit) }}'
+    interface: '{{ openstack_interface }}'
     name: '{{ (item.display_name|default(item.name))|mandatory }}'
     details: no # we only need the volume ids
   when: item.state|default('present') == 'present'
-  register: openstack_volume_info_result
+  register: openstack_server_volumes_info
 
 - name: Prepare storage volume info
   set_fact:
-    openstack_volume_info: "{{ openstack_volume_info_result.results|selectattr('volumes', 'defined')|map(attribute='volumes')|list|flatten(levels=1)|list }}"
-    openstack_volume_info_result: !!null
+    openstack_server_volumes_info: "{{ openstack_server_volumes_info.results|selectattr('volumes', 'defined')|map(attribute='volumes')|list|flatten(levels=1)|list }}"
+
+- name: Prepare server arguments
+  # Why does Ansible fail to evaluate the Jinja2 Template below if it is passed to openstack.cloud.server directly?
+  set_fact:
+    # Drop floating_ips from openstack_server_config before passing to openstack.cloud.server because floating ips will
+    # be assigned with is with module openstack.cloud.floating_ip later.
+    #
+    # Replace boot_volume and volumes from openstack_server_config with volume ids from openstack_server_volumes_info.
+    openstack_server: "{{ openstack_server_config
+    |combine({} if 'auth' in openstack_server_config else {'auth': openstack_auth})
+    |combine({} if 'cloud' in openstack_server_config else {'cloud': openstack_cloud})
+    |combine({} if 'interface' in openstack_server_config else {'interface': openstack_interface})
+    |dict2items|rejectattr('key', 'eq', 'boot_volume')|list|items2dict
+    |dict2items|rejectattr('key', 'eq', 'floating_ips')|list|items2dict
+    |dict2items|rejectattr('key', 'eq', 'volumes')|list|items2dict
+    |combine({
+      'boot_volume': (openstack_server_volumes_info.0.id if 'boot_volume' in openstack_server_config else omit),
+      'name': openstack_server_name,
+      'nics': (openstack_server_config.nics if 'nics' in openstack_server_config else []) +
+              (openstack_server_nics|from_yaml if openstack_server_nics|length > 0 else []),
+      'state': state,
+      'volumes': ((openstack_server_volumes_info[1:] if 'boot_volume' in openstack_server_config else
+                  openstack_server_volumes_info)|map(attribute='id')|list|flatten(levels=1)|list)
+    })
+  }}"
 
 - name: Create/Modify compute instance if it is not shelved
   when: openstack_server_info == None or openstack_server_info.status not in ['SHELVED', 'SHELVED_OFFLOADED']
-  openstack.cloud.server:
-    auth: '{{ openstack_auth }}'
-    auto_ip: '{{ openstack_server_auto_ip|default(omit) }}'
-    boot_from_volume: '{{ openstack_server_boot_from_volume|default(omit) }}'
-    boot_volume: "{{
-        openstack_volume_info.0.id
-            if openstack_server_boot_volume|default(None) != None and
-               openstack_server_boot_volume.state|default('present') == 'present'
-            else omit
-    }}"
-    cloud: '{{ openstack_cloud }}'
-    config_drive: '{{ openstack_server_config_drive|default(omit) }}'
-    delete_fip: '{{ openstack_server_delete_fip|default(omit) }}'
-    flavor: '{{ openstack_server_flavor|default(omit) }}'
-    flavor_include: '{{ openstack_server_flavor_include|default(omit) }}'
-    flavor_ram: '{{ openstack_server_flavor_ram|default(omit) }}'
-    floating_ip_pools: '{{ openstack_server_floating_ip_pools|default(omit) }}'
-    floating_ips: '{{ omit }}' # openstack_server_floating_ips is used with module openstack.cloud.floating_ip below
-    image: '{{ openstack_server_image|default(omit) }}'
-    image_exclude: '{{ openstack_server_image_exclude|default(omit) }}'
-    interface: '{{ openstack_interface|default(omit) }}'
-    key_name: '{{ openstack_server_key_name|default(omit) }}'
-    meta: '{{ openstack_server_meta|default(omit) }}'
-    name: '{{ openstack_server_name|mandatory }}'
-    network: '{{ openstack_server_network|default(omit) }}'
-    nics: "{{ openstack_server_nics }}"
-    reuse_ips: '{{ openstack_server_reuse_ips|default(omit) }}'
-    scheduler_hints: '{{ openstack_server_scheduler_hints|default(omit) }}'
-    security_groups: '{{ openstack_server_security_groups|default(omit) }}'
-    state: present
-    terminate_volume: '{{ openstack_server_terminate_volume|default(omit) }}'
-    userdata: '{{ openstack_server_userdata|default(omit) }}'
-    volume_size: '{{ openstack_server_volume_size|default(omit) }}'
-    volumes: "{{ (
-        openstack_volume_info[1:]
-            if openstack_server_boot_volume|default(None) != None and
-               openstack_server_boot_volume.state|default('present') == 'present'
-            else openstack_volume_info
-        )|map(attribute='id')|list|flatten(levels=1)|list }}"
+  openstack.cloud.server: "{{ openstack_server }}"
   register: openstack_server_result
 
 - name: Warn if more than one floating ip should be assigned to server because older releases of Ansible's openstack.cloud.floating_ip module are flawed
@@ -197,31 +166,26 @@
       has a floating-ip on a different nat-destination than '{nat_destination}'".
       Ref.: https://storyboard.openstack.org/#!/story/2008181
   ignore_errors: yes # noqa ignore-errors
-  when: openstack_server_floating_ips is defined and openstack_server_floating_ips|length > 1
+  when: openstack_server_floating_ips|length > 1
 
-- name: Attach floating ips
-  loop: "{{ openstack_server_floating_ips|default([]) }}"
-  openstack.cloud.floating_ip:
-    auth: '{{ openstack_auth }}'
-    cloud: '{{ openstack_cloud }}'
-    fixed_address: '{{ item.fixed_address|default(omit) }}'
-    floating_ip_address: '{{ item.floating_ip_address|default(omit) }}'
-    interface: '{{ openstack_interface|default(omit) }}'
-    nat_destination: '{{ item.nat_destination|default(omit) }}'
-    network: '{{ item.network|default(omit) }}'
-    purge: '{{ item.purge|default(omit) }}'
-    reuse: '{{ item.reuse|default(omit) }}'
-    server: '{{ (item.server|default(openstack_server_name))|mandatory }}'
-    state: present
-    wait: '{{ item.wait|default(omit) }}'
-  register: openstack_floating_ip_result
+- name: Attach/Detach floating ips
+  loop: "{{ openstack_server_floating_ips }}"
+  openstack.cloud.floating_ip: "{{ item
+    |combine({} if 'auth' in item else {'auth': openstack_auth})
+    |combine({} if 'cloud' in item else {'cloud': openstack_cloud})
+    |combine({} if 'interface' in item else {'interface': openstack_interface})
+    |combine({} if 'server' in item else {'server': openstack_server_name})
+  }}"
+  register: openstack_server_floating_ips_result
 
 - name: Check if floating ips got assigned as requested
-  loop: '{{ openstack_floating_ip_result.results|default([]) }}'
-  when: (item.invocation.module_args.fixed_address != None and
+  loop: '{{ openstack_server_floating_ips_result.results|default([]) }}'
+  when: (item.item.state|default('present') == 'present' and
+         item.invocation.module_args.fixed_address != None and
          item.invocation.module_args.fixed_address|length > 0 and
          item.floating_ip.fixed_ip_address != item.invocation.module_args.fixed_address) or
-        (item.invocation.module_args.floating_ip_address != None and
+        (item.item.state|default('present') == 'present' and
+         item.invocation.module_args.floating_ip_address != None and
          item.invocation.module_args.floating_ip_address|length > 0 and
          item.floating_ip.floating_ip_address != item.invocation.module_args.floating_ip_address)
   fail:
@@ -241,10 +205,10 @@
 - name: Debug role variables
   debug:
     msg:
+      openstack_server_floating_ips_result: '{{ openstack_server_floating_ips_result }}'
       openstack_server_nics: '{{ openstack_server_nics }}'
-      openstack_volume_info: '{{ openstack_volume_info }}'
       openstack_server_result: '{{ openstack_server_result }}'
-      openstack_floating_ip_result: '{{ openstack_floating_ip_result }}'
+      openstack_server_volumes_info: '{{ openstack_server_volumes_info }}'
   tags:
     - never
     - debug

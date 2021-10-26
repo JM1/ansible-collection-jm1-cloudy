@@ -9,7 +9,7 @@ openstack_cloud: '{{ omit }}'
 
 openstack_interface: '{{ omit }}'
 
-openstack_server_name: '{{ fqdn|mandatory }}'
+openstack_server_name: '{{ inventory_hostname }}'
 
 # Possible server states: [active, paused, suspended, shutoff, shelved, shelved_offloaded]
 # Ref.: https://docs.openstack.org/api-guide/compute/server_concepts.html

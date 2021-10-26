@@ -9,52 +9,20 @@ openstack_cloud: '{{ omit }}'
 
 openstack_interface: '{{ omit }}'
 
-openstack_network_ports: []
-
-openstack_server_auto_ip: '{{ omit }}'
-
-openstack_server_boot_from_volume: '{{ omit }}'
-
-openstack_server_boot_volume: !!null
-
-openstack_server_config_drive: '{{ omit }}'
-
-openstack_server_delete_fip: '{{ omit }}'
-
-openstack_server_flavor: '{{ omit }}'
-
-openstack_server_flavor_include: '{{ omit }}'
-
-openstack_server_flavor_ram: '{{ omit }}'
-
-openstack_server_floating_ip_pools: '{{ omit }}'
+openstack_server_config:
+  # floating_ips is set in openstack_server_floating_ips and will be ignored here
+  # name is set in openstack_server_name and will be ignored here
+  # nics will be expanded with ports listed in openstack_server_ports
+  # state is set in state and will be ignored here
 
 openstack_server_floating_ips: []
 
-openstack_server_image: '{{ omit }}'
+openstack_server_name: '{{ inventory_hostname }}'
 
-openstack_server_image_exclude: '{{ omit }}'
+openstack_server_ports: []
 
-openstack_server_key_name: '{{ omit }}'
-
-openstack_server_meta: '{{ omit }}'
-
-openstack_server_name: '{{ fqdn|mandatory }}'
-
-openstack_server_network: '{{ omit }}'
-
-openstack_server_reuse_ips: '{{ omit }}'
-
-openstack_server_scheduler_hints: '{{ omit }}'
-
-openstack_server_security_groups: '{{ omit }}'
-
-openstack_server_terminate_volume: '{{ omit }}'
-
-openstack_server_userdata: '{{ cloudinit_userdata|default(omit) }}'
-
-openstack_server_volume_size: '{{ omit }}'
-
-openstack_server_volumes: []
+# Possible server states: [active, paused, suspended, shutoff, shelved, shelved_offloaded]
+# Ref.: https://docs.openstack.org/api-guide/compute/server_concepts.html
+openstack_server_state: active
 
 state: present

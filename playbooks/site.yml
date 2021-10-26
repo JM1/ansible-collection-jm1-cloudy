@@ -105,7 +105,7 @@
   - name: Generate OpenStack Netplan configuration facts
     role: jm1.cloudy.openstack_server_netplan
     tags: ["jm1.cloudy.openstack_server_netplan"]
-    when: openstack_netplan is not defined}
+    when: openstack_netplan is not defined and state == 'present'
     # openstack_netplan fact might be used to get ip address of OpenStack compute instance
 
 - name: Group OpenStack servers

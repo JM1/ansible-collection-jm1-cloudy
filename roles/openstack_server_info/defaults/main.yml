@@ -9,4 +9,4 @@ openstack_cloud: '{{ omit }}'
 
 openstack_interface: '{{ omit }}'
 
-openstack_server_name: '{{ fqdn }}'
+openstack_server_name: '{{ inventory_hostname }}'
