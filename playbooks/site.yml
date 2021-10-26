@@ -93,12 +93,15 @@
   - name: Setup OpenStack block storage volumes
     role: jm1.cloudy.openstack_volumes
     tags: ["jm1.cloudy.openstack_volumes"]
+
   - name: Setup OpenStack servers
     role: jm1.cloudy.openstack_server
     tags: ["jm1.cloudy.openstack_server"]
+
   - name: Manage OpenStack server state
     role: jm1.cloudy.openstack_server_state
     tags: ["jm1.cloudy.openstack_server_state"]
+
   - name: Generate OpenStack Netplan configuration facts
     role: jm1.cloudy.openstack_server_netplan
     tags: ["jm1.cloudy.openstack_server_netplan"]
@@ -151,9 +154,11 @@
   - name: Setup libvirt block storage volumes
     role: jm1.cloudy.libvirt_volumes
     tags: ["jm1.cloudy.libvirt_volumes"]
+
   - name: Setup libvirt servers
     role: jm1.cloudy.libvirt_server
     tags: ["jm1.cloudy.libvirt_server"]
+
   - name: Manage libvirt server state
     role: jm1.cloudy.libvirt_server_state
     tags: ["jm1.cloudy.libvirt_server_state"]
@@ -436,19 +441,24 @@
   gather_facts: no
 
   roles:
-  - role: jm1.cloudy.openstack_compute_flavors
+  - name: Add/Remove compute flavors from OpenStack
+    role: jm1.cloudy.openstack_compute_flavors
     tags: ["jm1.cloudy.openstack_compute_flavors"]
 
-  - role: jm1.cloudy.openstack_images
+  - name: Add/Delete images from OpenStack image repository
+    role: jm1.cloudy.openstack_images
     tags: ["jm1.cloudy.openstack_images"]
 
-  - role: jm1.cloudy.openstack_keypairs
+  - name: Add/Remove SSH keys from OpenStack
+    role: jm1.cloudy.openstack_keypairs
     tags: ["jm1.cloudy.openstack_keypairs"]
 
-  - role: jm1.cloudy.openstack_networks
+  - name: Create/Delete OpenStack networks, subnets, routers, ports and floating ips
+    role: jm1.cloudy.openstack_networks
     tags: ["jm1.cloudy.openstack_networks"]
 
-  - role: jm1.cloudy.openstack_security_groups
+  - name: Create/Delete OpenStack security groups and security group rules
+    role: jm1.cloudy.openstack_security_groups
     tags: ["jm1.cloudy.openstack_security_groups"]
 
 ################################################################################
