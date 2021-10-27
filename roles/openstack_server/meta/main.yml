@@ -1,7 +1,7 @@
 galaxy_info:
   role_name: openstack_server
   author: Jakob Meng
-  description: Add/Remove compute instances, network ports and floating ips from OpenStack
+  description: Add/Remove compute instance, network ports and floating ips from OpenStack
   company: Hochschule Bonn-Rhein-Sieg
   license: license (GPLv3)
 

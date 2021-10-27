@@ -94,7 +94,7 @@
     role: jm1.cloudy.openstack_volumes
     tags: ["jm1.cloudy.openstack_volumes"]
 
-  - name: Setup OpenStack servers
+  - name: Setup OpenStack server
     role: jm1.cloudy.openstack_server
     tags: ["jm1.cloudy.openstack_server"]
 
