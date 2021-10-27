@@ -1,4 +1,6 @@
 ---
 roles: []
 
-collections: []
+collections:
+- community.libvirt
+- jm1.libvirt
