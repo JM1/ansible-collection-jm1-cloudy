@@ -11,8 +11,7 @@
     'name' in openstack_server_config or 'state' in openstack_server_config
 
 - name: Load server facts
-  import_role:
-    name: "openstack_server_info"
+  include_tasks: "server_info.yml"
 
 - name: Unshelve server before applying changes
   # OpenStack does not allow to apply changes to shelved instances
@@ -54,8 +53,7 @@
       ansible_python_interpreter: "{{ ansible_playbook_python }}"
 
   - name: Reload server facts
-    import_role:
-      name: "openstack_server_info"
+    include_tasks: "server_info.yml"
 
 - name: Warn if compute instance is shelved and hence pending changes will be skipped
   when: openstack_server_info != None and openstack_server_info.status in ['SHELVED', 'SHELVED_OFFLOADED']
