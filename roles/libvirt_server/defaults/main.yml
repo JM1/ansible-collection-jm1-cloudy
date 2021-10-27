@@ -18,7 +18,7 @@ libvirt_configdrive_format: 'qcow2'
 
 libvirt_configdrive_pool: 'default'
 
-libvirt_domain: '{{ fqdn }}'
+libvirt_domain: '{{ inventory_hostname }}'
 
 libvirt_domain_autostart: no
 

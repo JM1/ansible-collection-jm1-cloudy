@@ -1,0 +1,82 @@
+---
+# Copyright (c) 2020-2021 Jakob Meng, <jakobmeng@web.de>
+# vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
+# kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
+
+- name: Fail if vars have invalid values
+  fail:
+  when: >
+    libvirt_domain_state not in ['running', 'paused', 'pmsuspended', 'shutoff']
+
+- name: Fail if libvirt_domain_state is 'pmsuspended' which is currently not supported by Ansible's virt module
+  # Version 1.0.0 of Ansible's official libvirt collection does not support state 'pmsuspended' in its virt.py module.
+  fail:
+  when: >
+    libvirt_domain_state == 'pmsuspended'
+
+- name: Fetch domain info
+  community.libvirt.virt:
+    command: info
+    uri: '{{ libvirt_uri }}'
+  register: libvirt_domain_info
+
+- name: Fail if domain is in unsupported state
+  when: libvirt_domain_info[libvirt_domain].state not in ['running', 'paused', 'shutdown']
+  fail:
+    msg: "Domain state {{ libvirt_domain_info[libvirt_domain].state }} is not supported"
+
+- name: Unpause domain
+  when: libvirt_domain_state == 'running' and libvirt_domain_info[libvirt_domain].state == 'paused'
+  community.libvirt.virt:
+    name: '{{ libvirt_domain }}'
+    state: running
+    uri: '{{ libvirt_uri }}'
+
+- name: Start domain
+  when: libvirt_domain_state == 'running' and libvirt_domain_info[libvirt_domain].state == 'shutdown'
+  community.libvirt.virt:
+    name: '{{ libvirt_domain }}'
+    state: running
+    uri: '{{ libvirt_uri }}'
+
+- name: Pause domain
+  when: libvirt_domain_state == 'paused' and libvirt_domain_info[libvirt_domain].state != 'paused'
+  community.libvirt.virt:
+    name: '{{ libvirt_domain }}'
+    state: paused
+    uri: '{{ libvirt_uri }}'
+
+- name: Stop domain
+  when: libvirt_domain_state == 'shutoff' and libvirt_domain_info[libvirt_domain].state != 'shutdown'
+  block:
+  - name: Shutdown domain
+    community.libvirt.virt:
+      name: '{{ libvirt_domain }}'
+      state: shutdown
+      uri: '{{ libvirt_uri }}'
+
+  - name: Give domain some time for shutdown
+    # Ansible's virt module returns 'shutdown' state for domains that are currently shutting down and are already shut off.
+    shell: |
+      for i in seq 60; do
+          if [ "$(virsh --connect '{{ libvirt_uri }}' domstate --domain '{{ libvirt_domain }}')" != "shut off" ]; then
+              echo "libvirt domain '{{ libvirt_domain }}' is not yet shut off, sleeping.."
+              sleep 15
+          else
+              exit 0
+          fi
+      done
+    changed_when: false
+
+  - name: Reload domain info
+    community.libvirt.virt:
+      command: info
+      uri: '{{ libvirt_uri }}'
+    register: libvirt_domain_info
+
+  - name: Destroy domain
+    when: libvirt_domain_info[libvirt_domain].state != 'shutdown'
+    community.libvirt.virt:
+      name: '{{ libvirt_domain }}'
+      state: shutdown
+      uri: '{{ libvirt_uri }}'

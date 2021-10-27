@@ -95,7 +95,6 @@ Click on the name of an inventory, module, playbook or role to view that content
     * [libvirt_networks](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/libvirt_networks/README.md)
     * [libvirt_pools](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/libvirt_pools/README.md)
     * [libvirt_server](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/libvirt_server/README.md)
-    * [libvirt_server_info](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/libvirt_server_info/README.md)
     * [libvirt_server_state](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/libvirt_server_state/README.md)
     * [libvirt_volumes](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/libvirt_volumes/README.md)
     * [meta_packages](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/meta_packages/README.md)
