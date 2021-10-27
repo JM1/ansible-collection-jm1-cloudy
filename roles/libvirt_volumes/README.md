@@ -1,6 +1,51 @@
 # Ansible Role `jm1.cloudy.libvirt_volumes`
 
-TODO.
+This role helps with managing [libvirt volumes][libvirt] from Ansible variables. For example, it allows to create volume
+snapshots from existing volumes within the same libvirt storage pool with variable `libvirt_volumes`. This variable is
+defined as a list where each list item is a dictionary of parameters that will be passed to module
+[`jm1.libvirt.volume`][jm1-libvirt-volume] or [`jm1.libvirt.volume_snapshot`][jm1-libvirt-volume-snapshot] from
+collection [`jm1.libvirt`][galaxy-jm1-libvirt] [^libvirt-volumes-parameter]. For example, to create a snapshot of an
+existing Debian cloud image `debian-11-genericcloud-amd64.qcow2` in storage pool `default` of the local libvirt daemon
+(run by current Ansible user on the Ansible controller), define variable `libvirt_volumes` in [`group_vars` or
+`host_vars`][ansible-inventory] as such:
+
+```yml
+libvirt_volumes:
+- backing_vol: 'debian-11-genericcloud-amd64.qcow2'
+  backing_vol_format: 'qcow2'
+  capacity: 5G
+  format: 'qcow2'
+  linked: no
+  name: '{{ inventory_hostname }}.qcow2'
+  pool: 'default'
+  prealloc_metadata: no
+  state: present
+
+# libvirt connection uri
+# Ref.: https://libvirt.org/uri.html
+libvirt_uri: 'qemu:///session'
+```
+
+Use role [`jm1.cloudy.libvirt_pools`][jm1-cloudy-libvirt-pools] to create libvirt storage pool `default` as shown in the
+introduction of that role.
+
+Use role [`jm1.cloudy.libvirt_images`][jm1-cloudy-libvirt-images] to fetch the cloud image of Debian 11 (Bullseye) and
+add it as a volume `debian-11-genericcloud-amd64.qcow2` to storage pool `default` as shown in the introduction of that
+role.
+
+Once all previous roles have finished, execute this role `jm1.cloudy.libvirt_volumes`. It will pass each item of the
+`libvirt_volumes` list one after another as parameters to module [`jm1.libvirt.volume_snapshot`][
+jm1-libvirt-volume-snapshot] from collection [`jm1.libvirt`][galaxy-jm1-libvirt] [^libvirt-volumes-parameter]. If a
+libvirt volume with the same name already exists, it will not be changed.
+
+[ansible-inventory]: https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
+[galaxy-community-libvirt]: https://galaxy.ansible.com/community/libvirt
+[galaxy-jm1-libvirt]: https://galaxy.ansible.com/jm1/libvirt
+[jm1-cloudy-libvirt-images]: ../libvirt_images/
+[jm1-cloudy-libvirt-pools]: ../libvirt_pools/
+[jm1-libvirt-volume]: https://github.com/JM1/ansible-collection-jm1-libvirt/blob/master/plugins/modules/volume.py
+[jm1-libvirt-volume-snapshot]: https://github.com/JM1/ansible-collection-jm1-libvirt/blob/master/plugins/modules/volume_snapshot.py
+[libvirt]: https://libvirt.org/
 
 **Tested OS images**
 - Cloud image of [`Debian 10 (Buster)` \[`amd64`\]](https://cdimage.debian.org/cdimage/openstack/current/)
@@ -14,19 +59,79 @@ Available on Ansible Galaxy in Collection [jm1.cloudy](https://galaxy.ansible.co
 
 ## Requirements
 
-TODO.
+This role uses module(s) from collections [`community.libvirt`][galaxy-community-libvirt] and [`jm1.libvirt`][
+galaxy-jm1-libvirt]. To install these collections you may follow the steps described in [`README.md`][
+jm1-cloudy-readme] using the provided [`requirements.yml`][jm1-cloudy-requirements].
+
+[jm1-cloudy-readme]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/README.md
+[jm1-cloudy-requirements]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/requirements.yml
 
 ## Variables
 
-TODO.
+| Name              | Default value    | Required | Description |
+| ----------------- | ---------------- | -------- | ----------- |
+| `libvirt_volumes` | `[]`             | no       | List of parameter dictionaries for module [`jm1.libvirt.volume`][jm1-libvirt-volume] or [`jm1.libvirt.volume_snapshot`][jm1-libvirt-volume-snapshot] from collection [`jm1.libvirt`][galaxy-jm1-libvirt] [^libvirt-volumes-parameter] |
+| `libvirt_uri`     | `qemu:///system` | no       | [libvirt connection uri][libvirt-uri] |
+
+[^libvirt-volumes-parameter]: If key `backing_vol` is *NOT* present in a list item, then the item, i.e. its key-value
+pairs, is passed to module [`jm1.libvirt.volume`][jm1-libvirt-volume] else it is passed to module
+[`jm1.libvirt.volume_snapshot`][jm1-libvirt-volume-snapshot]. If a list item does not contain key `uri` then it will be
+initialized from Ansible variables `libvirt_uri`.
+
+[libvirt-uri]: https://libvirt.org/uri.html
 
 ## Dependencies
 
-TODO.
+None.
 
 ## Example Playbook
 
-TODO.
+Use role [`jm1.cloudy.libvirt_pools`][jm1-cloudy-libvirt-pools] to create a libvirt storage pool with name `default` as
+shown in the introduction of that role.
+
+Use role [`jm1.cloudy.libvirt_images`][jm1-cloudy-libvirt-images] to fetch the cloud image of Debian 11 (Bullseye) and
+add it as a volume `debian-11-genericcloud-amd64.qcow2` to storage pool `default` as shown in the introduction of that
+role.
+
+```yml
+- hosts: all
+  # do not become root because connection is local
+  connection: local # Assign libvirt_uri to setup a connection to the libvirt host
+  vars:
+    # Variables are listed here for convenience and illustration.
+    # In a production setup, variables would be defined e.g. in
+    # group_vars and/or host_vars of an Ansible inventory.
+    # Ref.:
+    # https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html
+    # https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
+
+    libvirt_volumes:
+    - backing_vol: 'debian-11-genericcloud-amd64.qcow2'
+      backing_vol_format: 'qcow2'
+      capacity: 5G
+      format: 'qcow2'
+      linked: no
+      name: '{{ inventory_hostname }}.qcow2'
+      pool: 'default'
+      prealloc_metadata: no
+      state: present
+
+    # libvirt connection uri
+    # Ref.: https://libvirt.org/uri.html
+    libvirt_uri: 'qemu:///session'
+
+  roles:
+  - name: Setup libvirt block storage volumes
+    role: jm1.cloudy.libvirt_volumes
+    tags: ["jm1.cloudy.libvirt_volumes"]
+```
+
+For more examples on how to use this role, refer to variable `libvirt_volumes` as defined in `group_vars/lvrt.yml` and
+`host_vars` from the provided [examples inventory][inventory-example]. The top-level [`README.md`][jm1-cloudy-readme]
+describes how the listed hosts can be provisioned with playbook [`playbooks/site.yml`][playbook-site-yml].
+
+[inventory-example]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/inventory/
+[playbook-site-yml]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/playbooks/site.yml
 
 For instructions on how to run Ansible playbooks have look at Ansible's
 [Getting Started Guide](https://docs.ansible.com/ansible/latest/network/getting_started/first_playbook.html).
