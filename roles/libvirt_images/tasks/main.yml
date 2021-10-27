@@ -5,14 +5,7 @@
 
 - name: Load/Remove images as libvirt block storage volumes
   loop: '{{ libvirt_images|default([]) }}'
-  jm1.libvirt.volume_import:
-    image: '{{ item.image|mandatory }}'
-    checksum: '{{ item.checksum|default(omit) }}'
-    format: '{{ item.format|default(omit) }}'
-    name: '{{ item.name|default(omit) }}'
-    pool: "{{ item.pool|mandatory }}"
-    state: "{{ item.state|default('present') }}"
-    uri: '{{ libvirt_uri }}'
+  jm1.libvirt.volume_import: "{{ item|combine({} if 'uri' in item else {'uri': libvirt_uri}) }}"
   register: libvirt_volume_import_result
 
 - name: Debug role variables

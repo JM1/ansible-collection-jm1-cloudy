@@ -5,30 +5,13 @@
 
 - name: Add/Remove libvirt block storage volumes
   loop: "{{ libvirt_volumes|default([]) }}"
-  jm1.libvirt.volume:
-    capacity: '{{ item.capacity|mandatory }}'
-    format: '{{ item.format|default(omit) }}'
-    name: '{{ item.name|mandatory }}'
-    pool: "{{ item.pool|mandatory }}"
-    prealloc_metadata: '{{ item.prealloc_metadata|default(omit) }}'
-    state: "{{ item.state|default('present') }}"
-    uri: '{{ libvirt_uri }}'
+  jm1.libvirt.volume: "{{ item|combine({} if 'uri' in item else {'uri': libvirt_uri}) }}"
   when: item.backing_vol|default(None) == None
   register: libvirt_volume_result
 
 - name: Add/Remove libvirt block storage volume snapshots
   loop: "{{ libvirt_volumes|default([]) }}"
-  jm1.libvirt.volume_snapshot:
-    backing_vol: '{{ item.backing_vol|mandatory }}'
-    backing_vol_format: '{{ item.backing_vol_format|default(omit) }}'
-    capacity: '{{ item.capacity|default(omit) }}'
-    format: '{{ item.format|default(omit) }}'
-    linked: '{{ item.linked|default(omit) }}'
-    name: '{{ item.name|mandatory }}'
-    pool: "{{ item.pool|mandatory }}"
-    prealloc_metadata: '{{ item.prealloc_metadata|default(omit) }}'
-    state: "{{ item.state|default('present') }}"
-    uri: '{{ libvirt_uri }}'
+  jm1.libvirt.volume_snapshot: "{{ item|combine({} if 'uri' in item else {'uri': libvirt_uri}) }}"
   when: item.backing_vol|default(None) != None
   register: libvirt_volume_snapshot_result
 
