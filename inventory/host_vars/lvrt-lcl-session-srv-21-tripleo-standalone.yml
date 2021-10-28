@@ -44,6 +44,8 @@ libvirt_hardware:
 - disk: "vol='{{ libvirt_pool }}/{{ libvirt_configdrive }}',device=disk,bus=virtio,serial='cidata'"
 - os_variant: 'rhel8.0'
 
+libvirt_host_become: no
+
 libvirt_netplan:
   ethernets:
     eth0:

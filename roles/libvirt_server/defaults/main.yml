@@ -3,14 +3,13 @@
 # vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
 # kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
 
-cloudinit_metadata: !!null
+cloudinit_metadata: '{{ omit }}'
 
-cloudinit_networkconfig: !!null
+cloudinit_networkconfig: '{{ omit }}'
 
-cloudinit_userdata: |
-    #cloud-config
+cloudinit_userdata: !!null # is set in host_vars
 
-libvirt_configdrive: '{{ fqdn }}_cidata.{{ libvirt_configdrive_format }}'
+libvirt_configdrive: '{{ inventory_hostname }}_cidata.{{ libvirt_configdrive_format }}'
 
 libvirt_configdrive_filesystem: 'iso'
 
@@ -22,7 +21,11 @@ libvirt_domain: '{{ inventory_hostname }}'
 
 libvirt_domain_autostart: no
 
-libvirt_hardware: !!null
+# Possible domain states: [running, paused, pmsuspended, shutoff]
+# Ref.: https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainState
+libvirt_domain_state: running
+
+libvirt_hardware: '{{ omit }}'
 
 libvirt_uri: 'qemu:///system'
 

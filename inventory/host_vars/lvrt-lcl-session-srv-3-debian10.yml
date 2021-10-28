@@ -26,6 +26,8 @@ distribution_id:
 
 libvirt_domain_autostart: no
 
+libvirt_host_become: no
+
 libvirt_netplan:
   ethernets:
     eth0:

@@ -45,7 +45,7 @@ libvirt_hardware:
 # Ref.: man virt-install
 - os_variant: 'debian10'
 
-libvirt_host_become: no
+libvirt_host_become: yes
 
 libvirt_netplan: {}
 

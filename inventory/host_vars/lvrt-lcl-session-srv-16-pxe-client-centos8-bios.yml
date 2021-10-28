@@ -87,6 +87,8 @@ libvirt_hardware:
 - boot: 'hd,network'
 - os_variant: 'rhel8.0'
 
+libvirt_host_become: no
+
 libvirt_pool: 'default'
 
 libvirt_uri: 'qemu:///session'

@@ -22,6 +22,8 @@ libvirt_hardware:
 - boot: 'loader=/usr/share/OVMF/OVMF_CODE.fd'
 - os_variant: 'ubuntu18.04' # TODO: Change to 'ubuntu20.04' once supported
 
+libvirt_host_become: no
+
 libvirt_netplan:
   ethernets:
     eth0:

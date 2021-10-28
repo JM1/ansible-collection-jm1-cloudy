@@ -3,27 +3,10 @@
 # vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
 # kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
 
-- name: Fail if required vars are not set
-  fail:
-  # A cloud-init config drive volume is optional
-  when: >
-    (libvirt_configdrive|default(None) != None and (
-        libvirt_configdrive|length == 0 or
-        libvirt_configdrive_filesystem == None or libvirt_configdrive_filesystem|length == 0 or
-        libvirt_configdrive_format == None or libvirt_configdrive_format|length == 0 or
-        libvirt_configdrive_pool == None or libvirt_configdrive_pool|length == 0 or
-        cloudinit_userdata == None or cloudinit_userdata|length == 0
-    )) or
-    libvirt_domain == None or libvirt_domain|length == 0 or
-    libvirt_domain_state == None or libvirt_domain_state|length == 0 or
-    state == None or state|length == 0 or
-    libvirt_uri == None or libvirt_uri|length == 0
-
 - name: Fail if vars have invalid values
   fail:
-  when: >
-    (state != 'present' and state != 'absent') or
-    libvirt_domain_state not in ['running', 'paused', 'pmsuspended', 'shutoff']
+  when: libvirt_domain_state not in ['running', 'paused', 'pmsuspended', 'shutoff'] or
+        state not in ['present', 'absent']
 
 - name: Fetch domain info
   community.libvirt.virt:
