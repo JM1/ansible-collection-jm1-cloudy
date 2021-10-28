@@ -7,8 +7,8 @@
   loop: '{{ libvirt_networks|default([]) }}'
   jm1.libvirt.net_xml:
     ignore: '{{ item.ignore|default(omit) }}'
-    state: "{{ 'present' if item.state|default('present') != 'absent' else 'absent' }}"
-    uri: '{{ libvirt_uri }}'
+    state: "{{ item.state|default('present') }}"
+    uri: "{{ item.uri if 'uri' in item else libvirt_uri }}"
     # We want to be able to use the loop variable 'item' within the xml string, i.e. the xml string might be a Jinja2
     # template. If we would pass the templated xml string directly, then Ansible would evaluate the template before the
     # loop variable 'item' is available, hence we could not use 'item' in the Jinja2 template. As a workaround we use
@@ -35,7 +35,7 @@
   community.libvirt.virt_net:
     autostart: "{{ item.2.autostart|default(True) }}"
     name: "{{ item.1.matches[0]['name']|mandatory }}"
-    uri: '{{ libvirt_uri }}'
+    uri: "{{ item.2.uri if 'uri' in item.2 else libvirt_uri }}"
 
 - name: Create QEMU config directory, e.g. used by qemu-bridge-helper
   when: libvirt_networks|default([])|selectattr('acl', 'defined')|list|length > 0

@@ -8,7 +8,7 @@
   community.libvirt.virt_pool:
     name: '{{ item.name|mandatory }}'
     state: undefined
-    uri: '{{ libvirt_uri }}'
+    uri: "{{ item.uri if 'uri' in item else libvirt_uri }}"
   when: item.state|default('present') == 'absent'
 
 - name: Create libvirt storage pools using jm1.libvirt.pool
@@ -17,7 +17,7 @@
     hardware: '{{ item.hardware|default(omit) }}'
     name: '{{ item.name|mandatory }}'
     state: present
-    uri: '{{ libvirt_uri }}'
+    uri: "{{ item.uri if 'uri' in item else libvirt_uri }}"
   when: item.state|default('present') != 'absent'
         and 'xml' not in item
         and 'xml_file' not in item
@@ -30,7 +30,7 @@
   jm1.libvirt.pool_xml:
     ignore: '{{ item.ignore|default(omit) }}'
     state: present
-    uri: '{{ libvirt_uri }}'
+    uri: "{{ item.uri if 'uri' in item else libvirt_uri }}"
     # We want to be able to use the loop variable 'item' within the xml string, i.e. the xml string might be a Jinja2
     # template. If we would pass the templated xml string directly, then Ansible would evaluate the template before the
     # loop variable 'item' is available, hence we could not use 'item' in the Jinja2 template. As a workaround we use
@@ -49,7 +49,7 @@
   community.libvirt.virt_pool:
     autostart: '{{ item.autostart|default(no) }}'
     name: '{{ item.name|mandatory }}'
-    uri: '{{ libvirt_uri }}'
+    uri: "{{ item.uri if 'uri' in item else libvirt_uri }}"
   when: item.state|default('present') != 'absent'
 
 - name: Start/Stop storage pools now
