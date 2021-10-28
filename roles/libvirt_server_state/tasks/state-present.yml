@@ -78,5 +78,5 @@
     when: libvirt_domain_info[libvirt_domain].state != 'shutdown'
     community.libvirt.virt:
       name: '{{ libvirt_domain }}'
-      state: shutdown
+      state: destroy
       uri: '{{ libvirt_uri }}'
