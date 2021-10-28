@@ -1,7 +1,7 @@
 galaxy_info:
   role_name: libvirt_server
   author: Jakob Meng
-  description: Create/Delete libvirt storage pools, block storage volumes and domains
+  description: Create/Delete a libvirt domain
   company: Hochschule Bonn-Rhein-Sieg
   license: license (GPLv3)
 
