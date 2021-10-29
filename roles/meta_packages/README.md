@@ -61,6 +61,7 @@ this Collection [jm1.cloudy][galaxy-jm1-cloudy]. To install `jm1.pkg.meta_pkg` y
 
 ```yml
 - hosts: all
+  become: yes
   vars:
     # Variables are listed here for convenience and illustration.
     # In a production setup, variables would be defined e.g. in

@@ -64,6 +64,7 @@ To enable IOMMU for PCI devices:
 
 ```yml
 - hosts: all
+  become: yes
   vars:
     # Variables are listed here for convenience and illustration.
     # In a production setup, variables would be defined e.g. in
@@ -90,6 +91,7 @@ To enable [Predictable Network Interface Names][predictable-network-interface-na
 
 ```yml
 - hosts: all
+  become: yes
   vars:
     # Variables are listed here for convenience and illustration.
     # In a production setup, variables would be defined e.g. in
@@ -114,6 +116,7 @@ To open consoles on `tty0` and `ttyS0` and enable verbose output which helps wit
 
 ```yml
 - hosts: all
+  become: yes
   vars:
     # Variables are listed here for convenience and illustration.
     # In a production setup, variables would be defined e.g. in

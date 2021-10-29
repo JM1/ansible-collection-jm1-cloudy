@@ -79,6 +79,7 @@ ansible-module-file], [`lineinfile`][ansible-module-lineinfile] and [`template`]
 
 ```yml
 - hosts: all
+  become: yes
   roles:
   - name: Manage httpd service
     role: jm1.cloudy.httpd

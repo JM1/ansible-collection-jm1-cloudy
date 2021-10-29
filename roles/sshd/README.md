@@ -79,6 +79,7 @@ ansible-module-lineinfile] and [`template`][ansible-module-template].
 
 ```yml
 - hosts: all
+  become: yes
   roles:
   - name: Manage sshd service
     role: jm1.cloudy.sshd

@@ -47,6 +47,7 @@ this Collection [jm1.cloudy][galaxy-jm1-cloudy]. To install `jm1.pkg.meta_pkg` y
 
 ```yml
 - hosts: all
+  become: yes
   roles:
   - name: Setup an OpenStack cluster with DevStack
     role: jm1.cloudy.devstack

@@ -74,6 +74,7 @@ archlinux-pci-passthrough], [GPU passthrough with libvirt qemu kvm][gentoo-gpu-p
 
 ```yml
 - hosts: all
+  become: yes
   vars:
     # Variables are listed here for convenience and illustration.
     # In a production setup, variables would be defined e.g. in

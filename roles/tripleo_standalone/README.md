@@ -67,6 +67,7 @@ the FQDN of the host is `tripleo_standalone.home.arpa`.
 
 ```yml
 - hosts: all
+  become: yes
   vars:
     # Variables are listed here for convenience and illustration.
     # In a production setup, variables would be defined e.g. in

@@ -82,6 +82,7 @@ ansible-module-lineinfile] and [`template`][ansible-module-template].
 
 ```yml
 - hosts: all
+  become: yes
   roles:
   - name: Manage DHCP IPv4 and DHCP IPv6 services
     role: jm1.cloudy.dhcpd
