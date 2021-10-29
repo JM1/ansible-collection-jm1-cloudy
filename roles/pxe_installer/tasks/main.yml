@@ -228,7 +228,7 @@
         label install
               menu label {{ hostvars[item]['distribution_id']|join(' ') }} Kickstart Install (BIOS, AMD64)
               kernel vmlinuz
-              append initrd=initrd.img ip=dhcp inst.repo=http://{{ pxe_installer_host_address|mandatory }}/archive/{{ hostvars[item]['distribution_id']|join('_') }}/amd64/os/ inst.ks=http://{{ pxe_installer_host_address|mandatory }}/kickstarts/ks.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }} {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else lookup(vars, 'pxe_installer_kernel_parameters_' + hostvars[item]['distribution_id']|join('_')|lower + '_amd64') }} ---
+              append initrd=initrd.img ip=dhcp inst.repo={{ pxe_installer_rpm_archive_url }}/archive/{{ hostvars[item]['distribution_id']|join('_') }}/amd64/os/ inst.ks={{ pxe_installer_kickstart_url }}/kickstarts/ks.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }} {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else lookup(vars, 'pxe_installer_kernel_parameters_' + hostvars[item]['distribution_id']|join('_')|lower + '_amd64') }} ---
       dest: "{{ pxe_installer_tftpd_root }}/{{ hostvars[item]['distribution_id']|join('_') }}/amd64/pxelinux.cfg/01-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}"
       mode: u=rw,g=r,o=r
       owner: root
@@ -253,7 +253,7 @@
 
         menuentry '{{ hostvars[item]['distribution_id']|join(' ') }} Kickstart Install (UEFI, AMD64)' {
             set background_color=black
-            linuxefi /{{ hostvars[item]['distribution_id']|join('_') }}/amd64/vmlinuz ip=dhcp 'inst.repo=http://{{ pxe_installer_host_address|mandatory }}/archive/{{ hostvars[item]['distribution_id']|join('_') }}/amd64/os/' 'inst.ks=http://{{ pxe_installer_host_address|mandatory }}/kickstarts/ks.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}' {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else lookup(vars, 'pxe_installer_kernel_parameters_' + hostvars[item]['distribution_id']|join('_')|lower + '_amd64') }} ---
+            linuxefi /{{ hostvars[item]['distribution_id']|join('_') }}/amd64/vmlinuz ip=dhcp 'inst.repo={{ pxe_installer_rpm_archive_url }}/archive/{{ hostvars[item]['distribution_id']|join('_') }}/amd64/os/' 'inst.ks={{ pxe_installer_kickstart_url }}/kickstarts/ks.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}' {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else lookup(vars, 'pxe_installer_kernel_parameters_' + hostvars[item]['distribution_id']|join('_')|lower + '_amd64') }} ---
             initrdefi /{{ hostvars[item]['distribution_id']|join('_') }}/amd64/initrd.img
         }
       dest: "{{ pxe_installer_tftpd_root }}/{{ hostvars[item]['distribution_id']|join('_') }}/amd64/grub/grub.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower }}"
@@ -362,7 +362,7 @@
         label install
               menu label Debian 10 (Buster) Preseed Install (BIOS, AMD64)
               kernel /debian-installer/amd64/linux
-              append vga=788 initrd=/debian-installer/amd64/initrd.gz auto=true hostname=unassigned-hostname domain=unassigned-domain url=tftp://{{ pxe_installer_host_address|mandatory }}/Debian_10/amd64/preseed.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }} {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else pxe_installer_kernel_parameters_debian_10_amd64 }} ---
+              append vga=788 initrd=/debian-installer/amd64/initrd.gz auto=true hostname=unassigned-hostname domain=unassigned-domain url={{ pxe_installer_preseed_url }}/Debian_10/amd64/preseed.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }} {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else pxe_installer_kernel_parameters_debian_10_amd64 }} ---
       dest: "{{ pxe_installer_tftpd_root }}/Debian_10/amd64/debian-installer/amd64/pxelinux.cfg/01-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}"
       mode: u=rw,g=r,o=r
       owner: root
@@ -386,7 +386,7 @@
 
         menuentry 'Debian 10 (Buster) Preseed Install (UEFI, AMD64)' {
             set background_color=black
-            linux /Debian_10/amd64/debian-installer/amd64/linux vga=788 auto=true hostname=unassigned-hostname domain=unassigned-domain url=tftp://{{ pxe_installer_host_address|mandatory }}/Debian_10/amd64/preseed.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }} {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else pxe_installer_kernel_parameters_debian_10_amd64 }} ---
+            linux /Debian_10/amd64/debian-installer/amd64/linux vga=788 auto=true hostname=unassigned-hostname domain=unassigned-domain url={{ pxe_installer_preseed_url }}/Debian_10/amd64/preseed.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }} {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else pxe_installer_kernel_parameters_debian_10_amd64 }} ---
             initrd /Debian_10/amd64/debian-installer/amd64/initrd.gz
         }
       dest: "{{ pxe_installer_tftpd_root }}/Debian_10/amd64/debian-installer/amd64/grub/grub.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower }}"
@@ -408,7 +408,7 @@
         label install
               menu label Debian 11 (Bullseye) Preseed Install (BIOS, AMD64)
               kernel /debian-installer/amd64/linux
-              append vga=788 initrd=/debian-installer/amd64/initrd.gz auto=true hostname=unassigned-hostname domain=unassigned-domain url=tftp://{{ pxe_installer_host_address|mandatory }}/Debian_11/amd64/preseed.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }} {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else pxe_installer_kernel_parameters_debian_11_amd64 }} ---
+              append vga=788 initrd=/debian-installer/amd64/initrd.gz auto=true hostname=unassigned-hostname domain=unassigned-domain url={{ pxe_installer_preseed_url }}/Debian_11/amd64/preseed.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }} {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else pxe_installer_kernel_parameters_debian_11_amd64 }} ---
       dest: "{{ pxe_installer_tftpd_root }}/Debian_11/amd64/debian-installer/amd64/pxelinux.cfg/01-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}"
       mode: u=rw,g=r,o=r
       owner: root
@@ -432,7 +432,7 @@
 
         menuentry 'Debian 11 (Bullseye) Preseed Install (UEFI, AMD64)' {
             set background_color=black
-            linux /Debian_11/amd64/debian-installer/amd64/linux vga=788 auto=true hostname=unassigned-hostname domain=unassigned-domain url=tftp://{{ pxe_installer_host_address|mandatory }}/Debian_11/amd64/preseed.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }} {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else pxe_installer_kernel_parameters_debian_11_amd64 }} ---
+            linux /Debian_11/amd64/debian-installer/amd64/linux vga=788 auto=true hostname=unassigned-hostname domain=unassigned-domain url={{ pxe_installer_preseed_url }}/Debian_11/amd64/preseed.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }} {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else pxe_installer_kernel_parameters_debian_11_amd64 }} ---
             initrd /Debian_11/amd64/debian-installer/amd64/initrd.gz
         }
       dest: "{{ pxe_installer_tftpd_root }}/Debian_11/amd64/debian-installer/amd64/grub/grub.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower }}"
@@ -570,7 +570,7 @@
         label install
               menu label Ubuntu 18.04 LTS (Bionic Beaver) Autoinstall (BIOS, AMD64)
               kernel /casper/vmlinuz
-              append initrd=/casper/initrd ip=dhcp url={{ pxe_installer_files_ubuntu_1804_amd64.iso }} autoinstall ds=nocloud-net;s=http://{{ pxe_installer_host_address|mandatory }}/cloud-init/{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}/ {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else pxe_installer_kernel_parameters_ubuntu_1804_amd64 }} ---
+              append initrd=/casper/initrd ip=dhcp url={{ pxe_installer_files_ubuntu_1804_amd64.iso }} autoinstall ds=nocloud-net;s={{ pxe_installer_cloudinit_url }}/cloud-init/{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}/ {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else pxe_installer_kernel_parameters_ubuntu_1804_amd64 }} ---
       dest: "{{ pxe_installer_tftpd_root }}/Ubuntu_18.04/amd64/pxelinux.cfg/01-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}"
       mode: u=rw,g=r,o=r
       owner: root
@@ -594,7 +594,7 @@
 
         menuentry 'Ubuntu 18.04 LTS (Bionic Beaver) Autoinstall (UEFI, AMD64)' {
             set background_color=black
-            linux /Ubuntu_18.04/amd64/casper/vmlinuz ip=dhcp url={{ pxe_installer_files_ubuntu_1804_amd64.iso }} autoinstall 'ds=nocloud-net;s=http://{{ pxe_installer_host_address|mandatory }}/cloud-init/{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}/' {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else pxe_installer_kernel_parameters_ubuntu_1804_amd64 }} ---
+            linux /Ubuntu_18.04/amd64/casper/vmlinuz ip=dhcp url={{ pxe_installer_files_ubuntu_1804_amd64.iso }} autoinstall 'ds=nocloud-net;s={{ pxe_installer_cloudinit_url }}/cloud-init/{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}/' {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else pxe_installer_kernel_parameters_ubuntu_1804_amd64 }} ---
             initrd /Ubuntu_18.04/amd64/casper/initrd
         }
       dest: "{{ pxe_installer_tftpd_root }}/Ubuntu_18.04/amd64/grub/grub.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower }}"
@@ -616,7 +616,7 @@
         label install
               menu label Ubuntu 20.04 LTS (Focal Fossa) Autoinstall (BIOS, AMD64)
               kernel /casper/vmlinuz
-              append initrd=/casper/initrd ip=dhcp url={{ pxe_installer_files_ubuntu_2004_amd64.iso }} autoinstall ds=nocloud-net;s=http://{{ pxe_installer_host_address|mandatory }}/cloud-init/{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}/ {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else pxe_installer_kernel_parameters_ubuntu_2004_amd64 }} ---
+              append initrd=/casper/initrd ip=dhcp url={{ pxe_installer_files_ubuntu_2004_amd64.iso }} autoinstall ds=nocloud-net;s={{ pxe_installer_cloudinit_url }}/cloud-init/{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}/ {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else pxe_installer_kernel_parameters_ubuntu_2004_amd64 }} ---
       dest: "{{ pxe_installer_tftpd_root }}/Ubuntu_20.04/amd64/pxelinux.cfg/01-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}"
       mode: u=rw,g=r,o=r
       owner: root
@@ -640,7 +640,7 @@
 
         menuentry 'Ubuntu 20.04 LTS (Focal Fossa) Autoinstall (UEFI, AMD64)' {
             set background_color=black
-            linux /Ubuntu_20.04/amd64/casper/vmlinuz ip=dhcp url={{ pxe_installer_files_ubuntu_2004_amd64.iso }} autoinstall 'ds=nocloud-net;s=http://{{ pxe_installer_host_address|mandatory }}/cloud-init/{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}/' {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else pxe_installer_kernel_parameters_ubuntu_2004_amd64 }} ---
+            linux /Ubuntu_20.04/amd64/casper/vmlinuz ip=dhcp url={{ pxe_installer_files_ubuntu_2004_amd64.iso }} autoinstall 'ds=nocloud-net;s={{ pxe_installer_cloudinit_url }}/cloud-init/{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}/' {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else pxe_installer_kernel_parameters_ubuntu_2004_amd64 }} ---
             initrd /Ubuntu_20.04/amd64/casper/initrd
         }
       dest: "{{ pxe_installer_tftpd_root }}/Ubuntu_20.04/amd64/grub/grub.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower }}"

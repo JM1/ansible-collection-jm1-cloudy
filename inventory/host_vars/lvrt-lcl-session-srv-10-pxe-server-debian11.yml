@@ -323,6 +323,18 @@ pxe_installer_clients:
 
 pxe_installer_host_address: 192.168.155.2
 
+# NOTE: Unencrypted http connections are used here because caching is not possible with encrypted https connections.
+#       A proxy is used to transparently upgrade http connections to https connections!
+pxe_installer_files_ubuntu_1804_amd64:
+  efi: 'http://archive.ubuntu.com/ubuntu/dists/bionic/main/uefi/grub2-amd64/current/grubnetx64.efi.signed'
+  iso: 'http://releases.ubuntu.com/bionic/ubuntu-18.04.6-live-server-amd64.iso'
+  pxe: 'http://archive.ubuntu.com/ubuntu/dists/bionic/main/installer-amd64/current/images/netboot/netboot.tar.gz'
+
+pxe_installer_files_ubuntu_2004_amd64:
+  efi: 'http://archive.ubuntu.com/ubuntu/dists/focal/main/uefi/grub2-amd64/current/grubnetx64.efi.signed'
+  iso: 'http://releases.ubuntu.com/focal/ubuntu-20.04.3-live-server-amd64.iso'
+  pxe: 'http://archive.ubuntu.com/ubuntu/dists/focal/main/installer-amd64/current/legacy-images/netboot/netboot.tar.gz'
+
 sysctl_config:
 - copy:
     content: |
