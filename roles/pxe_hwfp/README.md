@@ -8,10 +8,10 @@ for it to boot via PXE, to automatically fingerprint the hardware with the `hwfp
 service and to finally poweroff the system. Once powered off you power on the next system, wait for it to poweroff and
 continue until all systems are done. Then, on the host which executed this role (and runs `hwfp` service), you go to
 directory `/var/lib/hwfp` and find all system specifications in sub directories where each sub directory has the specs
-of a single system. For example, this includes the output of `dmesg`, `find /dev`, `ip link`, `ip addr`, `lshw`,
-`lsmod`, `lspci`, `lspci` and `lspci -vvv`. Directory names consists of timestamps, indicating when the `hwfp` service
-received the specs and indicating to you which system has which specification, e.g. lowest timestamp has specs of first
-booted system etc.
+of a single system. For example, this includes the output of `dmesg`, `find /dev`, `ipmitool`, `ip addr`, `ip link`,
+`lshw`, `lsmod` and `lspci`. Directory names consists of timestamps, indicating when the `hwfp` service received the
+specs and indicating to you which system has which specification, e.g. lowest timestamp has specs of first booted system
+etc.
 
 :warning: **WARNING:**
 Do not expose the `hwfp` service to external networks or the internet. It has no authentication mechanism, transport 

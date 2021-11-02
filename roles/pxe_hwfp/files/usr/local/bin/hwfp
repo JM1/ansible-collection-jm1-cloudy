@@ -167,8 +167,8 @@ ____________________EOF
         _prg="$(readlink -f "$0")"
         _chroot="$_tmpdir/chroot"
         debootstrap \
-            --include=linux-image-amd64,lshw,curl,busybox,pciutils,kmod,udev,sysv-rc,iproute2,isc-dhcp-client,ifupdown \
-            --exclude=initramfs-tools \
+            --include=linux-image-amd64,lshw,curl,busybox,pciutils,kmod,udev,sysv-rc,iproute2,isc-dhcp-client,ifupdown,ipmitool \
+            --exclude=initramfs-tools,openipmi \
             --variant=minbase \
             bullseye "$_chroot/" http://deb.debian.org/debian/
 
@@ -352,38 +352,78 @@ ________EOF
         shift
     done
 
-    [ "$_debug" = "yes" ] && set -x
+    set +e # workaround for https://stackoverflow.com/a/19789651/6490710
+    (
+        set -e
 
-    cd /tmp
+        [ "$_debug" = "yes" ] && set -x
 
-    # shellcheck disable=SC2154
-    if [ -z "$url" ]; then
-        error "kernel parameter \$url is not defined"
-        return 255
-    fi
+        # shellcheck disable=SC2154
+        if [ -z "$url" ]; then
+            error "kernel parameter \$url is not defined"
+            return 255
+        fi
 
-    dmesg > dmesg.txt
-    find /dev > find_dev.txt
-    ip link > ip_link.txt
-    ip addr > ip_addr.txt
-    lshw > lshw.txt
-    lsmod > lsmod.txt
-    lspci > lspci.txt
-    lspci -nn > lspci_nn.txt
-    lspci -vvv > lspci_vvv.txt
+        cd /tmp
 
-    # shellcheck disable=SC2154
-    curl -v \
-        -F "files=@./dmesg.txt" \
-        -F "files=@./find_dev.txt" \
-        -F "files=@./ip_link.txt" \
-        -F "files=@./ip_addr.txt" \
-        -F "files=@./lshw.txt" \
-        -F "files=@./lsmod.txt" \
-        -F "files=@./lspci.txt" \
-        -F "files=@./lspci_nn.txt" \
-        -F "files=@./lspci_vvv.txt" \
-        "$url"
+        # try to load ipmi kernel modules
+        modprobe ipmi_devintf 2>/dev/null 1>&2 || true
+        modprobe ipmi_si 2>/dev/null 1>&2 || true
+
+        _channel=""
+        for nr in $(seq 5); do
+            if ipmitool user summary "$nr"; then
+                _channel="$nr"
+                break
+            fi
+        done
+
+        (
+            set -e
+            set -x
+
+            if [ -z "$_channel" ]; then
+                error "Could not connect to BMC, skipping ipmitool commands"
+            else
+                echo "Connected to BMC on channel $_channel"
+
+                ipmitool chassis status > ipmitool_chassis_status.txt || true
+                ipmitool bmc info > ipmitool_bmc_info.txt || true
+                ipmitool lan print "$_channel" > "ipmitool_lan_print_${_channel}.txt" || true
+                ipmitool lan alert print "$_channel" > "ipmitool_lan_alert_print_${_channel}.txt" || true
+                ipmitool lan stats get "$_channel" > "ipmitool_lan_stats_get_${_channel}.txt" || true
+                ipmitool lan6 print "$_channel" > "ipmitool_lan6_print_${_channel}.txt" || true
+                ipmitool user list "$_channel" > "ipmitool_user_list_${_channel}.txt" || true
+                ipmitool sdr > ipmitool_sdr.txt || true
+                ipmitool sensor > ipmitool_sensor.txt || true
+                ipmitool fru > ipmitool_fru.txt || true
+                ipmitool dcmi discover > ipmitool_dcmi_discover.txt || true
+            fi
+
+            dmesg > dmesg.txt
+            find /dev > find_dev.txt
+            ip link > ip_link.txt
+            ip addr > ip_addr.txt
+            lshw > lshw.txt
+            lsmod > lsmod.txt
+            lspci > lspci.txt
+            lspci -nn > lspci_nn.txt
+            lspci -vvv > lspci_vvv.txt
+
+        ) 2>&1 | tee stdout.txt
+
+        _curl_args=""
+        for file in *.txt; do
+            _curl_args="$_curl_args -F 'files=@./$file'"
+        done
+
+        # shellcheck disable=SC2154
+        eval curl -v "$_curl_args" "$url"
+    )
+
+    _time=10
+    echo "System will power off in $_time seconds"
+    sleep "$_time"
 }
 
 if [ $# -eq 0 ]; then
