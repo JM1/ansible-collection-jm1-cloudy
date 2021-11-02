@@ -1,4 +1,4 @@
-# Ansible Role `jm1.cloudy.libvirt_server`
+# Ansible Role `jm1.cloudy.libvirt_domain`
 
 This role helps with defining [libvirt domains][libvirt] aka virtual machines as Ansible hosts. Similar to provisioning
 in public clouds such as [OpenStack][openstack-user-data] and [Amazon EC2][amazon-ec2-user-data], configuration
@@ -119,7 +119,7 @@ role.
 Use role [`jm1.cloudy.libvirt_volumes`][jm1-cloudy-libvirt-volumes] to create a snapshot of the Debian cloud image
 `debian-11-genericcloud-amd64.qcow2` in storage pool `default` as shown in the introduction of that role.
 
-Once all previous roles have finished, execute this role `jm1.cloudy.libvirt_server`. It will use variables
+Once all previous roles have finished, execute this role `jm1.cloudy.libvirt_domain`. It will use variables
 `cloudinit_networkconfig` and `cloudinit_userdata` to create the cloud-init [config drive][cloud-init-config-drive]
 `debian.home.arpa_cidata.qcow2` in storage pool `default`, using module [`jm1.libvirt.volume_cloudinit`][
 jm1-libvirt-volume-cloudinit] from collection [`jm1.libvirt`][galaxy-jm1-libvirt] [^libvirt-configdrive-parameter].
@@ -135,11 +135,11 @@ domain, module [`jm1.libvirt.domain`][jm1-libvirt-domain] will be used to delete
 [`jm1.libvirt.volume_cloudinit`][jm1-libvirt-volume-cloudinit] will be used to remove the cloud-init config drive.
 
 [^libvirt-configdrive-parameter]: For a complete list of parameters which will be passed to
-[`jm1.libvirt.volume_cloudinit`][jm1-libvirt-volume-cloudinit] refer to [`roles/libvirt_server/tasks/main.yml`](
+[`jm1.libvirt.volume_cloudinit`][jm1-libvirt-volume-cloudinit] refer to [`roles/libvirt_domain/tasks/main.yml`](
 tasks/main.yml).
 
 [^libvirt-domain-parameter]: For a complete list of parameters which will be passed to [`jm1.libvirt.domain`][
-jm1-libvirt-domain] refer to [`roles/libvirt_server/tasks/main.yml`](tasks/main.yml).
+jm1-libvirt-domain] refer to [`roles/libvirt_domain/tasks/main.yml`](tasks/main.yml).
 
 [amazon-ec2-user-data]: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html
 [ansible-inventory]: https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
@@ -219,9 +219,9 @@ and block storage volumes as Ansible variables in an inventory as shown in the i
   # do not become root because connection is local
   connection: local # Assign libvirt_uri to setup a connection to the libvirt host
   roles:
-  - name: Setup OpenStack server
-    role: jm1.cloudy.openstack_server
-    tags: ["jm1.cloudy.openstack_server"]
+  - name: Setup libvirt domain
+    role: jm1.cloudy.libvirt_domain
+    tags: ["jm1.cloudy.libvirt_domain"]
 ```
 
 For a complete example on how to use this role, refer to hosts `lvrt-lcl-session-srv-*` from the provided [examples

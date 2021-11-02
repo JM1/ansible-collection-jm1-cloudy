@@ -1,9 +1,9 @@
-# Ansible Role `jm1.cloudy.libvirt_server_state`
+# Ansible Role `jm1.cloudy.libvirt_domain_state`
 
 This role helps with managing the [state][libvirt-domain-state] of [libvirt domains][libvirt] aka virtual machines
 from Ansible variables. It allows to start, pause, suspend and shutdown a domain with variable `libvirt_domain_state`.
 For example, to shutdown domain `debian.home.arpa` which was launched in the introduction of role
-[`jm1.cloudy.libvirt_server`][jm1-cloudy-libvirt-server], define `libvirt_domain_state` in [`group_vars` or
+[`jm1.cloudy.libvirt_domain`][jm1-cloudy-libvirt-domain], define `libvirt_domain_state` in [`group_vars` or
 `host_vars`][ansible-inventory] as such:
 
 ```yml
@@ -25,7 +25,7 @@ If variable `state` is `absent`, then this role does nothing.
 [ansible-inventory]: https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
 [community-libvirt-virt]: https://docs.ansible.com/ansible/latest/collections/community/libvirt/virt_module.html
 [galaxy-community-libvirt]: https://galaxy.ansible.com/community/libvirt
-[jm1-cloudy-libvirt-server]: ../libvirt_server/
+[jm1-cloudy-libvirt-domain]: ../libvirt_domain/
 [libvirt]: https://libvirt.org/
 
 **Tested OS images**
@@ -69,7 +69,7 @@ None.
 ## Example Playbook
 
 First, define and launch [libvirt domain `debian.home.arpa` as described in the introduction of role
-`jm1.cloudy.libvirt_server`][jm1-cloudy-libvirt-server].
+`jm1.cloudy.libvirt_domain`][jm1-cloudy-libvirt-domain].
 
 ```yml
 - hosts: all
@@ -88,9 +88,9 @@ First, define and launch [libvirt domain `debian.home.arpa` as described in the 
     libvirt_domain_state: shutoff
 
   roles:
-  - name: Manage libvirt server state
-    role: jm1.cloudy.libvirt_server_state
-    tags: ["jm1.cloudy.libvirt_server_state"]
+  - name: Manage libvirt domain state
+    role: jm1.cloudy.libvirt_domain_state
+    tags: ["jm1.cloudy.libvirt_domain_state"]
 ```
 
 For a complete example on how to use this role, refer to hosts `lvrt-lcl-session-srv-*` from the provided [examples

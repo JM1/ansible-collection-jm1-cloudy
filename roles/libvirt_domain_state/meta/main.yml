@@ -1,5 +1,5 @@
 galaxy_info:
-  role_name: libvirt_server_state
+  role_name: libvirt_domain_state
   author: Jakob Meng
   description: Manage libvirt domain states
   company: Hochschule Bonn-Rhein-Sieg

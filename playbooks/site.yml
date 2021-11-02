@@ -149,13 +149,13 @@
     role: jm1.cloudy.libvirt_volumes
     tags: ["jm1.cloudy.libvirt_volumes"]
 
-  - name: Setup libvirt servers
-    role: jm1.cloudy.libvirt_server
-    tags: ["jm1.cloudy.libvirt_server"]
+  - name: Setup libvirt domain
+    role: jm1.cloudy.libvirt_domain
+    tags: ["jm1.cloudy.libvirt_domain"]
 
-  - name: Manage libvirt server state
-    role: jm1.cloudy.libvirt_server_state
-    tags: ["jm1.cloudy.libvirt_server_state"]
+  - name: Manage libvirt domain state
+    role: jm1.cloudy.libvirt_domain_state
+    tags: ["jm1.cloudy.libvirt_domain_state"]
 
 - name: Group libvirt domains
   hosts:
