@@ -252,7 +252,8 @@ collections:
 ### Starting off with your own cloud
 
 To build your own cloud infrastructure based on this collection, copy directory [`inventory/`][inventory-example],
-playbook [`site.yml`][playbook-site-yml] and config [`ansible.cfg.example`][ansible-cfg-example] to a new directory.
+playbook [`playbooks/site.yml`][playbook-site-yml] and config [`ansible.cfg.example`][ansible-cfg-example] to a new
+directory.
 
 Edit `ansible.cfg` to match your environment, i.e. set paths where Ansible is going to install and search for
 collections and roles etc:
@@ -288,29 +289,30 @@ ssh_authorized_keys:
 
 ```
 
-Run playbook `site.yml` for host `lvrt-lcl-system` to set up a libvirt environment on your system, e.g. install packages
-for libvirt and QEMU, configure libvirt networks, prepare a default libvirt storage pool and preload OS images.
+Run playbook `playbooks/site.yml` for host `lvrt-lcl-system` to set up a libvirt environment on your system, e.g.
+install packages for libvirt and QEMU, configure libvirt networks, prepare a default libvirt storage pool and preload OS
+images.
 
 ```sh
 # Cache user credentials so that Ansible can escalate privileges and execute tasks with root privileges
 sudo true
 
-ansible-playbook site.yml --limit lvrt-lcl-system
+ansible-playbook playbooks/site.yml --limit lvrt-lcl-system
 ```
 
-Run playbook `site.yml` for host `lvrt-lcl-session` to prepare the libvirt session of your local user, e.g. prepare
-a default libvirt storage pool and preload OS images.
+Run playbook `playbooks/site.yml` for host `lvrt-lcl-session` to prepare the libvirt session of your local user, e.g.
+prepare a default libvirt storage pool and preload OS images.
 
 ```sh
-ansible-playbook site.yml --limit lvrt-lcl-session
+ansible-playbook playbooks/site.yml --limit lvrt-lcl-session
 ```
 
-Run playbook `site.yml` for all remaining hosts.
+Run playbook `playbooks/site.yml` for all remaining hosts.
 
 ```sh
 # build_level0 contains lvrt-lcl-system and lvrt-lcl-session which have been prepared at previous steps
-ansible-playbook site.yml --limit build_level1
-ansible-playbook site.yml --limit build_level2
+ansible-playbook playbooks/site.yml --limit build_level1
+ansible-playbook playbooks/site.yml --limit build_level2
 ```
 
 Dig into your inventory and playbooks and customize them as needed.
