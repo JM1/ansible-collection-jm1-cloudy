@@ -21,12 +21,13 @@ all: lint build-collection
 
 $(CLTN_DIR)/$(CLTN_FILE):
 	@build_dir=$$(readlink -f $(CLTN_DIR) ); \
-	[ -d .cache/build ] || mkdir -p .cache/build && \
-	rsync -va --delete --exclude build/ --exclude .cache/ . .cache/build/ && \
+	[ ! -d .cache/build/ ] || rm -rf .cache/build/ && \
+	mkdir -p .cache/build && \
+	git archive master | tar -x -C .cache/build/ && \
 	cd .cache/build/ && \
 	ansible-galaxy collection build --output-path "$$build_dir"
-# Build in a clean subdir without the build/ and .cache/ dirs is required because Ansible Galaxy prior to 2.10 does not
-# support the 'build_ignore' flag in the collection metadata file 'galaxy.yml'. Note that this requires the rsync tool.
+# Build in a clean subdir without any ignored files and directories is required because Ansible Galaxy prior to 2.10
+# does not support the 'build_ignore' flag in the collection metadata file 'galaxy.yml'.
 # Ref.: https://docs.ansible.com/ansible/latest/dev_guide/collections_galaxy_meta.html
 
 build-collection: $(CLTN_DIR)/$(CLTN_FILE)
