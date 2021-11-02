@@ -49,7 +49,7 @@ Goals for this collection are:
 [ansible-inventory]: https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
 [ansible-playbooks]: https://docs.ansible.com/ansible/latest/user_guide/playbooks_intro.html
 [ansible-roles]: https://docs.ansible.com/ansible/latest/user_guide/playbooks_reuse_roles.html
-[cloudy-roles]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/
+[cloudy-roles]: roles/
 [kiss]: https://en.wikipedia.org/wiki/KISS_principle
 
 * Generic and reusable code. Code is adaptable and extendable for various cloud use cases with minimal changes:
@@ -63,7 +63,7 @@ Goals for this collection are:
 [ansible-module-file]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/file_module.html
 [ansible-module-lineinfile]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/lineinfile_module.html
 [ansible-module-template]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/template_module.html
-[cloudinit-tasks-main]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/cloudinit/tasks/main.yml
+[cloudinit-tasks-main]: roles/cloudinit/tasks/main.yml
 
 * Users are experts. Users know what to do (once you give them the options). Users have to understand the code to
   reliable and securely operate systems. Users have to understand the code to debug it due to
@@ -76,50 +76,50 @@ Goals for this collection are:
 Click on the name of an inventory, module, playbook or role to view that content's documentation:
 
 - **Inventories**:
-    * [`inventory/`](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/inventory/hosts.yml)
+    * [`inventory/`](inventory/hosts.yml)
 - **Playbooks**:
-    * [`site.yml`](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/playbooks/site.yml)
+    * [`site.yml`](playbooks/site.yml)
 - **Roles**:
-    * [cloudinit](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/cloudinit/README.md)
-    * [debconf](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/debconf/README.md)
-    * [devstack](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/devstack/README.md)
-    * [dhcpd](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/dhcpd/README.md)
-    * [files](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/files/README.md)
-    * [groups](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/groups/README.md)
-    * [grub](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/grub/README.md)
-    * [httpd](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/httpd/README.md)
-    * [initrd](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/initrd/README.md)
-    * [ipmi](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/ipmi/README.md)
-    * [iptables](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/iptables/README.md)
-    * [libvirt_domain](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/libvirt_domain/README.md)
-    * [libvirt_domain_state](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/libvirt_domain_state/README.md)
-    * [libvirt_images](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/libvirt_images/README.md)
-    * [libvirt_networks](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/libvirt_networks/README.md)
-    * [libvirt_pools](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/libvirt_pools/README.md)
-    * [libvirt_volumes](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/libvirt_volumes/README.md)
-    * [meta_packages](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/meta_packages/README.md)
-    * [netplan](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/netplan/README.md)
-    * [openstack_compute_flavors](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/openstack_compute_flavors/README.md)
-    * [openstack_images](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/openstack_images/README.md)
-    * [openstack_keypairs](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/openstack_keypairs/README.md)
-    * [openstack_networks](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/openstack_networks/README.md)
-    * [openstack_security_groups](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/openstack_security_groups/README.md)
-    * [openstack_server](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/openstack_server/README.md)
-    * [openstack_server_state](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/openstack_server_state/README.md)
-    * [openstack_volumes](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/openstack_volumes/README.md)
-    * [packages](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/packages/README.md)
-    * [pxe_hwfp](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/pxe_hwfp/README.md)
-    * [pxe_installer](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/pxe_installer/README.md)
-    * [selinux](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/selinux/README.md)
-    * [services](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/services/README.md)
-    * [ssh_authorized_keys](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/ssh_authorized_keys/README.md)
-    * [sshd](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/sshd/README.md)
-    * [storage](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/storage/README.md)
-    * [sudoers](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/sudoers/README.md)
-    * [sysctl](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/sysctl/README.md)
-    * [tftpd](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/tftpd/README.md)
-    * [tripleo_standalone](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/tripleo_standalone/README.md)
-    * [users](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/roles/users/README.md)
+    * [cloudinit](roles/cloudinit/README.md)
+    * [debconf](roles/debconf/README.md)
+    * [devstack](roles/devstack/README.md)
+    * [dhcpd](roles/dhcpd/README.md)
+    * [files](roles/files/README.md)
+    * [groups](roles/groups/README.md)
+    * [grub](roles/grub/README.md)
+    * [httpd](roles/httpd/README.md)
+    * [initrd](roles/initrd/README.md)
+    * [ipmi](roles/ipmi/README.md)
+    * [iptables](roles/iptables/README.md)
+    * [libvirt_domain](roles/libvirt_domain/README.md)
+    * [libvirt_domain_state](roles/libvirt_domain_state/README.md)
+    * [libvirt_images](roles/libvirt_images/README.md)
+    * [libvirt_networks](roles/libvirt_networks/README.md)
+    * [libvirt_pools](roles/libvirt_pools/README.md)
+    * [libvirt_volumes](roles/libvirt_volumes/README.md)
+    * [meta_packages](roles/meta_packages/README.md)
+    * [netplan](roles/netplan/README.md)
+    * [openstack_compute_flavors](roles/openstack_compute_flavors/README.md)
+    * [openstack_images](roles/openstack_images/README.md)
+    * [openstack_keypairs](roles/openstack_keypairs/README.md)
+    * [openstack_networks](roles/openstack_networks/README.md)
+    * [openstack_security_groups](roles/openstack_security_groups/README.md)
+    * [openstack_server](roles/openstack_server/README.md)
+    * [openstack_server_state](roles/openstack_server_state/README.md)
+    * [openstack_volumes](roles/openstack_volumes/README.md)
+    * [packages](roles/packages/README.md)
+    * [pxe_hwfp](roles/pxe_hwfp/README.md)
+    * [pxe_installer](roles/pxe_installer/README.md)
+    * [selinux](roles/selinux/README.md)
+    * [services](roles/services/README.md)
+    * [ssh_authorized_keys](roles/ssh_authorized_keys/README.md)
+    * [sshd](roles/sshd/README.md)
+    * [storage](roles/storage/README.md)
+    * [sudoers](roles/sudoers/README.md)
+    * [sysctl](roles/sysctl/README.md)
+    * [tftpd](roles/tftpd/README.md)
+    * [tripleo_standalone](roles/tripleo_standalone/README.md)
+    * [users](roles/users/README.md)
 
 :warning: **WARNING:**
 Some roles will inevitably fail while trying to download files. Especially cloud images and install images for CentOS,
@@ -194,7 +194,7 @@ additional tools and Python libraries which are not distributed with Ansible Sil
 
 [ansible-silo]: https://groupon.github.io/ansible-silo/
 [ansible-silo-custom-software]: https://groupon.github.io/ansible-silo/#installing-custom-software
-[pip-requirements-txt]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/pip-requirements.txt
+[pip-requirements-txt]: pip-requirements.txt
 
 #### Installing Ansible roles and collections
 
@@ -317,9 +317,9 @@ ansible-playbook playbooks/site.yml --limit build_level2
 
 Dig into your inventory and playbooks and customize them as needed.
 
-[ansible-cfg-example]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/ansible.cfg.example
-[inventory-example]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/inventory/
-[playbook-site-yml]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/playbooks/site.yml
+[ansible-cfg-example]: ansible.cfg.example
+[inventory-example]: inventory/
+[playbook-site-yml]: playbooks/site.yml
 
 ### Using content of this Collection
 
@@ -376,7 +376,7 @@ Helpful tools for developing collections are `ansible`, `ansible-doc`, `ansible-
 | Ubuntu 18.04 LTS (Bionic Beaver)             | Enable [Launchpad PPA Ansible by Ansible, Inc.](https://launchpad.net/~ansible/+archive/ubuntu/ansible). `apt install ansible ansible-doc ansible-lint flake8 make yamllint` |
 | Ubuntu 20.04 LTS (Focal Fossa)               | `apt install ansible ansible-doc ansible-lint flake8 make yamllint` |
 
-Have a look at the included [`Makefile`](https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/Makefile) for
+Have a look at the included [`Makefile`](Makefile) for
 several frequently used commands, to e.g. build and lint a collection.
 
 ## More Information
