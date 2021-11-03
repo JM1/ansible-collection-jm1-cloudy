@@ -1,8 +1,7 @@
 # Ignore private user config
 ansible.cfg
 
-# Ignore vaults and vault passwords file
-**/vault.yml
+# Ignore vault passwords file
 .vault_pass.txt
 
 # Ignore auto-created Ansible files and folders
