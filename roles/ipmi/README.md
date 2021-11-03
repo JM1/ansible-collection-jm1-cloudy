@@ -18,7 +18,8 @@ ipmi_password: 'secret'
 Next, run this role as an [ad hoc command][adhoc]:
 
 ```sh
-ansible server.home.arpa -m include_role -a name=jm1.cloudy.ipmi -e "force_ipmi_boot_from_network=yes"
+ansible server.home.arpa -m include_role -a name=jm1.cloudy.ipmi \
+    -e "ansible_connection=local force_ipmi_boot_from_network=yes"
 ```
 
 When this role is executed, it will first configure the system to boot from network. Then it will reset the system if it
@@ -62,6 +63,7 @@ A playbook to change the boot device of an Ansible host `server.home.arpa` could
 
 ```yml
 - hosts: all
+  connection: local
   vars:
     # Variables are listed here for convenience and illustration.
     # In a production setup, variables would be defined e.g. in
@@ -94,14 +96,14 @@ Instead of defining a playbook, this role can be run as an [ad hoc command][adho
 in [`group_vars` or `host_vars`][ansible-inventory] as shown in the introductory example. Then run:
 
 ```sh
-ansible server.home.arpa -m include_role -a name=jm1.cloudy.ipmi -e "force_ipmi_boot=yes"
+ansible server.home.arpa -m include_role -a name=jm1.cloudy.ipmi -e "ansible_connection=local force_ipmi_boot=yes"
 ```
 
 To change the power state of a system only, define the `ipmi_power_state` and possibly other `ipmi_*` variables in
 [`group_vars` or `host_vars`][ansible-inventory] as shown in the introductory example. Then run:
 
 ```sh
-ansible server.home.arpa -m include_role -a name=jm1.cloudy.ipmi -e "force_ipmi_power=yes"
+ansible server.home.arpa -m include_role -a name=jm1.cloudy.ipmi -e "ansible_connection=local force_ipmi_power=yes"
 ```
 
 To reset a system and boot it from network, refer to the introductory example.

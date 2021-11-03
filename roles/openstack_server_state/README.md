@@ -73,6 +73,7 @@ OpenStack `OS_*` environment variables.
 
 ```yml
 - hosts: all
+  connection: local # Connection to OpenStack is handled by OpenStack SDK and Ansible's OpenStack modules
   vars:
     # Variables are listed here for convenience and illustration.
     # In a production setup, variables would be defined e.g. in

@@ -24,7 +24,7 @@
   - bmtl
   any_errors_fatal: yes
   # do not become root because connection is local
-  connection: local # Assign libvirt_uri to setup a connection to the libvirt host
+  connection: local
   vars:
     # For local connections use Python interpreter that is being used by Ansible on the controller.
     #

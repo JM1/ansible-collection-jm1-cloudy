@@ -195,6 +195,7 @@ information for the OpenStack SDK][openstacksdk-config] as well by defining Ansi
 
 ```yml
 - hosts: all
+  connection: local # Connection to OpenStack is handled by OpenStack SDK and Ansible's OpenStack modules
   roles:
   - name: Setup OpenStack server
     role: jm1.cloudy.openstack_server
