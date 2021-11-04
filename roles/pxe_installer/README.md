@@ -7,8 +7,8 @@ former, [GRUB2][grub] on the latter.
 
 Operating systems currently supported are:
 * CentOS 7/8 with [Kickstart][kickstart]
-* Debian 10/11 with [Preseed][preseed]
-* Ubuntu 18.04/20.04 with [Autoinstall][autoinstall]
+* Debian 10 (Buster), Debian 11 (Bullseye) and Ubuntu 18.04 LTS (Bionic Beaver) with [Preseed][preseed]
+* Ubuntu 20.04 LTS (Focal Fossa) with [Autoinstall][autoinstall]
 
 It is possible to provide client-specific Kickstart, Preseed and Autoinstall (e.g. [cloud-init][cloud-init-doc] user
 data) files to customize the installation process per host.
@@ -72,9 +72,12 @@ to the same subdirectory and then patched so that GRUB2 finds its boot files in 
 PXELINUX and GRUB2 configs will be generated: For each Ansible host listed in `pxe_installer_clients`, its
 `distribution_id` variable will be queried to identify Ubuntu hosts, `pxe_installer_client_mac` will be used to write
 host-specific GRUB2 and PXELINUX configs and additional kernel parameters will be added from variable
-`pxe_installer_kernel_parameters`. Last, host-specific cloud-init user data etc. will be generated in subdirectories
-of `{{ pxe_installer_httpd_root }}/cloud-init/` for all hosts listed in `pxe_installer_clients`, using the host-specific
-`cloudinit_userdata`, `cloudinit_metadata` and `cloudinit_vendordata` variables.
+`pxe_installer_kernel_parameters`. Next, host-specific Preseed files will be generated in subdirectories of
+`pxe_installer_tftpd_root` for all hosts with Ubuntu 18.04 LTS (Bionic Beaver) listed in `pxe_installer_clients`, using
+the host-specific `preseed_config` variable. Last, host-specific cloud-init user data etc. will be generated in
+subdirectories of `{{ pxe_installer_httpd_root }}/cloud-init/` for all hosts with Ubuntu 20.04 LTS (Focal Fossa) listed
+in `pxe_installer_clients`, using the host-specific `cloudinit_userdata`, `cloudinit_metadata` and
+`cloudinit_vendordata` variables.
 
 For examples on how to configure PXE clients as Ansible hosts and how to define variables `kickstart_config`,
 `preseed_config` or `cloudinit_userdata`, refer to hosts `lvrt-lcl-session-srv-11-pxe-client-debian11-bios` up to
@@ -122,7 +125,7 @@ jm1-cloudy-requirements].
 | `pxe_installer_files_centos_8_amd64`                | *refer to [`roles/pxe_installer/defaults/main.yml`](defaults/main.yml)* | no | Where to download CentOS's iso which will be used to pxe-boot and kickstart `CentOS 8 [amd64]`. A CentOS full iso is required because its rpm's will be extracted. |
 | `pxe_installer_files_debian_10_amd64`               | *refer to [`roles/pxe_installer/defaults/main.yml`](defaults/main.yml)* | no | Where to download Debian's netboot files which will be used to pxe-boot and preseed `Debian 10 (Buster) [amd64]` |
 | `pxe_installer_files_debian_11_amd64`               | *refer to [`roles/pxe_installer/defaults/main.yml`](defaults/main.yml)* | no | Where to download Debian's netboot files which will be used to pxe-boot and preseed `Debian 11 (Bullseye) [amd64]` |
-| `pxe_installer_files_ubuntu_1804_amd64`             | *refer to [`roles/pxe_installer/defaults/main.yml`](defaults/main.yml)* | no | Where to download Ubuntu's netbootable GRUB2 UEFI executable, its live server iso and netboot files which will be used to pxe-boot and autoinstall `Ubuntu 18.04 LTS (Bionic Beaver) [amd64]` [^iso-parameter] |
+| `pxe_installer_files_ubuntu_1804_amd64`             | *refer to [`roles/pxe_installer/defaults/main.yml`](defaults/main.yml)* | no | Where to download Ubuntu's netbootable GRUB2 UEFI executable, its live server iso and netboot files which will be used to pxe-boot and preseed `Ubuntu 18.04 LTS (Bionic Beaver) [amd64]` [^iso-parameter] |
 | `pxe_installer_files_ubuntu_2004_amd64`             | *refer to [`roles/pxe_installer/defaults/main.yml`](defaults/main.yml)* | no | Where to download Ubuntu's netbootable GRUB2 UEFI executable, its live server iso and netboot files which will be used to pxe-boot and autoinstall `Ubuntu 20.04 LTS (Focal Fossa) [amd64]` [^iso-parameter] |
 | `pxe_installer_host_address`                        | *undefined*                                          | yes      | IP address on which the `httpd` and `tftpd` services will listen. It is sourced from `pxe_installer_*_url` variables. |
 | `pxe_installer_httpd_root`                          | *depends on `distribution_id`*                       | no       | Base path which is served by a `httpd` site [^root-parameter], e.g. `/var/www` on Debian and `/var/lib/httpd` on Red Hat Enterprise Linux |
@@ -131,7 +134,7 @@ jm1-cloudy-requirements].
 | `pxe_installer_kernel_parameters_centos_8_amd64`    | `{{ pxe_installer_kernel_parameters }}`              | no       | Additional kernel parameters which will be passed to the kernel when booting via PXE to kickstart `CentOS 8 [amd64]` |
 | `pxe_installer_kernel_parameters_debian_10_amd64`   | `{{ pxe_installer_kernel_parameters }}`              | no       | Additional kernel parameters which will be passed to the kernel when booting via PXE to preseed `Debian 10 (Buster) [amd64]` |
 | `pxe_installer_kernel_parameters_debian_11_amd64`   | `{{ pxe_installer_kernel_parameters }}`              | no       | Additional kernel parameters which will be passed to the kernel when booting via PXE to preseed `Debian 11 (Bullseye) [amd64]` |
-| `pxe_installer_kernel_parameters_ubuntu_1804_amd64` | `{{ pxe_installer_kernel_parameters }}`              | no       | Additional kernel parameters which will be passed to the kernel when booting via PXE to autoinstall `Ubuntu 18.04 LTS (Bionic Beaver) [amd64]` |
+| `pxe_installer_kernel_parameters_ubuntu_1804_amd64` | `{{ pxe_installer_kernel_parameters }}`              | no       | Additional kernel parameters which will be passed to the kernel when booting via PXE to preseed `Ubuntu 18.04 LTS (Bionic Beaver) [amd64]` |
 | `pxe_installer_kernel_parameters_ubuntu_2004_amd64` | `{{ pxe_installer_kernel_parameters }}`              | no       | Additional kernel parameters which will be passed to the kernel when booting via PXE to autoinstall `Ubuntu 20.04 LTS (Focal Fossa) [amd64]` |
 | `pxe_installer_kickstart_url`                       | `http://{{ pxe_installer_host_address\|mandatory }}` | no       | Base url where CentOS's Anaconda installer will fetch the Kickstart config |
 | `pxe_installer_preseed_url`                         | `tftp://{{ pxe_installer_host_address\|mandatory }}` | no       | Base url where Debian's Installer will fetch Preseed config |

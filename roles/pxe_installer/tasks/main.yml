@@ -525,6 +525,16 @@
     - ['Ubuntu', '18.04', 'amd64']
     - ['Ubuntu', '20.04', 'amd64']
 
+  - name: Preprocess netboot archive
+    file:
+      path: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/ubuntu-installer/{{ item.2 }}/linux'
+      mode: u=rw,g=r,o=r
+      owner: root
+      group: root
+    loop:
+    - ['Ubuntu', '18.04', 'amd64']
+    - ['Ubuntu', '20.04', 'amd64']
+
   - name: Patch Ubuntu 18.04 LTS (Bionic Beaver) installer path in grubnetx64.efi (will break UEFI Secure Boot signature)
     shell:
       chdir: '{{ pxe_installer_tftpd_root }}/Ubuntu_18.04/amd64'
@@ -568,9 +578,9 @@
         menu width 70
         menu title Ubuntu installer menu (BIOS mode)
         label install
-              menu label Ubuntu 18.04 LTS (Bionic Beaver) Autoinstall (BIOS, AMD64)
-              kernel /casper/vmlinuz
-              append initrd=/casper/initrd ip=dhcp url={{ pxe_installer_files_ubuntu_1804_amd64.iso }} autoinstall ds=nocloud-net;s={{ pxe_installer_cloudinit_url }}/cloud-init/{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}/ {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else pxe_installer_kernel_parameters_ubuntu_1804_amd64 }} ---
+              menu label Ubuntu 18.04 LTS (Bionic Beaver) Preseed (BIOS, AMD64)
+              kernel /ubuntu-installer/amd64/linux
+              append initrd=/ubuntu-installer/amd64/initrd.gz ip=dhcp auto=true hostname=unassigned-hostname domain=unassigned-domain url={{ pxe_installer_preseed_url }}/Ubuntu_18.04/amd64/preseed.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }} {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else pxe_installer_kernel_parameters_ubuntu_1804_amd64 }} ---
       dest: "{{ pxe_installer_tftpd_root }}/Ubuntu_18.04/amd64/pxelinux.cfg/01-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}"
       mode: u=rw,g=r,o=r
       owner: root
@@ -592,10 +602,10 @@
         set menu_color_normal=cyan/blue
         set menu_color_highlight=white/blue
 
-        menuentry 'Ubuntu 18.04 LTS (Bionic Beaver) Autoinstall (UEFI, AMD64)' {
+        menuentry 'Ubuntu 18.04 LTS (Bionic Beaver) Preseed (UEFI, AMD64)' {
             set background_color=black
-            linux /Ubuntu_18.04/amd64/casper/vmlinuz ip=dhcp url={{ pxe_installer_files_ubuntu_1804_amd64.iso }} autoinstall 'ds=nocloud-net;s={{ pxe_installer_cloudinit_url }}/cloud-init/{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}/' {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else pxe_installer_kernel_parameters_ubuntu_1804_amd64 }} ---
-            initrd /Ubuntu_18.04/amd64/casper/initrd
+            linux /Ubuntu_18.04/amd64/ubuntu-installer/amd64/linux ip=dhcp auto=true hostname=unassigned-hostname domain=unassigned-domain url={{ pxe_installer_preseed_url }}/Ubuntu_18.04/amd64/preseed.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }} {{ hostvars[item]['pxe_installer_kernel_parameters'] if 'pxe_installer_kernel_parameters' in hostvars[item] else pxe_installer_kernel_parameters_ubuntu_1804_amd64 }} ---
+            initrd /Ubuntu_18.04/amd64/ubuntu-installer/amd64/initrd.gz
         }
       dest: "{{ pxe_installer_tftpd_root }}/Ubuntu_18.04/amd64/grub/grub.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower }}"
       mode: u=rw,g=r,o=r
@@ -649,8 +659,19 @@
       group: root
     loop: '{{ pxe_installer_clients }}'
 
+  - name: Create host-specific preseed config
+    when: hostvars[item]['distribution_id'] in [['Ubuntu', '18.04']]
+          and hostvars[item]['os_architecture'] == 'x86_64'
+    template:
+      dest: "{{ pxe_installer_tftpd_root }}/{{ hostvars[item]['distribution_id']|join('_') }}/amd64/preseed.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}"
+      group: root
+      mode: u=rw,g=r,o=r
+      owner: root
+      src: preseed.cfg.j2
+    loop: '{{ pxe_installer_clients }}'
+
   - name: Create httpd subdirectories
-    when: hostvars[item]['distribution_id'] in [['Ubuntu', '18.04'], ['Ubuntu', '20.04']]
+    when: hostvars[item]['distribution_id'] in [['Ubuntu', '20.04']]
           and hostvars[item]['os_architecture'] == 'x86_64'
     file:
       path: "{{ pxe_installer_httpd_root }}/cloud-init/{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}"
@@ -661,7 +682,7 @@
     loop: "{{ pxe_installer_clients }}"
 
   - name: Create host-specific cloud-init data
-    when: hostvars[item.0]['distribution_id'] in [['Ubuntu', '18.04'], ['Ubuntu', '20.04']]
+    when: hostvars[item.0]['distribution_id'] in [['Ubuntu', '20.04']]
           and hostvars[item.0]['os_architecture'] == 'x86_64'
           and ('cloudinit_' + item.1|replace('-','')) in hostvars[item.0]
     template:

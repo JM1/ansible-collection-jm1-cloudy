@@ -13,9 +13,9 @@ that demonstrates how to setup a cloud infrastructure using [libvirt][libvirt] a
   domains (QEMU/KVM based virtual machines) with [cloud-init][cloud-init-doc] and CentOS 7, CentOS 8,
   Debian 10 (Buster), Debian 11 (Bullseye), Ubuntu 18.04 LTS (Bionic Beaver) or Ubuntu 20.04 LTS (Focal Fossa)
 * Hosts [`lvrt-lcl-session-srv-10-*` to `lvrt-lcl-session-srv-17-*`][inventory-example] showcase automatic system
-  installation of [CentOS 7/8 with Kickstart, of Debian 10/11 with Preseed and of Ubuntu 18.04/20.04 with Autoinstall][
-  pxe-installer], each with [PXE][pxe-wiki] network boot on BIOS and UEFI systems
-* Host [`lvrt-lcl-session-srv-20-*`][inventory-example] showcases how to ["quickly bring up a OpenStack environment 
+  installation of [CentOS 8 with Kickstart, of Debian 11 (Bullseye) with Preseed and of Ubuntu 20.04 LTS (Focal Fossa)
+  with Autoinstall][pxe-installer], each with [PXE][pxe-wiki] network boot on BIOS and UEFI systems
+* Host [`lvrt-lcl-session-srv-20-*`][inventory-example] showcases how to ["quickly bring up a OpenStack environment
   based on the latest versions of everything from git master"][devstack] with [DevStack][devstack]
 * Host [`lvrt-lcl-session-srv-21-*`][inventory-example] showcases how to
   [deploy TripleO standalone][tripleo-standalone-setup] on CentOS 8
