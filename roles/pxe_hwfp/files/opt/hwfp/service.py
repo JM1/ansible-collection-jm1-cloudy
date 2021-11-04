@@ -50,6 +50,11 @@ async def main():
 
 @app.post("/")
 async def post_files(files: typing.List[fastapi.UploadFile] = fastapi.File(...)):
+    timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    dir = os.path.join(db_path, timestamp)
+
+    if not os.path.exists(dir):
+        os.mkdir(dir)
 
     for file in files:
         if not file.filename:
@@ -58,12 +63,6 @@ async def post_files(files: typing.List[fastapi.UploadFile] = fastapi.File(...))
         # remove forbidden characters to prevent security issues, e.g. replace
         # path separators to prevent overwriting files in parent directories
         filename = re.sub(r'[^a-zA-Z0-9._-]', "_", file.filename)
-        timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-
-        dir = os.path.join(db_path, timestamp)
-
-        if not os.path.exists(dir):
-            os.mkdir(dir)
 
         with open(os.path.join(dir, filename), "wb") as f:
             f.write(file.file.read())
