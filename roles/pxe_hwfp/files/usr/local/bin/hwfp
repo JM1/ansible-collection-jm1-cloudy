@@ -59,7 +59,7 @@ stderr() {
     local _msg
     while read -r _msg
     do
-        echo "$_msg" 2>&1
+        echo "$_msg" 1>&2
     done
 }
 
