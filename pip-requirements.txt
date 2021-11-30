@@ -31,6 +31,12 @@ ansible >= 3.2.0
 #ansible-base >= 2.10.0
 #ansible-core >= 2.11.0
 
+# Used in Makefile
+ansible-lint
+
+# Used in Makefile
+flake8
+
 # libvirt-python requires libvirt C headers and compilers.
 #
 # On Debian 10 (Buster), Debian 11 (Bullseye), Ubuntu 18.04 LTS (Bionic Beaver) and Ubuntu 20.04 LTS (Focal Fossa)
@@ -93,3 +99,6 @@ python-openstackclient >= 4.0.2
 #
 # Ref.: https://github.com/pycontribs/selinux
 selinux
+
+# Used in Makefile
+yamllint
