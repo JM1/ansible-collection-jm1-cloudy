@@ -31,24 +31,6 @@ ansible >= 3.2.0
 #ansible-base >= 2.10.0
 #ansible-core >= 2.11.0
 
-# Ansible's seboolean and selinux modules require Python packages libselinux-python and libsemanage-python
-#
-# On Debian 10 (Buster), Debian 11 (Bullseye), Ubuntu 18.04 LTS (Bionic Beaver) and Ubuntu 20.04 LTS (Focal Fossa)
-# install them with e.g.
-#  apt-get install python3-selinux python3-semanage
-#
-# On Red Hat Enterprise Linux (RHEL) 7 / CentOS 7 install them with e.g.
-#  yum install libselinux-python libselinux-python3 libsemanage-python
-#
-# On Red Hat Enterprise Linux (RHEL) 8 / CentOS 8 install them with e.g.
-#  yum install python3-libselinux python3-libsemanage
-#
-# When Ansible is used in a virtualenv then the selinux shim module has to be installed else Ansible modules fail to 
-# load the libselinux-python and libsemanage-python packages.
-#
-# Ref.: https://github.com/pycontribs/selinux
-selinux
-
 # libvirt-python requires libvirt C headers and compilers.
 #
 # On Debian 10 (Buster), Debian 11 (Bullseye), Ubuntu 18.04 LTS (Bionic Beaver) and Ubuntu 20.04 LTS (Focal Fossa)
@@ -86,10 +68,28 @@ netaddr
 #
 openstacksdk >= 0.36.5
 
+pip >= 20.0.0
+
 # Ansible's ipmi_boot and ipmi_power modules require Python package pyghmi
 pyghmi
 
 # Newer OpenStack SDK releases require an upgrade of OpenStackClient
 python-openstackclient >= 4.0.2
 
-pip >= 20.0.0
+# Ansible's seboolean and selinux modules require Python packages libselinux-python and libsemanage-python
+#
+# On Debian 10 (Buster), Debian 11 (Bullseye), Ubuntu 18.04 LTS (Bionic Beaver) and Ubuntu 20.04 LTS (Focal Fossa)
+# install them with e.g.
+#  apt-get install python3-selinux python3-semanage
+#
+# On Red Hat Enterprise Linux (RHEL) 7 / CentOS 7 install them with e.g.
+#  yum install libselinux-python libselinux-python3 libsemanage-python
+#
+# On Red Hat Enterprise Linux (RHEL) 8 / CentOS 8 install them with e.g.
+#  yum install python3-libselinux python3-libsemanage
+#
+# When Ansible is used in a virtualenv then the selinux shim module has to be installed else Ansible modules fail to 
+# load the libselinux-python and libsemanage-python packages.
+#
+# Ref.: https://github.com/pycontribs/selinux
+selinux
