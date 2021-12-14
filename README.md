@@ -216,14 +216,18 @@ You can use the following roles to install necessary software packages:
 ```sh
 sudo -s
 
-ansible localhost -m include_role -a name=jm1.pkg.setup
+ansible-console localhost << EOF
+gather_facts
+
+include_role name=jm1.pkg.setup
 # Ref.: https://github.com/JM1/ansible-collection-jm1-pkg/blob/master/roles/setup/README.md
 
-ansible localhost -m include_role -a name=jm1.libvirt.setup
+include_role name=jm1.libvirt.setup
 # Ref.: https://github.com/JM1/ansible-collection-jm1-libvirt/blob/master/roles/setup/README.md
 
-ansible localhost -m include_role -a name=jm1.openstack.setup
+include_role name=jm1.openstack.setup
 # Ref.: https://github.com/JM1/ansible-collection-jm1-openstack/blob/master/roles/setup/README.md
+EOF
 ```
 
 The exact requirements for every module and role are listed in the corresponding documentation.
