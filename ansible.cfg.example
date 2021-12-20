@@ -21,8 +21,6 @@ retry_files_enabled = False
 ;; project-local roles in [CWD]/roles/[NAMESPACE].[ROLE_NAME]
 roles_path = ./.cache/ansible/roles/:./roles:~/.ansible/roles:/etc/ansible/roles:/usr/share/ansible/roles
 
-vault_password_file = ./.vault_pass.txt
-
 [ssh_connection]
 
 ; "Pipelining, if supported by the connection plugin, reduces the number of network operations required to execute a
