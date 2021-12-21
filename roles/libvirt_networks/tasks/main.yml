@@ -7,7 +7,7 @@
   loop: '{{ libvirt_networks|default([]) }}'
   jm1.libvirt.net_xml:
     ignore: '{{ item.ignore|default(omit) }}'
-    state: "{{ item.state|default('present') }}"
+    state: "{{ 'present' if item.state|default('present') != 'absent' else 'absent' }}"
     uri: "{{ item.uri if 'uri' in item else libvirt_uri }}"
     # We want to be able to use the loop variable 'item' within the xml string, i.e. the xml string might be a Jinja2
     # template. If we would pass the templated xml string directly, then Ansible would evaluate the template before the
