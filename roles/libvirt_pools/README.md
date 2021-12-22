@@ -16,7 +16,7 @@ libvirt_pools:
 - autostart: yes
   hardware:
   - type: dir
-  - target: '{{ ansible_env.USER }}/.local/share/libvirt/images'
+  - target: '{{ ansible_env.HOME }}/.local/share/libvirt/images'
   name: 'default'
 
 # libvirt connection uri
@@ -106,7 +106,7 @@ None.
     - autostart: yes
       hardware:
       - type: dir
-      - target: '{{ ansible_env.USER }}/.local/share/libvirt/images'
+      - target: '{{ ansible_env.HOME }}/.local/share/libvirt/images'
       name: 'default'
 
     # libvirt connection uri
