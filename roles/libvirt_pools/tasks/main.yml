@@ -23,7 +23,7 @@
         and 'xml_file' not in item
         and 'xml_var' not in item
   notify:
-  - 'Start libvirt storage pools'
+  - 'Start/Stop libvirt storage pools'
 
 - name: Create/Modify libvirt storage pools using jm1.libvirt.pool_xml
   loop: '{{ libvirt_pools|default([]) }}'
