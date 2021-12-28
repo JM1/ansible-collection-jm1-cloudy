@@ -153,11 +153,12 @@ First, make sure that `pip` is available on your system.
 | Ubuntu 20.04 LTS (Focal Fossa)               | `apt install python3 python3-pip` |
 
 Run `pip3 install --user --upgrade pip` to upgrade `pip` to the latest version because an outdated `pip` version is the
-single most common cause of installation problems. Now install Ansible and all required Python modules with
-`pip3 install --user --requirement pip-requirements.txt`.
+single most common cause of installation problems. Before proceeding, please follow the hints and instructions given in
+[`pip-requirements.txt`][pip-requirements-txt] because some Python modules have additional prerequisites. Next, install
+Ansible and all required Python modules with `pip3 install --user --requirement pip-requirements.txt`.
 
-Use Python's [`virtualenv` tool][virtualenv] to create a self-contained Python environment for Ansible, instead of
-installing all Python packages to your home directory with `pip3 install --user`.
+You may want to use Python's [`virtualenv` tool][virtualenv] to create a self-contained Python environment for Ansible,
+instead of installing all Python packages to your home directory with `pip3 install --user`.
 
 [virtualenv]: https://virtualenv.pypa.io/en/latest/
 
