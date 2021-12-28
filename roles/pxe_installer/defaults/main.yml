@@ -68,7 +68,7 @@ pxe_installer_files_centos_7_amd64:
 
 # NOTE: CentOS full isos are required because we access their rpm's.
 pxe_installer_files_centos_8_amd64:
-  'https://mirror.eu.oneandone.net/linux/distributions/centos/8/isos/x86_64/CentOS-8.4.2105-x86_64-dvd1.iso'
+  'https://mirror.eu.oneandone.net/linux/distributions/centos/8/isos/x86_64/CentOS-8.5.2111-x86_64-dvd1.iso'
 
 pxe_installer_files_debian_10_amd64:
   'https://deb.debian.org/debian/dists/buster/main/installer-amd64/current/images/netboot/netboot.tar.gz'
