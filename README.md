@@ -274,10 +274,9 @@ They will apply changes that might break your system.
 :warning:
 
 :warning: **NOTE:**
-The [example inventory][inventory-example] assumes that your system has a bridge `br-lan` with ip network
-`10.0.*.*/16` and gateway `10.0.0.1` and a bridge `br-wan` with ip network `10.10.*.*/16` and gateway `10.10.0.1`.
-All other bridges and networks will be created executing the playbooks listed below for hosts `lvrt-lcl-system` and
-`lvrt-lcl-session`.
+The [example inventory][inventory-example] assumes that your system has a bridge `br-lan` with ip network `10.0.*.*/16`
+and gateway `10.0.0.1`. All other bridges and networks will be created executing the playbooks listed below for hosts
+`lvrt-lcl-system` and `lvrt-lcl-session`.
 :warning:
 
 Ensure you have valid RSA keys for SSH logins, esp. a RSA public key at `$HOME/.ssh/id_rsa.pub`. If it does not exist,

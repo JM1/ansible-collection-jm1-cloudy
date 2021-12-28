@@ -39,14 +39,6 @@ libvirt_networks:
 
 - autostart: yes
   bridge:
-    name: 'br-wan'
-  name: 'wan-bridge'
-  restart_on_change: yes
-  state: active
-  xml_var: 'libvirt_network_template_bridge'
-
-- autostart: yes
-  bridge:
     name: 'virbr-local-0'
   ignore:
   - '/network/uuid'

@@ -33,15 +33,6 @@ libvirt_networks:
 - acl: allow
   autostart: yes
   bridge:
-    name: 'br-wan'
-  name: 'wan-bridge'
-  restart_on_change: yes
-  state: active
-  xml_var: 'libvirt_network_template_bridge'
-
-- acl: allow
-  autostart: yes
-  bridge:
     delay: '0'
     name: 'virbr-local-0'
     stp: yes
