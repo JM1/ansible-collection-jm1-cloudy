@@ -45,7 +45,13 @@ Available on Ansible Galaxy in Collection [jm1.cloudy](https://galaxy.ansible.co
 
 ## Requirements
 
-None.
+This role uses module(s) from collection [`community.general`][galaxy-community-general]. To install this collection
+you may follow the steps described in [`README.md`][jm1-cloudy-readme] using the provided [`requirements.yml`][
+jm1-cloudy-requirements].
+
+[galaxy-community-general]: https://galaxy.ansible.com/community/general
+[jm1-cloudy-readme]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/README.md
+[jm1-cloudy-requirements]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/requirements.yml
 
 ## Variables
 
@@ -55,14 +61,15 @@ None.
 | `files_config` | `[]`          | no       | List of tasks to run [^supported-modules] |
 
 [^supported-modules]: Supported Ansible modules are [`assemble`][ansible-module-assemble], [`blockinfile`][
-ansible-module-blockinfile], [`copy`][ansible-module-copy], [`fetch`][ansible-module-fetch], [`file`][
-ansible-module-file], [`get_url`][ansible-module-get-url], [`git`][ansible-module-git], [`lineinfile`][
-ansible-module-lineinfile], [`replace`][ansible-module-replace], [`slurp`][ansible-module-slurp], [`subversion`][
-ansible-module-subversion], [`template`][ansible-module-template], [`unarchive`][ansible-module-unarchive] and [`uri`][
-ansible-module-uri].
+ansible-module-blockinfile], [`capabilities`][ansible-module-capabilities], [`copy`][ansible-module-copy], [`fetch`][
+ansible-module-fetch], [`file`][ansible-module-file], [`get_url`][ansible-module-get-url], [`git`][ansible-module-git],
+[`lineinfile`][ansible-module-lineinfile], [`replace`][ansible-module-replace], [`slurp`][ansible-module-slurp],
+[`subversion`][ansible-module-subversion], [`template`][ansible-module-template], [`unarchive`][
+ansible-module-unarchive], [`uri`][ansible-module-uri] and [`xattr`][ansible-module-xattr].
 
 [ansible-module-assemble]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/assemble_module.html
 [ansible-module-blockinfile]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/blockinfile_module.html
+[ansible-module-capabilities]: https://docs.ansible.com/ansible/latest/collections/community/general/capabilities_module.html
 [ansible-module-copy]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/copy_module.html
 [ansible-module-fetch]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/fetch_module.html
 [ansible-module-file]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/file_module.html
@@ -75,6 +82,7 @@ ansible-module-uri].
 [ansible-module-template]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/template_module.html
 [ansible-module-unarchive]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/unarchive_module.html
 [ansible-module-uri]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/uri_module.html
+[ansible-module-xattr]: https://docs.ansible.com/ansible/latest/collections/community/general/xattr_module.html
 
 ## Dependencies
 

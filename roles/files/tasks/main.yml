@@ -17,6 +17,12 @@
   blockinfile: "{{ item['blockinfile'] }}"
   register: files_config_blockinfile_result
 
+- name: Manage Linux capabilities
+  loop: '{{ files_config|default([]) }}'
+  when: "'capabilities' in item"
+  capabilities: "{{ item['capabilities'] }}"
+  register: files_config_capabilities_result
+
 - name: Copy files
   loop: '{{ files_config|default([]) }}'
   when: "'copy' in item"
@@ -89,11 +95,18 @@
   uri: "{{ item['uri'] }}"
   register: files_config_uri_result
 
+- name: Manage user defined extended attributes
+  loop: '{{ files_config|default([]) }}'
+  when: "'xattr' in item"
+  xattr: "{{ item['xattr'] }}"
+  register: files_config_xattr_result
+
 - name: Debug role variables
   debug:
     msg:
       files_config_assemble_result: '{{ files_config_assemble_result }}'
       files_config_blockinfile_result: '{{ files_config_blockinfile_result }}'
+      files_config_capabilities_result: '{{ files_config_capabilities_result }}'
       files_config_copy_result: '{{ files_config_copy_result }}'
       files_config_fetch_result: '{{ files_config_fetch_result }}'
       files_config_file_result: '{{ files_config_file_result }}'
@@ -106,6 +119,7 @@
       files_config_template_result: '{{ files_config_template_result }}'
       files_config_unarchive_result: '{{ files_config_unarchive_result }}'
       files_config_uri_result: '{{ files_config_uri_result }}'
+      files_config_xattr_result: '{{ files_config_xattr_result }}'
   tags:
     - never
     - debug
