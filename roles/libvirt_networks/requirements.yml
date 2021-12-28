@@ -2,5 +2,6 @@
 roles: []
 
 collections:
+- community.general
 - community.libvirt
 - jm1.libvirt

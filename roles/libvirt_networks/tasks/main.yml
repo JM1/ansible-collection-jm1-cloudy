@@ -37,12 +37,23 @@
     name: "{{ item.1.matches[0]['name']|mandatory }}"
     uri: "{{ item.2.uri if 'uri' in item.2 else libvirt_uri }}"
 
-- name: Create QEMU config directory, e.g. used by qemu-bridge-helper
+- name: Prepare access to bridges for unprivileged users
   when: libvirt_networks|default([])|selectattr('acl', 'defined')|list|length > 0
-  file:
-    path: /etc/qemu
-    state: directory
-    mode: u=rwx,g=rx,o=rx
+  block:
+  - name: Add capability to create TUN/TAP devices to qemu-bridge-helper
+    when: distribution_id|first in ['Debian', 'Ubuntu']
+    # CentOS and Red Hat Enterprise Linux set setgid flag for file /usr/libexec/qemu-bridge-helper already
+    # Ref.: https://git.centos.org/rpms/qemu-kvm
+    capabilities:
+      path: /usr/lib/qemu/qemu-bridge-helper
+      capability: cap_net_admin+ep
+      state: present
+
+  - name: Create QEMU config directory, e.g. used by qemu-bridge-helper
+    file:
+      path: /etc/qemu
+      state: directory
+      mode: u=rwx,g=rx,o=rx
 
 - name: Allow/deny access to QEMU bridges for unprivileged users
   # Ref.:

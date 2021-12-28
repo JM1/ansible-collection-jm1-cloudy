@@ -37,9 +37,12 @@ If a list item does not contain key `autostart` or if its set to `yes` then modu
 community-libvirt-virt-net] from collection [`community.libvirt`][galaxy-community-libvirt] will be used to mark that
 network to be started automatically when the libvirt daemon starts.
 
-If a list item contains key `acl` then [QEMU's config file `/etc/qemu/bridge.conf` will be edited to allow or deny
-access to bridges (created by `qemu-bridge-helper` and implicitly invoked from libvirt daemon) for unprivileged users][
-qemu-acl] [^libvirt-networks-parameter-acl].
+If a list item contains key `acl` then [the capability to create TUN/TAP devices aka `cap_net_admin+ep` will be added to
+`qemu-bridge-helper`][qemu-bridge-helper] and [QEMU's config file `/etc/qemu/bridge.conf` will be edited to allow or
+deny access to bridges (created by `qemu-bridge-helper` and implicitly invoked from libvirt daemon) for unprivileged
+users][qemu-acl] [^libvirt-networks-parameter-acl].
+
+[qemu-bridge-helper]: https://salsa.debian.org/libvirt-team/libvirt/-/blob/debian/latest/debian/libvirt-daemon.README.Debian#L45
 
 At the end the same module will be used to stop and restart libvirt networks automatically to apply pending changes at
 runtime.
@@ -71,19 +74,21 @@ Available on Ansible Galaxy in Collection [jm1.cloudy](https://galaxy.ansible.co
 
 ## Requirements
 
-This role uses module(s) from collections [`community.libvirt`][galaxy-community-libvirt] and [`jm1.libvirt`][
-galaxy-jm1-libvirt]. To install these collections you may follow the steps described in [`README.md`][
-jm1-cloudy-readme] using the provided [`requirements.yml`][jm1-cloudy-requirements].
+This role uses module(s) from collections  [`community.general`][galaxy-community-general], [`community.libvirt`][
+galaxy-community-libvirt] and [`jm1.libvirt`][galaxy-jm1-libvirt]. To install these collections you may follow the steps
+described in [`README.md`][jm1-cloudy-readme] using the provided [`requirements.yml`][jm1-cloudy-requirements].
 
+[galaxy-community-general]: https://galaxy.ansible.com/community/general
 [jm1-cloudy-readme]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/README.md
 [jm1-cloudy-requirements]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/requirements.yml
 
 ## Variables
 
-| Name               | Default value    | Required | Description |
-| ------------------ | ---------------- | -------- | ----------- |
-| `libvirt_networks` | `[]`             | no       | List of parameter dictionaries for module [`jm1.libvirt.net_xml`][jm1-libvirt-net-xml] from collection [`jm1.libvirt`][galaxy-jm1-libvirt] [^libvirt-networks-parameter-acl] [^libvirt-networks-parameter-autostart] [^libvirt-networks-parameter-uri] [^libvirt-networks-parameter-xml] |
-| `libvirt_uri`      | `qemu:///system` | no       | [libvirt connection uri][libvirt-uri] |
+| Name               | Default value                 | Required | Description |
+| ------------------ | ----------------------------- | -------- | ----------- |
+| `distribution_id`  | *depends on operating system* | no       | List which uniquely identifies a distribution release, e.g. `[ 'Debian', '10' ]` for `Debian 10 (Buster)` |
+| `libvirt_networks` | `[]`                          | no       | List of parameter dictionaries for module [`jm1.libvirt.net_xml`][jm1-libvirt-net-xml] from collection [`jm1.libvirt`][galaxy-jm1-libvirt] [^libvirt-networks-parameter-acl] [^libvirt-networks-parameter-autostart] [^libvirt-networks-parameter-uri] [^libvirt-networks-parameter-xml] |
+| `libvirt_uri`      | `qemu:///system`              | no       | [libvirt connection uri][libvirt-uri] |
 
 [^libvirt-networks-parameter-acl]: Each list item in `libvirt_networks` can have an optional key `acl` which specifies
 whether [unprivileged users do have access to bridges created by `qemu-bridge-helper` (implicitly invoked from libvirt
