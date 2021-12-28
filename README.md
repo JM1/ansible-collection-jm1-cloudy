@@ -353,6 +353,13 @@ ansible-playbook playbooks/site.yml --limit lvrt-lcl-session
 
 Run playbook `playbooks/site.yml` for all remaining hosts.
 
+:warning: **WARNING:**
+Running playbook `playbooks/site.yml` for all hosts in `build_level1` and `build_level2` will create dozens of virtual
+machines. Ensure that your system has enough memory to run them in parallel. To lower memory requirements, you may want
+to limit `playbooks/site.yml` to a few hosts or a single host instead. Refer to [`hosts.yml`][inventory-example] for a
+complete list of hosts in `build_level1` and `build_level2`.
+:warning:
+
 ```sh
 # build_level0 contains lvrt-lcl-system and lvrt-lcl-session which have been prepared at previous steps
 ansible-playbook playbooks/site.yml --limit build_level1
