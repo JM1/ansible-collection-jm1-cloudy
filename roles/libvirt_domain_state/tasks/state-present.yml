@@ -47,7 +47,8 @@
     uri: '{{ libvirt_uri }}'
 
 - name: Stop domain
-  when: libvirt_domain_state == 'shutoff' and libvirt_domain_info[libvirt_domain].state != 'shutdown'
+  when: libvirt_domain_state == 'shutoff' and libvirt_domain_info is not skipped and
+        libvirt_domain_info[libvirt_domain].state != 'shutdown'
   block:
   - name: Shutdown domain
     community.libvirt.virt:
@@ -75,7 +76,6 @@
     register: libvirt_domain_info
 
   - name: Destroy domain
-    when: libvirt_domain_info[libvirt_domain].state != 'shutdown'
     community.libvirt.virt:
       name: '{{ libvirt_domain }}'
       state: destroy
