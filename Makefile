@@ -1,7 +1,7 @@
 # vim:set syntax=make:
 # kate: syntax Makefile; tab-indents on; replace-tabs off;
 
-read_yaml_key = $(shell python3 -c "import yaml; print(yaml.load(open('$(1)'))['$(2)'])")
+read_yaml_key = $(shell python3 -c "import yaml; print(yaml.load(open('$(1)'), Loader=yaml.BaseLoader)['$(2)'])")
 
 .DEFAULT_GOAL := all
 
