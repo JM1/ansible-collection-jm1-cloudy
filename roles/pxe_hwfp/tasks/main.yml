@@ -77,6 +77,13 @@
     src: 'etc/systemd/system/hwfp.service.j2'
   notify: "Restart hwfp's systemd service"
 
+- name: Enable and start hwfp's systemd service
+  systemd:
+    name: hwfp.service
+    daemon_reload: yes
+    enabled: yes
+    state: started
+
 - name: Create hwfp's database directory
   file:
     path: '/var/lib/hwfp'
