@@ -249,7 +249,7 @@ You can also include it in a `requirements.yml` file and install it via
 ---
 collections:
   - name: jm1.cloudy
-    version: 2021.12.14
+    version: 2021.12.30
 ```
 
 ## Usage and Playbooks
