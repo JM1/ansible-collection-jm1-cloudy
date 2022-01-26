@@ -99,6 +99,7 @@ Click on the name of an inventory, module, playbook or role to view that content
     * [libvirt_volumes](roles/libvirt_volumes/README.md)
     * [meta_packages](roles/meta_packages/README.md)
     * [netplan](roles/netplan/README.md)
+    * [networkmanager](roles/networkmanager/README.md)
     * [openstack_compute_flavors](roles/openstack_compute_flavors/README.md)
     * [openstack_images](roles/openstack_images/README.md)
     * [openstack_keypairs](roles/openstack_keypairs/README.md)

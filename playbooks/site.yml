@@ -259,6 +259,13 @@
       netplan_config: '{{ netplan_config_early }}'
     when: netplan_config_early is defined
 
+  - name: Change NetworkManager configuration early
+    role: jm1.cloudy.networkmanager
+    tags: ["jm1.cloudy.networkmanager"]
+    vars:
+      networkmanager_config: '{{ networkmanager_config_early }}'
+    when: networkmanager_config_early is defined
+
   - name: Change debconf database early
     role: jm1.cloudy.debconf
     tags: ["jm1.cloudy.debconf"]
@@ -391,6 +398,10 @@
   - name: Change Netplan configuration
     role: jm1.cloudy.netplan
     tags: ["jm1.cloudy.netplan"]
+
+  - name: Change NetworkManager configuration
+    role: jm1.cloudy.networkmanager
+    tags: ["jm1.cloudy.networkmanager"]
 
   - name: Install Ansible
     role: jm1.packages.ansible
