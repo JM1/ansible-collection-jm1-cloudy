@@ -212,9 +212,6 @@ libvirt_pools:
   hardware:
   - type: dir
   - target: /var/lib/libvirt/images
-  name: 'default'
-  state: 'active'
-- autostart: yes
   ignore:
   - '/pool/uuid'
   - '/pool/capacity'
