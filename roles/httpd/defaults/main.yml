@@ -32,10 +32,12 @@ httpd_service_name: |-
     {
       'CentOS_7': 'httpd.service',
       'CentOS_8': 'httpd.service',
+      'CentOS_9': 'httpd.service',
       'Debian_10': 'apache2.service',
       'Debian_11': 'apache2.service',
       'Red_Hat_Enterprise_Linux_7': 'httpd.service',
       'Red_Hat_Enterprise_Linux_8': 'httpd.service',
+      'Red_Hat_Enterprise_Linux_9': 'httpd.service',
       'Ubuntu_18_04': 'apache2.service',
       'Ubuntu_20_04': 'apache2.service'
     }[distribution_id|join('_')|regex_replace('[^A-Za-z0-9 _-]', '_')]

@@ -25,8 +25,8 @@
     depends:
     - dhcp
 
-- name: Satisfy requirements on Red Hat Enterprise Linux 8 and CentOS 8
-  when: distribution_id|first in ['CentOS', 'Red Hat Enterprise Linux'] and distribution_id|last == '8'
+- name: Satisfy requirements on Red Hat Enterprise Linux 8 and 9 and CentOS 8 and 9
+  when: distribution_id|first in ['CentOS', 'Red Hat Enterprise Linux'] and distribution_id|last in ['8', '9']
   jm1.pkg.meta_pkg:
     name: "jm1-cloudy-dhcpd"
     version: "1"

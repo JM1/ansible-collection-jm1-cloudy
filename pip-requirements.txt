@@ -46,8 +46,8 @@ flake8
 # On Red Hat Enterprise Linux (RHEL) 7 / CentOS 7 install them with e.g.
 #  yum install gcc libvirt-devel python3-devel python36-nose python36-lxml
 #
-# On Red Hat Enterprise Linux (RHEL) 8 / CentOS 8 install them with e.g.
-#  yum install gcc libvirt-devel python3-devel python3-nose python3-lxml
+# On Red Hat Enterprise Linux (RHEL) 8 and 9 and CentOS 8 and 9 install them with e.g.
+#  dnf install gcc libvirt-devel python3-devel python3-nose python3-lxml
 #
 # Ref.:
 #  https://packages.debian.org/source/buster/libvirt-python
@@ -91,8 +91,8 @@ python-openstackclient >= 4.0.2
 # On Red Hat Enterprise Linux (RHEL) 7 / CentOS 7 install them with e.g.
 #  yum install libselinux-python libselinux-python3 libsemanage-python
 #
-# On Red Hat Enterprise Linux (RHEL) 8 / CentOS 8 install them with e.g.
-#  yum install python3-libselinux python3-libsemanage
+# On Red Hat Enterprise Linux (RHEL) 8/9 / CentOS 8/9 install them with e.g.
+#  dnf install python3-libselinux python3-libsemanage
 #
 # When Ansible is used in a virtualenv then the selinux shim module has to be installed else Ansible modules fail to 
 # load the libselinux-python and libsemanage-python packages.

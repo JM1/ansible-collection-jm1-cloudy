@@ -298,7 +298,7 @@ libvirt_uri: 'qemu:///session'
 libvirt_volumes:
 - backing_vol: 'debian-11-genericcloud-amd64.qcow2'
   backing_vol_format: 'qcow2'
-  capacity: 50G
+  capacity: 64G
   format: 'qcow2'
   linked: no
   name: '{{ fqdn }}.qcow2'

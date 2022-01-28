@@ -32,10 +32,12 @@ tftpd_service_name: |-
     {
       'CentOS_7': 'tftp.service',
       'CentOS_8': 'tftp.service',
+      'CentOS_9': 'tftp.service',
       'Debian_10': 'tftpd-hpa',
       'Debian_11': 'tftpd-hpa',
       'Red_Hat_Enterprise_Linux_7': 'tftp.service',
       'Red_Hat_Enterprise_Linux_8': 'tftp.service',
+      'Red_Hat_Enterprise_Linux_9': 'tftp.service',
       'Ubuntu_18_04': 'tftpd-hpa',
       'Ubuntu_20_04': 'tftpd-hpa'
     }[distribution_id|join('_')|regex_replace('[^A-Za-z0-9 _-]', '_')]

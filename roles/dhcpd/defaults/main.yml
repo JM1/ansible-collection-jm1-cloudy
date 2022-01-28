@@ -28,10 +28,12 @@ dhcpd_service_name: |-
     {
       'CentOS_7': 'dhcpd.service',
       'CentOS_8': 'dhcpd.service',
+      'CentOS_9': 'dhcpd.service',
       'Debian_10': 'isc-dhcp-server',
       'Debian_11': 'isc-dhcp-server',
       'Red_Hat_Enterprise_Linux_7': 'dhcpd.service',
       'Red_Hat_Enterprise_Linux_8': 'dhcpd.service',
+      'Red_Hat_Enterprise_Linux_9': 'dhcpd.service',
       'Ubuntu_18_04': 'isc-dhcp-server',
       'Ubuntu_20_04': 'isc-dhcp-server'
     }[distribution_id|join('_')|regex_replace('[^A-Za-z0-9 _-]', '_')]
@@ -46,10 +48,12 @@ dhcpd6_service_name: |-
     {
       'CentOS_7': 'dhcpd6.service',
       'CentOS_8': 'dhcpd6.service',
+      'CentOS_9': 'dhcpd6.service',
       'Debian_10': 'isc-dhcp-server',
       'Debian_11': 'isc-dhcp-server',
       'Red_Hat_Enterprise_Linux_7': 'dhcpd6.service',
       'Red_Hat_Enterprise_Linux_8': 'dhcpd6.service',
+      'Red_Hat_Enterprise_Linux_9': 'dhcpd6.service',
       'Ubuntu_18_04': 'isc-dhcp-server6',
       'Ubuntu_20_04': 'isc-dhcp-server6'
     }[distribution_id|join('_')|regex_replace('[^A-Za-z0-9 _-]', '_')]

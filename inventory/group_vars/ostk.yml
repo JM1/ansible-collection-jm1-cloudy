@@ -44,6 +44,7 @@ openstack_server_config:
 openstack_server_images:
   CentOS_7: 'CentOS-7-x86_64-GenericCloud-2003-bios'
   CentOS_8: 'CentOS-Stream-GenericCloud-8-20210603.0.x86_64-bios'
+  CentOS_9: 'CentOS-Stream-GenericCloud-9-20220127.0.x86_64-bios'
   Debian_10: 'debian-10-genericcloud-amd64-bios'
   Debian_11: 'debian-11-genericcloud-amd64-bios'
   Ubuntu_18_04: 'ubuntu-18.04-server-cloudimg-amd64-bios'

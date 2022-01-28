@@ -36,6 +36,10 @@ pxe_installer_distribution_filename_map:
     x86_64:
       UEFI: 'CentOS_8/amd64/shimx64.efi'
       BIOS: 'CentOS_8/amd64/pxelinux.0'
+  CentOS_9:
+    x86_64:
+      UEFI: 'CentOS_9/amd64/shimx64.efi'
+      BIOS: 'CentOS_9/amd64/pxelinux.0'
   Debian_10:
     x86_64:
       UEFI: 'Debian_10/amd64/debian-installer/amd64/bootnetx64.efi'
@@ -69,6 +73,10 @@ pxe_installer_files_centos_7_amd64:
 # NOTE: CentOS full isos are required because we access their rpm's.
 pxe_installer_files_centos_8_amd64:
   'https://mirror.eu.oneandone.net/linux/distributions/centos/8/isos/x86_64/CentOS-8.5.2111-x86_64-dvd1.iso'
+
+# NOTE: CentOS full isos are required because we access their rpm's.
+pxe_installer_files_centos_9_amd64:
+  'https://mirrors.centos.org/mirrorlist?path=/9-stream/BaseOS/x86_64/iso/CentOS-Stream-9-latest-x86_64-dvd1.iso&redirect=1&protocol=https'
 
 pxe_installer_files_debian_10_amd64:
   'https://deb.debian.org/debian/dists/buster/main/installer-amd64/current/images/netboot/netboot.tar.gz'
@@ -112,6 +120,7 @@ pxe_installer_kernel_parameters: ''
 
 pxe_installer_kernel_parameters_centos_7_amd64: '{{ pxe_installer_kernel_parameters }}'
 pxe_installer_kernel_parameters_centos_8_amd64: '{{ pxe_installer_kernel_parameters }}'
+pxe_installer_kernel_parameters_centos_9_amd64: '{{ pxe_installer_kernel_parameters }}'
 pxe_installer_kernel_parameters_debian_10_amd64: '{{ pxe_installer_kernel_parameters }}'
 pxe_installer_kernel_parameters_debian_11_amd64: '{{ pxe_installer_kernel_parameters }}'
 pxe_installer_kernel_parameters_ubuntu_1804_amd64: '{{ pxe_installer_kernel_parameters }}'

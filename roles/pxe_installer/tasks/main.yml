@@ -40,25 +40,27 @@
   when: distribution_id|first in ['CentOS', 'Red Hat Enterprise Linux']
   jm1.pkg.meta_pkg:
     name: "jm1-svc-pxe-installer"
-    version: "1"
+    version: "2"
     depends:
     - cpio
     - p7zip # 7z
     - tar
     - xz
+    - zstd
 
 - name: Satisfy requirements on Debian and Ubuntu
   when: distribution_id|first in ['Debian', 'Ubuntu']
   jm1.pkg.meta_pkg:
     name: "jm1-svc-pxe-installer"
-    version: "1"
+    version: "2"
     depends:
     - cpio
     - p7zip-full # 7z
     - tar
     - xz-utils
+    - zstd
 
-- name: Prepare server installer for CentOS 7 and CentOS 8
+- name: Prepare server installer for CentOS 7, CentOS 8 and CentOS 9
   block:
   - name: Create tftpd subdirectories
     file:
@@ -70,6 +72,7 @@
     loop:
     - ['CentOS', '7', 'amd64']
     - ['CentOS', '8', 'amd64']
+    - ['CentOS', '9', 'amd64']
 
   - name: Create httpd subdirectories for isos
     file:
@@ -81,6 +84,7 @@
     loop:
     - ['CentOS', '7', 'amd64']
     - ['CentOS', '8', 'amd64']
+    - ['CentOS', '9', 'amd64']
 
   - name: Check if isos exist
     stat:
@@ -89,6 +93,7 @@
     loop:
     - ['CentOS', '7', 'amd64']
     - ['CentOS', '8', 'amd64']
+    - ['CentOS', '9', 'amd64']
 
   - name: Download iso if the do not exist
     when: not item.stat.exists # else Ansible's get_url would download it anyway
@@ -105,13 +110,14 @@
     loop:
     - ['CentOS', '7', 'amd64']
     - ['CentOS', '8', 'amd64']
+    - ['CentOS', '9', 'amd64']
 
   - name: Extract shim rpm
     shell:
       chdir: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/'
       cmd: |-
         7z x -aoa '{{ pxe_installer_httpd_root }}/archive/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/os/'\
-        '{% if item.1 == '8' %}BaseOS/{% endif %}Packages/shim-x64-'*.rpm && \
+        '{% if item.1 in ['8', '9'] %}BaseOS/{% endif %}Packages/shim-x64-'*.rpm && \
         if [ -f *.cpio.xz ]; then unxz -v *.cpio.xz; fi && \
         ls * && \
         cpio -dimv --file shim*.cpio ./boot/efi/EFI/centos/shimx64.efi && \
@@ -123,6 +129,7 @@
     loop:
     - ['CentOS', '7', 'amd64']
     - ['CentOS', '8', 'amd64']
+    - ['CentOS', '9', 'amd64']
 
   - name: Copy grubx64.efi
     copy:
@@ -135,6 +142,7 @@
     loop:
     - ['CentOS', '7', 'amd64']
     - ['CentOS', '8', 'amd64']
+    - ['CentOS', '9', 'amd64']
 
   - name: Patch CentOS 7 installer path in grubx64.efi
     shell: # noqa command-instead-of-module
@@ -156,13 +164,24 @@
         '/g' 'grubx64.efi.orig' > 'grubx64.efi'
       creates: '{{ pxe_installer_tftpd_root }}/CentOS_8/amd64/grubx64.efi'
 
+  - name: Patch CentOS 9 installer path in grubx64.efi
+    shell: # noqa command-instead-of-module
+      chdir: '{{ pxe_installer_tftpd_root }}/CentOS_9/amd64'
+      # /EFI/BOOT => /CentOS_9/amd64/grub
+      cmd: |-
+        sed -e 's/\x2F\x45\x46\x49\x2F\x42\x4F\x4F\x54\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00/'\
+        '\x2F\x43\x65\x6E\x74\x4F\x53\x5F\x39\x2F\x61\x6D\x64\x36\x34\x2F\x67\x72\x75\x62\x00'\
+        '/g' 'grubx64.efi.orig' > 'grubx64.efi'
+      creates: '{{ pxe_installer_tftpd_root }}/CentOS_9/amd64/grubx64.efi'
+
   - name: Extract syslinux-tftpboot rpm
     shell:
       chdir: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/'
       cmd: |-
         7z x -aoa '{{ pxe_installer_httpd_root }}/archive/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/os/'\
-        '{% if item.1 == '8' %}BaseOS/{% endif %}Packages/syslinux-tftpboot-'*.rpm && \
+        '{% if item.1 == '8' %}BaseOS/{% elif item.1 == '9' %}AppStream/{% endif %}Packages/syslinux-tftpboot-'*.rpm && \
         if [ -f *.cpio.xz ]; then unxz -v *.cpio.xz; fi && \
+        if [ -f *.cpio.zstd ]; then zstd -d *.cpio.zstd; fi && \
         cpio -dimv --file syslinux-tftpboot*.cpio \
           ./tftpboot/pxelinux.0 ./var/lib/tftpboot/pxelinux.0 \
           ./tftpboot/*.c32 ./var/lib/tftpboot/*.c32 \
@@ -178,6 +197,7 @@
     loop:
     - ['CentOS', '7', 'amd64']
     - ['CentOS', '8', 'amd64']
+    - ['CentOS', '9', 'amd64']
 
   - name: Copy kernel from extracted iso
     copy:
@@ -190,6 +210,7 @@
     loop:
     - ['CentOS', '7', 'amd64']
     - ['CentOS', '8', 'amd64']
+    - ['CentOS', '9', 'amd64']
 
   - name: Copy initrd from extracted iso
     copy:
@@ -202,6 +223,7 @@
     loop:
     - ['CentOS', '7', 'amd64']
     - ['CentOS', '8', 'amd64']
+    - ['CentOS', '9', 'amd64']
 
   - name: Change uefi config
     copy:
@@ -214,9 +236,10 @@
     loop:
     - ['CentOS', '7', 'amd64']
     - ['CentOS', '8', 'amd64']
+    - ['CentOS', '9', 'amd64']
 
-  - name: Create host-specific pxelinux config for CentOS 7 and CentOS 8
-    when: hostvars[item]['distribution_id'] in [['CentOS', '7'], ['CentOS', '8']]
+  - name: Create host-specific pxelinux config for CentOS 7, CentOS 8 and CentOS 9
+    when: hostvars[item]['distribution_id'] in [['CentOS', '7'], ['CentOS', '8'], ['CentOS', '9']]
           and hostvars[item]['os_architecture'] == 'x86_64'
     copy:
       content: |
@@ -235,8 +258,8 @@
       group: root
     loop: '{{ pxe_installer_clients }}'
 
-  - name: Create host-specific grub config for CentOS 7 and CentOS 8
-    when: hostvars[item]['distribution_id'] in [['CentOS', '7'], ['CentOS', '8']]
+  - name: Create host-specific grub config for CentOS 7, CentOS 8 and CentOS 9
+    when: hostvars[item]['distribution_id'] in [['CentOS', '7'], ['CentOS', '8'], ['CentOS', '9']]
           and hostvars[item]['os_architecture'] == 'x86_64'
     copy:
       content: |
@@ -271,7 +294,7 @@
       group: nogroup
 
   - name: Create host-specific Kickstart files
-    when: hostvars[item]['distribution_id'] in [['CentOS', '7'], ['CentOS', '8']]
+    when: hostvars[item]['distribution_id'] in [['CentOS', '7'], ['CentOS', '8'], ['CentOS', '9']]
           and hostvars[item]['os_architecture'] == 'x86_64'
           and 'kickstart_config' in hostvars[item]
     template:

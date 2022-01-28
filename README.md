@@ -35,6 +35,7 @@ This collection has been developed and tested for compatibility with:
 * Debian 11 (Bullseye)
 * Red Hat Enterprise Linux (RHEL) 7 / CentOS 7
 * Red Hat Enterprise Linux (RHEL) 8 / CentOS 8
+* Red Hat Enterprise Linux (RHEL) 9 / CentOS 9
 * Ubuntu 18.04 LTS (Bionic Beaver)
 * Ubuntu 20.04 LTS (Focal Fossa)
 
@@ -150,6 +151,7 @@ First, make sure that `pip` is available on your system.
 | Debian 11 (Bullseye)                         | `apt install python3 python3-pip` |
 | Red Hat Enterprise Linux (RHEL) 7 / CentOS 7 | `yum install python3 python3-pip` |
 | Red Hat Enterprise Linux (RHEL) 8 / CentOS 8 | `yum install python3 python3-pip` |
+| Red Hat Enterprise Linux (RHEL) 9 / CentOS 9 | `yum install python3 python3-pip` |
 | Ubuntu 18.04 LTS (Bionic Beaver)             | `apt install python3 python3-pip` |
 | Ubuntu 20.04 LTS (Focal Fossa)               | `apt install python3 python3-pip` |
 
@@ -177,6 +179,7 @@ To install Ansible 2.9 or later using OS package managers do:
 | Debian 11 (Bullseye)                         | `apt install ansible ansible-doc make` |
 | Red Hat Enterprise Linux (RHEL) 7 / CentOS 7 | Enable [EPEL](https://fedoraproject.org/wiki/EPEL). `yum install ansible ansible-doc make` |
 | Red Hat Enterprise Linux (RHEL) 8 / CentOS 8 | Enable [EPEL](https://fedoraproject.org/wiki/EPEL). `yum install ansible ansible-doc make` |
+| Red Hat Enterprise Linux (RHEL) 9 / CentOS 9 | Enable [EPEL](https://fedoraproject.org/wiki/EPEL). `yum install ansible ansible-doc make` |
 | Ubuntu 18.04 LTS (Bionic Beaver)             | Enable [Launchpad PPA Ansible by Ansible, Inc.](https://launchpad.net/~ansible/+archive/ubuntu/ansible). `apt install ansible ansible-doc make` |
 | Ubuntu 20.04 LTS (Focal Fossa)               | `apt install ansible ansible-doc make` |
 
@@ -425,6 +428,7 @@ Helpful tools for developing collections are `ansible`, `ansible-doc`, `ansible-
 | Debian 11 (Bullseye)                         | `apt install ansible ansible-doc ansible-lint flake8 make yamllint` |
 | Red Hat Enterprise Linux (RHEL) 7 / CentOS 7 | Enable [EPEL](https://fedoraproject.org/wiki/EPEL). `yum install ansible ansible-lint ansible-doc  python-flake8 make yamllint` |
 | Red Hat Enterprise Linux (RHEL) 8 / CentOS 8 | Enable [EPEL](https://fedoraproject.org/wiki/EPEL). `yum install ansible              ansible-doc python3-flake8 make yamllint` |
+| Red Hat Enterprise Linux (RHEL) 9 / CentOS 9 | Enable [EPEL](https://fedoraproject.org/wiki/EPEL). `yum install ansible              ansible-doc python3-flake8 make yamllint` |
 | Ubuntu 18.04 LTS (Bionic Beaver)             | Enable [Launchpad PPA Ansible by Ansible, Inc.](https://launchpad.net/~ansible/+archive/ubuntu/ansible). `apt install ansible ansible-doc ansible-lint flake8 make yamllint` |
 | Ubuntu 20.04 LTS (Focal Fossa)               | `apt install ansible ansible-doc ansible-lint flake8 make yamllint` |
 

@@ -6,7 +6,7 @@ automatically. Both BIOS based systems and UEFI based systems are supported, [PX
 former, [GRUB2][grub] on the latter.
 
 Operating systems currently supported are:
-* CentOS 7/8 with [Kickstart][kickstart]
+* CentOS 7/8/9 with [Kickstart][kickstart]
 * Debian 10 (Buster), Debian 11 (Bullseye) and Ubuntu 18.04 LTS (Bionic Beaver) with [Preseed][preseed]
 * Ubuntu 20.04 LTS (Focal Fossa) with [Autoinstall][autoinstall]
 
@@ -98,6 +98,7 @@ finally will be provisioned with Ansible.
     https://deb.debian.org/debian/dists/bullseye/main/installer-amd64/current/images/netboot/)
 - ISO image of [`CentOS 7 (Core)` \[`amd64`\]](http://isoredirect.centos.org/centos/7/isos/x86_64/)
 - ISO image of [`CentOS 8 (Core)` \[`amd64`\]](http://isoredirect.centos.org/centos/8/isos/x86_64/)
+- ISO image of [`CentOS 9 (Stream)` \[`amd64`\]](https://www.centos.org/download/)
 - Ubuntu Server install image of [`Ubuntu 18.04 LTS (Bionic Beaver)` \[`amd64`\]](https://releases.ubuntu.com/bionic/)
 - Ubuntu Server install image of [`Ubuntu 20.04 LTS (Focal Fossa)` \[`amd64`\]](https://releases.ubuntu.com/focal/)
 
@@ -123,6 +124,7 @@ jm1-cloudy-requirements].
 | `pxe_installer_distribution_filename_map`           | *refer to [`roles/pxe_installer/defaults/main.yml`](defaults/main.yml)* | no | Path for use in `filename` parameter of [`dhcpd.conf`][dhcpd-conf-man] so that PXE clients know where to find bootable files on the tftp server |
 | `pxe_installer_files_centos_7_amd64`                | *refer to [`roles/pxe_installer/defaults/main.yml`](defaults/main.yml)* | no | Where to download CentOS's iso which will be used to pxe-boot and kickstart `CentOS 7 [amd64]`. A CentOS full iso is required because its rpm's will be extracted. |
 | `pxe_installer_files_centos_8_amd64`                | *refer to [`roles/pxe_installer/defaults/main.yml`](defaults/main.yml)* | no | Where to download CentOS's iso which will be used to pxe-boot and kickstart `CentOS 8 [amd64]`. A CentOS full iso is required because its rpm's will be extracted. |
+| `pxe_installer_files_centos_9_amd64`                | *refer to [`roles/pxe_installer/defaults/main.yml`](defaults/main.yml)* | no | Where to download CentOS's iso which will be used to pxe-boot and kickstart `CentOS 9 [amd64]`. A CentOS full iso is required because its rpm's will be extracted. |
 | `pxe_installer_files_debian_10_amd64`               | *refer to [`roles/pxe_installer/defaults/main.yml`](defaults/main.yml)* | no | Where to download Debian's netboot files which will be used to pxe-boot and preseed `Debian 10 (Buster) [amd64]` |
 | `pxe_installer_files_debian_11_amd64`               | *refer to [`roles/pxe_installer/defaults/main.yml`](defaults/main.yml)* | no | Where to download Debian's netboot files which will be used to pxe-boot and preseed `Debian 11 (Bullseye) [amd64]` |
 | `pxe_installer_files_ubuntu_1804_amd64`             | *refer to [`roles/pxe_installer/defaults/main.yml`](defaults/main.yml)* | no | Where to download Ubuntu's netbootable GRUB2 UEFI executable, its live server iso and netboot files which will be used to pxe-boot and preseed `Ubuntu 18.04 LTS (Bionic Beaver) [amd64]` [^iso-parameter] |
@@ -132,6 +134,7 @@ jm1-cloudy-requirements].
 | `pxe_installer_kernel_parameters`                   | `''`                                                 | no       | Convenience variable which is sourced from `pxe_installer_kernel_parameters_*` variables to set additional kernel parameters for all distributions and architectures |
 | `pxe_installer_kernel_parameters_centos_7_amd64`    | `{{ pxe_installer_kernel_parameters }}`              | no       | Additional kernel parameters which will be passed to the kernel when booting via PXE to kickstart `CentOS 7 [amd64]` |
 | `pxe_installer_kernel_parameters_centos_8_amd64`    | `{{ pxe_installer_kernel_parameters }}`              | no       | Additional kernel parameters which will be passed to the kernel when booting via PXE to kickstart `CentOS 8 [amd64]` |
+| `pxe_installer_kernel_parameters_centos_9_amd64`    | `{{ pxe_installer_kernel_parameters }}`              | no       | Additional kernel parameters which will be passed to the kernel when booting via PXE to kickstart `CentOS 9 [amd64]` |
 | `pxe_installer_kernel_parameters_debian_10_amd64`   | `{{ pxe_installer_kernel_parameters }}`              | no       | Additional kernel parameters which will be passed to the kernel when booting via PXE to preseed `Debian 10 (Buster) [amd64]` |
 | `pxe_installer_kernel_parameters_debian_11_amd64`   | `{{ pxe_installer_kernel_parameters }}`              | no       | Additional kernel parameters which will be passed to the kernel when booting via PXE to preseed `Debian 11 (Bullseye) [amd64]` |
 | `pxe_installer_kernel_parameters_ubuntu_1804_amd64` | `{{ pxe_installer_kernel_parameters }}`              | no       | Additional kernel parameters which will be passed to the kernel when booting via PXE to preseed `Ubuntu 18.04 LTS (Bionic Beaver) [amd64]` |
