@@ -112,7 +112,9 @@ users_config:
   #password: '*'
   password_lock: yes
   shell: '/bin/bash'
-- name: '{{ devstack_user }}'
+- # home is not set to /opt/stack as suggested in DevStack's quick start guide, because
+  # stack.sh fails if it has 0700 permissions which is the default e.g. on CentOS 9.
+  name: '{{ devstack_user }}'
   #password: '*'
   password_lock: yes
   shell: '/bin/bash'
