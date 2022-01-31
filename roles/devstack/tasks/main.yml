@@ -50,9 +50,10 @@
 - name: Run DevStack setup script
   become: yes
   become_user: '{{ devstack_user }}'
-  command:
+  shell:
     chdir: '{{ devstack_user_home }}/devstack'
-    cmd: ./stack.sh
-    creates: '{{ devstack_user_home }}/devstack/.stackenv'
+    cmd: ./stack.sh && touch '{{ devstack_user_home }}/devstack/.jm1-cloudy-devstack-marker' || ./unstack.sh
+    creates: '{{ devstack_user_home }}/devstack/.jm1-cloudy-devstack-marker'
   register: devstack_stack_sh_result
+  until: devstack_stack_sh_result.rc == 0
   tags: ['devstack_stack_sh_result']
