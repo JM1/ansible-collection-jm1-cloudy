@@ -58,7 +58,7 @@ lint: lint-ansible-lint lint-flake8 lint-yamllint
 
 lint-ansible-lint: # lint roles
 ifneq ($(CLTN_ROLES),)
-	@ansible-lint \
+	@ansible-lint --offline \
 		-p \
 		$(addprefix "roles/",$(CLTN_ROLES)) \
 		|| { [ "$?" = 2 ] && true; }
