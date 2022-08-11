@@ -16,7 +16,7 @@ debconf_early_config:
 dhcpd_config:
 - copy:
     content: |
-      # 2021 Jakob Meng, <jakobmeng@web.de>
+      # 2021-2022 Jakob Meng, <jakobmeng@web.de>
       #
       # Configuration file for ISC dhcpd
       #
@@ -58,6 +58,10 @@ dhcpd_config:
       host {{ hostvars[pxe_client].inventory_hostname }} {
         next-server {{ pxe_installer_host_address }};
         option host-name "{{ hostvars[pxe_client].inventory_hostname }}";
+        {{ hostvars[pxe_client].dhcpd_host_config|indent(width=2) }}
+      } # host {{ hostvars[pxe_client].inventory_hostname }}
+
+      if option host-name = "{{ hostvars[pxe_client].inventory_hostname }}" {
         if option architecture-type = 00:07 {
           filename "{{ pxe_installer_distribution_filename_map
                        [hostvars[pxe_client]['distribution_id']|join('_')|regex_replace('[^A-Za-z0-9 _-]', '_')]
@@ -67,8 +71,7 @@ dhcpd_config:
                        [hostvars[pxe_client]['distribution_id']|join('_')|regex_replace('[^A-Za-z0-9 _-]', '_')]
                        [hostvars[pxe_client]['os_architecture']]['BIOS'] }}";
         }
-        {{ hostvars[pxe_client].dhcpd_host_config|indent(width=2) }}
-      } # host {{ hostvars[pxe_client].inventory_hostname }}
+      } # option host-name = "{{ hostvars[pxe_client].inventory_hostname }}"
       {% endfor %}
 
     dest: /etc/dhcp/dhcpd.conf

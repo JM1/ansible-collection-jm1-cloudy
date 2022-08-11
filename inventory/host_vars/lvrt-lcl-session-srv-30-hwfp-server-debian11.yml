@@ -39,16 +39,16 @@ dhcpd_config:
       # have to hack syslog.conf to complete the redirection).
       log-facility local7;
 
+      if option architecture-type = 00:07 {
+        filename "{{ pxe_hwfp_distribution_filename_map.x86_64.UEFI }}";
+      } else {
+        filename "{{ pxe_hwfp_distribution_filename_map.x86_64.BIOS }}";
+      }
+
       subnet 192.168.156.0 netmask 255.255.255.0 {
         option routers 192.168.156.2;
         range 192.168.156.10 192.168.156.254;
-
         next-server 192.168.156.2;
-        if option architecture-type = 00:07 {
-          filename "{{ pxe_hwfp_distribution_filename_map.x86_64.UEFI }}";
-        } else {
-          filename "{{ pxe_hwfp_distribution_filename_map.x86_64.BIOS }}";
-        }
       } # subnet 192.168.156.0 netmask 255.255.255.0
 
     dest: /etc/dhcp/dhcpd.conf
