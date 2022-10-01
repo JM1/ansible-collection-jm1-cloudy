@@ -5,7 +5,7 @@
 
 # TODO: Once Netplan support has been implemented, try to extract host's ip address
 #       from Netplan config because hostname might not be DNS resolvable.
-#ansible_host: "{{ cldy_netplan_config['ethernets']['eth0']['addresses'][0]|ipaddr('address')
+#ansible_host: "{{ cldy_netplan_config['ethernets']['eth0']['addresses'][0]|ansible.utils.ipaddr('address')
 #                  if cldy_netplan_config['ethernets']['eth0']['addresses'][0]|default(None) != None else inventory_hostname }}"
 
 # Possible power states: ['on', 'off']

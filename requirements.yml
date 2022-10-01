@@ -3,8 +3,8 @@ roles:
 - jm1.kvm_nested_virtualization
 
 collections:
-- ansible.netcommon
 - ansible.posix
+- ansible.utils
 - community.general
 - community.libvirt
 - jm1.libvirt

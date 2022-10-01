@@ -58,7 +58,7 @@ tripleo_standalone_parameters: |
       - 1.1.1.1
       - 8.8.8.8
     DockerInsecureRegistryAddress:
-      - {{ tripleo_standalone_local_ip|ipaddr('address') }}:8787
+      - {{ tripleo_standalone_local_ip|ansible.utils.ipaddr('address') }}:8787
     InterfaceLocalMtu: 1500
     # needed for vip & pacemaker
     KernelIpNonLocalBind: 1

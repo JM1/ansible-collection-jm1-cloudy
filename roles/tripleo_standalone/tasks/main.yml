@@ -71,7 +71,7 @@
       openstack tripleo deploy \
         --templates \
         --local-ip={{ tripleo_standalone_local_ip|mandatory }} \
-        --control-virtual-ip {{ tripleo_standalone_control_virtual_ip|mandatory|ipaddr('address') }} \
+        --control-virtual-ip {{ tripleo_standalone_control_virtual_ip|mandatory|ansible.utils.ipaddr('address') }} \
         -e /usr/share/openstack-tripleo-heat-templates/environments/standalone/standalone-tripleo.yaml \
         -r /usr/share/openstack-tripleo-heat-templates/roles/Standalone.yaml \
         -e '{{ tripleo_standalone_home_dir }}/containers-prepare-parameters.yaml' \
