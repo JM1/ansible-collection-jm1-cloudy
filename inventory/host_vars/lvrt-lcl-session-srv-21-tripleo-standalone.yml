@@ -16,7 +16,7 @@ iptables_config:
     out_interface: 'eth0'
     source: 192.168.152.0/24
     table: nat
-    to_source: 10.0.20.19
+    to_source: 192.168.156.19
 - # do SNAT for all packets coming from internal network
   iptables:
     chain: POSTROUTING
@@ -25,7 +25,7 @@ iptables_config:
     out_interface: 'eth0'
     source: 192.168.155.0/24
     table: nat
-    to_source: 10.0.20.19
+    to_source: 192.168.156.19
 
 iptables_persistence: yes
 
@@ -38,8 +38,8 @@ libvirt_hardware:
 - memory: '8192'
 - virt_type: 'kvm'
 - graphics: 'spice,listen=socket'
-- network: 'network=lan-bridge,model=virtio'
-- network: 'network=isolated-3,model=virtio,mac=RANDOM'
+- network: 'network=nat-1-no-dhcp,model=virtio'
+- network: 'network=isolated-1-dhcp,model=virtio,mac=RANDOM'
 - disk: "vol='{{ libvirt_pool }}/{{ libvirt_volumes[0]['name'] }}',device=disk,bus=virtio"
 - disk: "vol='{{ libvirt_pool }}/{{ libvirt_configdrive }}',device=disk,bus=virtio,serial='cidata'"
 - os_variant: 'rhel8.0'
@@ -54,14 +54,14 @@ libvirt_netplan:
       accept-ra: false
 
       addresses:
-      - 10.0.20.19/16
+      - 192.168.156.19/24
 
       nameservers:
         addresses:
-        - 10.0.0.1
+        - 192.168.156.1
       routes:
       - to: 0.0.0.0/0
-        via: 10.0.0.1
+        via: 192.168.156.1
     eth1:
       dhcp4: false
       dhcp6: false

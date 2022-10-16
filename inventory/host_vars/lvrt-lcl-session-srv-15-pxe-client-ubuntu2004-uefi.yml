@@ -7,7 +7,7 @@
 
 # ansible_host has to be explicitly defined here because Ansible controller cannot
 # resolve the hostname as it is unknown outside of the isolated network
-ansible_host: 192.168.155.14
+ansible_host: 192.168.153.14
 
 cloudinit_userdata: |
   #cloud-config
@@ -27,15 +27,15 @@ cloudinit_userdata: |
           accept-ra: false
 
           addresses:
-          - 192.168.155.14/24
+          - 192.168.153.14/24
 
           nameservers:
             addresses:
-            - 192.168.155.1
+            - 192.168.153.1
           routes:
           - to: 0.0.0.0/0
-            via: 192.168.155.1
-    proxy: http://192.168.155.2:8080/
+            via: 192.168.153.1
+    proxy: http://192.168.153.2:8080/
     storage:
       layout:
         name: direct
@@ -49,7 +49,7 @@ cloudinit_userdata: |
 # Ref.: https://github.com/ansible/ansible/issues/16351
 dhcpd_host_config: |-
   hardware ethernet 52:54:00:aa:bb:04;
-  fixed-address 192.168.155.14;
+  fixed-address 192.168.153.14;
 
 distribution_id:
 - 'Ubuntu'
@@ -65,7 +65,7 @@ libvirt_hardware:
 - memory: '4096' # required because ubuntu iso is downloaded to tmpfs during setup
 - virt_type: 'kvm'
 - graphics: 'spice,listen=socket'
-- network: 'network=isolated-6,model=virtio,mac=52:54:00:aa:bb:04'
+- network: 'network=isolated-2-no-dhcp,model=virtio,mac=52:54:00:aa:bb:04'
 - disk: "vol='{{ libvirt_pool }}/{{ libvirt_volumes[0]['name'] }}',device=disk,bus=virtio"
 - machine: 'q35'
 - boot: 'loader=/usr/share/OVMF/OVMF_CODE.fd,hd,network'
@@ -93,4 +93,4 @@ pxe_installer_client_mac: 52:54:00:aa:bb:04
 # Ref.: https://cdimage.debian.org/cdimage/openstack/
 pxe_installer_kernel_parameters: >-
   console=tty0 console=ttyS0,115200 earlyprintk=ttyS0,115200 consoleblank=0 systemd.show_status=true
-  http_proxy=http://192.168.155.2:8080/
+  http_proxy=http://192.168.153.2:8080/

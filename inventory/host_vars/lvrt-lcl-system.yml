@@ -23,71 +23,32 @@ ansible_python_interpreter: "{{ ansible_playbook_python }}"
 libvirt_images: []
 
 libvirt_networks:
-- acl: allow
-  autostart: yes
-  bridge:
-    name: 'br-lan'
-  name: 'lan-bridge'
-  restart_on_change: yes
-  state: active
-  xml_var: 'libvirt_network_template_bridge'
-
-- acl: allow
+- # network without host ip, withouth dhcp and without forwarding
+  acl: allow
   autostart: yes
   bridge:
     delay: '0'
     name: 'virbr-local-0'
     stp: yes
   #domain:
-  #  name: 'isolated-0'
+  #  name: 'isolated-0-no-ip'
   ignore:
   - '/network/uuid'
   - '/network/mac'
-  name: 'isolated-0'
+  name: 'isolated-0-no-ip'
   restart_on_change: yes
   state: active
   xml_var: 'libvirt_network_template_isolated'
 
-- acl: allow
+- # network with host ip, with dhcp and without forwarding
+  acl: allow
   autostart: yes
   bridge:
     delay: '0'
     name: 'virbr-local-1'
     stp: yes
   #domain:
-  #  name: 'isolated-1'
-  ignore:
-  - '/network/uuid'
-  - '/network/mac'
-  name: 'isolated-1'
-  restart_on_change: yes
-  state: active
-  xml_var: 'libvirt_network_template_isolated'
-
-- acl: allow
-  autostart: yes
-  bridge:
-    delay: '0'
-    name: 'virbr-local-2'
-    stp: yes
-  #domain:
-  #  name: 'isolated-2'
-  ignore:
-  - '/network/uuid'
-  - '/network/mac'
-  name: 'isolated-2'
-  restart_on_change: yes
-  state: active
-  xml_var: 'libvirt_network_template_isolated'
-
-- acl: allow
-  autostart: yes
-  bridge:
-    delay: '0'
-    name: 'virbr-local-3'
-    stp: yes
-  #domain:
-  #  name: 'isolated-3'
+  #  name: 'isolated-1-dhcp'
   ip:
     address: '192.168.152.1'
     netmask: '255.255.255.0'
@@ -98,113 +59,94 @@ libvirt_networks:
   ignore:
   - '/network/uuid'
   - '/network/mac'
-  name: 'isolated-3'
+  name: 'isolated-1-dhcp'
   restart_on_change: yes
   state: active
   xml_var: 'libvirt_network_template_isolated'
 
-- acl: allow
+- # network with host ip, without dhcp and without forwarding
+  acl: allow
+  autostart: yes
+  bridge:
+    delay: '0'
+    name: 'virbr-local-2'
+    stp: yes
+  #domain:
+  #  name: 'isolated-2-no-dhcp'
+  ip:
+    address: '192.168.153.1'
+    netmask: '255.255.255.0'
+  ignore:
+  - '/network/uuid'
+  - '/network/mac'
+  name: 'isolated-2-no-dhcp'
+  restart_on_change: yes
+  state: active
+  xml_var: 'libvirt_network_template_isolated'
+
+- # network with host ip, without dhcp and without forwarding
+  acl: allow
+  autostart: yes
+  bridge:
+    delay: '0'
+    name: 'virbr-local-3'
+    stp: yes
+  #domain:
+  #  name: 'isolated-3-no-dhcp'
+  ip:
+    address: '192.168.154.1'
+    netmask: '255.255.255.0'
+  ignore:
+  - '/network/uuid'
+  - '/network/mac'
+  name: 'isolated-3-no-dhcp'
+  restart_on_change: yes
+  state: active
+  xml_var: 'libvirt_network_template_isolated'
+
+- # network with host ip, with dhcp and with forwarding
+  acl: allow
   autostart: yes
   bridge:
     delay: '0'
     name: 'virbr-local-4'
     stp: yes
   #domain:
-  #  name: 'isolated-4'
+  #  name: 'nat-0-dhcp'
   ip:
-    address: '192.168.153.1'
+    address: '192.168.155.1'
     netmask: '255.255.255.0'
     dhcp:
       range:
-        start: '192.168.153.2'
-        end: '192.168.153.254'
+        start: '192.168.155.2'
+        end: '192.168.155.254'
   ignore:
   - '/network/uuid'
   - '/network/mac'
-  name: 'isolated-4'
+  name: 'nat-0-dhcp'
   restart_on_change: yes
   state: active
-  xml_var: 'libvirt_network_template_isolated'
+  xml_var: 'libvirt_network_template_nat'
 
-- acl: allow
+- # network with host ip, without dhcp and with forwarding
+  acl: allow
   autostart: yes
   bridge:
     delay: '0'
     name: 'virbr-local-5'
     stp: yes
   #domain:
-  #  name: 'isolated-5'
-  ip:
-    address: '192.168.154.1'
-    netmask: '255.255.255.0'
-    dhcp:
-      range:
-        start: '192.168.154.2'
-        end: '192.168.154.254'
-  ignore:
-  - '/network/uuid'
-  - '/network/mac'
-  name: 'isolated-5'
-  restart_on_change: yes
-  state: active
-  xml_var: 'libvirt_network_template_isolated'
-
-- acl: allow
-  autostart: yes
-  bridge:
-    delay: '0'
-    name: 'virbr-local-6'
-    stp: yes
-  #domain:
-  #  name: 'isolated-6'
-  ip:
-    address: '192.168.155.1'
-    netmask: '255.255.255.0'
-  ignore:
-  - '/network/uuid'
-  - '/network/mac'
-  name: 'isolated-6'
-  restart_on_change: yes
-  state: active
-  xml_var: 'libvirt_network_template_isolated'
-
-- acl: allow
-  autostart: yes
-  bridge:
-    delay: '0'
-    name: 'virbr-local-7'
-    stp: yes
-  #domain:
-  #  name: 'isolated-7'
+  #  name: 'nat-1-no-dhcp'
   ip:
     address: '192.168.156.1'
     netmask: '255.255.255.0'
   ignore:
   - '/network/uuid'
   - '/network/mac'
-  name: 'isolated-7'
+  name: 'nat-1-no-dhcp'
   restart_on_change: yes
   state: active
-  xml_var: 'libvirt_network_template_isolated'
-
-- acl: allow
-  autostart: yes
-  bridge:
-    delay: '0'
-    name: 'virbr-local-8'
-    stp: yes
-  #domain:
-  #  name: 'isolated-8'
-  ip:
-    address: '192.168.157.1'
-    netmask: '255.255.255.0'
-  ignore:
-  - '/network/uuid'
-  - '/network/mac'
-  name: 'isolated-8'
-  restart_on_change: yes
-  state: active
-  xml_var: 'libvirt_network_template_isolated'
+  xml_var: 'libvirt_network_template_nat'
 
 libvirt_pools:
 # NOTE: When libvirt starts a domain, then libvirt will chown the storage volumes to libvirt-qemu:libvirt-qemu. When the

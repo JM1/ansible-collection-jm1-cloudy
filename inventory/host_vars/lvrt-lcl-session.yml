@@ -24,105 +24,73 @@ libvirt_host_become: no
 
 # NOTE: All libvirt networks listed below are expected to created and managed by the system libvirt daemon. The networks
 #       below are merely created to make the system-wide networks known to the user-session libvirt daemon. The real
-#       networks are not necessarily forwarding bridges, e.g. isolated-* networks are isolated networks with NAT. But
-#       to prevent the user-session libvirt daemon from trying to create those preexisting isolated networks (and
-#       failing to do so due to insufficient permissions) we lie to the user-session libvirt daemon and pretend that
-#       all networks are bridges. See e.g. host lvrt-lcl-system on how to set up the system-wide libvirt networks.
+#       networks are not necessarily forwarding bridges, e.g. isolated-* networks are isolated networks. But to prevent
+#       the user-session libvirt daemon from trying to create those preexisting isolated networks (and failing to do so
+#       due to insufficient permissions) we lie to the user-session libvirt daemon and pretend that all networks are
+#       bridges. See e.g. host lvrt-lcl-system on how to set up the system-wide libvirt networks.
 libvirt_networks:
-- autostart: yes
-  bridge:
-    name: 'br-lan'
-  name: 'lan-bridge'
-  restart_on_change: yes
-  state: active
-  xml_var: 'libvirt_network_template_bridge'
-
-- autostart: yes
+- # network without host ip, without dhcp and without forwarding
+  autostart: yes
   bridge:
     name: 'virbr-local-0'
   ignore:
   - '/network/uuid'
-  name: 'isolated-0'
+  name: 'isolated-0-no-ip'
   restart_on_change: yes
   state: active
   xml_var: 'libvirt_network_template_bridge'
 
-- autostart: yes
+- # network with host ip, with dhcp and without forwarding
+  autostart: yes
   bridge:
     name: 'virbr-local-1'
   ignore:
   - '/network/uuid'
-  name: 'isolated-1'
+  name: 'isolated-1-dhcp'
   restart_on_change: yes
   state: active
   xml_var: 'libvirt_network_template_bridge'
 
-- autostart: yes
+- # network with host ip, without dhcp and without forwarding
+  autostart: yes
   bridge:
     name: 'virbr-local-2'
   ignore:
   - '/network/uuid'
-  name: 'isolated-2'
+  name: 'isolated-2-no-dhcp'
   restart_on_change: yes
   state: active
   xml_var: 'libvirt_network_template_bridge'
 
-- autostart: yes
+- # network with host ip, without dhcp and without forwarding
+  autostart: yes
   bridge:
     name: 'virbr-local-3'
   ignore:
   - '/network/uuid'
-  name: 'isolated-3'
+  name: 'isolated-3-no-dhcp'
   restart_on_change: yes
   state: active
   xml_var: 'libvirt_network_template_bridge'
 
-- autostart: yes
+- # network with host ip, with dhcp and with forwarding
+  autostart: yes
   bridge:
     name: 'virbr-local-4'
   ignore:
   - '/network/uuid'
-  name: 'isolated-4'
+  name: 'nat-0-dhcp'
   restart_on_change: yes
   state: active
   xml_var: 'libvirt_network_template_bridge'
 
-- autostart: yes
+- # network with host ip, without dhcp and with forwarding
+  autostart: yes
   bridge:
     name: 'virbr-local-5'
   ignore:
   - '/network/uuid'
-  name: 'isolated-5'
-  restart_on_change: yes
-  state: active
-  xml_var: 'libvirt_network_template_bridge'
-
-- autostart: yes
-  bridge:
-    name: 'virbr-local-6'
-  ignore:
-  - '/network/uuid'
-  name: 'isolated-6'
-  restart_on_change: yes
-  state: active
-  xml_var: 'libvirt_network_template_bridge'
-
-- autostart: yes
-  bridge:
-    name: 'virbr-local-7'
-  ignore:
-  - '/network/uuid'
-  name: 'isolated-7'
-  restart_on_change: yes
-  state: active
-  xml_var: 'libvirt_network_template_bridge'
-
-- autostart: yes
-  bridge:
-    name: 'virbr-local-8'
-  ignore:
-  - '/network/uuid'
-  name: 'isolated-8'
+  name: 'nat-1-no-dhcp'
   restart_on_change: yes
   state: active
   xml_var: 'libvirt_network_template_bridge'

@@ -19,14 +19,14 @@ libvirt_netplan:
       accept-ra: false
 
       addresses:
-      - 10.0.20.16/16
+      - 192.168.156.16/24
 
       nameservers:
         addresses:
-        - 10.0.0.1
+        - 192.168.156.1
       routes:
       - to: 0.0.0.0/0
-        via: 10.0.0.1
+        via: 192.168.156.1
 
 libvirt_pool: 'default'
 

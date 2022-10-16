@@ -20,7 +20,7 @@ libvirt_hardware:
 - memory: '1024'
 - virt_type: 'kvm'
 - graphics: 'spice,listen=socket'
-- network: 'network=isolated-7,model=virtio'
+- network: 'network=isolated-3-no-dhcp,model=virtio'
 - disk: "vol='{{ libvirt_pool }}/{{ libvirt_volumes[0]['name'] }}',device=disk,bus=virtio"
 - machine: 'q35'
 - boot: 'loader=/usr/share/OVMF/OVMF_CODE.fd,hd,network'

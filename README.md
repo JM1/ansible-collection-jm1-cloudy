@@ -292,56 +292,23 @@ ssh_authorized_keys:
 
 ```
 
-The [example inventory][inventory-example] assumes that your system has a bridge `br-lan` with ip network `10.0.*.*/16`
-and gateway `10.0.0.1`. For example, suppose your system has a network interface with device name `eth0`, ip address
-`10.0.0.2` has been assigned to `eth0` and `eth0` is connected to a router (and dns server) with ip address `10.0.0.1`.
-To define bridge `br-lan` on Debian, change [`/etc/network/interfaces`][ifupdown-interfaces] to:
+The [example inventory][inventory-example] defines several [libvirt virtual networks][libvirt-networking], both
+[NAT based networks as well as isolated networks][libvirt-format-network]. They will be created when executing the
+playbooks listed below for hosts `lvrt-lcl-system` and `lvrt-lcl-session`. For each network, a bridge will be created
+with names `virbr-local-0` to `virbr-local-5`. To each network an ip subnet will be assigned, from `192.168.151.0/24` to
+`192.168.156.0/24`. The libvirt virtual networks are defined with variable `libvirt_networks` in
+[`inventory/host_vars/lvrt-lcl-system.yml`][inventory-lvrt-lcl-system].
+Before running the playbooks for hosts `lvrt-lcl-system` and `lvrt-lcl-session`, please make sure that no bridges with
+such names do exist on your system. Please also verify that the ip subnets given previously are not currently known to
+your system. For example, use `ip addr` to show all IPv4 and IPv6 addresses assigned to all network interfaces.
 
-```
-# Ref.:
-#  man interfaces
-#  man bridge-utils-interfaces
+[libvirt-networking]: https://wiki.libvirt.org/page/Networking
+[libvirt-format-network]: https://libvirt.org/formatnetwork.html
+[inventory-lvrt-lcl-system]: inventory/host_vars/lvrt-lcl-system.yml
 
-iface 10.0.0.2 inet static
-    address 10.0.0.2/16
-    gateway 10.0.0.1
-    dns-nameservers 10.0.0.1
-
-auto br-lan
-iface br-lan inet manual
-    bridge_ports eth0
-    bridge_stp off
-    bridge_waitport 3
-    bridge_fd 0
-    bridge_maxwait 5
-    # (Optional) Allow forwarding all traffic across the bridge to virtual machines
-    # Ref.:
-    #  https://wiki.libvirt.org/page/Networking
-    #  https://bugzilla.redhat.com/show_bug.cgi?id=512206#c0
-    post-up iptables -I FORWARD -i br-lan -m physdev --physdev-is-bridged -j ACCEPT
-    pre-down iptables -D FORWARD -i br-lan -m physdev --physdev-is-bridged -j ACCEPT
-
-iface br-lan inet6 manual
-
-auto br-lan:0
-iface br-lan:0 inet static inherits 10.0.0.2
-```
-
-For `systemd-networkd` refer to [Arch's Wiki][arch-wiki-systemd-networkd] or [upstream's documentation][
-systemd-network]. For Desktop distributions, refer to [GNOME's project page on NetworkManager][network-manager], esp.
-its `See Also` section.
-
-[arch-wiki-systemd-networkd]: https://wiki.archlinux.org/title/Systemd-networkd
-[ifupdown-interfaces]: https://manpages.debian.org/unstable/ifupdown/interfaces.5.en.html
-[network-manager]: https://wiki.gnome.org/Projects/NetworkManager
-[systemd-network]: https://www.freedesktop.org/software/systemd/man/systemd.network.html
-
-All other bridges and networks will be created executing the playbooks listed below for hosts `lvrt-lcl-system` and
-`lvrt-lcl-session`.
-
-Run playbook `playbooks/site.yml` for host `lvrt-lcl-system` to set up a libvirt environment on your system, e.g.
-install packages for libvirt and QEMU, configure libvirt networks, prepare a default libvirt storage pool and preload OS
-images.
+Run playbook `playbooks/site.yml` for host `lvrt-lcl-system` to set up a libvirt environment on your system, e.g. to
+install packages for libvirt and QEMU, to configure libvirt networks, to prepare a default libvirt storage pool and to
+preload OS images.
 
 ```sh
 # Cache user credentials so that Ansible can escalate privileges and execute tasks with root privileges

@@ -49,10 +49,10 @@ dhcpd_config:
       # have to hack syslog.conf to complete the redirection).
       log-facility local7;
 
-      subnet 192.168.155.0 netmask 255.255.255.0 {
-        option routers 192.168.155.2;
-        range 192.168.155.10 192.168.155.254;
-      } # subnet 192.168.155.0 netmask 255.255.255.0
+      subnet 192.168.153.0 netmask 255.255.255.0 {
+        option routers 192.168.153.2;
+        range 192.168.153.10 192.168.153.254;
+      } # subnet 192.168.153.0 netmask 255.255.255.0
 
       {% for pxe_client in pxe_installer_clients %}
       host {{ hostvars[pxe_client].inventory_hostname }} {
@@ -114,8 +114,8 @@ httpd_config:
 
         <Directory /var/www>
           Options -Indexes
-          Require ip 192.168.155
-          Require ip 10.0.20.20
+          Require ip 192.168.153
+          Require ip 192.168.156.20
           Require ip 127.
           Require ip ::1
         </Directory>
@@ -165,8 +165,8 @@ httpd_config:
         ProxyRequests On
         ProxyVia On
         <Proxy "*">
-          Require ip 192.168.155
-          Require ip 10.0.20.20
+          Require ip 192.168.153
+          Require ip 192.168.156.20
           Require ip 127.
           Require ip ::1
         </Proxy>
@@ -248,9 +248,9 @@ iptables_config:
     destination: 0.0.0.0/0
     jump: SNAT
     out_interface: 'eth0'
-    source: 192.168.155.0/24
+    source: 192.168.153.0/24
     table: nat
-    to_source: 10.0.20.20
+    to_source: 192.168.156.20
 
 iptables_persistence: yes
 
@@ -262,8 +262,8 @@ libvirt_hardware:
 - memory: '4096'
 - virt_type: 'kvm'
 - graphics: 'spice,listen=socket'
-- network: 'network=lan-bridge,model=virtio'
-- network: 'network=isolated-6,model=virtio'
+- network: 'network=nat-1-no-dhcp,model=virtio'
+- network: 'network=isolated-2-no-dhcp,model=virtio'
 - disk: "vol='{{ libvirt_pool }}/{{ libvirt_volumes[0]['name'] }}',device=disk,bus=virtio"
 - disk: "vol='{{ libvirt_pool }}/{{ libvirt_configdrive }}',device=disk,bus=virtio,serial='cidata'"
 - os_variant: 'debian10'
@@ -278,21 +278,21 @@ libvirt_netplan:
       accept-ra: false
 
       addresses:
-      - 10.0.20.20/16
+      - 192.168.156.20/24
 
       nameservers:
         addresses:
-        - 10.0.0.1
+        - 192.168.156.1
       routes:
       - to: 0.0.0.0/0
-        via: 10.0.0.1
+        via: 192.168.156.1
     eth1:
       dhcp4: false
       dhcp6: false
       accept-ra: false
 
       addresses:
-      - 192.168.155.2/24
+      - 192.168.153.2/24
 
 libvirt_pool: 'default'
 
@@ -324,7 +324,7 @@ pxe_installer_clients:
 - lvrt-lcl-session-srv-16-pxe-client-centos8-bios
 - lvrt-lcl-session-srv-17-pxe-client-centos8-uefi
 
-pxe_installer_host_address: 192.168.155.2
+pxe_installer_host_address: 192.168.153.2
 
 # NOTE: Unencrypted http connections are used here because caching is not possible with encrypted https connections.
 #       A proxy is used to transparently upgrade http connections to https connections!
