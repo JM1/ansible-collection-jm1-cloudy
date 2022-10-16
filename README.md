@@ -298,7 +298,9 @@ and gateway `10.0.0.1`. For example, suppose your system has a network interface
 To define bridge `br-lan` on Debian, change [`/etc/network/interfaces`][ifupdown-interfaces] to:
 
 ```
-# Ref.: man interfaces
+# Ref.:
+#  man interfaces
+#  man bridge-utils-interfaces
 
 iface 10.0.0.2 inet static
     address 10.0.0.2/16
