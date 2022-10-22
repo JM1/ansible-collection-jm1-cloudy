@@ -11,19 +11,28 @@ in `/etc/hosts` define variable `files_config` in [`group_vars` or `host_vars`][
 
 ```yml
 files_config:
-- lineinfile:
+- ansible.builtin.lineinfile:
     path: /etc/hosts
-    search_string: '.1 {{ inventory_hostname }} {{ inventory_hostname_short }}'
-    line: "{{ '{ip} {fqdn} {hostname}'.format(
-                ip='127.0.0.1' if ansible_facts.distribution in ['CentOS', 'Red Hat Enterprise Linux'] else '127.0.1.1',
-                fqdn=inventory_hostname, hostname=inventory_hostname_short) }}"
+    regexp: '\.1\s+{{ hostname }}'
+    line: "{{ '{ip} {fqdn} {hostname}'.format(ip='127.0.0.1', fqdn=fqdn, hostname=hostname) }}"
     owner: root
     group: root
     mode: '0644'
-- lineinfile:
+  when: distribution_id|first in ['CentOS', 'Red Hat Enterprise Linux']
+        or distribution_id in [['Debian', '10']]
+- ansible.builtin.lineinfile:
     path: /etc/hosts
-    search_string: '::1 {{ inventory_hostname }} {{ inventory_hostname_short }}'
-    line: '::1 {{ inventory_hostname }} {{ inventory_hostname_short }}'
+    regexp: '\.1\s+{{ hostname }}'
+    line: "{{ '{ip} {fqdn} {hostname}'.format(ip='127.0.1.1', fqdn=fqdn, hostname=hostname) }}"
+    owner: root
+    group: root
+    mode: '0644'
+  when: distribution_id|first not in ['CentOS', 'Red Hat Enterprise Linux']
+        and distribution_id not in [['Debian', '10']]
+- ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '::1\s+{{ hostname }}'
+    line: '::1 {{ fqdn }} {{ hostname }}'
     owner: root
     group: root
     mode: '0644'

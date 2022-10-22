@@ -246,18 +246,27 @@ files_config_early:
 # Ref.:
 #  https://github.com/canonical/cloud-init/blob/main/templates/hosts.debian.tmpl
 #  https://github.com/canonical/cloud-init/blob/main/templates/hosts.redhat.tmpl
-- lineinfile:
+- ansible.builtin.lineinfile:
     path: /etc/hosts
-    search_string: '.1 {{ fqdn }} {{ hostname }}'
-    line: "{{ '{ip} {fqdn} {hostname}'.format(
-                ip='127.0.0.1' if distribution_id|first in ['CentOS', 'Red Hat Enterprise Linux'] else '127.0.1.1',
-                fqdn=fqdn, hostname=hostname) }}"
+    regexp: '\.1\s+{{ hostname }}'
+    line: "{{ '{ip} {fqdn} {hostname}'.format(ip='127.0.0.1', fqdn=fqdn, hostname=hostname) }}"
     owner: root
     group: root
     mode: '0644'
-- lineinfile:
+  when: distribution_id|first in ['CentOS', 'Red Hat Enterprise Linux']
+        or distribution_id in [['Debian', '10']]
+- ansible.builtin.lineinfile:
     path: /etc/hosts
-    search_string: '::1 {{ fqdn }} {{ hostname }}'
+    regexp: '\.1\s+{{ hostname }}'
+    line: "{{ '{ip} {fqdn} {hostname}'.format(ip='127.0.1.1', fqdn=fqdn, hostname=hostname) }}"
+    owner: root
+    group: root
+    mode: '0644'
+  when: distribution_id|first not in ['CentOS', 'Red Hat Enterprise Linux']
+        and distribution_id not in [['Debian', '10']]
+- ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '::1\s+{{ hostname }}'
     line: '::1 {{ fqdn }} {{ hostname }}'
     owner: root
     group: root
