@@ -1,7 +1,15 @@
 ---
-# Copyright (c) 2021 Jakob Meng, <jakobmeng@web.de>
+# Copyright (c) 2021-2022 Jakob Meng, <jakobmeng@web.de>
 # vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
 # kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
+
+- name: Verify task definitions specified in httpd_config variable
+  when: item is not mapping or (item.keys()|difference(['register', 'when']))|list|length != 1
+  fail:
+    msg: >-
+      Unsupported keyword or multiple module definitions found:
+      {{ (item.keys()|difference(['register', 'when']))|join(', ') }}.
+  loop: '{{ httpd_config|default([]) }}'
 
 - name: Install dependencies of collection jm1.pkg
   import_role:
@@ -24,59 +32,13 @@
     depends:
     - apache2
 
-- name: Enable/disable httpd modules
-  loop: '{{ httpd_config|default([]) }}'
-  when: "'apache2_module' in item"
-  apache2_module: "{{ item['apache2_module'] }}"
-  register: httpd_config_apache2_module_result
-  notify:
-  - 'Restart httpd service to apply changes'
-
-- name: Change blocks in httpd configuration
-  loop: '{{ httpd_config|default([]) }}'
-  when: "'blockinfile' in item"
-  blockinfile: "{{ item['blockinfile'] }}"
-  register: httpd_config_blockinfile_result
-  notify:
-  - 'Restart httpd service to apply changes'
-
-- name: Copy files to httpd configuration
-  loop: '{{ httpd_config|default([]) }}'
-  when: "'copy' in item"
-  copy: "{{ item['copy'] }}" # noqa risky-file-permissions
-  register: httpd_config_copy_result
-  notify:
-  - 'Restart httpd service to apply changes'
-
-- name: Change debconf selections for httpd
-  loop: '{{ httpd_config|default([]) }}'
-  when: "'debconf' in item"
-  debconf: "{{ item['debconf'] }}"
-  register: httpd_config_debconf_result
-  notify:
-  - 'Restart httpd service to apply changes'
-
-- name: Manage files in httpd configuration
-  loop: '{{ httpd_config|default([]) }}'
-  when: "'file' in item"
-  file: "{{ item['file'] }}"
-  register: httpd_config_file_result
-  notify:
-  - 'Restart httpd service to apply changes'
-
-- name: Change lines in httpd configuration
-  loop: '{{ httpd_config|default([]) }}'
-  when: "'lineinfile' in item"
-  lineinfile: "{{ item['lineinfile'] }}"
-  register: httpd_config_lineinfile_result
-  notify:
-  - 'Restart httpd service to apply changes'
-
-- name: Generate httpd configuration from templates
-  loop: '{{ httpd_config|default([]) }}'
-  when: "'template' in item"
-  template: "{{ item['template'] }}" # noqa risky-file-permissions
-  register: httpd_config_template_result
+- name: Run tasks specified in httpd_config variable
+  jm1.ansible.execute_module:
+    name: "{{ (item.keys()|difference(['register', 'when']))|first }}"
+    args: "{{ item[(item.keys()|difference(['register', 'when']))|first] }}"
+    register: "{{ item['register']|default(omit) }}"
+    when: item['when']|default(omit)
+  loop: "{{ httpd_config|default([]) }}"
   notify:
   - 'Restart httpd service to apply changes'
 
@@ -85,17 +47,3 @@
     enabled: '{{ httpd_service_enabled }}'
     name: '{{ httpd_service_name }}'
     state: '{{ httpd_service_state }}'
-
-- name: Debug role variables
-  debug:
-    msg:
-      httpd_config_apache2_module_result: '{{ httpd_config_apache2_module_result }}'
-      httpd_config_blockinfile_result: '{{ httpd_config_blockinfile_result }}'
-      httpd_config_copy_result: '{{ httpd_config_copy_result }}'
-      httpd_config_debconf_result: '{{ httpd_config_debconf_result }}'
-      httpd_config_file_result: '{{ httpd_config_file_result }}'
-      httpd_config_lineinfile_result: '{{ httpd_config_lineinfile_result }}'
-      httpd_config_template_result: '{{ httpd_config_template_result }}'
-  tags:
-    - never
-    - debug

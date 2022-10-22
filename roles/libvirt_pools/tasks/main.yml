@@ -1,5 +1,5 @@
 ---
-# Copyright (c) 2020-2021 Jakob Meng, <jakobmeng@web.de>
+# Copyright (c) 2020-2022 Jakob Meng, <jakobmeng@web.de>
 # vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
 # kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
 
@@ -54,11 +54,3 @@
 
 - name: Start/Stop storage pools now
   meta: flush_handlers
-
-- name: Debug role variables
-  debug:
-    msg:
-      jm1_libvirt_pool_xml_result: '{{ jm1_libvirt_pool_xml_result }}'
-  tags:
-    - never
-    - debug

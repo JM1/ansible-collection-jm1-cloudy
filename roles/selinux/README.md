@@ -3,9 +3,9 @@
 This role helps with managing [SELinux][what-is-selinux] from Ansible variables. For example, it allows to toggle
 [SELinux booleans][selinux-booleans] and change the [SELinux policy and state][selinux-howto]. Role variable
 `selinux_config` defines a list of tasks which will be run by this role. Each task calls an Ansible module similar to
-tasks in roles or playbooks except that [task keywords such as `name`, `notify` and `when`][playbooks-keywords] are
-ignored. For example, to put SELinux in permissive mode so that actions will be logged instead of being blocked, define
-variable `selinux_config` in [`group_vars` or `host_vars`][ansible-inventory] as such:
+tasks in roles or playbooks except that only few [keywords][playbooks-keywords] such as `register` and `when` are
+supported. For example, to put SELinux in permissive mode so that actions will be logged instead of being blocked,
+define variable `selinux_config` in [`group_vars` or `host_vars`][ansible-inventory] as such:
 
 ```yml
 selinux_config:
@@ -44,19 +44,37 @@ Available on Ansible Galaxy in Collection [jm1.cloudy](https://galaxy.ansible.co
 
 ## Requirements
 
-None.
+This role uses module(s) from collection [`jm1.ansible`][galaxy-jm1-ansible]. To install this collection you may follow
+the steps described in [`README.md`][jm1-cloudy-readme] using the provided [`requirements.yml`][
+jm1-cloudy-requirements].
+
+[galaxy-jm1-ansible]: https://galaxy.ansible.com/jm1/ansible
+[jm1-cloudy-readme]: ../../README.md
+[jm1-cloudy-requirements]: ../../requirements.yml
 
 ## Variables
 
 | Name             | Default value | Required | Description |
 | ---------------- | ------------- | -------- | ----------- |
-| `selinux_config` | `[]`          | no       | List of tasks to run [^supported-modules], e.g. to toggle SELinux booleans or change SELinux policy and state |
+| `selinux_config` | `[]`          | no       | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to toggle SELinux booleans or change SELinux policy and state |
 
-[^supported-modules]: Supported Ansible modules are [`seboolean`][ansible-module-seboolean] and [`selinux`][
-ansible-module-selinux].
+[^supported-modules]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
+supports modules and action plugins only. Some Ansible modules such as [`ansible.builtin.meta`][ansible-builtin-meta]
+and `ansible.builtin.{include,import}_{playbook,role,tasks}` are core features of Ansible, in fact not implemented as
+modules and thus cannot be called from `jm1.ansible.execute_module`. Doing so causes Ansible to raise errors such as
+`MODULE FAILURE\nSee stdout/stderr for the exact error`. In addition, Ansible does not support free-form parameters
+for arbitrary modules, so for example, change from `- debug: msg=""` to `- debug: { msg: "" }`.
 
-[ansible-module-seboolean]: https://docs.ansible.com/ansible/latest/collections/ansible/posix/seboolean_module.html
-[ansible-module-selinux]: https://docs.ansible.com/ansible/latest/collections/ansible/posix/selinux_module.html
+[^supported-keywords]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
+supports keywords `register` and `when` only.
+
+[^example-modules]: Useful Ansible modules in this context could be [`seboolean`][ansible-posix-seboolean] and
+[`selinux`][ansible-posix-selinux].
+
+[ansible-builtin-meta]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/meta_module.html
+[ansible-posix-seboolean]: https://docs.ansible.com/ansible/latest/collections/ansible/posix/seboolean_module.html
+[ansible-posix-selinux]: https://docs.ansible.com/ansible/latest/collections/ansible/posix/selinux_module.html
+[jm1-ansible-execute-module]: https://github.com/JM1/ansible-collection-jm1-ansible/blob/master/plugins/modules/execute_module.py
 
 ## Dependencies
 

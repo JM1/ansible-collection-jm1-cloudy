@@ -55,15 +55,11 @@ Goals for this collection are:
 
 * Generic and reusable code. Code is adaptable and extendable for various cloud use cases with minimal changes:
   Most roles offer choices of several modules to customize role behaviour, e.g. [role `cloudinit`][cloudinit-tasks-main]
-  allows to use Ansible's [`blockinfile`][ansible-module-blockinfile], [`copy`][ansible-module-copy],
-  [`file`][ansible-module-file], [`lineinfile`][ansible-module-lineinfile] and [`template`][ansible-module-template]
-  modules in `host_vars` and `group_vars` to edit lines and blocks in files etc.
+  allows to use Ansible modules and action plugins such as [`lineinfile`][ansible-builtin-lineinfile] and [`copy`][
+  ansible-builtin-copy] in `host_vars` and `group_vars` to edit lines in files, copy directories etc.
 
-[ansible-module-blockinfile]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/blockinfile_module.html
-[ansible-module-copy]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/copy_module.html
-[ansible-module-file]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/file_module.html
-[ansible-module-lineinfile]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/lineinfile_module.html
-[ansible-module-template]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/template_module.html
+[ansible-builtin-copy]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/copy_module.html
+[ansible-builtin-lineinfile]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/lineinfile_module.html
 [cloudinit-tasks-main]: roles/cloudinit/tasks/main.yml
 
 * Users are experts. Users know what to do (once you give them the options). Users have to understand the code to

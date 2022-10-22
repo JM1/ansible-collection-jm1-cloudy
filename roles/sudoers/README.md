@@ -2,8 +2,8 @@
 
 This role helps with managing [sudo][archlinux-wiki-sudo] from Ansible variables. For example, it allows to edit
 `/etc/sudoers` and files in `/etc/sudoers.d/`. Role variable `sudoers_config` defines a list of tasks which will be run
-by this role. Each task calls an Ansible module similar to tasks in roles or playbooks except that [task keywords such
-as `name`, `notify` and `when`][playbooks-keywords] are ignored. For example, to ensure that the Ansible user can gain
+by this role. Each task calls an Ansible module similar to tasks in roles or playbooks except that only few [keywords][
+playbooks-keywords] such as `register` and `when` are supported. For example, to ensure that the Ansible user can gain
 full root privileges with `sudo`, define variable `sudoers_config` in [`group_vars` or `host_vars`][ansible-inventory]
 as such:
 
@@ -39,22 +39,40 @@ Available on Ansible Galaxy in Collection [jm1.cloudy](https://galaxy.ansible.co
 
 ## Requirements
 
-None.
+This role uses module(s) from collection [`jm1.ansible`][galaxy-jm1-ansible]. To install this collection you may follow
+the steps described in [`README.md`][jm1-cloudy-readme] using the provided [`requirements.yml`][
+jm1-cloudy-requirements].
+
+[galaxy-jm1-ansible]: https://galaxy.ansible.com/jm1/ansible
+[jm1-cloudy-readme]: ../../README.md
+[jm1-cloudy-requirements]: ../../requirements.yml
 
 ## Variables
 | Name             | Default value | Required | Description |
 | ---------------- | ------------- | -------- | ----------- |
-| `sudoers_config` | `[]`          | no       | List of tasks to run [^supported-modules], e.g. to edit `/etc/sudoers` |
+| `sudoers_config` | `[]`          | no       | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to edit `/etc/sudoers` |
 
-[^supported-modules]: Supported Ansible modules are [`blockinfile`][ansible-module-blockinfile], [`copy`][
-ansible-module-copy], [`file`][ansible-module-file], [`lineinfile`][ansible-module-lineinfile] and [`template`][
-ansible-module-template].
+[^supported-modules]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
+supports modules and action plugins only. Some Ansible modules such as [`ansible.builtin.meta`][ansible-builtin-meta]
+and `ansible.builtin.{include,import}_{playbook,role,tasks}` are core features of Ansible, in fact not implemented as
+modules and thus cannot be called from `jm1.ansible.execute_module`. Doing so causes Ansible to raise errors such as
+`MODULE FAILURE\nSee stdout/stderr for the exact error`. In addition, Ansible does not support free-form parameters
+for arbitrary modules, so for example, change from `- debug: msg=""` to `- debug: { msg: "" }`.
 
-[ansible-module-blockinfile]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/blockinfile_module.html
-[ansible-module-copy]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/copy_module.html
-[ansible-module-file]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/file_module.html
-[ansible-module-lineinfile]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/lineinfile_module.html
-[ansible-module-template]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/template_module.html
+[^supported-keywords]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
+supports keywords `register` and `when` only.
+
+[^example-modules]: Useful Ansible modules in this context could be [`blockinfile`][ansible-builtin-blockinfile],
+[`copy`][ansible-builtin-copy], [`file`][ansible-builtin-file], [`lineinfile`][ansible-builtin-lineinfile] and
+[`template`][ansible-builtin-template].
+
+[ansible-builtin-blockinfile]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/blockinfile_module.html
+[ansible-builtin-copy]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/copy_module.html
+[ansible-builtin-file]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/file_module.html
+[ansible-builtin-lineinfile]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/lineinfile_module.html
+[ansible-builtin-meta]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/meta_module.html
+[ansible-builtin-template]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/template_module.html
+[jm1-ansible-execute-module]: https://github.com/JM1/ansible-collection-jm1-ansible/blob/master/plugins/modules/execute_module.py
 
 ## Dependencies
 

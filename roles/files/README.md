@@ -5,10 +5,9 @@ links, changing ownership and permissions, cloning git and subversion repositori
 services and more from Ansible variables.
 
 Role variable `files_config` defines a list of tasks which will be run by this role. Each task calls an Ansible module
-similar to tasks in roles or playbooks except that [task keywords such as `name`, `notify` and `when`][
-playbooks-keywords] are ignored. For example, to ensure the inventory name for the current Ansible host being iterated
-over in the play is in `/etc/hosts` define variable `files_config` in [`group_vars` or `host_vars`][ansible-inventory]
-as such:
+similar to tasks in roles or playbooks except that only few [keywords][playbooks-keywords] such as `register` and `when`
+are supported. For example, to ensure the inventory name for the current Ansible host being iterated over in the play is
+in `/etc/hosts` define variable `files_config` in [`group_vars` or `host_vars`][ansible-inventory] as such:
 
 ```yml
 files_config:
@@ -46,47 +45,67 @@ Available on Ansible Galaxy in Collection [jm1.cloudy](https://galaxy.ansible.co
 
 ## Requirements
 
-This role uses module(s) from collection [`community.general`][galaxy-community-general]. To install this collection
-you may follow the steps described in [`README.md`][jm1-cloudy-readme] using the provided [`requirements.yml`][
-jm1-cloudy-requirements].
+This role uses module(s) from collections [`community.general`][galaxy-community-general] and [`jm1.ansible`][
+galaxy-jm1-ansible]. To install these collections you may follow the steps described in [`README.md`][jm1-cloudy-readme]
+using the provided [`requirements.yml`][jm1-cloudy-requirements].
 
 [galaxy-community-general]: https://galaxy.ansible.com/community/general
-[jm1-cloudy-readme]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/README.md
-[jm1-cloudy-requirements]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/requirements.yml
+[galaxy-jm1-ansible]: https://galaxy.ansible.com/jm1/ansible
+[jm1-cloudy-readme]: ../../README.md
+[jm1-cloudy-requirements]: ../../requirements.yml
 
 ## Variables
 
-| Name           | Default value | Required | Description                               |
-| -------------- | ------------- | -------- | ----------------------------------------- |
-| `files_config` | `[]`          | no       | List of tasks to run [^supported-modules] |
+| Name           | Default value | Required | Description |
+| -------------- | ------------- | -------- | ----------- |
+| `files_config` | `[]`          | no       | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules] |
 
-[^supported-modules]: Supported Ansible modules are [`assemble`][ansible-module-assemble], [`blockinfile`][
-ansible-module-blockinfile], [`capabilities`][ansible-module-capabilities], [`copy`][ansible-module-copy], [`fetch`][
-ansible-module-fetch], [`file`][ansible-module-file], [`get_url`][ansible-module-get-url], [`git`][ansible-module-git],
-[`lineinfile`][ansible-module-lineinfile], [`replace`][ansible-module-replace], [`slurp`][ansible-module-slurp],
-[`subversion`][ansible-module-subversion], [`template`][ansible-module-template], [`unarchive`][
-ansible-module-unarchive], [`uri`][ansible-module-uri] and [`xattr`][ansible-module-xattr].
+[^supported-modules]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
+supports modules and action plugins only. Some Ansible modules such as [`ansible.builtin.meta`][ansible-builtin-meta]
+and `ansible.builtin.{include,import}_{playbook,role,tasks}` are core features of Ansible, in fact not implemented as
+modules and thus cannot be called from `jm1.ansible.execute_module`. Doing so causes Ansible to raise errors such as
+`MODULE FAILURE\nSee stdout/stderr for the exact error`. In addition, Ansible does not support free-form parameters
+for arbitrary modules, so for example, change from `- debug: msg=""` to `- debug: { msg: "" }`.
 
-[ansible-module-assemble]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/assemble_module.html
-[ansible-module-blockinfile]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/blockinfile_module.html
-[ansible-module-capabilities]: https://docs.ansible.com/ansible/latest/collections/community/general/capabilities_module.html
-[ansible-module-copy]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/copy_module.html
-[ansible-module-fetch]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/fetch_module.html
-[ansible-module-file]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/file_module.html
-[ansible-module-get-url]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/get_url_module.html
-[ansible-module-git]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/git_module.html
-[ansible-module-lineinfile]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/lineinfile_module.html
-[ansible-module-replace]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/replace_module.html
-[ansible-module-slurp]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/slurp_module.html
-[ansible-module-subversion]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/subversion_module.html
-[ansible-module-template]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/template_module.html
-[ansible-module-unarchive]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/unarchive_module.html
-[ansible-module-uri]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/uri_module.html
-[ansible-module-xattr]: https://docs.ansible.com/ansible/latest/collections/community/general/xattr_module.html
+[^supported-keywords]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
+supports keywords `register` and `when` only.
+
+[^example-modules]: Useful Ansible modules in this context could be [`assemble`][ansible-builtin-assemble],
+[`blockinfile`][ansible-builtin-blockinfile], [`capabilities`][community-general-capabilities], [`copy`][
+ansible-builtin-copy], [`fetch`][ansible-builtin-fetch], [`file`][ansible-builtin-file], [`get_url`][
+ansible-builtin-get-url], [`git`][ansible-builtin-git], [`lineinfile`][ansible-builtin-lineinfile], [`replace`][
+ansible-builtin-replace], [`slurp`][ansible-builtin-slurp], [`subversion`][ansible-builtin-subversion], [`template`][
+ansible-builtin-template], [`unarchive`][ansible-builtin-unarchive], [`uri`][ansible-builtin-uri] and [`xattr`][
+community-general-xattr].
+
+[ansible-builtin-assemble]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/assemble_module.html
+[ansible-builtin-blockinfile]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/blockinfile_module.html
+[ansible-builtin-copy]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/copy_module.html
+[ansible-builtin-fetch]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/fetch_module.html
+[ansible-builtin-file]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/file_module.html
+[ansible-builtin-get-url]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/get_url_module.html
+[ansible-builtin-git]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/git_module.html
+[ansible-builtin-lineinfile]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/lineinfile_module.html
+[ansible-builtin-meta]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/meta_module.html
+[ansible-builtin-replace]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/replace_module.html
+[ansible-builtin-slurp]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/slurp_module.html
+[ansible-builtin-subversion]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/subversion_module.html
+[ansible-builtin-template]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/template_module.html
+[ansible-builtin-unarchive]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/unarchive_module.html
+[ansible-builtin-uri]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/uri_module.html
+[community-general-capabilities]: https://docs.ansible.com/ansible/latest/collections/community/general/capabilities_module.html
+[community-general-xattr]: https://docs.ansible.com/ansible/latest/collections/community/general/xattr_module.html
+[jm1-ansible-execute-module]: https://github.com/JM1/ansible-collection-jm1-ansible/blob/master/plugins/modules/execute_module.py
 
 ## Dependencies
 
-None.
+This role uses module(s) from collection [`jm1.ansible`][galaxy-jm1-ansible]. To install this collection you may follow
+the steps described in [`README.md`][jm1-cloudy-readme] using the provided [`requirements.yml`][
+jm1-cloudy-requirements].
+
+[galaxy-jm1-ansible]: https://galaxy.ansible.com/jm1/ansible
+[jm1-cloudy-readme]: ../../README.md
+[jm1-cloudy-requirements]: ../../requirements.yml
 
 ## Example Playbook
 

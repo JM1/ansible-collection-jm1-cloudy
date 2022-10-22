@@ -3,8 +3,8 @@
 This role helps with managing [partitions][redhat-filesystem], [encrypted (LUKS) devices][redhat-luks], [LVM volume
 groups, LVM volumes][redhat-lvm], [filesystems and mountpoints][redhat-filesystem] from Ansible variables. Role variable
 `storage_config` defines a list of tasks which will be run by this role. Each task calls an Ansible module similar to
-tasks in roles or playbooks except that [task keywords such as `name`, `notify` and `when`][playbooks-keywords] are
-ignored. For example, to create an ext4 primary partition on device `/dev/sdb`, define variable `storage_config` in
+tasks in roles or playbooks except that only few [keywords][playbooks-keywords] such as `register` and `when` are
+supported. For example, to create an ext4 primary partition on device `/dev/sdb`, define variable `storage_config` in
 [`group_vars` or `host_vars`][ansible-inventory] as such:
 
 ```yml
@@ -42,28 +42,44 @@ Available on Ansible Galaxy in Collection [jm1.cloudy](https://galaxy.ansible.co
 
 ## Requirements
 
-None.
+This role uses module(s) from collection [`jm1.ansible`][galaxy-jm1-ansible]. To install this collection you may follow
+the steps described in [`README.md`][jm1-cloudy-readme] using the provided [`requirements.yml`][
+jm1-cloudy-requirements].
+
+[galaxy-jm1-ansible]: https://galaxy.ansible.com/jm1/ansible
+[jm1-cloudy-readme]: ../../README.md
+[jm1-cloudy-requirements]: ../../requirements.yml
 
 ## Variables
 
 | Name             | Default value | Required | Description |
 | ---------------- | ------------- | -------- | ----------- |
-| `storage_config` | `[]`          | no       | List of tasks to run [^supported-modules] [^supported-actions] |
+| `storage_config` | `[]`          | no       | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules] |
 | `storage_reboot` | `no`          | no       | Whether the system should be rebooted on `meta: flush_handlers` or after all changes have been applied |
 
-[^supported-modules]: Supported Ansible modules are [`crypttab`][ansible-module-crypttab], [`mount`][
-ansible-module-mount], [`luks_device`][ansible-module-luks-device], [`lvg`][ansible-module-lvg], [`lvol`][
-ansible-module-lvol] and [`parted`][ansible-module-parted].
+[^supported-modules]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
+supports modules and action plugins only. Some Ansible modules such as [`ansible.builtin.meta`][ansible-builtin-meta]
+and `ansible.builtin.{include,import}_{playbook,role,tasks}` are core features of Ansible, in fact not implemented as
+modules and thus cannot be called from `jm1.ansible.execute_module`. Doing so causes Ansible to raise errors such as
+`MODULE FAILURE\nSee stdout/stderr for the exact error`. (Only exception is [`meta: flush_handlers`][
+ansible-builtin-meta] which is fully supported). In addition, Ansible does not support free-form parameters for arbitrary
+modules, so for example, change from `- debug: msg=""` to `- debug: { msg: "" }`.
 
-[^supported-actions]: Currently, the only supported Ansible action is [`meta: flush_handlers`][ansible-action-meta].
+[^supported-keywords]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
+supports keywords `register` and `when` only.
 
-[ansible-action-meta]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/meta_module.html
-[ansible-module-crypttab]: https://docs.ansible.com/ansible/latest/collections/community/general/crypttab_module.html
-[ansible-module-luks-device]: https://docs.ansible.com/ansible/latest/collections/community/crypto/luks_device_module.html
-[ansible-module-lvg]: https://docs.ansible.com/ansible/latest/collections/community/general/lvg_module.html
-[ansible-module-lvol]: https://docs.ansible.com/ansible/latest/collections/community/general/lvol_module.html
-[ansible-module-mount]: https://docs.ansible.com/ansible/latest/collections/ansible/posix/mount_module.html
-[ansible-module-parted]: https://docs.ansible.com/ansible/latest/collections/community/general/parted_module.html
+[^example-modules]: Useful Ansible modules in this context could be [`crypttab`][community-general-crypttab], [`mount`][
+ansible-posix-mount], [`luks_device`][community-crypto-luks-device], [`lvg`][community-general-lvg], [`lvol`][
+community-general-lvol] and [`parted`][community-general-parted].
+
+[ansible-builtin-meta]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/meta_module.html
+[ansible-posix-mount]: https://docs.ansible.com/ansible/latest/collections/ansible/posix/mount_module.html
+[community-crypto-luks-device]: https://docs.ansible.com/ansible/latest/collections/community/crypto/luks_device_module.html
+[community-general-crypttab]: https://docs.ansible.com/ansible/latest/collections/community/general/crypttab_module.html
+[community-general-lvg]: https://docs.ansible.com/ansible/latest/collections/community/general/lvg_module.html
+[community-general-lvol]: https://docs.ansible.com/ansible/latest/collections/community/general/lvol_module.html
+[community-general-parted]: https://docs.ansible.com/ansible/latest/collections/community/general/parted_module.html
+[jm1-ansible-execute-module]: https://github.com/JM1/ansible-collection-jm1-ansible/blob/master/plugins/modules/execute_module.py
 
 ## Dependencies
 

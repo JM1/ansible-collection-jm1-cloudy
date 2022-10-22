@@ -3,7 +3,7 @@
 This role helps with managing services from Ansible variables. For example, it allows to start, stop, enable and disable
 [systemd units][archlinux-wiki-systemd] and [SysV services][gentoo-wiki-sysvinit]. Role variable `services_config`
 defines a list of tasks which will be run by this role. Each task calls an Ansible module similar to tasks in roles or
-playbooks except that [task keywords such as `name`, `notify` and `when`][playbooks-keywords] are ignored. For example,
+playbooks except that only few [keywords][playbooks-keywords] such as `register` and `when` are supported. For example,
 to stop and disable [Samba][samba]'s [smbd][smbd] service, define variable `services_config` in [`group_vars` or
 `host_vars`][ansible-inventory] as such:
 
@@ -38,20 +38,38 @@ Available on Ansible Galaxy in Collection [jm1.cloudy](https://galaxy.ansible.co
 
 ## Requirements
 
-None.
+This role uses module(s) from collection [`jm1.ansible`][galaxy-jm1-ansible]. To install this collection you may follow
+the steps described in [`README.md`][jm1-cloudy-readme] using the provided [`requirements.yml`][
+jm1-cloudy-requirements].
+
+[galaxy-jm1-ansible]: https://galaxy.ansible.com/jm1/ansible
+[jm1-cloudy-readme]: ../../README.md
+[jm1-cloudy-requirements]: ../../requirements.yml
 
 ## Variables
 
 | Name              | Default value | Required | Description |
 | ----------------- | ------------- | -------- | ----------- |
-| `services_config` | `[]`          | no       | List of tasks to run [^supported-modules], e.g. to start or stop services |
+| `services_config` | `[]`          | no       | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to start or stop services |
 
-[^supported-modules]: Supported Ansible modules are [`service`][ansible-module-service], [`systemd`][
-ansible-module-systemd] and [`sysvinit`][ansible-module-sysvinit].
+[^supported-modules]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
+supports modules and action plugins only. Some Ansible modules such as [`ansible.builtin.meta`][ansible-builtin-meta]
+and `ansible.builtin.{include,import}_{playbook,role,tasks}` are core features of Ansible, in fact not implemented as
+modules and thus cannot be called from `jm1.ansible.execute_module`. Doing so causes Ansible to raise errors such as
+`MODULE FAILURE\nSee stdout/stderr for the exact error`. In addition, Ansible does not support free-form parameters
+for arbitrary modules, so for example, change from `- debug: msg=""` to `- debug: { msg: "" }`.
 
-[ansible-module-service]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/service_module.html
-[ansible-module-systemd]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/systemd_module.html
-[ansible-module-sysvinit]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/sysvinit_module.html
+[^supported-keywords]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
+supports keywords `register` and `when` only.
+
+[^example-modules]: Useful Ansible modules in this context could be [`service`][ansible-builtin-service], [`systemd`][
+ansible-builtin-systemd] and [`sysvinit`][ansible-builtin-sysvinit].
+
+[ansible-builtin-meta]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/meta_module.html
+[ansible-builtin-service]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/service_module.html
+[ansible-builtin-systemd]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/systemd_module.html
+[ansible-builtin-sysvinit]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/sysvinit_module.html
+[jm1-ansible-execute-module]: https://github.com/JM1/ansible-collection-jm1-ansible/blob/master/plugins/modules/execute_module.py
 
 ## Dependencies
 
