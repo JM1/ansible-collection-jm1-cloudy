@@ -85,7 +85,7 @@ ssh_authorized_keys:
 
 # NOTE: Keep in sync with variable sudoers_config from group_vars/all.yml
 sudoers_config:
-- lineinfile:
+- ansible.builtin.lineinfile:
     create: no # assert that file exist else system is probably not setup using cloud-init
     group: root
     line: '{{ ansible_user }} ALL=(ALL) NOPASSWD:ALL'
@@ -93,7 +93,7 @@ sudoers_config:
     owner: root
     path: /etc/sudoers.d/90-cloud-init-users
     state: present
-- lineinfile:
+- ansible.builtin.lineinfile:
     create: no # assert that file exist else system is probably not setup using cloud-init
     group: root
     line: '{{ devstack_user }} ALL=(ALL) NOPASSWD:ALL'

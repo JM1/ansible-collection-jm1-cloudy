@@ -10,14 +10,14 @@
         (packages|map('type_debug')|unique|length > 1 or packages|first is mapping)
   failed_when: packages_dicts_list_result.failed or not (item is mapping or item is string)
   loop: '{{ packages if packages is iterable and packages is not mapping else [] }}'
-  package:
+  ansible.builtin.package:
     name: '{{ item.name|default(omit) if item is mapping else item }}'
     state: "{{ item.state|default(omit) if item is mapping else 'present' }}"
     use: '{{ item.use|default(omit) if item is mapping else omit }}'
 
 - name: Install, upgrade or remove packages
   when: packages is mapping # dictionary
-  package:
+  ansible.builtin.package:
     name: '{{ packages.name|mandatory }}'
     state: "{{ packages.state|default(omit) }}"
     use: '{{ packages.use|default(omit) }}'
@@ -26,6 +26,6 @@
   when: # packages is a list of strings
         packages is iterable and packages is not mapping and
         packages|map('type_debug')|unique|length == 1 and packages|first is string
-  package:
+  ansible.builtin.package:
     name: '{{ packages }}'
     state: 'present'

@@ -10,7 +10,7 @@ are supported. For example, to assign static ip address `192.168.0.2`, DNS serve
 ```yml
 networkmanager_config:
 - # Assign a static ip address, dns server and default gateway to network interface eth0
-  nmcli:
+  community.general.nmcli:
     conn_name: eth0
     dns4:
     - '192.168.0.1'
@@ -109,7 +109,7 @@ None.
     # https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
     networkmanager_config:
     - # Assign a static ip address, dns server and default gateway to network interface eth0
-      nmcli:
+      community.general.nmcli:
         conn_name: eth0
         dns4:
         - '192.168.0.1'

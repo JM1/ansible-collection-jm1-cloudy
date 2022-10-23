@@ -9,7 +9,7 @@ graphics card driver at the earliest possible occasion][nvidia-drm-kms], define 
 
 ```yml
 initrd_config:
-- blockinfile:
+- ansible.builtin.blockinfile:
     block: |
       # DRM kernel mode setting
       # Ref.: https://wiki.archlinux.org/title/Nvidia#DRM_kernel_mode_setting
@@ -102,7 +102,7 @@ archlinux-pci-passthrough], [GPU passthrough with libvirt qemu kvm][gentoo-gpu-p
     # https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html
     # https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
     initrd_config:
-    - blockinfile:
+    - ansible.builtin.blockinfile:
         block: |
           # 2021 Jakob Meng, <jakobmeng@web.de>
           # Load kernel modules for PCI passthrough
@@ -112,7 +112,7 @@ archlinux-pci-passthrough], [GPU passthrough with libvirt qemu kvm][gentoo-gpu-p
           vfio_iommu_type1
           vfio_virqfd
         path: /etc/modules
-    - blockinfile:
+    - ansible.builtin.blockinfile:
         block: |
           # 2021 Jakob Meng, <jakobmeng@web.de>
           # Add kernel modules for PCI passthrough to initrd
@@ -122,7 +122,7 @@ archlinux-pci-passthrough], [GPU passthrough with libvirt qemu kvm][gentoo-gpu-p
           vfio_iommu_type1
           vfio_virqfd
         path: /etc/initramfs-tools/modules
-    - copy:
+    - ansible.builtin.copy:
         content: |
           # 2021 Jakob Meng, <jakobmeng@web.de>
           # VGA PCI IDs to allow PCI passthrough

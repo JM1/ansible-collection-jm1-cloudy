@@ -10,7 +10,7 @@ supported. For example, to create an ext4 primary partition on device `/dev/sdb`
 ```yml
 storage_config:
 - # Create ext4 primary partition on device /dev/sdb
-  parted:
+  community.general.parted:
     device: /dev/sdb
     fs_type: ext4
     number: 1
@@ -99,7 +99,7 @@ None.
     # https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
     storage_config:
     - # Create ext4 primary partition on device /dev/sdb
-      parted:
+      community.general.parted:
         device: /dev/sdb
         fs_type: ext4
         number: 1

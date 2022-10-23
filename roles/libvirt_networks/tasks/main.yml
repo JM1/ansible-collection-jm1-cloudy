@@ -23,7 +23,7 @@
 
 - name: Extract names of virtual networks
   loop: '{{ libvirt_net_result.results|default([]) }}'
-  xml:
+  community.general.xml:
     content: "text"
     xmlstring: '{{ item.xml }}'
     xpath: "/network/name"
@@ -44,13 +44,13 @@
     when: distribution_id|first in ['Debian', 'Ubuntu']
     # CentOS and Red Hat Enterprise Linux set setgid flag for file /usr/libexec/qemu-bridge-helper already
     # Ref.: https://git.centos.org/rpms/qemu-kvm
-    capabilities:
+    community.general.capabilities:
       path: /usr/lib/qemu/qemu-bridge-helper
       capability: cap_net_admin+ep
       state: present
 
   - name: Create QEMU config directory, e.g. used by qemu-bridge-helper
-    file:
+    ansible.builtin.file:
       path: /etc/qemu
       state: directory
       mode: u=rwx,g=rx,o=rx
@@ -61,7 +61,7 @@
   # https://github.com/qemu/qemu/blob/master/qemu-bridge-helper.c
   loop: '{{ libvirt_networks|default([]) }}'
   when: item.state|default('present') != 'absent' and 'acl' in item
-  lineinfile:
+  ansible.builtin.lineinfile:
     create: yes
     group: root
     line: '{{ item.acl }} {{ item.bridge.name }}'
@@ -74,10 +74,10 @@
 - name: Revoke access to QEMU bridges for unprivileged users
   loop: '{{ libvirt_networks|default([]) }}'
   when:  item.state|default('present') == 'absent' and 'acl' in item
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/qemu/bridge.conf
     regexp: '\\ {{ item.bridge.name }}$'
     state: absent
 
 - name: Start/Stop virtual networks now
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers

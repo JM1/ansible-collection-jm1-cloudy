@@ -130,7 +130,7 @@ jm1-cloudy-requirements].
     # https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
     files_config:
     - name: Clone a git repository
-      git:
+      ansible.builtin.git:
         repo: https://github.com/ansible/ansible-examples.git
         dest: /src/ansible-examples
   roles:

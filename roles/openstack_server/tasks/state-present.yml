@@ -4,14 +4,14 @@
 # kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
 
 - name: Fail if vars have invalid values
-  fail:
+  ansible.builtin.fail:
   when: >
     state not in ['present', 'absent'] or
     openstack_server_state not in ['active', 'paused', 'suspended', 'shutoff', 'shelved', 'shelved_offloaded'] or
     'name' in openstack_server_config or 'state' in openstack_server_config
 
 - name: Load server facts
-  include_tasks: "server_info.yml"
+  ansible.builtin.include_tasks: "server_info.yml"
 
 - name: Unshelve server before applying changes
   # OpenStack does not allow to apply changes to shelved instances
@@ -28,7 +28,7 @@
       server: '{{ openstack_server_name }}'
 
   - name: Wait for host to become usable
-    wait_for:
+    ansible.builtin.wait_for:
       port: '{{ ansible_port|default(22) }}'
       host: '{{ ansible_host|default(openstack_server_name) }}'
       search_regex: OpenSSH
@@ -53,11 +53,11 @@
       ansible_python_interpreter: "{{ ansible_playbook_python }}"
 
   - name: Reload server facts
-    include_tasks: "server_info.yml"
+    ansible.builtin.include_tasks: "server_info.yml"
 
 - name: Warn if compute instance is shelved and hence pending changes will be skipped
   when: openstack_server_info != None and openstack_server_info.status in ['SHELVED', 'SHELVED_OFFLOADED']
-  fail:
+  ansible.builtin.fail:
     msg: |
         Compute instance {{ openstack_server_name }} is shelved, no modifications possible. Unshelve first to apply changes!
   ignore_errors: yes # noqa ignore-errors
@@ -85,16 +85,16 @@
 
   - name: Fail if network port does not exist or port name is ambiguous
     loop: "{{ openstack_server_ports_info.results|default([]) }}"
-    fail:
+    ansible.builtin.fail:
       msg: 'Port {{ item.item.name }} does not exist or port name is ambiguous'
     when: item['openstack_ports']|length != 1
 
   - name: Prepare network port info
-    set_fact:
+    ansible.builtin.set_fact:
       openstack_server_ports_info: "{{ openstack_server_ports_info.results|default([])|map(attribute='openstack_ports')|list|flatten(levels=1) }}"
 
   - name: Prepare server nics
-    set_fact:
+    ansible.builtin.set_fact:
       openstack_server_nics: |-
         {% for item in openstack_server_ports_info %}
         - port-id: {{ item.id }}
@@ -114,12 +114,12 @@
   register: openstack_server_volumes_info
 
 - name: Prepare storage volume info
-  set_fact:
+  ansible.builtin.set_fact:
     openstack_server_volumes_info: "{{ openstack_server_volumes_info.results|selectattr('volumes', 'defined')|map(attribute='volumes')|list|flatten(levels=1)|list }}"
 
 - name: Prepare server arguments
   # Why does Ansible fail to evaluate the Jinja2 Template below if it is passed to openstack.cloud.server directly?
-  set_fact:
+  ansible.builtin.set_fact:
     # Drop floating_ips from openstack_server_config before passing to openstack.cloud.server because floating ips will
     # be assigned with is with module openstack.cloud.floating_ip later.
     #
@@ -147,7 +147,7 @@
   openstack.cloud.server: "{{ openstack_server }}"
 
 - name: Warn if more than one floating ip should be assigned to server because older releases of Ansible's openstack.cloud.floating_ip module are flawed
-  fail:
+  ansible.builtin.fail:
     msg: |
       Beware that older releases of Ansible's openstack.cloud.floating_ip module do not allow more than one floating ip
       being assigned to a server: If one adds a second floating ip to a fixed ip address in same nat_destination as the
@@ -180,7 +180,7 @@
          item.invocation.module_args.floating_ip_address != None and
          item.invocation.module_args.floating_ip_address|length > 0 and
          item.floating_ip.floating_ip_address != item.invocation.module_args.floating_ip_address)
-  fail:
+  ansible.builtin.fail:
     msg: |
       Floating ips did not get assigned as requested! Check that floating ip's are valid within allocation pools.
       Beware that Ansible's openstack.cloud.floating_ip module will ignore argument 'floating_ip_address' if parameter
@@ -191,5 +191,5 @@
 
 - name: Wait for host to setup, reboot and become usable
   when: openstack_server_info == None and openstack_server_state == 'active'
-  pause:
+  ansible.builtin.pause:
     seconds: '{{ connection_delay_cloudinit }}'

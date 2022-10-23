@@ -5,14 +5,14 @@
 
 - name: Verify task definitions specified in httpd_config variable
   when: item is not mapping or (item.keys()|difference(['register', 'when']))|list|length != 1
-  fail:
+  ansible.builtin.fail:
     msg: >-
       Unsupported keyword or multiple module definitions found:
       {{ (item.keys()|difference(['register', 'when']))|join(', ') }}.
   loop: '{{ httpd_config|default([]) }}'
 
 - name: Install dependencies of collection jm1.pkg
-  import_role:
+  ansible.builtin.import_role:
     name: jm1.pkg.setup # If Ansible raises "ERROR! the role 'jm1.pkg.setup' was not found" then you might use the
                         # ansible-galaxy and the provided requirements.yml to install all missing role dependencies.
 
@@ -43,7 +43,7 @@
   - 'Restart httpd service to apply changes'
 
 - name: Manage httpd service
-  service:
+  ansible.builtin.service:
     enabled: '{{ httpd_service_enabled }}'
     name: '{{ httpd_service_name }}'
     state: '{{ httpd_service_state }}'

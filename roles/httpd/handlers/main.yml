@@ -5,6 +5,6 @@
 
 - name: 'Restart httpd service to apply changes'
   when: httpd_service_state != 'stopped'
-  service:
+  ansible.builtin.service:
     name: '{{ httpd_service_name }}'
     state: restarted

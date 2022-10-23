@@ -24,12 +24,12 @@
 # https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html-single/performing_an_advanced_rhel_installation/index
 
 - name: Install dependencies of collection jm1.pkg
-  import_role:
+  ansible.builtin.import_role:
     name: jm1.pkg.setup # If Ansible raises "ERROR! the role 'jm1.pkg.setup' was not found" then you might use the
                         # ansible-galaxy and the provided requirements.yml to install all missing role dependencies.
 
 - name: Create tftpd directory
-  file:
+  ansible.builtin.file:
     path: '{{ pxe_installer_tftpd_root }}'
     state: directory
     mode: u=rwx,g=rx,o=rx
@@ -63,7 +63,7 @@
 - name: Prepare server installer for CentOS 7, CentOS 8 and CentOS 9
   block:
   - name: Create tftpd subdirectories
-    file:
+    ansible.builtin.file:
       path: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/grub'
       state: directory
       mode: u=rwx,g=rx,o=rx
@@ -75,7 +75,7 @@
     - ['CentOS', '9', 'amd64']
 
   - name: Create httpd subdirectories for isos
-    file:
+    ansible.builtin.file:
       path: "{{ pxe_installer_httpd_root }}/archive/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/os/"
       state: directory
       mode: u=rwx,g=rx,o=rx
@@ -87,7 +87,7 @@
     - ['CentOS', '9', 'amd64']
 
   - name: Check if isos exist
-    stat:
+    ansible.builtin.stat:
       path: '{{ pxe_installer_httpd_root }}/archive/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/centos.iso'
     register: stats
     loop:
@@ -97,13 +97,13 @@
 
   - name: Download iso if the do not exist
     when: not item.stat.exists # else Ansible's get_url would download it anyway
-    get_url:
+    ansible.builtin.get_url:
       url: "{{ lookup('vars', 'pxe_installer_files_' + item.item.0|lower + '_' + item.item.1 + '_' + item.item.2) }}"
       dest: '{{ pxe_installer_httpd_root }}/archive/{{ item.item.0 }}_{{ item.item.1 }}/{{ item.item.2 }}/centos.iso'
     loop: '{{ stats.results }}'
 
   - name: Extract files from iso and set search and read permissions for all users
-    shell:
+    ansible.builtin.shell:
       chdir: '{{ pxe_installer_httpd_root }}/archive/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/os/'
       cmd: 7z x -aoa ../centos.iso && chmod -R a+r . && find . -type d -exec chmod a+rx '{}' \;
       creates: '{{ pxe_installer_httpd_root }}/archive/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/os/EFI'
@@ -113,7 +113,7 @@
     - ['CentOS', '9', 'amd64']
 
   - name: Extract shim rpm
-    shell:
+    ansible.builtin.shell:
       chdir: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/'
       cmd: |-
         7z x -aoa '{{ pxe_installer_httpd_root }}/archive/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/os/'\
@@ -132,7 +132,7 @@
     - ['CentOS', '9', 'amd64']
 
   - name: Copy grubx64.efi
-    copy:
+    ansible.builtin.copy:
       src: "{{ pxe_installer_httpd_root }}/archive/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/os/EFI/BOOT/grubx64.efi"
       dest: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/grubx64.efi.orig'
       remote_src: yes
@@ -145,7 +145,7 @@
     - ['CentOS', '9', 'amd64']
 
   - name: Patch CentOS 7 installer path in grubx64.efi
-    shell: # noqa command-instead-of-module
+    ansible.builtin.shell: # noqa command-instead-of-module
       chdir: '{{ pxe_installer_tftpd_root }}/CentOS_7/amd64'
       # /EFI/BOOT => /CentOS_7/amd64/grub
       cmd: |-
@@ -155,7 +155,7 @@
       creates: '{{ pxe_installer_tftpd_root }}/CentOS_7/amd64/grubx64.efi'
 
   - name: Patch CentOS 8 installer path in grubx64.efi
-    shell: # noqa command-instead-of-module
+    ansible.builtin.shell: # noqa command-instead-of-module
       chdir: '{{ pxe_installer_tftpd_root }}/CentOS_8/amd64'
       # /EFI/BOOT => /CentOS_8/amd64/grub
       cmd: |-
@@ -165,7 +165,7 @@
       creates: '{{ pxe_installer_tftpd_root }}/CentOS_8/amd64/grubx64.efi'
 
   - name: Patch CentOS 9 installer path in grubx64.efi
-    shell: # noqa command-instead-of-module
+    ansible.builtin.shell: # noqa command-instead-of-module
       chdir: '{{ pxe_installer_tftpd_root }}/CentOS_9/amd64'
       # /EFI/BOOT => /CentOS_9/amd64/grub
       cmd: |-
@@ -175,7 +175,7 @@
       creates: '{{ pxe_installer_tftpd_root }}/CentOS_9/amd64/grubx64.efi'
 
   - name: Extract syslinux-tftpboot rpm
-    shell:
+    ansible.builtin.shell:
       chdir: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/'
       cmd: |-
         7z x -aoa '{{ pxe_installer_httpd_root }}/archive/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/os/'\
@@ -200,7 +200,7 @@
     - ['CentOS', '9', 'amd64']
 
   - name: Copy kernel from extracted iso
-    copy:
+    ansible.builtin.copy:
       src: "{{ pxe_installer_httpd_root }}/archive/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/os/isolinux/vmlinuz"
       dest: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/vmlinuz'
       remote_src: yes
@@ -213,7 +213,7 @@
     - ['CentOS', '9', 'amd64']
 
   - name: Copy initrd from extracted iso
-    copy:
+    ansible.builtin.copy:
       src: "{{ pxe_installer_httpd_root }}/archive/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/os/isolinux/initrd.img"
       dest: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/initrd.img'
       remote_src: yes
@@ -226,7 +226,7 @@
     - ['CentOS', '9', 'amd64']
 
   - name: Change uefi config
-    copy:
+    ansible.builtin.copy:
       content: |
         source $prefix/grub.cfg-$net_default_mac
       dest: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/grub/grub.cfg'
@@ -241,7 +241,7 @@
   - name: Create host-specific pxelinux config for CentOS 7, CentOS 8 and CentOS 9
     when: hostvars[item]['distribution_id'] in [['CentOS', '7'], ['CentOS', '8'], ['CentOS', '9']]
           and hostvars[item]['os_architecture'] == 'x86_64'
-    copy:
+    ansible.builtin.copy:
       content: |
         default vesamenu.c32
         timeout 20
@@ -261,7 +261,7 @@
   - name: Create host-specific grub config for CentOS 7, CentOS 8 and CentOS 9
     when: hostvars[item]['distribution_id'] in [['CentOS', '7'], ['CentOS', '8'], ['CentOS', '9']]
           and hostvars[item]['os_architecture'] == 'x86_64'
-    copy:
+    ansible.builtin.copy:
       content: |
         set timeout=5
 
@@ -286,7 +286,7 @@
     loop: '{{ pxe_installer_clients }}'
 
   - name: Create httpd subdirectory for Kickstart files
-    file:
+    ansible.builtin.file:
       path: "{{ pxe_installer_httpd_root }}/kickstarts/"
       state: directory
       mode: u=rwx,g=rx,o=rx
@@ -297,7 +297,7 @@
     when: hostvars[item]['distribution_id'] in [['CentOS', '7'], ['CentOS', '8'], ['CentOS', '9']]
           and hostvars[item]['os_architecture'] == 'x86_64'
           and 'kickstart_config' in hostvars[item]
-    template:
+    ansible.builtin.template:
       dest: "{{ pxe_installer_httpd_root }}/kickstarts/ks.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}"
       group: root
       mode: u=rw,g=r,o=r
@@ -308,7 +308,7 @@
 - name: Prepare server installer for Debian 10 (Buster) and Debian 11 (Bullseye)
   block:
   - name: Create tftpd subdirectory
-    file:
+    ansible.builtin.file:
       path: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}'
       state: directory
       mode: u=rwx,g=rx,o=rx
@@ -319,7 +319,7 @@
     - ['Debian', '11', 'amd64']
 
   - name: Download netboot archive
-    get_url:
+    ansible.builtin.get_url:
       url: "{{ lookup('vars', 'pxe_installer_files_' + item.0|lower + '_' + item.1 + '_' + item.2) }}"
       dest: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/netboot.tar.gz'
     loop:
@@ -327,7 +327,7 @@
     - ['Debian', '11', 'amd64']
 
   - name: Extract netboot archive
-    unarchive:
+    ansible.builtin.unarchive:
       src: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/netboot.tar.gz'
       dest: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/'
       remote_src: yes
@@ -337,7 +337,7 @@
     - ['Debian', '11', 'amd64']
 
   - name: Patch Debian 10 (Buster) installer path in grubx64.efi (will break UEFI Secure Boot signature)
-    shell:
+    ansible.builtin.shell:
       chdir: '{{ pxe_installer_tftpd_root }}/Debian_10/amd64'
       cmd: |-
         mv 'debian-installer/amd64/grubx64.efi' 'debian-installer/amd64/grubx64.efi.orig' && \
@@ -349,7 +349,7 @@
       creates: '{{ pxe_installer_tftpd_root }}/Debian_10/amd64/debian-installer/amd64/grubx64.efi.orig'
 
   - name: Patch Debian 11 (Bullseye) installer path in grubx64.efi (will break UEFI Secure Boot signature)
-    shell:
+    ansible.builtin.shell:
       chdir: '{{ pxe_installer_tftpd_root }}/Debian_11/amd64'
       cmd: |-
         mv 'debian-installer/amd64/grubx64.efi' 'debian-installer/amd64/grubx64.efi.orig' && \
@@ -361,7 +361,7 @@
       creates: '{{ pxe_installer_tftpd_root }}/Debian_11/amd64/debian-installer/amd64/grubx64.efi.orig'
 
   - name: Change uefi config
-    copy:
+    ansible.builtin.copy:
       content: |
         source $prefix/grub.cfg-$net_default_mac
       dest: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/debian-installer/{{ item.2 }}/grub/grub.cfg'
@@ -374,7 +374,7 @@
 
   - name: Create host-specific pxelinux config for Debian 10 (Buster)
     when: hostvars[item]['distribution_id'] == ['Debian', '10'] and hostvars[item]['os_architecture'] == 'x86_64'
-    copy:
+    ansible.builtin.copy:
       content: |
         default install
         timeout 20
@@ -394,7 +394,7 @@
 
   - name: Create host-specific grub config for Debian 10 (Buster)
     when: hostvars[item]['distribution_id'] == ['Debian', '10'] and hostvars[item]['os_architecture'] == 'x86_64'
-    copy:
+    ansible.builtin.copy:
       content: |
         set timeout=5
 
@@ -420,7 +420,7 @@
 
   - name: Create host-specific pxelinux config for Debian 11 (Bullseye)
     when: hostvars[item]['distribution_id'] == ['Debian', '11'] and hostvars[item]['os_architecture'] == 'x86_64'
-    copy:
+    ansible.builtin.copy:
       content: |
         default install
         timeout 20
@@ -440,7 +440,7 @@
 
   - name: Create host-specific grub config for Debian 11 (Bullseye)
     when: hostvars[item]['distribution_id'] == ['Debian', '11'] and hostvars[item]['os_architecture'] == 'x86_64'
-    copy:
+    ansible.builtin.copy:
       content: |
         set timeout=5
 
@@ -467,7 +467,7 @@
   - name: Create host-specific preseed config
     when: hostvars[item]['distribution_id'] in [['Debian', '10'], ['Debian', '11']]
           and hostvars[item]['os_architecture'] == 'x86_64'
-    template:
+    ansible.builtin.template:
       dest: "{{ pxe_installer_tftpd_root }}/{{ hostvars[item]['distribution_id']|join('_') }}/amd64/preseed.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}"
       group: root
       mode: u=rw,g=r,o=r
@@ -476,17 +476,17 @@
     loop: '{{ pxe_installer_clients }}'
 
 - name: Prepare server installer for Red Hat Enterprise Linux (RHEL) 7
-  meta: noop
+  ansible.builtin.meta: noop
   # TODO: Implement server installer for Red Hat Enterprise Linux (RHEL) 7
 
 - name: Prepare server installer for Red Hat Enterprise Linux (RHEL) 8
-  meta: noop
+  ansible.builtin.meta: noop
   # TODO: Implement server installer for Red Hat Enterprise Linux (RHEL) 8
 
 - name: Prepare server installer for Ubuntu 18.04 LTS (Bionic Beaver) and Ubuntu 20.04 LTS (Focal Fossa)
   block:
   - name: Create tftpd subdirectory
-    file:
+    ansible.builtin.file:
       path: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}'
       state: directory
       mode: u=rwx,g=rx,o=rx
@@ -497,7 +497,7 @@
     - ['Ubuntu', '20.04', 'amd64']
 
   - name: Download efi
-    get_url:
+    ansible.builtin.get_url:
       url: "{{ lookup('vars', 'pxe_installer_files_' + item.0|lower + '_' + item.1|replace('.','') + '_' + item.2).efi }}"
       dest: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/grubnetx64.efi'
     loop:
@@ -505,7 +505,7 @@
     - ['Ubuntu', '20.04', 'amd64']
 
   - name: Download iso
-    get_url:
+    ansible.builtin.get_url:
       url: "{{ lookup('vars', 'pxe_installer_files_' + item.0|lower + '_' + item.1|replace('.','') + '_' + item.2).iso }}"
       dest: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/ubuntu.iso'
     loop:
@@ -513,7 +513,7 @@
     - ['Ubuntu', '20.04', 'amd64']
 
   - name: Download netboot archive
-    get_url:
+    ansible.builtin.get_url:
       url: "{{ lookup('vars', 'pxe_installer_files_' + item.0|lower + '_' + item.1|replace('.','') + '_' + item.2).pxe }}"
       dest: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/netboot.tar.gz'
     loop:
@@ -521,7 +521,7 @@
     - ['Ubuntu', '20.04', 'amd64']
 
   - name: Extract files from iso
-    command:
+    ansible.builtin.command:
       chdir: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/'
       cmd: 7z x -aoa ubuntu.iso boot/grub/font.pf2 casper/initrd casper/vmlinuz
       creates: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/casper/initrd'
@@ -530,7 +530,7 @@
     - ['Ubuntu', '20.04', 'amd64']
 
   - name: Preprocess files from iso
-    shell:
+    ansible.builtin.shell:
       chdir: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/'
       cmd: mv boot/grub . && chmod u=rwx,g=rx,o=rx grub casper
       creates: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/grub'
@@ -539,7 +539,7 @@
     - ['Ubuntu', '20.04', 'amd64']
 
   - name: Extract netboot archive
-    unarchive:
+    ansible.builtin.unarchive:
       src: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/netboot.tar.gz'
       dest: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/'
       remote_src: yes
@@ -549,7 +549,7 @@
     - ['Ubuntu', '20.04', 'amd64']
 
   - name: Preprocess netboot archive
-    file:
+    ansible.builtin.file:
       path: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/ubuntu-installer/{{ item.2 }}/linux'
       mode: u=rw,g=r,o=r
       owner: root
@@ -559,7 +559,7 @@
     - ['Ubuntu', '20.04', 'amd64']
 
   - name: Patch Ubuntu 18.04 LTS (Bionic Beaver) installer path in grubnetx64.efi (will break UEFI Secure Boot signature)
-    shell:
+    ansible.builtin.shell:
       chdir: '{{ pxe_installer_tftpd_root }}/Ubuntu_18.04/amd64'
       cmd: |-
         mv 'grubnetx64.efi' 'grubnetx64.efi.orig' && \
@@ -569,7 +569,7 @@
       creates: '{{ pxe_installer_tftpd_root }}/Ubuntu_18.04/amd64/grubnetx64.efi.orig'
 
   - name: Patch Ubuntu 20.04 LTS (Focal Fossa) installer path in grubnetx64.efi (will break UEFI Secure Boot signature)
-    shell:
+    ansible.builtin.shell:
       chdir: '{{ pxe_installer_tftpd_root }}/Ubuntu_20.04/amd64'
       cmd: |-
         mv 'grubnetx64.efi' 'grubnetx64.efi.orig' && \
@@ -579,7 +579,7 @@
       creates: '{{ pxe_installer_tftpd_root }}/Ubuntu_20.04/amd64/grubnetx64.efi.orig'
 
   - name: Change uefi config
-    copy:
+    ansible.builtin.copy:
       content: |
         source $prefix/grub.cfg-$net_default_mac
       dest: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/grub/grub.cfg'
@@ -592,7 +592,7 @@
 
   - name: Create host-specific pxelinux config for Ubuntu 18.04 LTS (Bionic Beaver)
     when: hostvars[item]['distribution_id'] == ['Ubuntu', '18.04'] and hostvars[item]['os_architecture'] == 'x86_64'
-    copy:
+    ansible.builtin.copy:
       content: |
         default install
         timeout 20
@@ -612,7 +612,7 @@
 
   - name: Create host-specific grub config for Ubuntu 18.04 LTS (Bionic Beaver)
     when: hostvars[item]['distribution_id'] == ['Ubuntu', '18.04'] and hostvars[item]['os_architecture'] == 'x86_64'
-    copy:
+    ansible.builtin.copy:
       content: |
         set timeout=5
 
@@ -638,7 +638,7 @@
 
   - name: Create host-specific pxelinux config for Ubuntu 20.04 LTS (Focal Fossa)
     when: hostvars[item]['distribution_id'] == ['Ubuntu', '20.04'] and hostvars[item]['os_architecture'] == 'x86_64'
-    copy:
+    ansible.builtin.copy:
       content: |
         default install
         timeout 20
@@ -658,7 +658,7 @@
 
   - name: Create host-specific grub config for Ubuntu 20.04 LTS (Focal Fossa)
     when: hostvars[item]['distribution_id'] == ['Ubuntu', '20.04'] and hostvars[item]['os_architecture'] == 'x86_64'
-    copy:
+    ansible.builtin.copy:
       content: |
         set timeout=5
 
@@ -685,7 +685,7 @@
   - name: Create host-specific preseed config
     when: hostvars[item]['distribution_id'] in [['Ubuntu', '18.04']]
           and hostvars[item]['os_architecture'] == 'x86_64'
-    template:
+    ansible.builtin.template:
       dest: "{{ pxe_installer_tftpd_root }}/{{ hostvars[item]['distribution_id']|join('_') }}/amd64/preseed.cfg-{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}"
       group: root
       mode: u=rw,g=r,o=r
@@ -696,7 +696,7 @@
   - name: Create httpd subdirectories
     when: hostvars[item]['distribution_id'] in [['Ubuntu', '20.04']]
           and hostvars[item]['os_architecture'] == 'x86_64'
-    file:
+    ansible.builtin.file:
       path: "{{ pxe_installer_httpd_root }}/cloud-init/{{ hostvars[item]['pxe_installer_client_mac']|lower|replace(':','-') }}"
       state: directory
       mode: u=rwx,g=rx,o=rx
@@ -708,7 +708,7 @@
     when: hostvars[item.0]['distribution_id'] in [['Ubuntu', '20.04']]
           and hostvars[item.0]['os_architecture'] == 'x86_64'
           and ('cloudinit_' + item.1|replace('-','')) in hostvars[item.0]
-    template:
+    ansible.builtin.template:
       dest: "{{ pxe_installer_httpd_root }}/cloud-init/{{ hostvars[item.0]['pxe_installer_client_mac']|lower|replace(':','-') }}/{{ item.1 }}"
       group: root
       mode: u=rw,g=r,o=r

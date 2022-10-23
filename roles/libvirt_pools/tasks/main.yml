@@ -53,4 +53,4 @@
   when: item.state|default('present') != 'absent'
 
 - name: Start/Stop storage pools now
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers

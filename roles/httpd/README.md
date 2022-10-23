@@ -9,10 +9,10 @@ supported. For example, to drop Apache's default site on Debian define variable 
 
 ```yml
 httpd_config:
-- file:
+- ansible.builtin.file:
     path: /var/www/html
     state: absent
-- file:
+- ansible.builtin.file:
     path: /etc/apache2/sites-enabled/000-default.conf
     state: absent
 ```

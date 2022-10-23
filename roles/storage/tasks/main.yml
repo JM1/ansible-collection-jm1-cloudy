@@ -5,7 +5,7 @@
 
 - name: Verify task definitions specified in storage_config variable
   when: item is not mapping or (item.keys()|difference(['register', 'when']))|list|length != 1
-  fail:
+  ansible.builtin.fail:
     msg: >-
       Unsupported keyword or multiple module definitions found:
       {{ (item.keys()|difference(['register', 'when']))|join(', ') }}.
@@ -18,7 +18,7 @@
   # This task loops over this list and runs file setup.yml for each list item. Each list item represents a single action
   # such as creating a partition which is run by a matching Ansible module in setup.yml.
   loop: '{{ storage_config|default([]) }}'
-  include_tasks: setup.yml
+  ansible.builtin.include_tasks: setup.yml
 
 - name: Force changes to be applied now
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers

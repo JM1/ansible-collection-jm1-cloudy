@@ -4,12 +4,12 @@
 # kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
 
 - name: Install dependencies of collection jm1.pkg
-  import_role:
+  ansible.builtin.import_role:
     name: jm1.pkg.setup # If Ansible raises "ERROR! the role 'jm1.pkg.setup' was not found" then you might use the
                         # ansible-galaxy and the provided requirements.yml to install all missing role dependencies.
 
 - name: Fetch Yum repository of TripleO
-  get_url:
+  ansible.builtin.get_url:
     url: '{{ tripleo_standalone_repo_uri }}'
     dest: /etc/yum.repos.d/delorean.repo
     mode: u=rw,g=r,o=r
@@ -30,12 +30,12 @@
 - name: Enable Yum repositories of TripleO standalone
   when: get_tripleo_repo.changed # noqa no-handler
   # tripleo-repos always triggers a change event because it will remove and add Yum repositories each time it runs
-  command:
+  ansible.builtin.command:
     chdir: '{{ tripleo_standalone_home_dir }}'
     cmd: tripleo-repos -b {{ tripleo_standalone_branch }} {{ tripleo_standalone_repos }}
 
 - name: Install TripleO client (may take a while)
-  dnf:
+  ansible.builtin.dnf:
     name: python3-tripleoclient
     # "We recommend disabling EPEL when using RDO packages due to updates in EPEL breaking backwards compatibility. Or,
     #  preferably pin package versions using the yum-versionlock plugin."
@@ -46,7 +46,7 @@
 - name: Prepare TripleO container parameters
   become: yes
   become_user: '{{ tripleo_standalone_user }}'
-  shell:
+  ansible.builtin.shell:
     chdir: '{{ tripleo_standalone_home_dir }}'
     cmd: |-
       openstack tripleo container image prepare default \
@@ -57,7 +57,7 @@
     SUDO_USER: '{{ tripleo_standalone_user }}'
 
 - name: Create TripleO standalone config
-  template:
+  ansible.builtin.template:
     dest: '{{ tripleo_standalone_home_dir }}/standalone_parameters.yaml'
     group: '{{ tripleo_standalone_user }}'
     mode: u=rw,g=r,o=
@@ -65,7 +65,7 @@
     src: standalone_parameters.yaml.j2
 
 - name: Deploy TripleO standalone
-  shell:
+  ansible.builtin.shell:
     chdir: '{{ tripleo_standalone_home_dir }}'
     cmd: |-
       openstack tripleo deploy \

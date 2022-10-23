@@ -14,7 +14,7 @@ debconf_early_config:
   vtype: 'boolean'
 
 dhcpd_config:
-- copy:
+- ansible.builtin.copy:
     content: |
       # 2021-2022 Jakob Meng, <jakobmeng@web.de>
       #
@@ -79,12 +79,12 @@ dhcpd_config:
     mode: u=rw,g=r,o=
     owner: root
 - # Configure IPv4 interfaces that DHCP IPv4 service will listen to
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/default/isc-dhcp-server
     regexp: "^INTERFACESv4=.*"
     line: 'INTERFACESv4="eth1"'
 - # Remove IPv6 interfaces to disable DHCP IPv6 service
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/default/isc-dhcp-server
     regexp: "^INTERFACESv6=.*"
     line: 'INTERFACESv6=""'
@@ -98,13 +98,13 @@ distribution_id:
 - '11'
 
 httpd_config:
-- file:
+- ansible.builtin.file:
     path: /var/www/html
     state: absent
-- file:
+- ansible.builtin.file:
     path: /etc/apache2/sites-enabled/000-default.conf
     state: absent
-- copy:
+- ansible.builtin.copy:
     content: |
       # 2021 Jakob Meng, <jakobmeng@web.de>
 
@@ -124,38 +124,38 @@ httpd_config:
         CustomLog ${APACHE_LOG_DIR}/access.log combined
       </VirtualHost>
     dest: /etc/apache2/sites-available/cloud-init.conf
-- file:
+- ansible.builtin.file:
     src: /etc/apache2/sites-available/cloud-init.conf
     dest: /etc/apache2/sites-enabled/cloud-init.conf
     state: link
-- apache2_module:
+- community.general.apache2_module:
     state: present
     name: proxy
-- apache2_module:
+- community.general.apache2_module:
     state: present
     name: proxy_http
-- apache2_module:
+- community.general.apache2_module:
     state: present
     name: proxy_http2
-- apache2_module:
+- community.general.apache2_module:
     state: present
     name: proxy_connect
-- apache2_module:
+- community.general.apache2_module:
     state: present
     name: cache
-- apache2_module:
+- community.general.apache2_module:
     state: present
     name: cache_disk
-- apache2_module:
+- community.general.apache2_module:
     state: present
     name: expires
-- apache2_module:
+- community.general.apache2_module:
     state: present
     name: headers
-- apache2_module:
+- community.general.apache2_module:
     state: present
     name: ssl
-- copy:
+- ansible.builtin.copy:
     content: |
       # 2021 Jakob Meng, <jakobmeng@web.de>
 
@@ -206,11 +206,11 @@ httpd_config:
         CustomLog ${APACHE_LOG_DIR}/access_forward_proxy.log combined
       </VirtualHost>
     dest: /etc/apache2/sites-available/forward-proxy.conf
-- file:
+- ansible.builtin.file:
     src: /etc/apache2/sites-available/forward-proxy.conf
     dest: /etc/apache2/sites-enabled/forward-proxy.conf
     state: link
-- copy:
+- ansible.builtin.copy:
     content: |
       # 2021 Jakob Meng, <jakobmeng@web.de>
 
@@ -236,14 +236,14 @@ httpd_config:
         CustomLog ${APACHE_LOG_DIR}/access_reverse_proxy.log combined
       </VirtualHost>
     dest: /etc/apache2/sites-available/reverse-proxy.conf
-- file:
+- ansible.builtin.file:
     src: /etc/apache2/sites-available/reverse-proxy.conf
     dest: /etc/apache2/sites-enabled/reverse-proxy.conf
     state: link
 
 iptables_config:
 - # do SNAT for all packets coming from internal router network
-  iptables:
+  ansible.builtin.iptables:
     chain: POSTROUTING
     destination: 0.0.0.0/0
     jump: SNAT
@@ -339,7 +339,7 @@ pxe_installer_files_ubuntu_2004_amd64:
   pxe: 'http://archive.ubuntu.com/ubuntu/dists/focal/main/installer-amd64/current/legacy-images/netboot/netboot.tar.gz'
 
 sysctl_config:
-- copy:
+- ansible.builtin.copy:
     content: |
       # 2021 Jakob Meng, <jakobmeng@web.de>
       net.ipv4.ip_forward = 0
@@ -347,19 +347,19 @@ sysctl_config:
       net.ipv4.conf.eth1.forwarding = 1
     dest: /etc/sysctl.d/10-ip-forward.conf
 # Apply changes using Ansible's sysctl module
-- sysctl:
+- ansible.posix.sysctl:
     name: net.ipv4.ip_forward
     value: '0'
     state: present
     sysctl_file: /etc/sysctl.d/10-ip-forward.conf
     sysctl_set: yes
-- sysctl:
+- ansible.posix.sysctl:
     name: net.ipv4.conf.eth0.forwarding
     value: '1'
     state: present
     sysctl_file: /etc/sysctl.d/10-ip-forward.conf
     sysctl_set: yes
-- sysctl:
+- ansible.posix.sysctl:
     name: net.ipv4.conf.eth1.forwarding
     value: '1'
     state: present

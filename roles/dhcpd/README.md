@@ -10,7 +10,7 @@ such:
 ```yml
 dhcpd_config:
 - # Configure /etc/dhcp/dhcpd.conf
-  copy:
+  ansible.builtin.copy:
     dest: /etc/dhcp/dhcpd.conf
     group: root
     mode: u=rw,g=r,o=

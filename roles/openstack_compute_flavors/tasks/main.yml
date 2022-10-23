@@ -13,13 +13,13 @@
   }}"
 
 - name: Match compute flavors and projects
-  set_fact:
+  ansible.builtin.set_fact:
     items: '{{ [item]|product(item.projects|default([]))|list }}'
   loop: '{{ openstack_compute_flavors|default([]) }}'
   register: openstack_compute_flavors_per_project
 
 - name: Postprocess compute flavors and projects
-  set_fact:
+  ansible.builtin.set_fact:
     openstack_compute_flavors_per_project:
      "{{ openstack_compute_flavors_per_project.results|map(attribute='ansible_facts.items')|default([])|flatten(levels=1)|list }}"
 
@@ -35,12 +35,12 @@
 
 - name: Match compute flavors and project info
   loop: '{{ openstack_compute_flavors_per_project|zip(openstack_project_info.results)|list }}'
-  set_fact:
+  ansible.builtin.set_fact:
     items: '{{ [item.0]|product(item.1.openstack_projects|default([]))|list }}'
   register: openstack_compute_flavors_per_project_info
 
 - name: Postprocess compute flavors and project info
-  set_fact:
+  ansible.builtin.set_fact:
     openstack_compute_flavors_per_project_info:
      "{{ openstack_compute_flavors_per_project_info.results|map(attribute='ansible_facts.items')|default([])|flatten(levels=1)|list }}"
 

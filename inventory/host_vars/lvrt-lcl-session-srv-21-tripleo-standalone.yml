@@ -9,7 +9,7 @@ distribution_id:
 
 iptables_config:
 - # do SNAT for all packets coming from internal network
-  iptables:
+  ansible.builtin.iptables:
     chain: POSTROUTING
     destination: 0.0.0.0/0
     jump: SNAT
@@ -18,7 +18,7 @@ iptables_config:
     table: nat
     to_source: 192.168.156.19
 - # do SNAT for all packets coming from internal network
-  iptables:
+  ansible.builtin.iptables:
     chain: POSTROUTING
     destination: 0.0.0.0/0
     jump: SNAT
@@ -87,7 +87,7 @@ libvirt_volumes:
 
 selinux_config:
 - # Put SELinux in permissive mode, logging actions that would be blocked
-  selinux:
+  ansible.posix.selinux:
     policy: targeted
     state: permissive
 
@@ -106,7 +106,7 @@ ssh_authorized_keys:
 
 # NOTE: Keep in sync with variable sudoers_config from group_vars/all.yml
 sudoers_config:
-- lineinfile:
+- ansible.builtin.lineinfile:
     create: no # assert that file exist else system is probably not setup using cloud-init
     group: root
     line: '{{ ansible_user }} ALL=(ALL) NOPASSWD:ALL'
@@ -114,7 +114,7 @@ sudoers_config:
     owner: root
     path: /etc/sudoers.d/90-cloud-init-users
     state: present
-- lineinfile:
+- ansible.builtin.lineinfile:
     create: no # assert that file exist else system is probably not setup using cloud-init
     group: root
     line: '{{ tripleo_standalone_user }} ALL=(ALL) NOPASSWD:ALL'
@@ -124,7 +124,7 @@ sudoers_config:
     state: present
 
 sysctl_config:
-- copy:
+- ansible.builtin.copy:
     content: |
       # 2021 Jakob Meng, <jakobmeng@web.de>
       net.ipv4.ip_forward = 0
@@ -132,19 +132,19 @@ sysctl_config:
       net.ipv4.conf.eth1.forwarding = 1
     dest: /etc/sysctl.d/10-ip-forward.conf
 # Apply changes using Ansible's sysctl module
-- sysctl:
+- ansible.posix.sysctl:
     name: net.ipv4.ip_forward
     value: '0'
     state: present
     sysctl_file: /etc/sysctl.d/10-ip-forward.conf
     sysctl_set: yes
-- sysctl:
+- ansible.posix.sysctl:
     name: net.ipv4.conf.eth0.forwarding
     value: '0'
     state: present
     sysctl_file: /etc/sysctl.d/10-ip-forward.conf
     sysctl_set: yes
-- sysctl:
+- ansible.posix.sysctl:
     name: net.ipv4.conf.eth1.forwarding
     value: '1'
     state: present

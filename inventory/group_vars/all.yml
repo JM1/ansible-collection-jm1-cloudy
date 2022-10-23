@@ -289,31 +289,31 @@ sshd_config: "{{
   lookup('vars', 'sshd_config_' + distribution_id|first|lower|regex_replace('[^A-Za-z0-9 _-]', '_'))|default([]) }}"
 
 sshd_config_centos:
-- lineinfile:
+- ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
     regex: '^#*PasswordAuthentication .*'
     line: 'PasswordAuthentication no'
-- lineinfile:
+- ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
     regex: '^#*PermitRootLogin .*'
     line: 'PermitRootLogin no'
 
 sshd_config_debian:
-- lineinfile:
+- ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
     regex: '^#*PasswordAuthentication .*'
     line: 'PasswordAuthentication no'
-- debconf:
+- ansible.builtin.debconf:
     # Supported since Debian 10 (Buster) and Ubuntu 18.04 LTS (Bionic Beaver)
     name: openssh-server
     question: openssh-server/password-authentication
     value: false
     vtype: boolean
-- lineinfile:
+- ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
     regex: '^#*PermitRootLogin .*'
     line: 'PermitRootLogin no'
-- debconf:
+- ansible.builtin.debconf:
     name: openssh-server
     question: openssh-server/permit-root-login
     value: false
@@ -325,7 +325,7 @@ sshd_config_ubuntu: '{{ sshd_config_debian }}'
 state: present # or absent
 
 sudoers_config:
-- lineinfile:
+- ansible.builtin.lineinfile:
     create: no # assert that file exist else system is probably not setup using cloud-init
     group: root
     line: '{{ ansible_user }} ALL=(ALL) NOPASSWD:ALL'

@@ -6,10 +6,10 @@
 - name: 'Reconfigure debian packages to apply debconf database changes'
   loop: '{{ debconf_list_result.results }}'
   when: item.changed and debconf_reconfigure
-  command:
+  ansible.builtin.command:
     cmd: dpkg-reconfigure -f noninteractive '{{ item.item.name }}'
 
 - name: 'Reconfigure debian package to apply debconf database changes'
   when: debconf_reconfigure
-  command:
+  ansible.builtin.command:
     cmd: dpkg-reconfigure -f noninteractive '{{ debconf_config.name }}'

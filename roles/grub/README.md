@@ -10,7 +10,7 @@ ansible-inventory] as such:
 grub_config:
 - # Enable IOMMU for PCI devices
   # Ref.: https://www.kernel.org/doc/html/latest/admin-guide/kernel-parameters.html
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/default/grub
     regexp: '^GRUB_CMDLINE_LINUX_DEFAULT='
     line: 'GRUB_CMDLINE_LINUX_DEFAULT="iommu=pt intel_iommu=on"'
@@ -94,7 +94,7 @@ To enable IOMMU for PCI devices:
     grub_config:
     - # Enable IOMMU for PCI devices
       # Ref.: https://www.kernel.org/doc/html/latest/admin-guide/kernel-parameters.html
-      lineinfile:
+      ansible.builtin.lineinfile:
         path: /etc/default/grub
         regexp: '^GRUB_CMDLINE_LINUX_DEFAULT='
         line: 'GRUB_CMDLINE_LINUX_DEFAULT="iommu=pt intel_iommu=on"'

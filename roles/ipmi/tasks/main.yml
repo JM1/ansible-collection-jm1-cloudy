@@ -5,7 +5,7 @@
 
 - name: Manage order of boot devices
   when: force_ipmi_boot == 'yes'
-  ipmi_boot:
+  community.general.ipmi_boot:
     bootdev: '{{ ipmi_boot_device }}'
     name: '{{ ipmi_host }}'
     password: '{{ ipmi_password }}'
@@ -16,7 +16,7 @@
 
 - name: Manage power state
   when: force_ipmi_power == 'yes'
-  ipmi_power:
+  community.general.ipmi_power:
     name: '{{ ipmi_host }}'
     password: '{{ ipmi_password }}'
     port: '{{ ipmi_port }}'
@@ -27,7 +27,7 @@
   when: force_ipmi_boot_from_network == 'yes'
   block:
   - name: Configure system to boot from network
-    ipmi_boot:
+    community.general.ipmi_boot:
       bootdev: network
       name: '{{ ipmi_host }}'
       password: '{{ ipmi_password }}'
@@ -37,7 +37,7 @@
       user: '{{ ipmi_username }}'
 
   - name: Boot if system is off else reset it
-    ipmi_power:
+    community.general.ipmi_power:
       name: '{{ ipmi_host }}'
       password: '{{ ipmi_password }}'
       port: '{{ ipmi_port }}'
@@ -45,7 +45,7 @@
       user: '{{ ipmi_username }}'
 
   - name: Wait for system to come up
-    wait_for:
+    ansible.builtin.wait_for:
       delay: 120
       host: '{{ ansible_host }}'
       port: 22

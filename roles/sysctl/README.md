@@ -10,14 +10,14 @@ packets aka routing, define variable `sysctl_config` in [`group_vars` or `host_v
 ```yml
 sysctl_config:
 - # Enable forwarding of IPv4 packets at runtime
-  sysctl:
+  ansible.posix.sysctl:
     name: net.ipv4.ip_forward
     value: '1'
     state: present
     sysctl_file: /etc/sysctl.d/10-ip-forward.conf
     sysctl_set: yes
 - # Enable forwarding of IPv4 packets after reboots
-  copy:
+  ansible.builtin.copy:
     content: |
       # 2021 Jakob Meng, <jakobmeng@web.de>
       net.ipv4.ip_forward = 1
@@ -96,14 +96,14 @@ None.
     # https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
     sysctl_config:
     - # Enable forwarding of IPv4 packets at runtime
-      sysctl:
+      ansible.posix.sysctl:
         name: net.ipv4.ip_forward
         value: '1'
         state: present
         sysctl_file: /etc/sysctl.d/10-ip-forward.conf
         sysctl_set: yes
     - # Enable forwarding of IPv4 packets after reboots
-      copy:
+      ansible.builtin.copy:
         content: |
           # 2021 Jakob Meng, <jakobmeng@web.de>
           net.ipv4.ip_forward = 1

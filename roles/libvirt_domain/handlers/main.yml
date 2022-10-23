@@ -12,5 +12,5 @@
   notify: 'Wait for libvirt domain to setup, reboot and become usable'
 
 - name: Wait for libvirt domain to setup, reboot and become usable
-  pause:
+  ansible.builtin.pause:
     seconds: '{{ connection_delay_cloudinit }}'

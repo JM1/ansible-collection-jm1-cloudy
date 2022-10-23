@@ -10,7 +10,7 @@ to stop and disable [Samba][samba]'s [smbd][smbd] service, define variable `serv
 ```yml
 services_config:
 - # Stop and disable Samba's smbd service
-  service:
+  ansible.builtin.service:
     enabled: no
     name: smbd
     state: stopped
@@ -89,7 +89,7 @@ None.
     # https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
     services_config:
     - # Stop and disable Samba's smbd service
-      service:
+      ansible.builtin.service:
         enabled: no
         name: smbd
         state: stopped

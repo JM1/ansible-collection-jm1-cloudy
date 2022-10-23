@@ -15,4 +15,4 @@
 
 - name: Force changes to be applied now
   when: "item in [{'meta': 'flush_handlers'}, {'ansible.builtin.meta': 'flush_handlers'} ]"
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers

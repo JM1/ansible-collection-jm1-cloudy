@@ -10,7 +10,7 @@ define variable `selinux_config` in [`group_vars` or `host_vars`][ansible-invent
 ```yml
 selinux_config:
 - # Put SELinux in permissive mode, logging actions that would otherwise be blocked
-  selinux:
+  ansible.posix.selinux:
     policy: targeted
     state: permissive
 ```
@@ -94,7 +94,7 @@ None.
     # https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
     selinux_config:
     - # Put SELinux in permissive mode, logging actions that would otherwise be blocked
-      selinux:
+      ansible.posix.selinux:
         policy: targeted
         state: permissive
   roles:

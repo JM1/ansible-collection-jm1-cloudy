@@ -9,7 +9,7 @@ define variable `tftpd_config` in [`group_vars` or `host_vars`][ansible-inventor
 ```yml
 tftpd_config:
 - # tftpd listens to localhost only
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/default/tftpd-hpa
     regex: '^TFTP_ADDRESS=.*'
     line: 'TFTP_ADDRESS=127.0.0.1'

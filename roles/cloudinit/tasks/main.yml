@@ -6,6 +6,7 @@
 - name: Verify task definitions specified in cloudinit_config variable
   when: item is not mapping or (item.keys()|difference(['register', 'when']))|list|length != 1
   fail:
+  ansible.builtin.fail:
     msg: >-
       Unsupported keyword or multiple module definitions found:
       {{ (item.keys()|difference(['register', 'when']))|join(', ') }}.
@@ -22,4 +23,4 @@
   - 'Apply cloud-init configuration'
 
 - name: Apply cloud-init configuration now
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers

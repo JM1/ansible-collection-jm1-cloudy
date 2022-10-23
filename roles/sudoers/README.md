@@ -10,7 +10,7 @@ as such:
 ```yml
 sudoers_config:
 - # Ensure that the Ansible user can gain full root privileges with sudo
-  lineinfile:
+  ansible.builtin.lineinfile:
     create: no # assert that file exist else system is probably not setup using cloud-init
     group: root
     line: '{{ ansible_user }} ALL=(ALL) NOPASSWD:ALL'
@@ -92,7 +92,7 @@ None.
     # https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
     sudoers_config:
     - # Ensure that the Ansible user can gain full root privileges with sudo
-      lineinfile:
+      ansible.builtin.lineinfile:
         create: no # assert that file exist else system is probably not setup using cloud-init
         group: root
         line: '{{ ansible_user }} ALL=(ALL) NOPASSWD:ALL'

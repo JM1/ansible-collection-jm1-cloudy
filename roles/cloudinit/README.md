@@ -9,7 +9,7 @@ module similar to tasks in roles or playbooks except that only few [keywords][pl
 ```yml
 cloudinit_config:
 - # disable network configuration with cloud-init
-  copy:
+  ansible.builtin.copy:
     content: |
       # 2021 Jakob Meng, <jakobmeng@web.de>
       network: {config: disabled}
@@ -94,7 +94,7 @@ None.
     # https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
     cloudinit_config:
     - # disable network configuration with cloud-init
-      copy:
+      ansible.builtin.copy:
         content: |
           # 2021 Jakob Meng, <jakobmeng@web.de>
           network: {config: disabled}

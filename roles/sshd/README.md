@@ -9,11 +9,11 @@ such:
 
 ```yml
 sshd_config:
-- lineinfile:
+- ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
     regex: '^#*PasswordAuthentication .*'
     line: 'PasswordAuthentication no'
-- lineinfile:
+- ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
     regex: '^#*PermitRootLogin .*'
     line: 'PermitRootLogin no'

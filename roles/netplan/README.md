@@ -10,7 +10,7 @@ ansible-inventory] as such:
 ```yml
 netplan_config:
 - # Assign a static ip address, dns server and default gateway to network interface eth0
-  copy:
+  ansible.builtin.copy:
     content: |
       # 2021 Jakob Meng, <jakobmeng@web.de>
       network:
@@ -118,7 +118,7 @@ None.
     # https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
     netplan_config:
     - # Assign a static ip address, dns server and default gateway to network interface eth0
-      copy:
+      ansible.builtin.copy:
         content: |
           # 2021 Jakob Meng, <jakobmeng@web.de>
           network:

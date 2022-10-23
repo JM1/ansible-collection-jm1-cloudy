@@ -5,6 +5,6 @@
 
 - name: 'Restart tftpd service to apply changes'
   when: tftpd_service_state != 'stopped'
-  service:
+  ansible.builtin.service:
     name: '{{ tftpd_service_name }}'
     state: restarted

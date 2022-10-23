@@ -16,7 +16,7 @@
   register: openstack_server_info
 
 - name: Enforce unique server names
-  assert:
+  ansible.builtin.assert:
     that:
       openstack_server_info.openstack_servers|length < 2
     fail_msg: >-
@@ -24,6 +24,6 @@
         {{ openstack_server_info.openstack_servers|map(attribute='name')|join(' ') }}
 
 - name: Postprocess server info
-  set_fact:
+  ansible.builtin.set_fact:
     openstack_server_info: "{{ openstack_server_info.openstack_servers[0]
                                if openstack_server_info.openstack_servers|length > 1 else None }}"

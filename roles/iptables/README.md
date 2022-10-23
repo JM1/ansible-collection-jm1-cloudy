@@ -9,7 +9,7 @@ except that only few [keywords][playbooks-keywords] such as `register` and `when
 ```yml
 iptables_config:
 - # do SNAT (source NAT) for all packets coming from internal network
-  iptables:
+  ansible.builtin.iptables:
     chain: POSTROUTING
     destination: 0.0.0.0/0
     jump: SNAT
@@ -109,7 +109,7 @@ To enable [SNAT (source NAT)][snat-wiki] for all packets coming from an internal
     # https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
     iptables_config:
     - # do SNAT (source NAT) for all packets coming from internal network
-      iptables:
+      ansible.builtin.iptables:
         chain: POSTROUTING
         destination: 0.0.0.0/0
         jump: SNAT

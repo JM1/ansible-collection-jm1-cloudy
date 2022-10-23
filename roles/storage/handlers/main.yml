@@ -5,4 +5,4 @@
 
 - name: 'Reboot after partitions, encrypted (LUKS) devices, LVM devices, filesystems or mountpoints have been changed'
   when: storage_reboot
-  reboot:
+  ansible.builtin.reboot:
