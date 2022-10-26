@@ -7,7 +7,7 @@
   ansible.builtin.import_role:
     name: jm1.pkg.setup # If Ansible raises "ERROR! the role 'jm1.pkg.setup' was not found" then you might use the
                         # ansible-galaxy and the provided requirements.yml to install all missing role dependencies.
-  when: meta_packages|length > 0 # is not empty
+  when: meta_packages | length > 0 # is not empty
 
 - name: Install, upgrade or remove meta packages
   when: meta_packages is iterable and meta_packages is not mapping # list

@@ -17,7 +17,7 @@ distribution_id:
   # ansible_facts.distribution_major_version is defined as 'testing' which will be converted to 'Testing'.
   # Use major version for all other distributions, e.g. CentOS 7, Debian 10 (Buster) or Red Hat Enterprise Linux 8.
   "{{ ansible_facts.distribution_version if ansible_facts.distribution == 'Ubuntu' else
-      ansible_facts.distribution_major_version|title if
+      ansible_facts.distribution_major_version | title if
         ansible_facts.distribution == 'Debian' and
         ansible_facts.distribution_major_version is not number and
         ansible_facts.distribution_major_version != 'NA' else
@@ -25,7 +25,7 @@ distribution_id:
 
 # pxe_installer_clients is set in host_vars
 
-pxe_installer_cloudinit_url: 'http://{{ pxe_installer_host_address|mandatory }}'
+pxe_installer_cloudinit_url: 'http://{{ pxe_installer_host_address | mandatory }}'
 
 pxe_installer_distribution_filename_map:
   CentOS_7:
@@ -108,7 +108,7 @@ pxe_installer_httpd_root: |-
       'Debian': pxe_installer_httpd_root_debian,
       'Red_Hat_Enterprise_Linux': pxe_installer_httpd_root_red_hat_enterprise_linux,
       'Ubuntu': pxe_installer_httpd_root_ubuntu
-    }[distribution_id|first|regex_replace('[^A-Za-z0-9 _-]', '_')]
+    }[distribution_id | first | regex_replace('[^A-Za-z0-9 _-]', '_')]
   }}
 
 pxe_installer_httpd_root_centos: '{{ pxe_installer_httpd_root_red_hat_enterprise_linux }}'
@@ -126,11 +126,11 @@ pxe_installer_kernel_parameters_debian_11_amd64: '{{ pxe_installer_kernel_parame
 pxe_installer_kernel_parameters_ubuntu_1804_amd64: '{{ pxe_installer_kernel_parameters }}'
 pxe_installer_kernel_parameters_ubuntu_2004_amd64: '{{ pxe_installer_kernel_parameters }}'
 
-pxe_installer_kickstart_url: 'http://{{ pxe_installer_host_address|mandatory }}'
+pxe_installer_kickstart_url: 'http://{{ pxe_installer_host_address | mandatory }}'
 
-pxe_installer_preseed_url: 'tftp://{{ pxe_installer_host_address|mandatory }}'
+pxe_installer_preseed_url: 'tftp://{{ pxe_installer_host_address | mandatory }}'
 
-pxe_installer_rpm_archive_url: 'http://{{ pxe_installer_host_address|mandatory }}'
+pxe_installer_rpm_archive_url: 'http://{{ pxe_installer_host_address | mandatory }}'
 
 # NOTE: Base path of tftpd which points to scheme://authority/.
 pxe_installer_tftpd_root: |-
@@ -140,7 +140,7 @@ pxe_installer_tftpd_root: |-
       'Debian': pxe_installer_tftpd_root_debian,
       'Red_Hat_Enterprise_Linux': pxe_installer_tftpd_root_red_hat_enterprise_linux,
       'Ubuntu': pxe_installer_tftpd_root_ubuntu
-    }[distribution_id|first|regex_replace('[^A-Za-z0-9 _-]', '_')]
+    }[distribution_id | first | regex_replace('[^A-Za-z0-9 _-]', '_')]
   }}
 
 pxe_installer_tftpd_root_centos: '{{ pxe_installer_tftpd_root_red_hat_enterprise_linux }}'

@@ -12,7 +12,7 @@ cloudinit_userdata: |
   # Copied from cloudinit_userdata_default because its runcmd list is overridden here.
   # Lists or dictionaries in YAML files are not merged, hence in case of multiple entries
   # with the same key all but the last one are ignored.
-  {% if distribution_id|first == 'Ubuntu' %}
+  {% if distribution_id | first == 'Ubuntu' %}
   - ln -s /dev/null /etc/systemd/network/99-default.link
   - update-initramfs -u -k all
   {% endif %}
@@ -27,11 +27,11 @@ cloudinit_userdata: |
 # openstack_compute_flavors is set in cloud-specific group_vars
 # NOTE: Regular users are not allowed to define compute flavors!
 
-openstack_keypairs: "{{ ssh_authorized_keys|selectattr('user', 'equalto', ansible_user)|selectattr('state', 'equalto', 'present')|list }}"
+openstack_keypairs: "{{ ssh_authorized_keys | selectattr('user', 'equalto', ansible_user) | selectattr('state', 'equalto', 'present') | list }}"
 
 openstack_server_config:
   auto_ip: no
-  boot_volume: '{{ openstack_volumes|first if openstack_volumes is defined and openstack_volumes|length > 0 else None }}'
+  boot_volume: '{{ openstack_volumes | first if openstack_volumes is defined and openstack_volumes | length > 0 else None }}'
   config_drive: no
   flavor: 'c2.m4'
   # key_name is not set because it is set using cloudinit_userdata
@@ -39,7 +39,7 @@ openstack_server_config:
   - default
   terminate_volume: no
   userdata: '{{ cloudinit_userdata }}'
-  volumes: '{{ openstack_volumes[1:] if openstack_volumes is defined and openstack_volumes|length > 1 else [] }}'
+  volumes: '{{ openstack_volumes[1:] if openstack_volumes is defined and openstack_volumes | length > 1 else [] }}'
 
 openstack_server_images:
   CentOS_7: 'CentOS-7-x86_64-GenericCloud-2003-bios'
@@ -61,6 +61,6 @@ openstack_server_state: active
 openstack_volumes:
 - bootable: yes
   display_name: '{{ openstack_server_name }}'
-  image: "{{ openstack_server_images[distribution_id|join('_')|regex_replace('[^A-Za-z0-9 _-]', '_')] }}"
+  image: "{{ openstack_server_images[distribution_id | join('_') | regex_replace('[^A-Za-z0-9 _-]', '_')] }}"
   size: 10
   state: present

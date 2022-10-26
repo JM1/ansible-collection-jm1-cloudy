@@ -17,8 +17,8 @@
   block:
   - name: Wait for host to become usable
     ansible.builtin.wait_for:
-      port: '{{ ansible_port|default(22) }}'
-      host: '{{ ansible_host|default(openstack_server_name) }}'
+      port: '{{ ansible_port | default(22) }}'
+      host: '{{ ansible_host | default(openstack_server_name) }}'
       search_regex: OpenSSH
       connect_timeout: '{{ connection_timeout }}'
       delay: '{{ connection_delay if openstack_server_info == None else 0 }}'
@@ -53,7 +53,7 @@
     action: unpause
     auth: '{{ openstack_auth }}'
     cloud: '{{ openstack_cloud }}'
-    interface: '{{ openstack_interface|default(omit) }}'
+    interface: '{{ openstack_interface | default(omit) }}'
     server: '{{ openstack_server_name }}'
   when: openstack_server_state == 'active' and openstack_server_info.status == 'PAUSED'
 
@@ -62,7 +62,7 @@
     action: resume
     auth: '{{ openstack_auth }}'
     cloud: '{{ openstack_cloud }}'
-    interface: '{{ openstack_interface|default(omit) }}'
+    interface: '{{ openstack_interface | default(omit) }}'
     server: '{{ openstack_server_name }}'
   when: openstack_server_state == 'active' and openstack_server_info.status == 'SUSPENDED'
 
@@ -71,7 +71,7 @@
     action: unshelve
     auth: '{{ openstack_auth }}'
     cloud: '{{ openstack_cloud }}'
-    interface: '{{ openstack_interface|default(omit) }}'
+    interface: '{{ openstack_interface | default(omit) }}'
     server: '{{ openstack_server_name }}'
   when: openstack_server_state == 'active' and openstack_server_info.status in ['SHELVED', 'SHELVED_OFFLOADED']
 
@@ -80,7 +80,7 @@
     action: start
     auth: '{{ openstack_auth }}'
     cloud: '{{ openstack_cloud }}'
-    interface: '{{ openstack_interface|default(omit) }}'
+    interface: '{{ openstack_interface | default(omit) }}'
     server: '{{ openstack_server_name }}'
   when: openstack_server_state == 'active' and openstack_server_info.status == 'SHUTOFF'
 
@@ -89,7 +89,7 @@
     action: pause
     auth: '{{ openstack_auth }}'
     cloud: '{{ openstack_cloud }}'
-    interface: '{{ openstack_interface|default(omit) }}'
+    interface: '{{ openstack_interface | default(omit) }}'
     server: '{{ openstack_server_name }}'
   when: openstack_server_state == 'paused' and openstack_server_info.status != 'PAUSED'
 
@@ -98,7 +98,7 @@
     action: suspend
     auth: '{{ openstack_auth }}'
     cloud: '{{ openstack_cloud }}'
-    interface: '{{ openstack_interface|default(omit) }}'
+    interface: '{{ openstack_interface | default(omit) }}'
     server: '{{ openstack_server_name }}'
   when: openstack_server_state == 'suspended' and openstack_server_info.status != 'PAUSED'
 
@@ -107,7 +107,7 @@
     action: shelve
     auth: '{{ openstack_auth }}'
     cloud: '{{ openstack_cloud }}'
-    interface: '{{ openstack_interface|default(omit) }}'
+    interface: '{{ openstack_interface | default(omit) }}'
     server: '{{ openstack_server_name }}'
   when: openstack_server_state == 'shelved' and openstack_server_info.status not in ['SHELVED', 'SHELVED_OFFLOADED']
 
@@ -116,6 +116,6 @@
     action: stop
     auth: '{{ openstack_auth }}'
     cloud: '{{ openstack_cloud }}'
-    interface: '{{ openstack_interface|default(omit) }}'
+    interface: '{{ openstack_interface | default(omit) }}'
     server: '{{ openstack_server_name }}'
   when: openstack_server_state == 'shutoff' and openstack_server_info.status != 'SHUTOFF'

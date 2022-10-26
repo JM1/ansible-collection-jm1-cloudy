@@ -522,7 +522,7 @@ preseed_config: |
   d-i preseed/late_command string \
     mkdir -p /target/home/{{ ansible_user }}/.ssh && \
     chmod 700 /target/home/{{ ansible_user }}/.ssh && \
-    {% for key in ssh_authorized_keys|selectattr('user', 'equalto', ansible_user)|selectattr('state', 'equalto', 'present')|map(attribute='key')|list  %} \
+    {% for key in ssh_authorized_keys | selectattr('user', 'equalto', ansible_user) | selectattr('state', 'equalto', 'present') | map(attribute='key') | list  %} \
     echo '{{ key }}' >> /target/home/{{ ansible_user }}/.ssh/authorized_keys && \
     {% endfor %} \
     chmod -R 600 /target/home/{{ ansible_user }}/.ssh/authorized_keys && \

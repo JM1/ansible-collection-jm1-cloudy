@@ -18,12 +18,12 @@
 - name: Enforce unique server names
   ansible.builtin.assert:
     that:
-      openstack_server_info.openstack_servers|length < 2
+      openstack_server_info.openstack_servers | length < 2
     fail_msg: >-
         Found several servers sharing the same name:
-        {{ openstack_server_info.openstack_servers|map(attribute='name')|join(' ') }}
+        {{ openstack_server_info.openstack_servers | map(attribute='name') | join(' ') }}
 
 - name: Postprocess server info
   ansible.builtin.set_fact:
     openstack_server_info: "{{ openstack_server_info.openstack_servers[0]
-                               if openstack_server_info.openstack_servers|length > 1 else None }}"
+                               if openstack_server_info.openstack_servers | length > 1 else None }}"

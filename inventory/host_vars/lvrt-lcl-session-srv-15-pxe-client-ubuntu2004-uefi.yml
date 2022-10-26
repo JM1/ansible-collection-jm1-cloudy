@@ -43,7 +43,7 @@ cloudinit_userdata: |
       install-server: yes
       allow-pw: no
     user-data:
-      {{ cloudinit_userdata_default|indent(width=4) }}
+      {{ cloudinit_userdata_default | indent(width=4) }}
 
 # dhcpd_host_config cannot be a template because Ansible does not recursively evaluate variables.
 # Ref.: https://github.com/ansible/ansible/issues/16351

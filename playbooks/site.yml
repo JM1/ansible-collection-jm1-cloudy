@@ -202,8 +202,8 @@
     - name: Wait for host to become usable
       when: state == 'present'
       wait_for:
-        port: '{{ ansible_port|default(22) }}'
-        host: '{{ (ansible_ssh_host|default(ansible_host))|default(hostname) }}'
+        port: '{{ ansible_port | default(22) }}'
+        host: '{{ (ansible_ssh_host | default(ansible_host)) | default(hostname) }}'
         search_regex: OpenSSH
         connect_timeout: '{{ connection_timeout }}'
         # no delay here because the various roles already wait for initial setup and reboot
@@ -272,7 +272,7 @@
     vars:
       debconf_config: '{{ debconf_early_config }}'
       debconf_reconfigure: no
-    when: debconf_early_config is defined and distribution_id|first in ['Debian', 'Ubuntu']
+    when: debconf_early_config is defined and distribution_id | first in ['Debian', 'Ubuntu']
 
   - name: Manage files, directories, links and more early
     role: jm1.cloudy.files
@@ -301,19 +301,19 @@
   - name: Remove /etc/apt/sources.list
     role: jm1.pkg.apt_sources_list_removal
     tags: ["jm1.pkg.apt_sources_list_removal"]
-    when: distribution_id|first in ['Debian', 'Ubuntu']
+    when: distribution_id | first in ['Debian', 'Ubuntu']
     vars:
       force_apt_sources_list_removal: yes
 
   - name: Manage apt keys and apt repositories
     role: jm1.pkg.apt_repository
     tags: ["jm1.pkg.apt_repository"]
-    when: distribution_id|first in ['Debian', 'Ubuntu']
+    when: distribution_id | first in ['Debian', 'Ubuntu']
 
   - name: Manage YUM repositories
     role: jm1.pkg.yum_repository
     tags: ["jm1.pkg.yum_repository"]
-    when: distribution_id|first in ['CentOS', 'Red Hat Enterprise Linux']
+    when: distribution_id | first in ['CentOS', 'Red Hat Enterprise Linux']
 
   - name: Setup local groups
     role: jm1.cloudy.groups
@@ -416,7 +416,7 @@
   - name: Change debconf database
     role: jm1.cloudy.debconf
     tags: ["jm1.cloudy.debconf"]
-    when: distribution_id|first in ['Debian', 'Ubuntu']
+    when: distribution_id | first in ['Debian', 'Ubuntu']
 
 ################################################################################
 ################################ OpenStack Meta ################################

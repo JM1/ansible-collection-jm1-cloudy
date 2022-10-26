@@ -5,7 +5,7 @@
 
 - name: 'Apply GRUB2 configuration on CentOS and Red Hat Enterprise Linux'
   listen: 'Apply GRUB2 configuration'
-  when: distribution_id|first in ['CentOS', 'Red Hat Enterprise Linux']
+  when: distribution_id | first in ['CentOS', 'Red Hat Enterprise Linux']
   ansible.builtin.shell:
     cmd: |-
       if [ -l /etc/grub2.cfg ] && readlink -f -q /etc/grub2.cfg; then \
@@ -17,9 +17,9 @@
       if [ ! -l /etc/grub2-efi.cfg ] && [ ! -l /etc/grub2-efi.cfg ] && [ -e /boot/grub2/grub.cfg ]; then \
         grub2-mkconfig -o /boot/grub2/grub.cfg; \
       fi && \
-      {% if distribution_id|first == 'CentOS' %}
+      {% if distribution_id | first == 'CentOS' %}
       release=centos; \
-      {% elif distribution_id|first == 'Red Hat Enterprise Linux' %}
+      {% elif distribution_id | first == 'Red Hat Enterprise Linux' %}
       release=redhat; \
       {% endif %}
       if [ ! -l /etc/grub2-efi.cfg ] && [ ! -l /etc/grub2-efi.cfg ] && [ -e /boot/efi/EFI/$release/grub.cfg ]; then \
@@ -30,7 +30,7 @@
 
 - name: 'Apply GRUB2 configuration on Debian and Ubuntu'
   listen: 'Apply GRUB2 configuration'
-  when: distribution_id|first in ['Debian', 'Ubuntu']
+  when: distribution_id | first in ['Debian', 'Ubuntu']
   ansible.builtin.command:
     cmd: 'update-grub'
   notify:

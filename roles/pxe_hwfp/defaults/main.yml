@@ -17,7 +17,7 @@ distribution_id:
   # ansible_facts.distribution_major_version is defined as 'testing' which will be converted to 'Testing'.
   # Use major version for all other distributions, e.g. CentOS 7, Debian 10 (Buster) or Red Hat Enterprise Linux 8.
   "{{ ansible_facts.distribution_version if ansible_facts.distribution == 'Ubuntu' else
-      ansible_facts.distribution_major_version|title if
+      ansible_facts.distribution_major_version | title if
         ansible_facts.distribution == 'Debian' and
         ansible_facts.distribution_major_version is not number and
         ansible_facts.distribution_major_version != 'NA' else
@@ -49,7 +49,7 @@ pxe_hwfp_tftpd_root: |-
       'Debian': pxe_hwfp_tftpd_root_debian,
       'Red_Hat_Enterprise_Linux': pxe_hwfp_tftpd_root_red_hat_enterprise_linux,
       'Ubuntu': pxe_hwfp_tftpd_root_ubuntu
-    }[distribution_id|first|regex_replace('[^A-Za-z0-9 _-]', '_')]
+    }[distribution_id | first | regex_replace('[^A-Za-z0-9 _-]', '_')]
   }}
 
 pxe_hwfp_tftpd_root_centos: '{{ pxe_hwfp_tftpd_root_red_hat_enterprise_linux }}'

@@ -22,7 +22,7 @@
     uri: '{{ libvirt_uri }}'
 
 - name: Create cloud-init config drive volume
-  when: state == 'present' and libvirt_configdrive|default(None) != None
+  when: state == 'present' and libvirt_configdrive | default(None) != None
   jm1.libvirt.volume_cloudinit:
     filesystem: '{{ libvirt_configdrive_filesystem }}'
     format: '{{ libvirt_configdrive_format }}'
@@ -43,7 +43,7 @@
   notify: 'Start libvirt domain once created'
 
 - name: Remove cloud-init config drive volume
-  when: state == 'absent' and libvirt_configdrive|default(None) != None
+  when: state == 'absent' and libvirt_configdrive | default(None) != None
   jm1.libvirt.volume_cloudinit:
     name: '{{ libvirt_configdrive }}'
     pool: '{{ libvirt_configdrive_pool }}'

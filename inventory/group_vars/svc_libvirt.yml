@@ -56,11 +56,11 @@ libvirt_uri: 'qemu:///system'
 
 libvirt_network_template_bridge: |
     <network>
-      {% if item.uuid|default(None) != None %}
+      {% if item.uuid | default(None) != None %}
       <uuid>{{ item.uuid }}</uuid>
       {% endif %}
       <name>{{ item.name }}</name>
-      {% if item.forward.interfaces|default(None) != None %}
+      {% if item.forward.interfaces | default(None) != None %}
       <forward mode='bridge'>
         {% for interface in item.forward.interfaces %}
           <interface dev="{{ interface.dev }}"/>
@@ -69,14 +69,14 @@ libvirt_network_template_bridge: |
       {% else %}
       <forward mode='bridge' />
       {% endif %}
-      {% if item.bridge|default(None) != None %}
+      {% if item.bridge | default(None) != None %}
       <bridge
         name='{{ item.bridge.name }}'
       {% if 'stp' in item.bridge %}
-        stp='{{ 'on' if item.bridge.stp|default(True) else 'off' }}'
+        stp='{{ 'on' if item.bridge.stp | default(True) else 'off' }}'
       {% endif %}
       {% if 'delay' in item.bridge %}
-        delay='{{ item.bridge.delay|default('0') }}'
+        delay='{{ item.bridge.delay | default('0') }}'
       {% endif %}
       />
       {% endif %}
@@ -84,32 +84,32 @@ libvirt_network_template_bridge: |
 
 libvirt_network_template_isolated: |
     <network>
-      {% if item.uuid|default(None) != None %}
+      {% if item.uuid | default(None) != None %}
       <uuid>{{ item.uuid }}</uuid>
       {% endif %}
       <name>{{ item.name }}</name>
       <bridge
         name='{{ item.bridge.name }}'
       {% if 'stp' in item.bridge %}
-        stp='{{ 'on' if item.bridge.stp|default(True) else 'off' }}'
+        stp='{{ 'on' if item.bridge.stp | default(True) else 'off' }}'
       {% endif %}
       {% if 'delay' in item.bridge %}
-        delay='{{ item.bridge.delay|default('0') }}'
+        delay='{{ item.bridge.delay | default('0') }}'
       {% endif %}
       />
-      {% if item.domain|default(None) != None %}
+      {% if item.domain | default(None) != None %}
       <domain
         name='{{ item.domain.name }}'
       {% if 'localOnly' in item.domain %}
-        localOnly='{{ 'yes' if item.domain.localOnly|default(False) else 'no' }}'
+        localOnly='{{ 'yes' if item.domain.localOnly | default(False) else 'no' }}'
       {% endif %}
       />
       {% endif %}
-      {% if item.mtu.size|default(None) != None %}
+      {% if item.mtu.size | default(None) != None %}
       <mtu size="{{ item.mtu.size }}"/>
       {% endif %}
-      {% if item.ip|default(None) != None %}
-      {% if item.ip.dhcp|default(None) != None %}
+      {% if item.ip | default(None) != None %}
+      {% if item.ip.dhcp | default(None) != None %}
       <ip address='{{ item.ip.address }}' netmask='{{ item.ip.netmask }}'>
         <dhcp>
           <range
@@ -127,7 +127,7 @@ libvirt_network_template_isolated: |
 
 libvirt_network_template_nat: |
     <network>
-      {% if item.uuid|default(None) != None %}
+      {% if item.uuid | default(None) != None %}
       <uuid>{{ item.uuid }}</uuid>
       {% endif %}
       <name>{{ item.name }}</name>
@@ -135,13 +135,13 @@ libvirt_network_template_nat: |
       <bridge
         name='{{ item.bridge.name }}'
       {% if 'stp' in item.bridge %}
-        stp='{{ 'on' if item.bridge.stp|default(True) else 'off' }}'
+        stp='{{ 'on' if item.bridge.stp | default(True) else 'off' }}'
       {% endif %}
       {% if 'delay' in item.bridge %}
-        delay='{{ item.bridge.delay|default('0') }}'
+        delay='{{ item.bridge.delay | default('0') }}'
       {% endif %}
       />
-      {% if item.ip.dhcp|default(None) != None %}
+      {% if item.ip.dhcp | default(None) != None %}
       <ip address='{{ item.ip.address }}' netmask='{{ item.ip.netmask }}'>
         <dhcp>
           <range
@@ -154,41 +154,41 @@ libvirt_network_template_nat: |
       <ip address='{{ item.ip.address }}' netmask='{{ item.ip.netmask }}'>
       </ip>
       {% endif %}
-      {% if item.domain|default(None) != None %}
+      {% if item.domain | default(None) != None %}
       <domain
         name='{{ item.domain.name }}'
       {% if 'localOnly' in item.domain %}
-        localOnly='{{ 'yes' if item.domain.localOnly|default(False) else 'no' }}'
+        localOnly='{{ 'yes' if item.domain.localOnly | default(False) else 'no' }}'
       {% endif %}
       />
       {% endif %}
-      {% if item.mtu.size|default(None) != None %}
+      {% if item.mtu.size | default(None) != None %}
       <mtu size="{{ item.mtu.size }}"/>
       {% endif %}
     </network>
 
 libvirt_network_template_route: |
     <network>
-      {% if item.uuid|default(None) != None %}
+      {% if item.uuid | default(None) != None %}
       <uuid>{{ item.uuid }}</uuid>
       {% endif %}
       <name>{{ item.name }}</name>
       <forward mode='route'
-      {% if item.forward.dev|default(None) != None %}
+      {% if item.forward.dev | default(None) != None %}
         dev='{{ item.forward.dev }}'
       {% endif %}
       />
       <bridge
         name='{{ item.bridge.name }}'
       {% if 'stp' in item.bridge %}
-        stp='{{ 'on' if item.bridge.stp|default(True) else 'off' }}'
+        stp='{{ 'on' if item.bridge.stp | default(True) else 'off' }}'
       {% endif %}
       {% if 'delay' in item.bridge %}
-        delay='{{ item.bridge.delay|default('0') }}'
+        delay='{{ item.bridge.delay | default('0') }}'
       {% endif %}
       />
       <ip address='{{ item.ip.address }}' netmask='{{ item.ip.netmask }}'>
-      {% if item.ip.dhcp|default(None) != None %}
+      {% if item.ip.dhcp | default(None) != None %}
         <dhcp>
           <range
             start='{{ item.ip.dhcp.range.start }}'
@@ -197,15 +197,15 @@ libvirt_network_template_route: |
         </dhcp>
       {% endif %}
       </ip>
-      {% if item.domain|default(None) != None %}
+      {% if item.domain | default(None) != None %}
       <domain
         name='{{ item.domain.name }}'
       {% if 'localOnly' in item.domain %}
-        localOnly='{{ 'yes' if item.domain.localOnly|default(False) else 'no' }}'
+        localOnly='{{ 'yes' if item.domain.localOnly | default(False) else 'no' }}'
       {% endif %}
       />
       {% endif %}
-      {% if item.mtu.size|default(None) != None %}
+      {% if item.mtu.size | default(None) != None %}
       <mtu size="{{ item.mtu.size }}"/>
       {% endif %}
     </network>
@@ -213,18 +213,18 @@ libvirt_network_template_route: |
 libvirt_pool_template_dir: |
     <pool type='dir'>
       <name>{{ item.name }}</name>
-    {% if item.uuid|default(None) != None %}
+    {% if item.uuid | default(None) != None %}
       <uuid>{{ item.uuid }}</uuid>
     {% endif %}
       <source>
       </source>
       <target>
-        <path>{{ item.target.path|default('/var/lib/libvirt/images') }}</path>
-    {% if item.target.permissions|default(None) != None %}
+        <path>{{ item.target.path | default('/var/lib/libvirt/images') }}</path>
+    {% if item.target.permissions | default(None) != None %}
         <permissions>
-          <mode>{{ item.target.permissions.mode|default('0711') }}</mode>
-          <owner>{{ item.target.permissions.owner|default('0') }}</owner>
-          <group>{{ item.target.permissions.group|default('0') }}</group>
+          <mode>{{ item.target.permissions.mode | default('0711') }}</mode>
+          <owner>{{ item.target.permissions.owner | default('0') }}</owner>
+          <group>{{ item.target.permissions.group | default('0') }}</group>
         </permissions>
     {% endif %}
       </target>

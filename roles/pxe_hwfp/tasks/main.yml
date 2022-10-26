@@ -9,7 +9,7 @@
                         # ansible-galaxy and the provided requirements.yml to install all missing role dependencies.
 
 - name: Satisfy requirements on CentOS and Red Hat Enterprise Linux
-  when: distribution_id|first in ['CentOS', 'Red Hat Enterprise Linux']
+  when: distribution_id | first in ['CentOS', 'Red Hat Enterprise Linux']
   jm1.pkg.meta_pkg:
     name: "jm1-svc-pxe-hwfp"
     version: "1"
@@ -23,7 +23,7 @@
     - xz
 
 - name: Satisfy requirements on Debian and Ubuntu
-  when: distribution_id|first in ['Debian', 'Ubuntu']
+  when: distribution_id | first in ['Debian', 'Ubuntu']
   jm1.pkg.meta_pkg:
     name: "jm1-svc-pxe-hwfp"
     version: "1"
@@ -106,6 +106,9 @@
   ansible.builtin.get_url:
     url: "{{ lookup('vars', 'pxe_hwfp_files_' + item) }}"
     dest: '{{ pxe_hwfp_tftpd_root }}/hwfp/{{ item }}/netboot.tar.gz'
+    mode: u=rw,g=r,o=r
+    owner: root
+    group: nogroup
   loop:
   - 'amd64'
 
@@ -154,7 +157,7 @@
 # Ref.: https://www.lightofdawn.org/blog/?viewDetailed=00128
 
 - name: Create host-specific pxelinux config for hwfp
-  ansible.builtin.copy:
+  ansible.builtin.copy: # noqa template-instead-of-copy
     content: |
       default hwfp
       timeout 20
@@ -165,14 +168,14 @@
       label hwfp
             menu label Hardware fingerprinting (BIOS, AMD64)
             kernel /debian-installer/amd64/vmlinuz
-            append vga=788 rootfstype=ramfs ramdisk_size=524288 initrd=/debian-installer/amd64/initrd.gz url=http://{{ pxe_hwfp_daemon_host|mandatory }}:{{ pxe_hwfp_daemon_port|mandatory }}/ {{ pxe_hwfp_kernel_parameters }} ---
+            append vga=788 rootfstype=ramfs ramdisk_size=524288 initrd=/debian-installer/amd64/initrd.gz url=http://{{ pxe_hwfp_daemon_host | mandatory }}:{{ pxe_hwfp_daemon_port | mandatory }}/ {{ pxe_hwfp_kernel_parameters }} ---
     dest: "{{ pxe_hwfp_tftpd_root }}/hwfp/amd64/debian-installer/amd64/pxelinux.cfg/default"
     mode: u=rw,g=r,o=r
     owner: root
     group: root
 
 - name: Create host-specific grub config for hwfp
-  ansible.builtin.copy:
+  ansible.builtin.copy: # noqa template-instead-of-copy
     content: |
       set timeout=5
 
@@ -187,7 +190,7 @@
 
       menuentry 'Hardware fingerprinting (UEFI, AMD64)' {
           set background_color=black
-          linux /hwfp/amd64/debian-installer/amd64/vmlinuz vga=788 rootfstype=ramfs ramdisk_size=524288 url=http://{{ pxe_hwfp_daemon_host|mandatory }}:{{ pxe_hwfp_daemon_port|mandatory }}/ {{ pxe_hwfp_kernel_parameters }} ---
+          linux /hwfp/amd64/debian-installer/amd64/vmlinuz vga=788 rootfstype=ramfs ramdisk_size=524288 url=http://{{ pxe_hwfp_daemon_host | mandatory }}:{{ pxe_hwfp_daemon_port | mandatory }}/ {{ pxe_hwfp_kernel_parameters }} ---
           initrd /hwfp/amd64/debian-installer/amd64/initrd.gz
       }
     dest: "{{ pxe_hwfp_tftpd_root }}/hwfp/amd64/debian-installer/amd64/grub/grub.cfg"

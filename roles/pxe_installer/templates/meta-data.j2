@@ -1,8 +1,8 @@
 {{ hostvars[item.0]['cloudinit_metadata'] if 'cloudinit_metadata' in hostvars[item.0] else
    lookup('file',
     'meta-data-'
-    + hostvars[item.0]['distribution_id']|join('-')|lower|regex_replace('[^a-z0-9-]', '-')
+    + hostvars[item.0]['distribution_id'] | join('-') | lower | regex_replace('[^a-z0-9-]', '-')
     + '-'
-    + hostvars[item.0]['os_architecture']|lower|regex_replace('[^a-z0-9-]', '-')
+    + hostvars[item.0]['os_architecture'] | lower | regex_replace('[^a-z0-9-]', '-')
    )
 }}

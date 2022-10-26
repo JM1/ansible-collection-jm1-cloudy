@@ -29,8 +29,8 @@
 
   - name: Wait for host to become usable
     ansible.builtin.wait_for:
-      port: '{{ ansible_port|default(22) }}'
-      host: '{{ ansible_host|default(openstack_server_name) }}'
+      port: '{{ ansible_port | default(22) }}'
+      host: '{{ ansible_host | default(openstack_server_name) }}'
       search_regex: OpenSSH
       connect_timeout: '{{ connection_timeout }}'
       delay: '{{ connection_delay }}'
@@ -67,11 +67,11 @@
   - name: Create/Delete network ports
     loop: '{{ openstack_server_ports }}'
     openstack.cloud.port: "{{ item
-      |combine({} if 'auth' in item else {'auth': openstack_auth})
-      |combine({} if 'cloud' in item else {'cloud': openstack_cloud})
-      |combine({} if 'interface' in item else {'interface': openstack_interface})
+      | combine({} if 'auth' in item else {'auth': openstack_auth})
+      | combine({} if 'cloud' in item else {'cloud': openstack_cloud})
+      | combine({} if 'interface' in item else {'interface': openstack_interface})
     }}"
-    when: item.network|default(None) != None
+    when: item.network | default(None) != None
 
   - name: Retrieve network ports
     loop: "{{ openstack_server_ports }}"
@@ -80,18 +80,18 @@
       cloud: "{{ item.cloud if 'cloud' in item else openstack_cloud }}"
       interface: "{{ item.interface if 'interface' in item else openstack_interface }}"
       port: '{{ item.name }}'
-    when: item.state|default('present') == 'present'
+    when: item.state | default('present') == 'present'
     register: openstack_server_ports_info
 
   - name: Fail if network port does not exist or port name is ambiguous
-    loop: "{{ openstack_server_ports_info.results|default([]) }}"
+    loop: "{{ openstack_server_ports_info.results | default([]) }}"
     ansible.builtin.fail:
       msg: 'Port {{ item.item.name }} does not exist or port name is ambiguous'
-    when: item['openstack_ports']|length != 1
+    when: item['openstack_ports'] | length != 1
 
   - name: Prepare network port info
     ansible.builtin.set_fact:
-      openstack_server_ports_info: "{{ openstack_server_ports_info.results|default([])|map(attribute='openstack_ports')|list|flatten(levels=1) }}"
+      openstack_server_ports_info: "{{ openstack_server_ports_info.results | default([]) | map(attribute='openstack_ports') | list | flatten(levels=1) }}"
 
   - name: Prepare server nics
     ansible.builtin.set_fact:
@@ -108,14 +108,14 @@
     auth: '{{ openstack_auth }}'
     cloud: '{{ openstack_cloud }}'
     interface: '{{ openstack_interface }}'
-    name: '{{ (item.display_name|default(item.name))|mandatory }}'
+    name: '{{ (item.display_name | default(item.name)) | mandatory }}'
     details: no # we only need the volume ids
-  when: item.state|default('present') == 'present'
+  when: item.state | default('present') == 'present'
   register: openstack_server_volumes_info
 
 - name: Prepare storage volume info
   ansible.builtin.set_fact:
-    openstack_server_volumes_info: "{{ openstack_server_volumes_info.results|selectattr('volumes', 'defined')|map(attribute='volumes')|list|flatten(levels=1)|list }}"
+    openstack_server_volumes_info: "{{ openstack_server_volumes_info.results | selectattr('volumes', 'defined') | map(attribute='volumes') | list | flatten(levels=1) | list }}"
 
 - name: Prepare server arguments
   # Why does Ansible fail to evaluate the Jinja2 Template below if it is passed to openstack.cloud.server directly?
@@ -125,20 +125,20 @@
     #
     # Replace boot_volume and volumes from openstack_server_config with volume ids from openstack_server_volumes_info.
     openstack_server: "{{ openstack_server_config
-    |combine({} if 'auth' in openstack_server_config else {'auth': openstack_auth})
-    |combine({} if 'cloud' in openstack_server_config else {'cloud': openstack_cloud})
-    |combine({} if 'interface' in openstack_server_config else {'interface': openstack_interface})
-    |dict2items|rejectattr('key', 'eq', 'boot_volume')|list|items2dict
-    |dict2items|rejectattr('key', 'eq', 'floating_ips')|list|items2dict
-    |dict2items|rejectattr('key', 'eq', 'volumes')|list|items2dict
-    |combine({
+    | combine({} if 'auth' in openstack_server_config else {'auth': openstack_auth})
+    | combine({} if 'cloud' in openstack_server_config else {'cloud': openstack_cloud})
+    | combine({} if 'interface' in openstack_server_config else {'interface': openstack_interface})
+    | dict2items | rejectattr('key', 'eq', 'boot_volume') | list | items2dict
+    | dict2items | rejectattr('key', 'eq', 'floating_ips') | list | items2dict
+    | dict2items | rejectattr('key', 'eq', 'volumes') | list | items2dict
+    | combine({
       'boot_volume': (openstack_server_volumes_info.0.id if 'boot_volume' in openstack_server_config else omit),
       'name': openstack_server_name,
       'nics': (openstack_server_config.nics if 'nics' in openstack_server_config else []) +
-              (openstack_server_nics|from_yaml if openstack_server_nics|length > 0 else []),
+              (openstack_server_nics | from_yaml if openstack_server_nics | length > 0 else []),
       'state': state,
       'volumes': ((openstack_server_volumes_info[1:] if 'boot_volume' in openstack_server_config else
-                  openstack_server_volumes_info)|map(attribute='id')|list|flatten(levels=1)|list)
+                  openstack_server_volumes_info) | map(attribute='id') | list | flatten(levels=1) | list)
     })
   }}"
 
@@ -158,27 +158,27 @@
       has a floating-ip on a different nat-destination than '{nat_destination}'".
       Ref.: https://storyboard.openstack.org/#!/story/2008181
   ignore_errors: yes # noqa ignore-errors
-  when: openstack_server_floating_ips|length > 1
+  when: openstack_server_floating_ips | length > 1
 
 - name: Attach/Detach floating ips
   loop: "{{ openstack_server_floating_ips }}"
   openstack.cloud.floating_ip: "{{ item
-    |combine({} if 'auth' in item else {'auth': openstack_auth})
-    |combine({} if 'cloud' in item else {'cloud': openstack_cloud})
-    |combine({} if 'interface' in item else {'interface': openstack_interface})
-    |combine({} if 'server' in item else {'server': openstack_server_name})
+    | combine({} if 'auth' in item else {'auth': openstack_auth})
+    | combine({} if 'cloud' in item else {'cloud': openstack_cloud})
+    | combine({} if 'interface' in item else {'interface': openstack_interface})
+    | combine({} if 'server' in item else {'server': openstack_server_name})
   }}"
   register: openstack_server_floating_ips_result
 
 - name: Check if floating ips got assigned as requested
-  loop: '{{ openstack_server_floating_ips_result.results|default([]) }}'
-  when: (item.item.state|default('present') == 'present' and
+  loop: '{{ openstack_server_floating_ips_result.results | default([]) }}'
+  when: (item.item.state | default('present') == 'present' and
          item.invocation.module_args.fixed_address != None and
-         item.invocation.module_args.fixed_address|length > 0 and
+         item.invocation.module_args.fixed_address | length > 0 and
          item.floating_ip.fixed_ip_address != item.invocation.module_args.fixed_address) or
-        (item.item.state|default('present') == 'present' and
+        (item.item.state | default('present') == 'present' and
          item.invocation.module_args.floating_ip_address != None and
-         item.invocation.module_args.floating_ip_address|length > 0 and
+         item.invocation.module_args.floating_ip_address | length > 0 and
          item.floating_ip.floating_ip_address != item.invocation.module_args.floating_ip_address)
   ansible.builtin.fail:
     msg: |

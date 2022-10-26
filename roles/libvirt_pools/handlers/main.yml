@@ -5,22 +5,22 @@
 
 - name: Stop libvirt storage pools for changes to take effect
   listen: 'Stop libvirt storage pools for changes to take effect'
-  loop: '{{ jm1_libvirt_pool_xml_result.results|zip(libvirt_pools|default([]))|list }}'
+  loop: '{{ jm1_libvirt_pool_xml_result.results | zip(libvirt_pools | default([])) | list }}'
   # Module jm1.libvirt.pool cannot modify pools, hence only consider pools handled by jm1.libvirt.pool_xml
-  when: not item.0.skipped|default(False) and
+  when: not item.0.skipped | default(False) and
         item.0.changed and
-        item.1.state|default('present') != 'absent' and
-        item.1.restart_on_change|default(False)
+        item.1.state | default('present') != 'absent' and
+        item.1.restart_on_change | default(False)
   community.libvirt.virt_pool:
-    name: '{{ item.1.name|mandatory }}'
+    name: '{{ item.1.name | mandatory }}'
     state: inactive
     uri: '{{ libvirt_uri }}'
 
 - name: Start/Stop libvirt storage pools
   listen: 'Start/Stop libvirt storage pools'
-  loop: '{{ libvirt_pools|default([]) }}'
-  when: item.state|default('present') in ['active', 'inactive']
+  loop: '{{ libvirt_pools | default([]) }}'
+  when: item.state | default('present') in ['active', 'inactive']
   community.libvirt.virt_pool:
-    name: '{{ item.name|mandatory }}'
-    state: "{{ item.state|mandatory }}"
+    name: '{{ item.name | mandatory }}'
+    state: "{{ item.state | mandatory }}"
     uri: '{{ libvirt_uri }}'

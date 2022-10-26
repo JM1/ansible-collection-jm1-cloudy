@@ -29,9 +29,9 @@
 
 - name: Verify that devstack_user_home is valid
   ansible.builtin.assert:
-    that: devstack_user_home|length > 0
+    that: devstack_user_home | length > 0
 
-- name: Git clone DevStack repository to {{ devstack_user }}'s home
+- name: Git clone DevStack repository to DevStack user's home
   become: yes
   become_user: '{{ devstack_user }}'
   ansible.builtin.git: # noqa git-latest

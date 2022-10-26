@@ -61,7 +61,7 @@ kickstart_config: |
 
   user --groups=wheel --name={{ ansible_user }} --lock
 
-  {% for key in ssh_authorized_keys|selectattr('user', 'equalto', ansible_user)|selectattr('state', 'equalto', 'present')|map(attribute='key')|list %}
+  {% for key in ssh_authorized_keys | selectattr('user', 'equalto', ansible_user) | selectattr('state', 'equalto', 'present') | map(attribute='key') | list %}
   sshkey --username={{ ansible_user }} '{{ key }}'
   {% endfor %}
 

@@ -6,12 +6,12 @@
 - name: Detach floating ips
   loop: "{{ openstack_server_floating_ips }}"
   openstack.cloud.floating_ip: "{{ item
-    |combine({} if 'auth' in item else {'auth': openstack_auth})
-    |combine({} if 'cloud' in item else {'cloud': openstack_cloud})
-    |combine({} if 'interface' in item else {'interface': openstack_interface})
-    |combine({} if 'server' in item else {'server': openstack_server_name})
-    |dict2items|rejectattr('key', 'eq', 'state')|list|items2dict
-    |combine({'state': 'absent', 'wait': 'yes'})
+    | combine({} if 'auth' in item else {'auth': openstack_auth})
+    | combine({} if 'cloud' in item else {'cloud': openstack_cloud})
+    | combine({} if 'interface' in item else {'interface': openstack_interface})
+    | combine({} if 'server' in item else {'server': openstack_server_name})
+    | dict2items | rejectattr('key', 'eq', 'state') | list | items2dict
+    | combine({'state': 'absent', 'wait': 'yes'})
   }}"
 
 - name: Delete compute instance
@@ -29,6 +29,6 @@
     auth: "{{ item.auth if 'auth' in item else openstack_auth }}"
     cloud: "{{ item.cloud if 'cloud' in item else openstack_cloud }}"
     interface: "{{ item.interface if 'interface' in item else openstack_interface }}"
-    name: '{{ item.name|mandatory }}'
+    name: '{{ item.name | mandatory }}'
     state: absent
-  when: item.network|default(None) != None # Only delete what might has been created
+  when: item.network | default(None) != None # Only delete what might has been created

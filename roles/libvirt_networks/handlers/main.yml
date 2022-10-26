@@ -5,20 +5,20 @@
 
 - name: Stop libvirt virtual networks for changes to take effect
   listen: 'Stop libvirt virtual networks for changes to take effect'
-  loop: '{{ libvirt_net_names_result.results|zip(libvirt_networks, libvirt_net_result.results)|list }}'
+  loop: '{{ libvirt_net_names_result.results | zip(libvirt_networks, libvirt_net_result.results) | list }}'
   when: item.2.changed and
-        item.1.state|default('present') != 'absent' and
-        item.1.restart_on_change|default(False)
+        item.1.state | default('present') != 'absent' and
+        item.1.restart_on_change | default(False)
   community.libvirt.virt_net:
-    name: "{{ item.0.matches[0]['name']|mandatory }}"
+    name: "{{ item.0.matches[0]['name'] | mandatory }}"
     state: inactive
     uri: '{{ libvirt_uri }}'
 
 - name: Start/Stop libvirt virtual networks
   listen: 'Start/Stop libvirt virtual networks'
-  loop: '{{ libvirt_net_names_result.results|zip(libvirt_networks)|list }}'
-  when: item.1.state|default('present') in ['active', 'inactive']
+  loop: '{{ libvirt_net_names_result.results | zip(libvirt_networks) | list }}'
+  when: item.1.state | default('present') in ['active', 'inactive']
   community.libvirt.virt_net:
-    name: "{{ item.0.matches[0]['name']|mandatory }}"
-    state: "{{ item.1.state|mandatory }}"
+    name: "{{ item.0.matches[0]['name'] | mandatory }}"
+    state: "{{ item.1.state | mandatory }}"
     uri: '{{ libvirt_uri }}'
