@@ -32,7 +32,13 @@ Available on Ansible Galaxy in Collection [jm1.cloudy](https://galaxy.ansible.co
 
 ## Requirements
 
-None.
+This role uses module(s) from collection [`community.general`][galaxy-community-general]. To install this collection
+you may follow the steps described in [`README.md`][jm1-cloudy-readme] using the provided [`requirements.yml`][
+jm1-cloudy-requirements].
+
+[galaxy-community-general]: https://galaxy.ansible.com/community/general
+[jm1-cloudy-readme]: ../../README.md
+[jm1-cloudy-requirements]: ../../requirements.yml
 
 ## Variables
 
