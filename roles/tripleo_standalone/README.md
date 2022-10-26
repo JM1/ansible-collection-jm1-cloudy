@@ -11,14 +11,12 @@ Available on Ansible Galaxy in Collection [jm1.cloudy](https://galaxy.ansible.co
 
 ## Requirements
 
-Module `jm1.pkg.meta_pkg` from Collection [`jm1.pkg`][galaxy-jm1-pkg] is used to satisfy all package dependencies of
-this Collection [jm1.cloudy][galaxy-jm1-cloudy]. To install `jm1.pkg.meta_pkg` you may follow the steps described in
-[`README.md`][jm1-cloudy-readme] using the provided [`requirements.yml`][jm1-cloudy-requirements].
+This role uses module(s) from collection [`jm1.pkg`][galaxy-jm1-pkg]. To install this collection you may follow the
+steps described in [`README.md`][jm1-cloudy-readme] using the provided [`requirements.yml`][jm1-cloudy-requirements].
 
-[galaxy-jm1-cloudy]: https://galaxy.ansible.com/jm1/cloudy
 [galaxy-jm1-pkg]: https://galaxy.ansible.com/jm1/pkg
-[jm1-cloudy-readme]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/README.md
-[jm1-cloudy-requirements]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/requirements.yml
+[jm1-cloudy-readme]: ../../README.md
+[jm1-cloudy-requirements]: ../../requirements.yml
 
 ## Variables
 
@@ -98,8 +96,8 @@ For a complete example on how to use this role, refer to host `lvrt-lcl-session-
 provided [examples inventory][inventory-example]. The top-level [`README.md`][jm1-cloudy-readme] describes how this host
 can be provisioned with playbook [`playbooks/site.yml`][playbook-site-yml].
 
-[inventory-example]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/inventory/
-[playbook-site-yml]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/playbooks/site.yml
+[inventory-example]: ../../inventory/
+[playbook-site-yml]: ../../playbooks/site.yml
 [tripleo-standalone-guide]: https://www.redhat.com/sysadmin/tripleo-standalone-system
 
 For instructions on how to run Ansible playbooks have look at Ansible's

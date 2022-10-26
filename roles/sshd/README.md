@@ -103,7 +103,7 @@ ansible-builtin-lineinfile] and [`template`][ansible-builtin-template].
 For more examples on how to use this role, refer to variable `sshd_config` as defined in `group_vars/all.yml` from the
 provided [examples inventory][inventory-example].
 
-[inventory-example]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/inventory/
+[inventory-example]: ../../inventory/
 
 For instructions on how to run Ansible playbooks have look at Ansible's
 [Getting Started Guide](https://docs.ansible.com/ansible/latest/network/getting_started/first_playbook.html).

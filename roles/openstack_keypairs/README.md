@@ -86,8 +86,8 @@ This role uses module(s) from collection [`openstack.cloud`][galaxy-openstack-cl
 follow the steps described in [`README.md`][jm1-cloudy-readme] using the provided [`requirements.yml`][
 jm1-cloudy-requirements].
 
-[jm1-cloudy-readme]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/README.md
-[jm1-cloudy-requirements]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/requirements.yml
+[jm1-cloudy-readme]: ../../README.md
+[jm1-cloudy-requirements]: ../../requirements.yml
 
 ## Variables
 | Name                  | Default value | Required | Description                               |

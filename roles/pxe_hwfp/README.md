@@ -18,7 +18,7 @@ Do not expose the `hwfp` service to external networks or the internet. It has no
 security or security hardening. It is only meant to be run on internal networks.
 :warning:
 
-[inventory-example]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/inventory/
+[inventory-example]: ../../inventory/
 [pxe-wiki]: https://en.wikipedia.org/wiki/Preboot_Execution_Environment
 
 **Tested OS images**
@@ -34,14 +34,12 @@ Available on Ansible Galaxy in Collection [jm1.cloudy](https://galaxy.ansible.co
 
 ## Requirements
 
-Module `jm1.pkg.meta_pkg` from Collection [`jm1.pkg`][galaxy-jm1-pkg] is used to satisfy all package dependencies of
-this Collection [jm1.cloudy][galaxy-jm1-cloudy]. To install `jm1.pkg.meta_pkg` you may follow the steps described in
-[`README.md`][jm1-cloudy-readme] using the provided [`requirements.yml`][jm1-cloudy-requirements].
+This role uses module(s) from collection [`jm1.pkg`][galaxy-jm1-pkg]. To install this collection you may follow the
+steps described in [`README.md`][jm1-cloudy-readme] using the provided [`requirements.yml`][jm1-cloudy-requirements].
 
-[galaxy-jm1-cloudy]: https://galaxy.ansible.com/jm1/cloudy
 [galaxy-jm1-pkg]: https://galaxy.ansible.com/jm1/pkg
-[jm1-cloudy-readme]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/README.md
-[jm1-cloudy-requirements]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/requirements.yml
+[jm1-cloudy-readme]: ../../README.md
+[jm1-cloudy-requirements]: ../../requirements.yml
 
 ## Variables
 
@@ -79,7 +77,7 @@ booted manually (once provisioned with Ansible) to showcase and debug the whole 
 cycle. The top-level [`README.md`][jm1-cloudy-readme] describes how hosts can be provisioned with playbook
 [`playbooks/site.yml`][playbook-site-yml].
 
-[playbook-site-yml]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/playbooks/site.yml
+[playbook-site-yml]: ../../playbooks/site.yml
 
 For instructions on how to run Ansible playbooks have look at Ansible's
 [Getting Started Guide](https://docs.ansible.com/ansible/latest/network/getting_started/first_playbook.html).

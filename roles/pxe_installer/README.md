@@ -106,13 +106,12 @@ Available on Ansible Galaxy in Collection [jm1.cloudy](https://galaxy.ansible.co
 
 ## Requirements
 
-This role uses module `jm1.pkg.meta_pkg` from collection [`jm1.pkg`][galaxy-jm1-pkg]. To install this collection you may
-follow the steps described in [`README.md`][jm1-cloudy-readme] using the provided [`requirements.yml`][
-jm1-cloudy-requirements].
+This role uses module(s) from collection [`jm1.pkg`][galaxy-jm1-pkg]. To install this collection you may follow the
+steps described in [`README.md`][jm1-cloudy-readme] using the provided [`requirements.yml`][jm1-cloudy-requirements].
 
 [galaxy-jm1-pkg]: https://galaxy.ansible.com/jm1/pkg
-[jm1-cloudy-readme]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/README.md
-[jm1-cloudy-requirements]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/requirements.yml
+[jm1-cloudy-readme]: ../../README.md
+[jm1-cloudy-requirements]: ../../requirements.yml
 
 ## Variables
 
@@ -203,8 +202,8 @@ how to boot BIOS and UEFI systems from network via [PXE][pxe-wiki] and install o
 CentOS 8 with Kickstart, Debian 11 with Preseed and Ubuntu 20.04 with Autoinstall. The top-level [`README.md`][
 jm1-cloudy-readme] describes how hosts can be provisioned with playbook [`playbooks/site.yml`][playbook-site-yml].
 
-[inventory-example]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/inventory/
-[playbook-site-yml]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/playbooks/site.yml
+[inventory-example]: ../../inventory/
+[playbook-site-yml]: ../../playbooks/site.yml
 
 For instructions on how to run Ansible playbooks have look at Ansible's
 [Getting Started Guide](https://docs.ansible.com/ansible/latest/network/getting_started/first_playbook.html).

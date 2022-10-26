@@ -80,8 +80,8 @@ galaxy-community-libvirt] and [`jm1.libvirt`][galaxy-jm1-libvirt]. To install th
 described in [`README.md`][jm1-cloudy-readme] using the provided [`requirements.yml`][jm1-cloudy-requirements].
 
 [galaxy-community-general]: https://galaxy.ansible.com/community/general
-[jm1-cloudy-readme]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/README.md
-[jm1-cloudy-requirements]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/requirements.yml
+[jm1-cloudy-readme]: ../../README.md
+[jm1-cloudy-requirements]: ../../requirements.yml
 
 ## Variables
 
@@ -163,8 +163,8 @@ For complete examples on how to use this role, refer to hosts `lvrt-lcl-session`
 [examples inventory][inventory-example]. The top-level [`README.md`][jm1-cloudy-readme] describes how these hosts can be
 provisioned with playbook [`playbooks/site.yml`][playbook-site-yml].
 
-[inventory-example]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/inventory/
-[playbook-site-yml]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/playbooks/site.yml
+[inventory-example]: ../../inventory/
+[playbook-site-yml]: ../../playbooks/site.yml
 
 For instructions on how to run Ansible playbooks have look at Ansible's
 [Getting Started Guide](https://docs.ansible.com/ansible/latest/network/getting_started/first_playbook.html).

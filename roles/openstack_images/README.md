@@ -93,8 +93,8 @@ This role uses module(s) from collections [`jm1.openstack`][galaxy-jm1-openstack
 galaxy-openstack-cloud]. To install these collections you may follow the steps described in [`README.md`][
 jm1-cloudy-readme] using the provided [`requirements.yml`][jm1-cloudy-requirements].
 
-[jm1-cloudy-readme]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/README.md
-[jm1-cloudy-requirements]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/requirements.yml
+[jm1-cloudy-readme]: ../../README.md
+[jm1-cloudy-requirements]: ../../requirements.yml
 
 ## Variables
 

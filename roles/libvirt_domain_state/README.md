@@ -41,12 +41,12 @@ Available on Ansible Galaxy in Collection [jm1.cloudy](https://galaxy.ansible.co
 
 ## Requirements
 
-This role uses module(s) from collection [`community.libvirt`][galaxy-community-libvirt]. To install this collection you
-may follow the steps described in [`README.md`][jm1-cloudy-readme] using the provided [`requirements.yml`][
-jm1-cloudy-requirements].
+This role uses module(s) from collections [`community.libvirt`][galaxy-community-libvirt] and [`jm1.libvirt`][
+galaxy-jm1-libvirt]. To install these collections you may follow the steps described in [`README.md`][
+jm1-cloudy-readme] using the provided [`requirements.yml`][jm1-cloudy-requirements].
 
-[jm1-cloudy-readme]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/README.md
-[jm1-cloudy-requirements]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/requirements.yml
+[jm1-cloudy-readme]: ../../README.md
+[jm1-cloudy-requirements]: ../../requirements.yml
 
 ## Variables
 
@@ -98,8 +98,8 @@ For a complete example on how to use this role, refer to hosts `lvrt-lcl-session
 inventory][inventory-example]. The top-level [`README.md`][jm1-cloudy-readme] describes how these hosts can be
 provisioned with playbook [`playbooks/site.yml`][playbook-site-yml].
 
-[inventory-example]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/inventory/
-[playbook-site-yml]: https://github.com/JM1/ansible-collection-jm1-cloudy/blob/master/playbooks/site.yml
+[inventory-example]: ../../inventory/
+[playbook-site-yml]: ../../playbooks/site.yml
 
 For instructions on how to run Ansible playbooks have look at Ansible's
 [Getting Started Guide](https://docs.ansible.com/ansible/latest/network/getting_started/first_playbook.html).

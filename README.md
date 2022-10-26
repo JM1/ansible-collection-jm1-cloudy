@@ -26,8 +26,8 @@ that demonstrates how to setup a cloud infrastructure using [libvirt][libvirt] a
 [cloud-init-doc]: https://cloudinit.readthedocs.io/
 [devstack]: https://docs.openstack.org/devstack/latest/
 [tripleo-standalone-setup]: https://docs.openstack.org/project-deploy-guide/tripleo-docs/latest/deployment/standalone.html
-[pxe-hwfp]: https://github.com/JM1/ansible-collection-jm1-cloudy/tree/master/roles/pxe_hwfp/
-[pxe-installer]: https://github.com/JM1/ansible-collection-jm1-cloudy/tree/master/roles/pxe_installer/
+[pxe-hwfp]: roles/pxe_hwfp/README.md
+[pxe-installer]: roles/pxe_installer/README.md
 [pxe-wiki]: https://en.wikipedia.org/wiki/Preboot_Execution_Environment
 
 This collection has been developed and tested for compatibility with:
