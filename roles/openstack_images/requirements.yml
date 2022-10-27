@@ -1,6 +1,0 @@
----
-roles: []
-
-collections:
-- jm1.openstack
-- openstack.cloud

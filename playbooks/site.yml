@@ -90,17 +90,15 @@
   gather_facts: no
 
   roles:
-  - name: Setup OpenStack block storage volumes
-    role: jm1.cloudy.openstack_volumes
-    tags: ["jm1.cloudy.openstack_volumes"]
+  - name: Setup OpenStack resources
+    role: jm1.openstack.cloud
+    tags: ["jm1.openstack.cloud"]
+    vars:
+      cloud_config: '{{ openstack_cloud_config }}'
 
   - name: Setup OpenStack server
     role: jm1.cloudy.openstack_server
     tags: ["jm1.cloudy.openstack_server"]
-
-  - name: Manage OpenStack server state
-    role: jm1.cloudy.openstack_server_state
-    tags: ["jm1.cloudy.openstack_server_state"]
 
 - name: Group OpenStack servers
   hosts:
@@ -450,25 +448,11 @@
   gather_facts: no
 
   roles:
-  - name: Add/Remove compute flavors from OpenStack
-    role: jm1.cloudy.openstack_compute_flavors
-    tags: ["jm1.cloudy.openstack_compute_flavors"]
-
-  - name: Add/Delete images from OpenStack image repository
-    role: jm1.cloudy.openstack_images
-    tags: ["jm1.cloudy.openstack_images"]
-
-  - name: Add/Remove SSH keys from OpenStack
-    role: jm1.cloudy.openstack_keypairs
-    tags: ["jm1.cloudy.openstack_keypairs"]
-
-  - name: Create/Delete OpenStack networks, subnets, routers, ports and floating ips
-    role: jm1.cloudy.openstack_networks
-    tags: ["jm1.cloudy.openstack_networks"]
-
-  - name: Create/Delete OpenStack security groups and security group rules
-    role: jm1.cloudy.openstack_security_groups
-    tags: ["jm1.cloudy.openstack_security_groups"]
+  - name: Setup OpenStack resources
+    role: jm1.openstack.cloud
+    tags: ["jm1.openstack.cloud"]
+    vars:
+      cloud_config: '{{ openstack_cloud_config }}'
 
 ################################################################################
 ################################### Services ###################################

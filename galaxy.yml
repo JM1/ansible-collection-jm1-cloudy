@@ -10,7 +10,7 @@ dependencies:
   "jm1.libvirt": '>=2022.2.1'
   "jm1.packages": '>=2022.2.1'
   "jm1.pkg": '>=2022.2.1'
-  "jm1.openstack": '>=2022.2.1'
+  "jm1.openstack": '>=2022.10.27'
   "openstack.cloud": '>=1.5.0'
 description: null
 documentation: https://github.com/jm1/ansible-collection-jm1-cloudy/tree/master/docs
