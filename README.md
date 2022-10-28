@@ -177,17 +177,6 @@ manually. Refer to [`pip-requirements.txt`][pip-requirements-txt] for a complete
 to find matching packages for your distribution.
 
 [pkgs-org]: https://pkgs.org/
-
-#### Installing Ansible 2.9+ with Docker and `Ansible Silo`
-
-If Ansible 2.9 or later is not available for your OS, then you might give [Ansible Silo][ansible-silo] a try, which
-provides Ansible in a self-contained environment via Docker. Some Ansible modules used in this collection require
-additional tools and Python libraries which are not distributed with Ansible Silo. Refer to
-[`pip-requirements.txt`][pip-requirements-txt] for a complete list. Ansible Silo's documentation has a section on
-[installing custom software in Ansible Silo][ansible-silo-custom-software].
-
-[ansible-silo]: https://groupon.github.io/ansible-silo/
-[ansible-silo-custom-software]: https://groupon.github.io/ansible-silo/#installing-custom-software
 [pip-requirements-txt]: pip-requirements.txt
 
 #### Installing Ansible roles and collections
