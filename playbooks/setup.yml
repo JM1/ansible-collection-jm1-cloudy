@@ -1,0 +1,42 @@
+---
+# Copyright (c) 2022 Jakob Meng, <jakobmeng@web.de>
+# vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
+# kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
+
+- name: Satisfy software requirements of required Ansible collections
+  hosts: localhost
+  any_errors_fatal: yes
+  # do not become root because connection is local
+  connection: local
+  vars:
+    # For local connections use Python interpreter that is being used by Ansible on the controller.
+    #
+    # Rationale:
+    # For local connections Ansible will not necessarily use the same Python interpreter that is being used by Ansible
+    # on the controller. If Ansible on the controller is run from a virtual environment aka virtualenv, then Ansible
+    # will use interpreter discovery to choose a Python interpreter for local connections anyway. To reuse the Python
+    # interpreter from the controller, ansible_python_interpreter has to be set to ansible_playbook_python explicitly.
+    #
+    # Ref.:
+    #  https://github.com/ansible/ansible/issues/16724
+    #  https://willthames.github.io/2018/07/01/connection-local-vs-delegate_to-localhost.html
+    #  https://docs.ansible.com/ansible/latest/user_guide/playbooks_delegation.html
+    #  https://docs.ansible.com/ansible/latest/reference_appendices/interpreter_discovery.html
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+  gather_facts: yes
+
+  roles:
+  - name: Satisfy software requirements of Ansible collection jm1.pkg
+    # Ref.: https://github.com/JM1/ansible-collection-jm1-pkg/blob/master/roles/setup/README.md
+    role: jm1.pkg.setup
+    tags: ["jm1.pkg.setup"]
+
+  - name: Satisfy software requirements of Ansible collection jm1.libvirt
+    # Ref.: https://github.com/JM1/ansible-collection-jm1-libvirt/blob/master/roles/setup/README.md
+    role: jm1.libvirt.setup
+    tags: ["jm1.libvirt.setup"]
+
+  - name: Satisfy software requirements of Ansible collection jm1.openstack
+    # Ref.: https://github.com/JM1/ansible-collection-jm1-openstack/blob/master/roles/setup/README.md
+    role: jm1.openstack.setup
+    tags: ["jm1.openstack.setup"]

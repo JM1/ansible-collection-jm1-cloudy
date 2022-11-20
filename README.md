@@ -75,6 +75,7 @@ Click on the name of an inventory, module, playbook or role to view that content
 - **Inventories**:
     * [`inventory/`](inventory/hosts.yml)
 - **Playbooks**:
+    * [`setup.yml`](playbooks/setup.yml)
     * [`site.yml`](playbooks/site.yml)
 - **Roles**:
     * [cloudinit](roles/cloudinit/README.md)
@@ -121,13 +122,263 @@ broken download link and then redefine this variable with an updated link in you
 
 ## Requirements and Installation
 
-### Installing necessary software
+For starting off with this collection, first [derive your own cloud infrastructure from the content of this collection
+such as inventories, playbooks and roles and prepare your host environment](
+#define-cloud-infrastructure-and-prepare-host-environment).
 
-[Ansible Collections][ansible-collections] have been introduced in Ansible 2.9, hence for collection support a Ansible
-release equal to version 2.9 or greater has to be installed. Ansible's [Installation Guide][ansible-installation-guide]
-provides instructions on how to install Ansible on several operating systems and with `pip`.
+To deploy this customized cloud infrastructure, you can either [deploy a container with Docker Compose](
+#containerized-setup-with-docker-compose) or [utilize a bare-metal system](#bare-metal-setup). The container-based
+approach requires less changes to the Ansible controller system, is mostly automated and is less likely to break your
+host system.
+
+### Define cloud infrastructure and prepare host environment
+
+To build your own cloud infrastructure based on this collection, copy directories [`inventory/`][inventory-example],
+[`playbooks/`][playbooks-example], [`containers/`][containers-example] ([containerized setup only](
+#containerized-setup-with-docker-compose)) and config file [`ansible.cfg.example`][ansible-cfg-example] to a new
+directory.
+
+[ansible-cfg-example]: ansible.cfg.example
+[containers-example]: containers/
+[inventory-example]: inventory/
+[playbooks-example]: playbooks/
+
+Host `lvrt-lcl-system` defines a libvirt environment to be set up on a bare-metal system or inside a Docker container.
+For example, this includes required packages for libvirt and QEMU, [libvirt virtual networks][libvirt-networking] such
+as [NAT based networks as well as isolated networks][libvirt-format-network]) and a default libvirt storage pool.
+
+Host `lvrt-lcl-session` defines the libvirt session of your local user on a bare-metal system or user `cloudy` inside
+the Docker container. For example, this includes a default libvirt storage pool and OS images for host provisioning.
+
+All remaining Ansible hosts inside the [example inventory][inventory-example] define libvirt domains (QEMU/KVM based
+virtual machines) which require both hosts `lvrt-lcl-system` and `lvrt-lcl-session` to be provisioned successfully.
+
+[libvirt-networking]: https://wiki.libvirt.org/page/Networking
+[libvirt-format-network]: https://libvirt.org/formatnetwork.html
+
+Dig into the inventory and playbooks and customize them as needed.
+
+Edit `ansible.cfg` to match your environment, i.e. set `inventory` path where Ansible will find your inventory:
+
+```sh
+cp -raiv ansible.cfg.example ansible.cfg
+editor ansible.cfg
+```
+
+Ensure you have valid RSA keys for SSH logins, esp. a RSA public key at `$HOME/.ssh/id_rsa.pub`. If it does not exist,
+generate a new RSA key pair with `ssh-keygen` or edit Ansible variable `ssh_authorized_keys` in
+`inventory/group_vars/all.yml` to include your SSH public key:
+
+```yaml
+ssh_authorized_keys:
+- comment: John Wayne (Megacorp)
+  key: ssh-rsa ABC...XYZ user@host
+  state: present
+  user: '{{ ansible_user }}'
+```
+
+### Containerized setup with Docker Compose
+
+To run playbooks and roles of this collection with Docker Compose,
+
+* [Docker or Podman and Docker Compose have to be installed](#installing-docker-or-podman-and-docker-compose),
+* [KVM nested virtualization has to be enabled](#enable-kvm-nested-virtualization),
+* [a Docker bridge network has to be created](#create-docker-bridge-network) and
+* [a container has to be started with Docker Compose](#start-container-with-docker-compose).
+
+#### Installing Docker or Podman and Docker Compose
+
+Ensure Docker or [Podman][docker-to-podman-transition] is installed on your system.
+
+| OS                                           | Install Instructions |
+| -------------------------------------------- | -------------------- |
+| Debian 10 (Buster)                           | `apt install docker.io docker-compose` or follow [Docker's official install guide][docker-install-debian] for Debian and [their install guide for Docker Compose][docker-compose-install] |
+| Debian 11 (Bullseye)                         | `apt install docker.io docker-compose` or follow [Docker's official install guide][docker-install-debian] for Debian and [their install guide for Docker Compose][docker-compose-install] |
+| Red Hat Enterprise Linux (RHEL) 7 / CentOS 7 | Follow Docker's official install guide for [CentOS][docker-install-centos] and [RHEL][docker-install-rhel] and [their install guide for Docker Compose][docker-compose-install] or use [Podman][podman-install] with [Docker Compose][podman-docker-compose] |
+| Red Hat Enterprise Linux (RHEL) 8 / CentOS 8 | Follow Docker's official install guide for [CentOS][docker-install-centos] and [RHEL][docker-install-rhel] and [their install guide for Docker Compose][docker-compose-install] or use [Podman][podman-install] with [Docker Compose][podman-docker-compose] |
+| Red Hat Enterprise Linux (RHEL) 9 / CentOS 9 | Follow Docker's official install guide for [CentOS][docker-install-centos] and [RHEL][docker-install-rhel] and [their install guide for Docker Compose][docker-compose-install] or use [Podman][podman-install] with [Docker Compose][podman-docker-compose] |
+| Ubuntu 18.04 LTS (Bionic Beaver)             | `apt install docker.io docker-compose` or follow [Docker's official install guide][docker-install-ubuntu] for Ubuntu and [their install guide for Docker Compose][docker-compose-install] |
+| Ubuntu 20.04 LTS (Focal Fossa)               | `apt install docker.io docker-compose` or follow [Docker's official install guide][docker-install-ubuntu] for Ubuntu and [their install guide for Docker Compose][docker-compose-install] |
+
+[docker-compose-install]: https://docs.docker.com/compose/install/
+[docker-install-centos]: https://docs.docker.com/engine/install/centos/
+[docker-install-debian]: https://docs.docker.com/engine/install/debian/
+[docker-install-ubuntu]: https://docs.docker.com/engine/install/ubuntu/
+[docker-install-rhel]: https://docs.docker.com/engine/install/rhel/
+[docker-to-podman-transition]: https://developers.redhat.com/blog/2020/11/19/transitioning-from-docker-to-podman/
+[podman-docker-compose]: https://www.redhat.com/sysadmin/podman-docker-compose
+[podman-install]: https://podman.io/getting-started/installation
+
+#### Enable KVM nested virtualization
+
+Some libvirt domains (QEMU/KVM based virtual machines) like the [DevStack][devstack] and [TripleO standalone][
+tripleo-standalone-setup] hosts require KVM nested virtualization to be enabled on the container host, the system
+running Docker or Podman.
+
+To enable KVM nested virtualization for Intel and AMD CPUs, run Ansible role [`jm1.kvm_nested_virtualization`][
+galaxy-jm1-kvm-nested-virtualization] on your container host or execute the commands shown in its [`README.md`][
+jm1-kvm-nested-virtualization-readme] manually.
+
+[galaxy-jm1-kvm-nested-virtualization]: https://galaxy.ansible.com/jm1/kvm_nested_virtualization
+[jm1-kvm-nested-virtualization-readme]: https://github.com/JM1/ansible-role-jm1-kvm-nested-virtualization/blob/master/README.md
+
+#### Create Docker bridge network
+
+To access libvirt domains (QEMU/KVM based virtual machines) running inside containers from the container host, a
+[Docker bridge network][docker-network-bridge] must be created and routes for the ip networks used inside containers
+must be published on the container host.
+
+[docker-network-bridge]: https://docs.docker.com/network/bridge/
+
+The network configuration is twofold. First, a network bridge with ip routes will be set up and afterwards a Docker
+bridge will be created. For example, on Debian network interfaces are configured with [`ifupdown`][ifupdown-interfaces].
+To define a network bridge `docker-cloudy` and enable connectivity with ip networks `192.168.151.0/24` to
+`192.168.156.0/24` used inside containers,  change [`/etc/network/interfaces`][ifupdown-interfaces] to:
+
+```
+# Ref.:
+#  man interfaces
+#  man bridge-utils-interfaces
+
+auto docker-cloudy
+iface docker-cloudy inet manual
+    bridge_ports none
+    bridge_stp off
+    bridge_waitport 3
+    bridge_fd 0
+    bridge_maxwait 5
+    # publish routes for host access to containerized libvirt networks
+    post-up ip route add 192.168.151.0/24 dev docker-cloudy
+    post-up ip route add 192.168.152.0/24 dev docker-cloudy
+    post-up ip route add 192.168.153.0/24 dev docker-cloudy
+    post-up ip route add 192.168.154.0/24 dev docker-cloudy
+    post-up ip route add 192.168.155.0/24 dev docker-cloudy
+    post-up ip route add 192.168.156.0/24 dev docker-cloudy
+    pre-down ip route del 192.168.156.0/24 dev docker-cloudy || true
+    pre-down ip route del 192.168.155.0/24 dev docker-cloudy || true
+    pre-down ip route del 192.168.154.0/24 dev docker-cloudy || true
+    pre-down ip route del 192.168.153.0/24 dev docker-cloudy || true
+    pre-down ip route del 192.168.152.0/24 dev docker-cloudy || true
+    pre-down ip route del 192.168.151.0/24 dev docker-cloudy || true
+
+iface docker-cloudy inet6 manual
+```
+
+To apply these changes, run `systemctl restart networking.service` or reboot your system.
+
+This network bridge `docker-cloudy` has no physical network ports assigned to it, because connectivity is established
+with [ip routing][ip-routing].
+
+[ip-routing]: https://en.wikipedia.org/wiki/IP_routing
+[ifupdown-interfaces]: https://manpages.debian.org/unstable/ifupdown/interfaces.5.en.html
+
+On systems using `systemd-networkd` refer to [Arch's Wiki][arch-wiki-systemd-networkd] or [upstream's documentation][
+systemd-network]. For distributions using `NetworkManager`, refer to [GNOME's project page on NetworkManager][
+network-manager], esp. its `See Also` section.
+
+[arch-wiki-systemd-networkd]: https://wiki.archlinux.org/title/Systemd-networkd
+[ifupdown-interfaces]: https://manpages.debian.org/unstable/ifupdown/interfaces.5.en.html
+[network-manager]: https://wiki.gnome.org/Projects/NetworkManager
+[systemd-network]: https://www.freedesktop.org/software/systemd/man/systemd.network.html
+
+The second step is to create a Docker network `cloudy` which containers will be using to communicate with the outside:
+
+```sh
+docker network create --driver=bridge -o "com.docker.network.bridge.name=docker-cloudy" --subnet=192.168.150.0/24 --gateway=192.168.150.1 cloudy
+```
+
+If you do not intend to communicate from the container host with libvirt domains running inside containers, you can skip
+the instructions about network bridge `docker-cloudy` above and only create Docker bridge `cloudy` with:
+
+```sh
+docker network create --subnet=192.168.150.0/24 --gateway=192.168.150.1 cloudy
+```
+
+#### Start container with Docker Compose
+
+Open [`docker-compose.yml`][containers-docker-compose-yml] in your copy of the [`containers/`][containers-example]
+directory and find the container based on the distribution matching the container host. The following example assumes
+that the container host is running on `Debian 11 (Bullseye)`. The matching container name in [`docker-compose.yml`][
+containers-docker-compose-yml] is called `debian_11`. To start it, run these commands on the container host:
+
+[containers-docker-compose-yml]: containers/docker-compose.yml
+
+```sh
+# Change to Docker Compose directory inside project directory
+# containing your Ansible inventory, playbooks and ansible.cfg
+cd containers/
+
+# Start container in the background
+DEBUG=yes DEBUG_SHELL=yes docker-compose up -d debian_11
+
+# Monitor container activity
+docker-compose logs --follow
+```
+
+Inside the container, script [`containers/entrypoint.sh`][containers-entrypoint-sh] will execute playbook
+[`playbooks/site.yml`][playbook-site-yml] for hosts `lvrt-lcl-system` and `lvrt-lcl-session`, as [defined in the
+inventory](#define-cloud-infrastructure-and-prepare-host-environment). When container execution fails, try to start the
+container again.
+
+[containers-entrypoint-sh]: containers/entrypoint.sh
+
+When all Ansible playbook runs for both Ansible hosts `lvrt-lcl-system` and `lvrt-lcl-session` have been completed
+successfully, attach to the Bash shell of the root user running inside the container:
+
+```sh
+# Attach to Bash shell which is running inside the container
+docker attach cloudy-debian-11
+```
+
+Inside this root shell execute the following command to log in as user `cloudy`:
+
+```sh
+# Login as user cloudy who runs the libvirt domains (QEMU/KVM based virtual machines)
+sudo -u cloudy --login
+```
+
+Being logged in as `cloudy` inside the container, continue with [running playbook `playbooks/site.yml` for all remaining
+hosts](#usage-and-playbooks) from your copy of the [`inventory/`][inventory-example] directory.
+
+To stop the container, exit the container's Bash shells and run on your container host:
+
+```sh
+# Stop and remove container(s)
+docker-compose down
+```
+
+Both the SSH credentials and the libvirt storage volumes of the libvirt domains (QEMU/KVM based virtual machines) have
+been persisted in Docker volumes which will not be deleted when shutting down the Docker container. To list and wipe
+those Docker volumes, run:
+
+```sh
+# List all Docker volumes
+docker volume ls
+
+# Remove Docker volumes
+docker volume rm containers_cloudy-debian-11-images containers_cloudy-debian-11-ssh
+```
+
+### Bare-metal setup
+
+To use this collection on a bare-metal system,
+
+* Ansible 2.9 or greater [^minimum-ansible-version] has to be installed either
+  [with `pip`](#installing-ansible-29-with-pip) or
+  [using distribution-provided packages](#installing-ansible-29-on-specific-operating-systems),
+* [necessary Ansible roles and collections have to be fetched](#installing-ansible-roles-and-collections),
+* [their requirements have to be satisfied](#satisfying-collections-requirements),
+* [this collection has to be installed from Ansible Galaxy](#installing-the-collection-from-ansible-galaxy) and
+* [the bare-metal system has to be configured with Ansible](#configure-bare-metal-system-with-ansible).
+
+[^minimum-ansible-version]: [Ansible Collections][ansible-collections] have been introduced in Ansible 2.9, hence for
+collection support a release equal to version 2.9 or greater has to be installed.
 
 [ansible-collections]: https://github.com/ansible-collections/overview/blob/main/README.rst
+
+Ansible's [Installation Guide][ansible-installation-guide] provides instructions on how to install Ansible on several
+operating systems and with `pip`.
+
 [ansible-installation-guide]: https://docs.ansible.com/ansible/latest/installation_guide/
 
 #### Installing Ansible 2.9+ with `pip`
@@ -191,6 +442,11 @@ ansible-galaxy role install --role-file requirements.yml
 make install-requirements
 ```
 
+:warning: **WARNING:**
+Ansible collections such as `community.general` have dropped support for older Ansible releases such as Ansible 2.9 and
+2.10, so when using older Ansible releases you will have to downgrade to older versions of the Ansible collections.
+:warning:
+
 #### Satisfying collections requirements
 
 These collections require additional tools and libraries, e.g. to interact with package managers, libvirt and OpenStack.
@@ -199,6 +455,8 @@ You can use the following roles to install necessary software packages:
 ```sh
 sudo -s
 
+ansible-playbook playbooks/setup.yml
+# or
 ansible-console localhost << EOF
 gather_facts
 
@@ -216,7 +474,7 @@ EOF
 The exact requirements for every module and role are listed in the corresponding documentation.
 See the module documentations for the minimal version supported for each module.
 
-### Installing the Collection from Ansible Galaxy
+#### Installing the Collection from Ansible Galaxy
 
 Before using the `jm1.cloudy` collection, you need to install it with the Ansible Galaxy CLI:
 
@@ -234,59 +492,31 @@ collections:
     version: 2022.2.1
 ```
 
-## Usage and Playbooks
+#### Configure bare-metal system with Ansible
 
-### Starting off with your own cloud
+To configure and run the libvirt domains (QEMU/KVM based virtual machines) defined in the [example inventory][
+inventory-example], both Ansible hosts `lvrt-lcl-system` and `lvrt-lcl-session` have to be provisioned successfully
+first. Executing playbook [`playbooks/site.yml`][playbook-site-yml] for hosts `lvrt-lcl-system` and `lvrt-lcl-session`
+will create several [libvirt virtual networks][libvirt-networking], both [NAT based networks as well as isolated
+networks][libvirt-format-network]. For each network, a bridge will be created with names `virbr-local-0` to
+`virbr-local-5`. To each network an ip subnet will be assigned, from `192.168.151.0/24` to `192.168.156.0/24`. The
+libvirt virtual networks are defined with variable `libvirt_networks` in [`inventory/host_vars/lvrt-lcl-system.yml`][
+inventory-lvrt-lcl-system].
 
-To build your own cloud infrastructure based on this collection, copy directory [`inventory/`][inventory-example],
-playbook [`playbooks/site.yml`][playbook-site-yml] and config [`ansible.cfg.example`][ansible-cfg-example] to a new
-directory.
+[playbook-site-yml]: playbooks/site.yml
+[inventory-lvrt-lcl-system]: inventory/host_vars/lvrt-lcl-system.yml
 
-Edit `ansible.cfg` to match your environment, i.e. set paths where Ansible is going to install and search for
-collections and roles etc:
-
-```sh
-mv -i ansible.cfg.example ansible.cfg
-editor ansible.cfg
-```
+Before running the playbooks for hosts `lvrt-lcl-system` and `lvrt-lcl-session`, please make sure that no bridges with
+such names do exist on your system. Please also verify that the ip subnets given previously are not currently known to
+your system. For example, use `ip addr` to show all IPv4 and IPv6 addresses assigned to all network interfaces.
 
 :warning: **WARNING:**
 Run the following playbooks on disposable non-productive bare-metal machines only.
 They will apply changes that might break your system.
 :warning:
 
-
-Ensure you have valid RSA keys for SSH logins, esp. a RSA public key at `$HOME/.ssh/id_rsa.pub`. If it does not exist,
-generate a new RSA key pair with `ssh-keygen` or edit Ansible variable `ssh_authorized_keys` in
-`inventory/group_vars/all.yml` to include your SSH public key:
-
-```yaml
-
-ssh_authorized_keys:
-- comment: John Wayne (Megacorp)
-  key: ssh-rsa ABC...XYZ user@host
-  state: present
-  user: '{{ ansible_user }}'
-
-```
-
-The [example inventory][inventory-example] defines several [libvirt virtual networks][libvirt-networking], both
-[NAT based networks as well as isolated networks][libvirt-format-network]. They will be created when executing the
-playbooks listed below for hosts `lvrt-lcl-system` and `lvrt-lcl-session`. For each network, a bridge will be created
-with names `virbr-local-0` to `virbr-local-5`. To each network an ip subnet will be assigned, from `192.168.151.0/24` to
-`192.168.156.0/24`. The libvirt virtual networks are defined with variable `libvirt_networks` in
-[`inventory/host_vars/lvrt-lcl-system.yml`][inventory-lvrt-lcl-system].
-Before running the playbooks for hosts `lvrt-lcl-system` and `lvrt-lcl-session`, please make sure that no bridges with
-such names do exist on your system. Please also verify that the ip subnets given previously are not currently known to
-your system. For example, use `ip addr` to show all IPv4 and IPv6 addresses assigned to all network interfaces.
-
-[libvirt-networking]: https://wiki.libvirt.org/page/Networking
-[libvirt-format-network]: https://libvirt.org/formatnetwork.html
-[inventory-lvrt-lcl-system]: inventory/host_vars/lvrt-lcl-system.yml
-
-Run playbook `playbooks/site.yml` for host `lvrt-lcl-system` to set up a libvirt environment on your system, e.g. to
-install packages for libvirt and QEMU, to configure libvirt networks, to prepare a default libvirt storage pool and to
-preload OS images.
+Run playbook `playbooks/site.yml` for host `lvrt-lcl-system` to prepare a libvirt environment on your system, e.g. to
+install packages for libvirt and QEMU, configure libvirt networks and prepare a default libvirt storage pool.
 
 ```sh
 # Cache user credentials so that Ansible can escalate privileges and execute tasks with root privileges
@@ -295,14 +525,46 @@ sudo true
 ansible-playbook playbooks/site.yml --limit lvrt-lcl-system
 ```
 
-Run playbook `playbooks/site.yml` for host `lvrt-lcl-session` to prepare the libvirt session of your local user, e.g.
-prepare a default libvirt storage pool and preload OS images.
+Run playbook `playbooks/site.yml` for host `lvrt-lcl-session` to prepare the libvirt session of your local user, e.g. to
+prepare a default libvirt storage pool and preload OS images for host provisioning.
 
 ```sh
 ansible-playbook playbooks/site.yml --limit lvrt-lcl-session
 ```
 
-Run playbook `playbooks/site.yml` for all remaining hosts.
+With both hosts `lvrt-lcl-system` and `lvrt-lcl-session` being set up, continue with [running playbook
+`playbooks/site.yml` for all remaining hosts](#usage-and-playbooks).
+
+## Usage and Playbooks
+
+The [example inventory][inventory-example] of this collection, [on which your cloud infrastructure can be build upon](
+#define-cloud-infrastructure-and-prepare-host-environment), defines several libvirt domains (QEMU/KVM based virtual
+machines) `lvrt-lcl-session-srv-*` and two special Ansible hosts `lvrt-lcl-system` and `lvrt-lcl-session`. The latter
+two have been used above to [deploy a container with Docker Compose](#containerized-setup-with-docker-compose) or
+[prepare a bare-metal system](#bare-metal-setup) and are not of interest here. For an overview about the libvirt domains
+please refer to the introduction at the beginning.
+
+For example, to set up Ansible host `lvrt-lcl-session-srv-3-debian10` run the following command from inside [your
+project directory](#define-cloud-infrastructure-and-prepare-host-environment) as local non-root user, e.g. `cloudy` in
+[containerized setup](#containerized-setup-with-docker-compose):
+
+```sh
+# Set up and boot a libvirt domain (QEMU/KVM based virtual machine) based on Debian 10 (Buster)
+ansible-playbook playbooks/site.yml --limit lvrt-lcl-session-srv-3-debian10
+```
+
+Inside [`inventory/host_vars/lvrt-lcl-session-srv-3-debian10.yml`][inventory-example-host] you will find the ip address
+of that system which can be used for ssh'ing into it:
+
+[inventory-example-host]: inventory/host_vars/lvrt-lcl-session-srv-3-debian10.yml
+
+```sh
+# Establish SSH connection to Ansible host lvrt-lcl-session-srv-3-debian10
+ssh ansible@192.168.156.13
+```
+
+Besides individual Ansible hosts, you can also use Ansible groups such as `build_level1` and `build_level2` to set up
+several systems in parallel.
 
 :warning: **WARNING:**
 Running playbook `playbooks/site.yml` for all hosts in `build_level1` and `build_level2` will create dozens of virtual
@@ -312,16 +574,10 @@ complete list of hosts in `build_level1` and `build_level2`.
 :warning:
 
 ```sh
-# build_level0 contains lvrt-lcl-system and lvrt-lcl-session which have been prepared at previous steps
+# build_level0 contains lvrt-lcl-system and lvrt-lcl-session which have been prepared in previous steps
 ansible-playbook playbooks/site.yml --limit build_level1
 ansible-playbook playbooks/site.yml --limit build_level2
 ```
-
-Dig into your inventory and playbooks and customize them as needed.
-
-[ansible-cfg-example]: ansible.cfg.example
-[inventory-example]: inventory/
-[playbook-site-yml]: playbooks/site.yml
 
 ### Using content of this Collection
 
