@@ -29,6 +29,17 @@
     xpath: "/network/name"
   register: libvirt_net_names_result
 
+- name: Notify start/stop of unmodified virtual networks
+  loop: '{{ libvirt_networks | zip(libvirt_net_names_result.results) | list }}'
+  community.libvirt.virt_net:
+    command: status
+    name: "{{ item.1.matches[0]['name'] | mandatory }}"
+    uri: "{{ item.0.uri if 'uri' in item.0 else libvirt_uri }}"
+  register: libvirt_net_status_result
+  changed_when: item.0.state | default('present') != libvirt_net_status_result.status
+  notify:
+  - 'Start/Stop libvirt virtual networks'
+
 - name: Autostart virtual networks
   loop: '{{ libvirt_net_result.results | zip(libvirt_net_names_result.results, libvirt_networks) | list }}'
   when: item.2.state | default('present') != 'absent'
