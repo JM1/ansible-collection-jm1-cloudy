@@ -67,7 +67,8 @@
     line: '{{ item.acl }} {{ item.bridge.name }}'
     mode: u=rw,g=r,o=r
     owner: root
-    path: /etc/qemu/bridge.conf
+    path: "{{ '/etc/qemu/bridge.conf'
+              if distribution_id | first in ['Debian', 'Ubuntu'] else '/etc/qemu-kvm/bridge.conf' }}"
     regexp: '\\ {{ item.bridge.name }}$'
     state: present
 
@@ -75,7 +76,8 @@
   loop: '{{ libvirt_networks | default([]) }}'
   when:  item.state | default('present') == 'absent' and 'acl' in item
   ansible.builtin.lineinfile:
-    path: /etc/qemu/bridge.conf
+    path: "{{ '/etc/qemu/bridge.conf'
+              if distribution_id | first in ['Debian', 'Ubuntu'] else '/etc/qemu-kvm/bridge.conf' }}"
     regexp: '\\ {{ item.bridge.name }}$'
     state: absent
 

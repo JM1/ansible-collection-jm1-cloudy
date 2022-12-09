@@ -38,9 +38,10 @@ community-libvirt-virt-net] from collection [`community.libvirt`][galaxy-communi
 network to be started automatically when the libvirt daemon starts.
 
 If a list item contains key `acl` then [the capability to create TUN/TAP devices aka `cap_net_admin+ep` will be added to
-`qemu-bridge-helper`][qemu-bridge-helper] and [QEMU's config file `/etc/qemu/bridge.conf` will be edited to allow or
-deny access to bridges (created by `qemu-bridge-helper` and implicitly invoked from libvirt daemon) for unprivileged
-users][qemu-acl] [^libvirt-networks-parameter-acl].
+`qemu-bridge-helper`][qemu-bridge-helper] and [QEMU's config file `/etc/qemu/bridge.conf` (on Debian based
+distributions) or `/etc/qemu-kvm/bridge.conf` (on RHEL based distributions) will be edited to allow or deny access to
+bridges (created by `qemu-bridge-helper` and implicitly invoked from libvirt daemon) for unprivileged users][qemu-acl]
+[^libvirt-networks-parameter-acl].
 
 [qemu-bridge-helper]: https://salsa.debian.org/libvirt-team/libvirt/-/blob/debian/latest/debian/libvirt-daemon.README.Debian#L45
 
@@ -49,8 +50,8 @@ runtime.
 
 If any list item in `libvirt_networks` has its key `state` set to `absent` then module [`jm1.libvirt.net_xml`][
 jm1-libvirt-net-xml] will be used to stop (destroy) and delete (undefine) this network. Any line in [QEMU's config file
-`/etc/qemu/bridge.conf`][qemu-acl] which lists the bridge name of an `absent` libvirt network will be removed to revoke
-access to bridges for unprivileged users [^libvirt-networks-parameter-acl].
+`/etc/qemu/bridge.conf` or `/etc/qemu-kvm/bridge.conf`][qemu-acl] which lists the bridge name of an `absent` libvirt
+network will be removed to revoke access to bridges for unprivileged users [^libvirt-networks-parameter-acl].
 
 [ansible-inventory]: https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
 [community-libvirt-virt-net]: https://docs.ansible.com/ansible/latest/collections/community/libvirt/virt_net_module.html
@@ -94,10 +95,10 @@ described in [`README.md`][jm1-cloudy-readme] using the provided [`requirements.
 [^libvirt-networks-parameter-acl]: Each list item in `libvirt_networks` can have an optional key `acl` which specifies
 whether [unprivileged users do have access to bridges created by `qemu-bridge-helper` (implicitly invoked from libvirt
 daemon)][qemu-acl]. Valid values for `acl` are `allow` and `deny`. If `acl` is present, then a line will be added to
-`/etc/qemu/bridge.conf` to allow or deny access to QEMU bridges for unprivileged users. Details can be found in
-[`roles/libvirt_networks/tasks/main.yml`](tasks/main.yml). If `state` of a list item is `absent` and key `acl` is
-present, then any line in `/etc/qemu/bridge.conf` which lists the libvirt network will be removed to revoke access to
-bridges for unprivileged users.
+`/etc/qemu/bridge.conf` or `/etc/qemu-kvm/bridge.conf` to allow or deny access to QEMU bridges for unprivileged users.
+Details can be found in [`roles/libvirt_networks/tasks/main.yml`](tasks/main.yml). If `state` of a list item is `absent`
+and key `acl` is present, then any line in `/etc/qemu/bridge.conf` or `/etc/qemu-kvm/bridge.conf` which lists the
+libvirt network will be removed to revoke access to bridges for unprivileged users.
 
 [^libvirt-networks-parameter-autostart]: If key `autostart` is present in a list item and it evaluates to `yes`, then
 module [`community.libvirt.virt_net`][community-libvirt-virt-net] from collection [`community.libvirt`][
