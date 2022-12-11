@@ -10,7 +10,7 @@ dhcpd_config:
     group: root
     mode: u=rw,g=r,o=
     owner: root
-    src: "{{ distribution_id | join('-') | regex_replace('[^A-Za-z0-9_.-]', '-') + '/etc/dhcp/dhcpd.conf' }}"
+    src: "{{ distribution_id | join('_') | lower | regex_replace('[^a-z0-9_]', '_') + '/etc/dhcp/dhcpd.conf' }}"
 
 dhcpd6_config:
 - # Configure /etc/dhcp/dhcpd6.conf
@@ -19,7 +19,7 @@ dhcpd6_config:
     group: root
     mode: u=rw,g=r,o=
     owner: root
-    src: "{{ distribution_id | join('-') | regex_replace('[^A-Za-z0-9_.-]', '-') + '/etc/dhcp/dhcpd6.conf' }}"
+    src: "{{ distribution_id | join('_') | lower | regex_replace('[^a-z0-9_]', '_') + '/etc/dhcp/dhcpd6.conf' }}"
 
 dhcpd_service_enabled: yes
 

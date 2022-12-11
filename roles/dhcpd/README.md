@@ -15,7 +15,7 @@ dhcpd_config:
     group: root
     mode: u=rw,g=r,o=
     owner: root
-    src: "{{ distribution_id | join('-') | regex_replace('[^A-Za-z0-9_.-]', '-') + '/etc/dhcp/dhcpd.conf' }}"
+    src: "{{ distribution_id | join('_') | regex_replace('[^A-Za-z0-9_]', '_') + '/etc/dhcp/dhcpd.conf' }}"
 ```
 
 First, this role will install a DHCP service which matches the distribution specified in variable `distribution_id`.
