@@ -33,7 +33,7 @@ apt_repository_config: |
         apt_repository_config_ubuntu_20_04.focal_partner.deb +
         apt_repository_config_ubuntu_20_04.focal_security.deb +
         apt_repository_config_ubuntu_20_04.focal_updates.deb
-    }[distribution_id | join('_') | regex_replace('[^A-Za-z0-9 _-]', '_')]
+    }[distribution_id | join('_') | regex_replace('[^A-Za-z0-9_]', '_')]
   }}
 
 # apt_repository_config_debian_9 is set in role jm1.pkg.apt_repository
@@ -286,7 +286,7 @@ ssh_authorized_keys:
   user: '{{ ansible_user }}'
 
 sshd_config: "{{
-  lookup('vars', 'sshd_config_' + distribution_id | first | lower | regex_replace('[^A-Za-z0-9 _-]', '_')) | default([]) }}"
+  lookup('vars', 'sshd_config_' + distribution_id | first | lower | regex_replace('[^a-z0-9_]', '_')) | default([]) }}"
 
 sshd_config_centos:
 - ansible.builtin.lineinfile:

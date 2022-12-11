@@ -108,7 +108,7 @@ pxe_installer_httpd_root: |-
       'Debian': pxe_installer_httpd_root_debian,
       'Red_Hat_Enterprise_Linux': pxe_installer_httpd_root_red_hat_enterprise_linux,
       'Ubuntu': pxe_installer_httpd_root_ubuntu
-    }[distribution_id | first | regex_replace('[^A-Za-z0-9 _-]', '_')]
+    }[distribution_id | first | regex_replace('[^A-Za-z0-9_]', '_')]
   }}
 
 pxe_installer_httpd_root_centos: '{{ pxe_installer_httpd_root_red_hat_enterprise_linux }}'
@@ -140,7 +140,7 @@ pxe_installer_tftpd_root: |-
       'Debian': pxe_installer_tftpd_root_debian,
       'Red_Hat_Enterprise_Linux': pxe_installer_tftpd_root_red_hat_enterprise_linux,
       'Ubuntu': pxe_installer_tftpd_root_ubuntu
-    }[distribution_id | first | regex_replace('[^A-Za-z0-9 _-]', '_')]
+    }[distribution_id | first | regex_replace('[^A-Za-z0-9_]', '_')]
   }}
 
 pxe_installer_tftpd_root_centos: '{{ pxe_installer_tftpd_root_red_hat_enterprise_linux }}'

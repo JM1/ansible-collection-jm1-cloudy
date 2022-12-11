@@ -40,7 +40,7 @@ tftpd_service_name: |-
       'Red_Hat_Enterprise_Linux_9': 'tftp.service',
       'Ubuntu_18_04': 'tftpd-hpa',
       'Ubuntu_20_04': 'tftpd-hpa'
-    }[distribution_id | join('_') | regex_replace('[^A-Za-z0-9 _-]', '_')]
+    }[distribution_id | join('_') | regex_replace('[^A-Za-z0-9_]', '_')]
   }}
 
 tftpd_service_state: 'started'

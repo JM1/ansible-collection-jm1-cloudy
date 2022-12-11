@@ -49,7 +49,7 @@ pxe_hwfp_tftpd_root: |-
       'Debian': pxe_hwfp_tftpd_root_debian,
       'Red_Hat_Enterprise_Linux': pxe_hwfp_tftpd_root_red_hat_enterprise_linux,
       'Ubuntu': pxe_hwfp_tftpd_root_ubuntu
-    }[distribution_id | first | regex_replace('[^A-Za-z0-9 _-]', '_')]
+    }[distribution_id | first | regex_replace('[^A-Za-z0-9_]', '_')]
   }}
 
 pxe_hwfp_tftpd_root_centos: '{{ pxe_hwfp_tftpd_root_red_hat_enterprise_linux }}'

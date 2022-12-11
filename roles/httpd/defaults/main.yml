@@ -40,7 +40,7 @@ httpd_service_name: |-
       'Red_Hat_Enterprise_Linux_9': 'httpd.service',
       'Ubuntu_18_04': 'apache2.service',
       'Ubuntu_20_04': 'apache2.service'
-    }[distribution_id | join('_') | regex_replace('[^A-Za-z0-9 _-]', '_')]
+    }[distribution_id | join('_') | regex_replace('[^A-Za-z0-9_]', '_')]
   }}
 
 httpd_service_state: 'started'

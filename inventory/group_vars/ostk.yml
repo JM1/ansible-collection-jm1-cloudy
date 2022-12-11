@@ -62,6 +62,6 @@ openstack_volumes:
 - openstack.cloud.volume:
     bootable: yes
     display_name: '{{ openstack_server_name }}'
-    image: "{{ openstack_server_images[distribution_id | join('_') | regex_replace('[^A-Za-z0-9 _-]', '_')] }}"
+    image: "{{ openstack_server_images[distribution_id | join('_') | regex_replace('[^A-Za-z0-9_]', '_')] }}"
     size: 10
     state: present

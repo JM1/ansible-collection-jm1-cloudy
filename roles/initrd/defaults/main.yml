@@ -24,7 +24,7 @@ distribution_id:
           ansible_facts.distribution_major_version }}"
 
 initrd_cmd: "{{
-  lookup('vars', 'initrd_cmd_' + distribution_id | first | lower | regex_replace('[^A-Za-z0-9 _-]', '_')) | default([]) }}"
+  lookup('vars', 'initrd_cmd_' + distribution_id | first | lower | regex_replace('[^a-z0-9_]', '_')) | default([]) }}"
 
 initrd_cmd_centos: dracut --regenerate-all --force
 

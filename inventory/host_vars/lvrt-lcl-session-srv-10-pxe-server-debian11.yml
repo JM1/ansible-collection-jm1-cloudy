@@ -64,11 +64,11 @@ dhcpd_config:
       if option host-name = "{{ hostvars[pxe_client].inventory_hostname }}" {
         if option architecture-type = 00:07 {
           filename "{{ pxe_installer_distribution_filename_map
-                       [hostvars[pxe_client]['distribution_id'] | join('_') | regex_replace('[^A-Za-z0-9 _-]', '_')]
+                       [hostvars[pxe_client]['distribution_id'] | join('_') | regex_replace('[^A-Za-z0-9_]', '_')]
                        [hostvars[pxe_client]['os_architecture']]['UEFI'] }}";
         } else {
           filename "{{ pxe_installer_distribution_filename_map
-                       [hostvars[pxe_client]['distribution_id'] | join('_') | regex_replace('[^A-Za-z0-9 _-]', '_')]
+                       [hostvars[pxe_client]['distribution_id'] | join('_') | regex_replace('[^A-Za-z0-9_]', '_')]
                        [hostvars[pxe_client]['os_architecture']]['BIOS'] }}";
         }
       } # option host-name = "{{ hostvars[pxe_client].inventory_hostname }}"
