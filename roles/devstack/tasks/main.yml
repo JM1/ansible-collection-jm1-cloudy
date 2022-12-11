@@ -34,7 +34,7 @@
 - name: Git clone DevStack repository to DevStack user's home
   become: yes
   become_user: '{{ devstack_user }}'
-  ansible.builtin.git: # noqa git-latest
+  ansible.builtin.git: # noqa latest[git]
     depth: 1
     dest: '{{ devstack_user_home }}/devstack'
     repo: 'https://opendev.org/openstack/devstack.git'
