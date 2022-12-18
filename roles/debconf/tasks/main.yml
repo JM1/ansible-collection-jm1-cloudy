@@ -14,6 +14,5 @@
 - name: Change debconf database
   when: debconf_config is mapping # dictionary
   ansible.builtin.debconf: '{{ item }}'
-  register: debconf_list_result
   notify:
   - 'Reconfigure debian package to apply debconf database changes'
