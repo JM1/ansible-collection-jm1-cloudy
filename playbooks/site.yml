@@ -47,7 +47,7 @@
   - name: Manage IPMI devices, e.g. machine power state and its boot device
     role: jm1.cloudy.ipmi
     tags: ["jm1.cloudy.ipmi"]
-  # NOTE: Have a look at host lvrt-lcl-session-srv-10-pxe-server-debian11 on how to provision bare-metal servers.
+  # NOTE: Have a look at host lvrt-lcl-session-srv-100-pxe-server-debian11 on how to provision bare-metal servers.
 
 - name: Group bare-metal servers
   hosts:

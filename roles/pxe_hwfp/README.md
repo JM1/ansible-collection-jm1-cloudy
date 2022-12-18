@@ -71,8 +71,8 @@ steps described in [`README.md`][jm1-cloudy-readme] using the provided [`require
 ## Example Playbook
 
 For a complete example on how to configure `dhcpd`, `tftpd` and `hwfp` services, refer to host
-[`lvrt-lcl-session-srv-30-hwfp-server-debian11` from the provided examples inventory][inventory-example]. Additionally,
-hosts `lvrt-lcl-session-srv-31-hwfp-client-debian11-bios` and `lvrt-lcl-session-srv-32-hwfp-client-debian11-uefi` can be
+[`lvrt-lcl-session-srv-300-hwfp-server-debian11` from the provided examples inventory][inventory-example]. Additionally,
+hosts `lvrt-lcl-session-srv-310-hwfp-client-debian11-bios` and `lvrt-lcl-session-srv-311-hwfp-client-debian11-uefi` can be
 booted manually (once provisioned with Ansible) to showcase and debug the whole poweron-fingerprint-report-poweroff
 cycle. The top-level [`README.md`][jm1-cloudy-readme] describes how hosts can be provisioned with playbook
 [`playbooks/site.yml`][playbook-site-yml].

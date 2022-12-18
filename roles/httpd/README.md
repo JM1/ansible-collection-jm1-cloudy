@@ -100,7 +100,7 @@ community-general-apache2-module], [`blockinfile`][ansible-builtin-blockinfile],
     tags: ["jm1.cloudy.httpd"]
 ```
 
-For a complete example on how to use this role, refer to host `lvrt-lcl-session-srv-10-pxe-server-debian11` from the
+For a complete example on how to use this role, refer to host `lvrt-lcl-session-srv-100-pxe-server-debian11` from the
 provided [examples inventory][inventory-example]. The top-level [`README.md`][jm1-cloudy-readme] describes how this host
 can be provisioned with playbook [`playbooks/site.yml`][playbook-site-yml].
 

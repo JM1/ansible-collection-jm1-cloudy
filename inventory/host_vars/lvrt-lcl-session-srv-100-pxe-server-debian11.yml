@@ -317,12 +317,12 @@ meta_packages:
   version: 2
 
 pxe_installer_clients:
-- lvrt-lcl-session-srv-11-pxe-client-debian11-bios
-- lvrt-lcl-session-srv-13-pxe-client-debian11-uefi
-- lvrt-lcl-session-srv-14-pxe-client-ubuntu2004-bios
-- lvrt-lcl-session-srv-15-pxe-client-ubuntu2004-uefi
-- lvrt-lcl-session-srv-16-pxe-client-centos8-bios
-- lvrt-lcl-session-srv-17-pxe-client-centos8-uefi
+- lvrt-lcl-session-srv-110-pxe-client-debian11-bios
+- lvrt-lcl-session-srv-111-pxe-client-debian11-uefi
+- lvrt-lcl-session-srv-120-pxe-client-ubuntu2004-bios
+- lvrt-lcl-session-srv-121-pxe-client-ubuntu2004-uefi
+- lvrt-lcl-session-srv-130-pxe-client-centos8-bios
+- lvrt-lcl-session-srv-131-pxe-client-centos8-uefi
 
 pxe_installer_host_address: 192.168.153.2
 

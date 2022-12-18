@@ -53,7 +53,7 @@ steps described in [`README.md`][jm1-cloudy-readme] using the provided [`require
     tags: ["jm1.cloudy.devstack"]
 ```
 
-For a complete example on how to use this role, refer to host `lvrt-lcl-session-srv-20-devstack` from the provided
+For a complete example on how to use this role, refer to host `lvrt-lcl-session-srv-200-devstack` from the provided
 [examples inventory][inventory-example]. The top-level [`README.md`][jm1-cloudy-readme] describes how this host can be
 provisioned with playbook [`playbooks/site.yml`][playbook-site-yml].
 

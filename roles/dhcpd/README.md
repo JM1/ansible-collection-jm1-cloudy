@@ -102,8 +102,8 @@ ansible-builtin-lineinfile] and [`template`][ansible-builtin-template].
     tags: ["jm1.cloudy.dhcpd"]
 ```
 
-For complete examples on how to use this role, refer to hosts `lvrt-lcl-session-srv-10-pxe-server-debian11` or
-`lvrt-lcl-session-srv-30-hwfp-server-debian11` from the provided [examples inventory][inventory-example]. The top-level
+For complete examples on how to use this role, refer to hosts `lvrt-lcl-session-srv-100-pxe-server-debian11` or
+`lvrt-lcl-session-srv-300-hwfp-server-debian11` from the provided [examples inventory][inventory-example]. The top-level
 [`README.md`][jm1-cloudy-readme] describes how these hosts can be provisioned with playbook [`playbooks/site.yml`][
 playbook-site-yml].
 

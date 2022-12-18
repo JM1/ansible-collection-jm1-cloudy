@@ -25,7 +25,7 @@ data) files to customize the installation process per host.
 [ubuntu-pxe-1]: https://ubuntu.com/server/docs/install/netboot-arm64
 [ubuntu-pxe-2]: https://ubuntu.com/server/docs/install/netboot-amd64
 
-For a complete example, take a look at host `lvrt-lcl-session-srv-10-pxe-server-debian11` from the provided [examples
+For a complete example, take a look at host `lvrt-lcl-session-srv-100-pxe-server-debian11` from the provided [examples
 inventory][inventory-example]. The top-level [`README.md`][jm1-cloudy-readme] describes how it can be provisioned with
 playbook [`playbooks/site.yml`][playbook-site-yml]:
 
@@ -80,11 +80,11 @@ in `pxe_installer_clients`, using the host-specific `cloudinit_userdata`, `cloud
 `cloudinit_vendordata` variables.
 
 For examples on how to configure PXE clients as Ansible hosts and how to define variables `kickstart_config`,
-`preseed_config` or `cloudinit_userdata`, refer to hosts `lvrt-lcl-session-srv-11-pxe-client-debian11-bios` up to
-`lvrt-lcl-session-srv-17-pxe-client-centos8-uefi` in the provided [examples inventory][inventory-example]. The top-level
-[`README.md`][jm1-cloudy-readme] describes how hosts can be provisioned with playbook [`playbooks/site.yml`][
+`preseed_config` or `cloudinit_userdata`, refer to hosts `lvrt-lcl-session-srv-110-pxe-client-debian11-bios` up to
+`lvrt-lcl-session-srv-131-pxe-client-centos8-uefi` in the provided [examples inventory][inventory-example]. The
+top-level [`README.md`][jm1-cloudy-readme] describes how hosts can be provisioned with playbook [`playbooks/site.yml`][
 playbook-site-yml]. During playbook execution, these hosts will boot from network, fetch the kernel, initrd and more
-from host `lvrt-lcl-session-srv-10-pxe-server-debian11`, continue with installing operating systems automatically and
+from host `lvrt-lcl-session-srv-100-pxe-server-debian11`, continue with installing operating systems automatically and
 finally will be provisioned with Ansible.
 
 [jm1-cloudy-dhcpd]: ../dhcpd/
@@ -153,14 +153,14 @@ PXELINUX and GRUB2 config for each PXE client and uses `pxe_installer_client_mac
 `pxe_installer_kernel_parameters` defines additional kernel parameters which will be passed to the kernel when booting
 via PXE. If `pxe_installer_kernel_parameters` is not specified for client, then variable
 `pxe_installer_kernel_parameters_*` matching `distribution_id` and `os_architecture` of that client will be used.
-For examples refer to hosts `lvrt-lcl-session-srv-11-pxe-client-debian11-bios` up to
-`lvrt-lcl-session-srv-17-pxe-client-centos8-uefi` from the provided [examples inventory][inventory-example].
+For examples refer to hosts `lvrt-lcl-session-srv-110-pxe-client-debian11-bios` up to
+`lvrt-lcl-session-srv-131-pxe-client-centos8-uefi` from the provided [examples inventory][inventory-example].
 
 [^clients-parameter-extra]: Depending on the distribution release (`distribution_id`) which should be installed, Ansible
 hosts in `pxe_installer_clients` have to define one of the following variables `kickstart_config`, `preseed_config` or
 `cloudinit_userdata` (and `cloudinit_metadata` and `cloudinit_vendordata` optionally) in e.g. `host_vars` or
-`group_vars`. For examples refer to hosts `lvrt-lcl-session-srv-11-pxe-client-debian11-bios` up to
-`lvrt-lcl-session-srv-17-pxe-client-centos8-uefi` from the provided [examples inventory][inventory-example].
+`group_vars`. For examples refer to hosts `lvrt-lcl-session-srv-110-pxe-client-debian11-bios` up to
+`lvrt-lcl-session-srv-131-pxe-client-centos8-uefi` from the provided [examples inventory][inventory-example].
 
 [^iso-parameter]: After changing iso urls make sure to delete and rebuild the whole directory tree below
 `pxe_installer_httpd_root` and `pxe_installer_tftpd_root` because initrd's must match.
@@ -196,8 +196,8 @@ Define an Ansible host which acts as a [PXE][pxe-wiki] server. Use roles [`jm1.c
 ```
 
 For a complete example on how to configure `dhcpd`, `httpd` and `tftpd` services and how to use this role, refer to host
-`lvrt-lcl-session-srv-10-pxe-server-debian11` from the provided [examples inventory][inventory-example]. Additionally,
-hosts `lvrt-lcl-session-srv-11-pxe-client-debian11-bios` up to `lvrt-lcl-session-srv-17-pxe-client-centos8-uefi` show
+`lvrt-lcl-session-srv-100-pxe-server-debian11` from the provided [examples inventory][inventory-example]. Additionally,
+hosts `lvrt-lcl-session-srv-110-pxe-client-debian11-bios` up to `lvrt-lcl-session-srv-131-pxe-client-centos8-uefi` show
 how to boot BIOS and UEFI systems from network via [PXE][pxe-wiki] and install operating systems automatically, i.e.
 CentOS 8 with Kickstart, Debian 11 with Preseed and Ubuntu 20.04 with Autoinstall. The top-level [`README.md`][
 jm1-cloudy-readme] describes how hosts can be provisioned with playbook [`playbooks/site.yml`][playbook-site-yml].

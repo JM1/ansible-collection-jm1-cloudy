@@ -92,7 +92,7 @@ openstack endpoint list
 Red Hat's Enable Sysadmin team has further instructions on [how to use your TripleO standalone environment][
 tripleo-standalone-guide].
 
-For a complete example on how to use this role, refer to host `lvrt-lcl-session-srv-21-tripleo-standalone` from the
+For a complete example on how to use this role, refer to host `lvrt-lcl-session-srv-210-tripleo-standalone` from the
 provided [examples inventory][inventory-example]. The top-level [`README.md`][jm1-cloudy-readme] describes how this host
 can be provisioned with playbook [`playbooks/site.yml`][playbook-site-yml].
 

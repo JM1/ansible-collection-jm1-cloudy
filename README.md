@@ -9,19 +9,19 @@ that demonstrates how to setup a cloud infrastructure using [libvirt][libvirt] a
 [libvirt]: https://libvirt.org/
 [openstack]: https://www.openstack.org/
 
-* Hosts [`lvrt-lcl-session-srv-1-*` to `lvrt-lcl-session-srv-8-*`][inventory-example] showcase how to provision libvirt
-  domains (QEMU/KVM based virtual machines) with [cloud-init][cloud-init-doc] and CentOS 7, CentOS 8,
-  Debian 10 (Buster), Debian 11 (Bullseye), Ubuntu 18.04 LTS (Bionic Beaver) or Ubuntu 20.04 LTS (Focal Fossa)
-* Hosts [`lvrt-lcl-session-srv-10-*` to `lvrt-lcl-session-srv-17-*`][inventory-example] showcase automatic system
-  installation of [CentOS 8 with Kickstart, of Debian 11 (Bullseye) with Preseed and of Ubuntu 20.04 LTS (Focal Fossa)
-  with Autoinstall][pxe-installer], each with [PXE][pxe-wiki] network boot on BIOS and UEFI systems
-* Host [`lvrt-lcl-session-srv-20-*`][inventory-example] showcases how to ["quickly bring up a OpenStack environment
+* Hosts [`lvrt-lcl-session-srv-0*`][inventory-example] showcase how to provision libvirt domains (QEMU/KVM based virtual
+  machines) with [cloud-init][cloud-init-doc] and CentOS 7, CentOS 8, Debian 10 (Buster), Debian 11 (Bullseye),
+  Ubuntu 18.04 LTS (Bionic Beaver) or Ubuntu 20.04 LTS (Focal Fossa)
+* Hosts [`lvrt-lcl-session-srv-1*`][inventory-example] showcase automatic system installation of [CentOS 8 with
+  Kickstart, of Debian 11 (Bullseye) with Preseed and of Ubuntu 20.04 LTS (Focal Fossa) with Autoinstall][
+  pxe-installer], each with [PXE][pxe-wiki] network boot on BIOS and UEFI systems
+* Host [`lvrt-lcl-session-srv-200-*`][inventory-example] showcases how to ["quickly bring up a OpenStack environment
   based on the latest versions of everything from git master"][devstack] with [DevStack][devstack]
-* Host [`lvrt-lcl-session-srv-21-*`][inventory-example] showcases how to
-  [deploy TripleO standalone][tripleo-standalone-setup] on CentOS 8
-* Host [`lvrt-lcl-session-srv-30-*`][inventory-example] showcases how to [fingerprint and report hardware specifications
-  of systems][pxe-hwfp] which can be booted via [PXE][pxe-wiki]. Hosts `lvrt-lcl-session-srv-31-*` and
-  `lvrt-lcl-session-srv-32-*` demonstrate how a poweron-fingerprint-report-poweroff cycle works in practice.
+* Host [`lvrt-lcl-session-srv-210-*`][inventory-example] showcases how to [deploy TripleO standalone][
+  tripleo-standalone-setup] on CentOS 8
+* Host [`lvrt-lcl-session-srv-3*`][inventory-example] showcases how to [fingerprint and report hardware specifications
+  of systems][pxe-hwfp] which can be booted via [PXE][pxe-wiki]. Hosts `lvrt-lcl-session-srv-310-*` and
+  `lvrt-lcl-session-srv-311-*` demonstrate how a poweron-fingerprint-report-poweroff cycle works in practice.
 
 [cloud-init-doc]: https://cloudinit.readthedocs.io/
 [devstack]: https://docs.openstack.org/devstack/latest/
@@ -544,22 +544,22 @@ two have been used above to [deploy a container with Docker Compose](#containeri
 [prepare a bare-metal system](#bare-metal-setup) and are not of interest here. For an overview about the libvirt domains
 please refer to the introduction at the beginning.
 
-For example, to set up Ansible host `lvrt-lcl-session-srv-3-debian10` run the following command from inside [your
+For example, to set up Ansible host `lvrt-lcl-session-srv-020-debian10` run the following command from inside [your
 project directory](#define-cloud-infrastructure-and-prepare-host-environment) as local non-root user, e.g. `cloudy` in
 [containerized setup](#containerized-setup-with-docker-compose):
 
 ```sh
 # Set up and boot a libvirt domain (QEMU/KVM based virtual machine) based on Debian 10 (Buster)
-ansible-playbook playbooks/site.yml --limit lvrt-lcl-session-srv-3-debian10
+ansible-playbook playbooks/site.yml --limit lvrt-lcl-session-srv-020-debian10
 ```
 
-Inside [`inventory/host_vars/lvrt-lcl-session-srv-3-debian10.yml`][inventory-example-host] you will find the ip address
+Inside [`inventory/host_vars/lvrt-lcl-session-srv-020-debian10.yml`][inventory-example-host] you will find the ip address
 of that system which can be used for ssh'ing into it:
 
-[inventory-example-host]: inventory/host_vars/lvrt-lcl-session-srv-3-debian10.yml
+[inventory-example-host]: inventory/host_vars/lvrt-lcl-session-srv-020-debian10.yml
 
 ```sh
-# Establish SSH connection to Ansible host lvrt-lcl-session-srv-3-debian10
+# Establish SSH connection to Ansible host lvrt-lcl-session-srv-020-debian10
 ssh ansible@192.168.156.13
 ```
 

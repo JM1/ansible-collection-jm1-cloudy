@@ -98,7 +98,7 @@ ansible-builtin-lineinfile] and [`template`][ansible-builtin-template].
 
 For a complete example on how to use `tftpd` together with `dhcpd` to do automatic system installation of CentOS,
 Debian and Ubuntu via PXE network boot on BIOS and UEFI systems refer to host 
-`lvrt-lcl-session-srv-10-pxe-server-debian11` from the provided [examples inventory][inventory-example]. The top-level
+`lvrt-lcl-session-srv-100-pxe-server-debian11` from the provided [examples inventory][inventory-example]. The top-level
 [`README.md`][jm1-cloudy-readme] describes how hosts can be provisioned with playbook [`playbooks/site.yml`][
 playbook-site-yml].
 
