@@ -59,7 +59,7 @@ cloudinit_userdata_default: |
     passwd: '$6$YS0ieyj7$WvBaz2uCVs6iATXx/ZdCpobaNsa4BygWO56aUgvKdJMdiUFW6U93nr7841Ld3Lb9XquSySs6p6wRjPB8fUoRY/'
     #lock_passwd: true
     shell: '/bin/bash'
-    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    sudo: "ALL=(ALL) NOPASSWD:ALL"
     ssh_authorized_keys:
     {{ ssh_authorized_keys | selectattr('user', 'equalto', ansible_user) | selectattr('state', 'equalto', 'present') | map(attribute='key') | list | to_nice_yaml | indent(width=2) }}
 
@@ -101,7 +101,7 @@ cloudinit_userdata_default: |
       source /etc/network/interfaces.d/*
     owner: root:root
     path: /etc/network/interfaces
-    permissions: a=r
+    permissions: '0644'
   {% endif %}
   {% endif %}
 
@@ -163,8 +163,8 @@ cloudinit_userdata_default: |
     '
   {% endif %}
   # Stop SSH to prevent Ansible from connecting to the host before it does its final reboot
-  - cloud-init-per once mask_ssh_service_once  systemctl mask --runtime --now ssh.service
-  - cloud-init-per once mask_sshd_service_once systemctl mask --runtime --now sshd.service
+  - cloud-init-per once mask_ssh_service_once  systemctl mask --runtime --now ssh.service || true
+  - cloud-init-per once mask_sshd_service_once systemctl mask --runtime --now sshd.service || true
 
   runcmd:
   {% if distribution_id | first in ['CentOS', 'Red Hat Enterprise Linux'] %}
@@ -173,15 +173,15 @@ cloudinit_userdata_default: |
   {% if distribution_id | first in ['Debian', 'Ubuntu'] %}
   - DEBIAN_FRONTEND=noninteractive DEBIAN_PRIORITY=critical apt-get purge -y nfs-common rpcbind
   {% endif %}
-  {% if distribution_id | first == 'Debian' %}
+  {% if distribution_id | first == 'Debian' and distribution_id | last in ['10', '11'] %}
   # Debian always adds debian to sudoers even if cloud-init does not create a debian user by default
   # We can safely remove this file because cloud-init will add users to /etc/sudoers.d/90-cloud-init-users instead
-  - rm /etc/sudoers.d/debian-cloud-init
+  - rm -f /etc/sudoers.d/debian-cloud-init
   # cloud-init manages network config in /etc/network/interfaces.d/50-cloud-init.cfg
   - sed -i -e 's/allow-hotplug eth/#allow-hotplug eth/g' /etc/network/interfaces
   - sed -i -e 's/iface eth/#iface eth/g' /etc/network/interfaces
   {% endif %}
-  {% if distribution_id | first in ['CentOS', 'Red Hat Enterprise Linux'] %}
+  {% if distribution_id | first in ['CentOS', 'Red Hat Enterprise Linux'] and distribution_id | last in ['7', '8'] %}
   # We can remove the default config for network device ens3 because
   # Predictable Network Interface Names are not used and thus cloud-init manages
   # network config in /etc/sysconfig/network-scripts/ifcfg-eth* files.
