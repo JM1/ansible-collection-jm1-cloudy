@@ -21,12 +21,47 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      #
       # Persist storage volumes of libvirt domains
       - 'cloudy-centos-8-images:/home/cloudy/.local/share/libvirt/images/'
       #
       # Persist SSH credentials and configuration for accessing virtual machines
       - 'cloudy-centos-8-ssh:/home/cloudy/.ssh/'
+      # Or instead:
+      # Grant access to SSH credentials and configuration on Ansible controller for accessing virtual machines
+      #- '~/.ssh/:/home/cloudy/.ssh/:ro'
+      #
+      # Grant access to user's playbooks, inventories and Ansible configuration
+      - '../:/home/cloudy/project/:ro'
+      #
+      # For development only
+      - type: bind
+        source: './entrypoint.sh'
+        target: '/usr/local/bin/entrypoint.sh'
+
+  centos_9: # CentOS 9
+    build:
+      context: '.'
+      dockerfile: Dockerfile.centos_9
+    container_name: cloudy-centos-9
+    devices:
+      - '/dev/kvm:/dev/kvm'
+    environment:
+      - DEBUG=${DEBUG:-no}
+      - DEBUG_SHELL=${DEBUG_SHELL:-no}
+    init: true
+    networks:
+      cloudy:
+    # privileged is required for libvirtd to be able to write to /proc/sys/net/ipv6/conf/*/disable_ipv6
+    privileged: true
+    # TODO: Implement support for privileged: false.
+    stdin_open: true
+    tty: true
+    volumes:
+      # Persist storage volumes of libvirt domains
+      - 'cloudy-centos-9-images:/home/cloudy/.local/share/libvirt/images/'
+      #
+      # Persist SSH credentials and configuration for accessing virtual machines
+      - 'cloudy-centos-9-ssh:/home/cloudy/.ssh/'
       # Or instead:
       # Grant access to SSH credentials and configuration on Ansible controller for accessing virtual machines
       #- '~/.ssh/:/home/cloudy/.ssh/:ro'
@@ -111,6 +146,42 @@ services:
         source: './entrypoint.sh'
         target: '/usr/local/bin/entrypoint.sh'
 
+  debian_12: # Debian 12 (Bookworm)
+    build:
+      context: '.'
+      dockerfile: Dockerfile.debian_12
+    container_name: cloudy-debian-12
+    devices:
+      - '/dev/kvm:/dev/kvm'
+    environment:
+      - DEBUG=${DEBUG:-no}
+      - DEBUG_SHELL=${DEBUG_SHELL:-no}
+    init: true
+    networks:
+      cloudy:
+    # privileged is required for libvirtd to be able to write to /proc/sys/net/ipv6/conf/*/disable_ipv6
+    privileged: true
+    # TODO: Implement support for privileged: false.
+    stdin_open: true
+    tty: true
+    volumes:
+      # Persist storage volumes of libvirt domains
+      - 'cloudy-debian-12-images:/home/cloudy/.local/share/libvirt/images/'
+      #
+      # Persist SSH credentials and configuration for accessing virtual machines
+      - 'cloudy-debian-12-ssh:/home/cloudy/.ssh/'
+      # Or instead:
+      # Grant access to SSH credentials and configuration on Ansible controller for accessing virtual machines
+      #- '~/.ssh/:/home/cloudy/.ssh/:ro'
+      #
+      # Grant access to user's playbooks, inventories and Ansible configuration
+      - '../:/home/cloudy/project/:ro'
+      #
+      # For development only
+      - type: bind
+        source: './entrypoint.sh'
+        target: '/usr/local/bin/entrypoint.sh'
+
   ubuntu_1804: # Ubuntu 18.04 LTS (Bionic Beaver)
     build:
       context: '.'
@@ -183,6 +254,41 @@ services:
         source: './entrypoint.sh'
         target: '/usr/local/bin/entrypoint.sh'
 
+  ubuntu_2204: # Ubuntu 22.04 LTS (Jammy Jellyfish)
+    build:
+      context: '.'
+      dockerfile: Dockerfile.ubuntu_2204
+    container_name: cloudy-ubuntu-2204
+    devices:
+      - '/dev/kvm:/dev/kvm'
+    environment:
+      - DEBUG=${DEBUG:-no}
+      - DEBUG_SHELL=${DEBUG_SHELL:-no}
+    init: true
+    networks:
+      cloudy:
+    # privileged is required for libvirtd to be able to write to /proc/sys/net/ipv6/conf/*/disable_ipv6
+    privileged: true
+    # TODO: Implement support for privileged: false.
+    stdin_open: true
+    tty: true
+    volumes:
+      # Persist storage volumes of libvirt domains
+      - 'cloudy-ubuntu-2204-images:/home/cloudy/.local/share/libvirt/images/'
+      #
+      # Persist SSH credentials and configuration for accessing virtual machines
+      - 'cloudy-ubuntu-2204-ssh:/home/cloudy/.ssh/'
+      # Or instead:
+      # Grant access to SSH credentials and configuration on Ansible controller for accessing virtual machines
+      #- '~/.ssh/:/home/cloudy/.ssh/:ro'
+      #
+      # Grant access to user's playbooks, inventories and Ansible configuration
+      - '../:/home/cloudy/project/:ro'
+      #
+      # For development only
+      - type: bind
+        source: './entrypoint.sh'
+        target: '/usr/local/bin/entrypoint.sh'
 
 networks:
   cloudy:
@@ -192,11 +298,17 @@ networks:
 volumes:
   cloudy-centos-8-images:
   cloudy-centos-8-ssh:
+  cloudy-centos-9-images:
+  cloudy-centos-9-ssh:
   cloudy-debian-10-images:
   cloudy-debian-10-ssh:
   cloudy-debian-11-images:
   cloudy-debian-11-ssh:
+  cloudy-debian-12-images:
+  cloudy-debian-12-ssh:
   cloudy-ubuntu-1804-images:
   cloudy-ubuntu-1804-ssh:
   cloudy-ubuntu-2004-images:
   cloudy-ubuntu-2004-ssh:
+  cloudy-ubuntu-2204-images:
+  cloudy-ubuntu-2204-ssh:

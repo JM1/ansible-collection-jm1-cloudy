@@ -39,8 +39,8 @@ flake8
 
 # libvirt-python requires libvirt C headers and compilers.
 #
-# On Debian 10 (Buster), Debian 11 (Bullseye), Ubuntu 18.04 LTS (Bionic Beaver) and Ubuntu 20.04 LTS (Focal Fossa)
-# install them with e.g.
+# On Debian 10 (Buster), Debian 11 (Bullseye), Debian 12 (Bookworm), Ubuntu 18.04 LTS (Bionic Beaver),
+# Ubuntu 20.04 LTS (Focal Fossa) and Ubuntu 22.04 LTS (Jammy Jellyfish) install them with e.g.
 #  apt-get install gcc pkg-config python3-all-dev libvirt-dev
 #
 # On Red Hat Enterprise Linux (RHEL) 7 / CentOS 7 install them with e.g.
@@ -84,8 +84,8 @@ python-openstackclient >= 4.0.2
 
 # Ansible's seboolean and selinux modules require Python packages libselinux-python and libsemanage-python
 #
-# On Debian 10 (Buster), Debian 11 (Bullseye), Ubuntu 18.04 LTS (Bionic Beaver) and Ubuntu 20.04 LTS (Focal Fossa)
-# install them with e.g.
+# On Debian 10 (Buster), Debian 11 (Bullseye), Debian 12 (Bookworm), Ubuntu 18.04 LTS (Bionic Beaver),
+# Ubuntu 20.04 LTS (Focal Fossa) and Ubuntu 22.04 LTS (Jammy Jellyfish) install them with e.g.
 #  apt-get install python3-selinux python3-semanage
 #
 # On Red Hat Enterprise Linux (RHEL) 7 / CentOS 7 install them with e.g.

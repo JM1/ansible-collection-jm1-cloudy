@@ -319,10 +319,16 @@ meta_packages:
 pxe_installer_clients:
 - lvrt-lcl-session-srv-110-pxe-client-debian11-bios
 - lvrt-lcl-session-srv-111-pxe-client-debian11-uefi
+- lvrt-lcl-session-srv-112-pxe-client-debian12-bios
+- lvrt-lcl-session-srv-113-pxe-client-debian12-uefi
 - lvrt-lcl-session-srv-120-pxe-client-ubuntu2004-bios
 - lvrt-lcl-session-srv-121-pxe-client-ubuntu2004-uefi
+- lvrt-lcl-session-srv-122-pxe-client-ubuntu2204-bios
+- lvrt-lcl-session-srv-123-pxe-client-ubuntu2204-uefi
 - lvrt-lcl-session-srv-130-pxe-client-centos8-bios
 - lvrt-lcl-session-srv-131-pxe-client-centos8-uefi
+- lvrt-lcl-session-srv-132-pxe-client-centos9-bios
+- lvrt-lcl-session-srv-133-pxe-client-centos9-uefi
 
 pxe_installer_host_address: 192.168.153.2
 
@@ -335,7 +341,12 @@ pxe_installer_files_ubuntu_1804_amd64:
 
 pxe_installer_files_ubuntu_2004_amd64:
   efi: 'http://archive.ubuntu.com/ubuntu/dists/focal/main/uefi/grub2-amd64/current/grubnetx64.efi.signed'
-  iso: 'http://releases.ubuntu.com/focal/ubuntu-20.04.3-live-server-amd64.iso'
+  iso: 'http://releases.ubuntu.com/focal/ubuntu-20.04.5-live-server-amd64.iso'
+  pxe: 'http://archive.ubuntu.com/ubuntu/dists/focal/main/installer-amd64/current/legacy-images/netboot/netboot.tar.gz'
+
+pxe_installer_files_ubuntu_2204_amd64:
+  efi: 'http://archive.ubuntu.com/ubuntu/dists/jammy/main/uefi/grub2-amd64/current/grubnetx64.efi.signed'
+  iso: 'http://releases.ubuntu.com/jammy/ubuntu-22.04.1-live-server-amd64.iso'
   pxe: 'http://archive.ubuntu.com/ubuntu/dists/focal/main/installer-amd64/current/legacy-images/netboot/netboot.tar.gz'
 
 sysctl_config:

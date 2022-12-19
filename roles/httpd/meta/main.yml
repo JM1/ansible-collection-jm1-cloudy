@@ -13,6 +13,7 @@ galaxy_info:
     versions:
     - buster
     - bullseye
+    - bookworm
 
   - name: EL
     versions:
@@ -24,6 +25,7 @@ galaxy_info:
     versions:
     - bionic
     - focal
+    - jammy
 
   galaxy_tags:
   - development

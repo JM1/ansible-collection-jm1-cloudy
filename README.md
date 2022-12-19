@@ -10,11 +10,13 @@ that demonstrates how to setup a cloud infrastructure using [libvirt][libvirt] a
 [openstack]: https://www.openstack.org/
 
 * Hosts [`lvrt-lcl-session-srv-0*`][inventory-example] showcase how to provision libvirt domains (QEMU/KVM based virtual
-  machines) with [cloud-init][cloud-init-doc] and CentOS 7, CentOS 8, Debian 10 (Buster), Debian 11 (Bullseye),
-  Ubuntu 18.04 LTS (Bionic Beaver) or Ubuntu 20.04 LTS (Focal Fossa)
-* Hosts [`lvrt-lcl-session-srv-1*`][inventory-example] showcase automatic system installation of [CentOS 8 with
-  Kickstart, of Debian 11 (Bullseye) with Preseed and of Ubuntu 20.04 LTS (Focal Fossa) with Autoinstall][
-  pxe-installer], each with [PXE][pxe-wiki] network boot on BIOS and UEFI systems
+  machines) with [cloud-init][cloud-init-doc] and CentOS 7, CentOS 8, CentOS 9, Debian 10 (Buster),
+  Debian 11 (Bullseye), Debian 12 (Bookwork), Ubuntu 18.04 LTS (Bionic Beaver), Ubuntu 20.04 LTS (Focal Fossa) or
+  Ubuntu 22.04 LTS (Jammy Jellyfish)
+* Hosts [`lvrt-lcl-session-srv-1*`][inventory-example] showcase automatic system installation of [CentOS 8 and CentOS 9
+  with Kickstart, of Debian 11 (Bullseye) and Debian 12 (Bookworm) with Preseed and of Ubuntu 20.04 LTS (Focal Fossa)
+  and Ubuntu 22.04 LTS (Jammy Jellyfish) with Autoinstall][pxe-installer], each with [PXE][pxe-wiki] network boot on
+  BIOS and UEFI systems
 * Host [`lvrt-lcl-session-srv-200-*`][inventory-example] showcases how to ["quickly bring up a OpenStack environment
   based on the latest versions of everything from git master"][devstack] with [DevStack][devstack]
 * Host [`lvrt-lcl-session-srv-210-*`][inventory-example] showcases how to [deploy TripleO standalone][
@@ -33,11 +35,13 @@ that demonstrates how to setup a cloud infrastructure using [libvirt][libvirt] a
 This collection has been developed and tested for compatibility with:
 * Debian 10 (Buster)
 * Debian 11 (Bullseye)
+* Debian 12 (Bookworm)
 * Red Hat Enterprise Linux (RHEL) 7 / CentOS 7
 * Red Hat Enterprise Linux (RHEL) 8 / CentOS 8
 * Red Hat Enterprise Linux (RHEL) 9 / CentOS 9
 * Ubuntu 18.04 LTS (Bionic Beaver)
 * Ubuntu 20.04 LTS (Focal Fossa)
+* Ubuntu 22.04 LTS (Jammy Jellyfish)
 
 Goals for this collection are:
 
@@ -194,11 +198,13 @@ Ensure Docker or [Podman][docker-to-podman-transition] is installed on your syst
 | -------------------------------------------- | -------------------- |
 | Debian 10 (Buster)                           | `apt install docker.io docker-compose` or follow [Docker's official install guide][docker-install-debian] for Debian and [their install guide for Docker Compose][docker-compose-install] |
 | Debian 11 (Bullseye)                         | `apt install docker.io docker-compose` or follow [Docker's official install guide][docker-install-debian] for Debian and [their install guide for Docker Compose][docker-compose-install] |
+| Debian 12 (Bookworm)                         | `apt install docker.io docker-compose` or follow [Docker's official install guide][docker-install-debian] for Debian and [their install guide for Docker Compose][docker-compose-install] |
 | Red Hat Enterprise Linux (RHEL) 7 / CentOS 7 | Follow Docker's official install guide for [CentOS][docker-install-centos] and [RHEL][docker-install-rhel] and [their install guide for Docker Compose][docker-compose-install] or use [Podman][podman-install] with [Docker Compose][podman-docker-compose] |
 | Red Hat Enterprise Linux (RHEL) 8 / CentOS 8 | Follow Docker's official install guide for [CentOS][docker-install-centos] and [RHEL][docker-install-rhel] and [their install guide for Docker Compose][docker-compose-install] or use [Podman][podman-install] with [Docker Compose][podman-docker-compose] |
 | Red Hat Enterprise Linux (RHEL) 9 / CentOS 9 | Follow Docker's official install guide for [CentOS][docker-install-centos] and [RHEL][docker-install-rhel] and [their install guide for Docker Compose][docker-compose-install] or use [Podman][podman-install] with [Docker Compose][podman-docker-compose] |
 | Ubuntu 18.04 LTS (Bionic Beaver)             | `apt install docker.io docker-compose` or follow [Docker's official install guide][docker-install-ubuntu] for Ubuntu and [their install guide for Docker Compose][docker-compose-install] |
 | Ubuntu 20.04 LTS (Focal Fossa)               | `apt install docker.io docker-compose` or follow [Docker's official install guide][docker-install-ubuntu] for Ubuntu and [their install guide for Docker Compose][docker-compose-install] |
+| Ubuntu 22.04 LTS (Jammy Jellyfish)           | `apt install docker.io docker-compose` or follow [Docker's official install guide][docker-install-ubuntu] for Ubuntu and [their install guide for Docker Compose][docker-compose-install] |
 
 [docker-compose-install]: https://docs.docker.com/compose/install/
 [docker-install-centos]: https://docs.docker.com/engine/install/centos/
@@ -389,11 +395,13 @@ First, make sure that `pip` is available on your system.
 | -------------------------------------------- | --------------------------------- |
 | Debian 10 (Buster)                           | `apt install python3 python3-pip` |
 | Debian 11 (Bullseye)                         | `apt install python3 python3-pip` |
+| Debian 12 (Bookworm)                         | `apt install python3 python3-pip` |
 | Red Hat Enterprise Linux (RHEL) 7 / CentOS 7 | `yum install python3 python3-pip` |
 | Red Hat Enterprise Linux (RHEL) 8 / CentOS 8 | `yum install python3 python3-pip` |
 | Red Hat Enterprise Linux (RHEL) 9 / CentOS 9 | `yum install python3 python3-pip` |
 | Ubuntu 18.04 LTS (Bionic Beaver)             | `apt install python3 python3-pip` |
 | Ubuntu 20.04 LTS (Focal Fossa)               | `apt install python3 python3-pip` |
+| Ubuntu 22.04 LTS (Jammy Jellyfish)           | `apt install python3 python3-pip` |
 
 Run `pip3 install --user --upgrade pip` to upgrade `pip` to the latest version because an outdated `pip` version is the
 single most common cause of installation problems. Before proceeding, please follow the hints and instructions given in
@@ -417,11 +425,13 @@ To install Ansible 2.9 or later using OS package managers do:
 | -------------------------------------------- | ------------------------------------------------------------------- |
 | Debian 10 (Buster)                           | Enable [Backports](https://backports.debian.org/Instructions/). `apt install ansible ansible-doc make` |
 | Debian 11 (Bullseye)                         | `apt install ansible make` |
+| Debian 12 (Bookworm)                         | `apt install ansible make` |
 | Red Hat Enterprise Linux (RHEL) 7 / CentOS 7 | Enable [EPEL](https://fedoraproject.org/wiki/EPEL). `yum install ansible ansible-doc make` |
 | Red Hat Enterprise Linux (RHEL) 8 / CentOS 8 | Enable [EPEL](https://fedoraproject.org/wiki/EPEL). `yum install ansible make` |
 | Red Hat Enterprise Linux (RHEL) 9 / CentOS 9 | Enable [EPEL](https://fedoraproject.org/wiki/EPEL). `yum install ansible make` |
 | Ubuntu 18.04 LTS (Bionic Beaver)             | Enable [Launchpad PPA Ansible by Ansible, Inc.](https://launchpad.net/~ansible/+archive/ubuntu/ansible). `apt install ansible ansible-doc make` |
 | Ubuntu 20.04 LTS (Focal Fossa)               | Enable [Launchpad PPA Ansible by Ansible, Inc.](https://launchpad.net/~ansible/+archive/ubuntu/ansible). `apt install ansible ansible-doc make` |
+| Ubuntu 22.04 LTS (Jammy Jellyfish)           | `apt install ansible make` |
 
 Some Ansible modules used in this collection require additional tools and Python libraries which have to be installed 
 manually. Refer to [`pip-requirements.txt`][pip-requirements-txt] for a complete list. Use a [package search][pkgs-org]
@@ -629,11 +639,13 @@ Helpful tools for developing collections are `ansible`, `ansible-doc`, `ansible-
 | -------------------------------------------- | ------------------------------------------------------------------- |
 | Debian 10 (Buster)                           | Enable [Backports](https://backports.debian.org/Instructions/). `apt install ansible ansible-doc ansible-lint flake8 make yamllint` |
 | Debian 11 (Bullseye)                         | `apt install ansible ansible-lint flake8 make yamllint` |
+| Debian 12 (Bookworm)                         | `apt install ansible ansible-lint flake8 make yamllint` |
 | Red Hat Enterprise Linux (RHEL) 7 / CentOS 7 | Enable [EPEL](https://fedoraproject.org/wiki/EPEL). `yum install ansible ansible-lint ansible-doc  python-flake8 make yamllint` |
 | Red Hat Enterprise Linux (RHEL) 8 / CentOS 8 | Enable [EPEL](https://fedoraproject.org/wiki/EPEL). `yum install ansible                          python3-flake8 make yamllint` |
 | Red Hat Enterprise Linux (RHEL) 9 / CentOS 9 | Enable [EPEL](https://fedoraproject.org/wiki/EPEL). `yum install ansible                          python3-flake8 make yamllint` |
 | Ubuntu 18.04 LTS (Bionic Beaver)             | Enable [Launchpad PPA Ansible by Ansible, Inc.](https://launchpad.net/~ansible/+archive/ubuntu/ansible). `apt install ansible ansible-doc ansible-lint flake8 make yamllint` |
 | Ubuntu 20.04 LTS (Focal Fossa)               | Enable [Launchpad PPA Ansible by Ansible, Inc.](https://launchpad.net/~ansible/+archive/ubuntu/ansible). `apt install ansible ansible-doc ansible-lint flake8 make yamllint` |
+| Ubuntu 22.04 LTS (Jammy Jellyfish)           | `apt install ansible ansible-lint flake8 make yamllint` |
 
 Have a look at the included [`Makefile`](Makefile) for
 several frequently used commands, to e.g. build and lint a collection.

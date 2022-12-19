@@ -1,5 +1,5 @@
 ---
-# Copyright (c) 2021 Jakob Meng, <jakobmeng@web.de>
+# Copyright (c) 2021-2022 Jakob Meng, <jakobmeng@web.de>
 # vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
 # kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
 
@@ -48,6 +48,10 @@ pxe_installer_distribution_filename_map:
     x86_64:
       UEFI: 'Debian_11/amd64/debian-installer/amd64/bootnetx64.efi'
       BIOS: 'Debian_11/amd64/pxelinux.0'
+  Debian_12:
+    x86_64:
+      UEFI: 'Debian_12/amd64/debian-installer/amd64/bootnetx64.efi'
+      BIOS: 'Debian_12/amd64/pxelinux.0'
   # TODO: Add support for Red Hat Enterprise Linux
   #Red_Hat_Enterprise_Linux_7:
   #  x86_64:
@@ -65,6 +69,10 @@ pxe_installer_distribution_filename_map:
     x86_64:
       UEFI: 'Ubuntu_20.04/amd64/grubnetx64.efi'
       BIOS: 'Ubuntu_20.04/amd64/pxelinux.0'
+  Ubuntu_22_04:
+    x86_64:
+      UEFI: 'Ubuntu_22.04/amd64/grubnetx64.efi'
+      BIOS: 'Ubuntu_22.04/amd64/pxelinux.0'
 
 # NOTE: CentOS full isos are required because we access their rpm's.
 pxe_installer_files_centos_7_amd64:
@@ -84,6 +92,9 @@ pxe_installer_files_debian_10_amd64:
 pxe_installer_files_debian_11_amd64:
   'https://deb.debian.org/debian/dists/bullseye/main/installer-amd64/current/images/netboot/netboot.tar.gz'
 
+pxe_installer_files_debian_12_amd64:
+  'https://deb.debian.org/debian/dists/bookworm/main/installer-amd64/current/images/netboot/netboot.tar.gz'
+
 # NOTE: After changing iso urls make sure to delete and rebuild the whole directory tree because initrd's must match!
 pxe_installer_files_ubuntu_1804_amd64:
   efi: 'http://archive.ubuntu.com/ubuntu/dists/bionic/main/uefi/grub2-amd64/current/grubnetx64.efi.signed'
@@ -93,7 +104,13 @@ pxe_installer_files_ubuntu_1804_amd64:
 # NOTE: After changing iso urls make sure to delete and rebuild the whole directory tree because initrd's must match!
 pxe_installer_files_ubuntu_2004_amd64:
   efi: 'http://archive.ubuntu.com/ubuntu/dists/focal/main/uefi/grub2-amd64/current/grubnetx64.efi.signed'
-  iso: 'https://releases.ubuntu.com/focal/ubuntu-20.04.3-live-server-amd64.iso'
+  iso: 'https://releases.ubuntu.com/focal/ubuntu-20.04.5-live-server-amd64.iso'
+  pxe: 'http://archive.ubuntu.com/ubuntu/dists/focal/main/installer-amd64/current/legacy-images/netboot/netboot.tar.gz'
+
+# NOTE: After changing iso urls make sure to delete and rebuild the whole directory tree because initrd's must match!
+pxe_installer_files_ubuntu_2204_amd64:
+  efi: 'http://archive.ubuntu.com/ubuntu/dists/jammy/main/uefi/grub2-amd64/current/grubnetx64.efi.signed'
+  iso: 'https://releases.ubuntu.com/jammy/ubuntu-22.04.1-live-server-amd64.iso'
   pxe: 'http://archive.ubuntu.com/ubuntu/dists/focal/main/installer-amd64/current/legacy-images/netboot/netboot.tar.gz'
 
 # NOTE: For newer Ubuntu releases such as 21.04 use e.g. netboot.tar.gz from older releases
@@ -123,8 +140,10 @@ pxe_installer_kernel_parameters_centos_8_amd64: '{{ pxe_installer_kernel_paramet
 pxe_installer_kernel_parameters_centos_9_amd64: '{{ pxe_installer_kernel_parameters }}'
 pxe_installer_kernel_parameters_debian_10_amd64: '{{ pxe_installer_kernel_parameters }}'
 pxe_installer_kernel_parameters_debian_11_amd64: '{{ pxe_installer_kernel_parameters }}'
+pxe_installer_kernel_parameters_debian_12_amd64: '{{ pxe_installer_kernel_parameters }}'
 pxe_installer_kernel_parameters_ubuntu_1804_amd64: '{{ pxe_installer_kernel_parameters }}'
 pxe_installer_kernel_parameters_ubuntu_2004_amd64: '{{ pxe_installer_kernel_parameters }}'
+pxe_installer_kernel_parameters_ubuntu_2204_amd64: '{{ pxe_installer_kernel_parameters }}'
 
 pxe_installer_kickstart_url: 'http://{{ pxe_installer_host_address | mandatory }}'
 

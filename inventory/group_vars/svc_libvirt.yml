@@ -41,6 +41,14 @@ libvirt_images:
   state: present
 - # no checksum because image is updated every week
   format: 'qcow2'
+  # TODO: Replace with non-daily image url when Debian 12 (Bookworm) has been released.
+  image: https://cdimage.debian.org/images/cloud/bookworm/daily/latest/debian-12-genericcloud-amd64-daily.qcow2
+  # TODO: Replace with non-daily image name when Debian 12 (Bookworm) has been released.
+  name: debian-12-genericcloud-amd64-daily.qcow2
+  pool: 'default'
+  state: present
+- # no checksum because image is updated every week
+  format: 'qcow2'
   image: https://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64.img
   name: ubuntu-18.04-server-cloudimg-amd64.img
   pool: 'default'
@@ -49,6 +57,12 @@ libvirt_images:
   format: 'qcow2'
   image: https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img
   name: ubuntu-20.04-server-cloudimg-amd64.img
+  pool: 'default'
+  state: present
+- # no checksum because image is updated every week
+  format: 'qcow2'
+  image: https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img
+  name: ubuntu-22.04-server-cloudimg-amd64.img
   pool: 'default'
   state: present
 

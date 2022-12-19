@@ -13,11 +13,13 @@ galaxy_info:
     versions:
     - buster
     - bullseye
+    - bookworm
 
   - name: Ubuntu
     versions:
     - bionic
     - focal
+    - jammy
 
   galaxy_tags:
   - development

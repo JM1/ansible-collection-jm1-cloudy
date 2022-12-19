@@ -96,11 +96,14 @@ finally will be provisioned with Ansible.
     https://deb.debian.org/debian/dists/buster/main/installer-amd64/current/images/netboot/)
 - Network boot image of [`Debian 11 (Bullseye)` \[`amd64`\]](
     https://deb.debian.org/debian/dists/bullseye/main/installer-amd64/current/images/netboot/)
+- Network boot image of [`Debian 12 (Bookworm)` \[`amd64`\]](
+    https://deb.debian.org/debian/dists/bookworm/main/installer-amd64/current/images/netboot/)
 - ISO image of [`CentOS 7 (Core)` \[`amd64`\]](http://isoredirect.centos.org/centos/7/isos/x86_64/)
-- ISO image of [`CentOS 8 (Core)` \[`amd64`\]](http://isoredirect.centos.org/centos/8/isos/x86_64/)
+- ISO image of [`CentOS 8 (Stream)` \[`amd64`\]](https://www.centos.org/download/)
 - ISO image of [`CentOS 9 (Stream)` \[`amd64`\]](https://www.centos.org/download/)
 - Ubuntu Server install image of [`Ubuntu 18.04 LTS (Bionic Beaver)` \[`amd64`\]](https://releases.ubuntu.com/bionic/)
 - Ubuntu Server install image of [`Ubuntu 20.04 LTS (Focal Fossa)` \[`amd64`\]](https://releases.ubuntu.com/focal/)
+- Ubuntu Server install image of [`Ubuntu 22.04 LTS (Jammy Jellyfish)` \[`amd64`\]](https://releases.ubuntu.com/jammy/)
 
 Available on Ansible Galaxy in Collection [jm1.cloudy](https://galaxy.ansible.com/jm1/cloudy).
 
