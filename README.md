@@ -238,8 +238,8 @@ must be published on the container host.
 
 The network configuration is twofold. First, a network bridge with ip routes will be set up and afterwards a Docker
 bridge will be created. For example, on Debian network interfaces are configured with [`ifupdown`][ifupdown-interfaces].
-To define a network bridge `docker-cloudy` and enable connectivity with ip networks `192.168.151.0/24` to
-`192.168.156.0/24` used inside containers,  change [`/etc/network/interfaces`][ifupdown-interfaces] to:
+To define a network bridge `docker-cloudy` and enable connectivity with routed ip networks `192.168.157.0/24` and
+`192.168.158.0/24` used inside containers, change [`/etc/network/interfaces`][ifupdown-interfaces] to:
 
 ```
 # Ref.:
@@ -253,19 +253,11 @@ iface docker-cloudy inet manual
     bridge_waitport 3
     bridge_fd 0
     bridge_maxwait 5
-    # publish routes for host access to containerized libvirt networks
-    post-up ip route add 192.168.151.0/24 dev docker-cloudy
-    post-up ip route add 192.168.152.0/24 dev docker-cloudy
-    post-up ip route add 192.168.153.0/24 dev docker-cloudy
-    post-up ip route add 192.168.154.0/24 dev docker-cloudy
-    post-up ip route add 192.168.155.0/24 dev docker-cloudy
-    post-up ip route add 192.168.156.0/24 dev docker-cloudy
-    pre-down ip route del 192.168.156.0/24 dev docker-cloudy || true
-    pre-down ip route del 192.168.155.0/24 dev docker-cloudy || true
-    pre-down ip route del 192.168.154.0/24 dev docker-cloudy || true
-    pre-down ip route del 192.168.153.0/24 dev docker-cloudy || true
-    pre-down ip route del 192.168.152.0/24 dev docker-cloudy || true
-    pre-down ip route del 192.168.151.0/24 dev docker-cloudy || true
+    # publish routes of routed libvirt networks inside containers
+    post-up ip route add 192.168.157.0/24 dev docker-cloudy
+    post-up ip route add 192.168.158.0/24 dev docker-cloudy
+    pre-down ip route del 192.168.158.0/24 dev docker-cloudy || true
+    pre-down ip route del 192.168.157.0/24 dev docker-cloudy || true
 
 iface docker-cloudy inet6 manual
 ```
@@ -509,7 +501,7 @@ inventory-example], both Ansible hosts `lvrt-lcl-system` and `lvrt-lcl-session` 
 first. Executing playbook [`playbooks/site.yml`][playbook-site-yml] for hosts `lvrt-lcl-system` and `lvrt-lcl-session`
 will create several [libvirt virtual networks][libvirt-networking], both [NAT based networks as well as isolated
 networks][libvirt-format-network]. For each network, a bridge will be created with names `virbr-local-0` to
-`virbr-local-5`. To each network an ip subnet will be assigned, from `192.168.151.0/24` to `192.168.156.0/24`. The
+`virbr-local-7`. To each network an ip subnet will be assigned, from `192.168.151.0/24` to `192.168.158.0/24`. The
 libvirt virtual networks are defined with variable `libvirt_networks` in [`inventory/host_vars/lvrt-lcl-system.yml`][
 inventory-lvrt-lcl-system].
 
@@ -517,8 +509,59 @@ inventory-lvrt-lcl-system].
 [inventory-lvrt-lcl-system]: inventory/host_vars/lvrt-lcl-system.yml
 
 Before running the playbooks for hosts `lvrt-lcl-system` and `lvrt-lcl-session`, please make sure that no bridges with
-such names do exist on your system. Please also verify that the ip subnets given previously are not currently known to
-your system. For example, use `ip addr` to show all IPv4 and IPv6 addresses assigned to all network interfaces.
+such names do exist on your system. Please also verify that the ip subnets `192.168.151.0/24` to `192.168.156.0/24` are
+not currently known to your system. For example, use `ip addr` to show all IPv4 and IPv6 addresses assigned to all
+network interfaces.
+
+Both ip subnets `192.168.157.0/24` and `192.168.158.0/24` have either to be published to your router(s), probably your
+standard gateway only, or your bare-metal system has to do masquerading.
+
+To enable masquerading with [nftables][nftables] on your bare-metal system for both ip subnets `192.168.157.0/24` and
+`192.168.158.0/24` run:
+
+[nftables]: https://wiki.archlinux.org/title/Nftables
+
+```sh
+# Enable masquerading on systems using nftables
+nft --file - << 'EOF'
+table ip nat {
+    chain POSTROUTING {
+        type nat hook postrouting priority srcnat
+
+        meta l4proto tcp ip saddr 192.168.157.0/24 ip daddr != 192.168.157.0/24 masquerade to :1024-65535
+        meta l4proto udp ip saddr 192.168.157.0/24 ip daddr != 192.168.157.0/24 masquerade to :1024-65535
+        ip saddr 192.168.157.0/24 ip daddr != 192.168.157.0/24 masquerade
+
+        meta l4proto tcp ip saddr 192.168.158.0/24 ip daddr != 192.168.158.0/24 masquerade to :1024-65535
+        meta l4proto udp ip saddr 192.168.158.0/24 ip daddr != 192.168.158.0/24 masquerade to :1024-65535
+        ip saddr 192.168.158.0/24 ip daddr != 192.168.158.0/24 masquerade
+    }
+}
+EOF
+```
+
+When using [iptables][iptables] instead of [nftables][nftables], run:
+
+[iptables]: https://wiki.archlinux.org/title/Iptables
+
+```sh
+# Enable masquerading on systems using iptables
+iptables-restore << 'EOF'
+*nat
+:POSTROUTING - [0:0]
+-A POSTROUTING -s 192.168.157.0/24 ! -d 192.168.157.0/24 -p tcp -j MASQUERADE --to-ports 1024-65535
+-A POSTROUTING -s 192.168.157.0/24 ! -d 192.168.157.0/24 -p udp -j MASQUERADE --to-ports 1024-65535
+-A POSTROUTING -s 192.168.157.0/24 ! -d 192.168.157.0/24 -j MASQUERADE
+
+-A POSTROUTING -s 192.168.158.0/24 ! -d 192.168.158.0/24 -p tcp -j MASQUERADE --to-ports 1024-65535
+-A POSTROUTING -s 192.168.158.0/24 ! -d 192.168.158.0/24 -p udp -j MASQUERADE --to-ports 1024-65535
+-A POSTROUTING -s 192.168.158.0/24 ! -d 192.168.158.0/24 -j MASQUERADE
+COMMIT
+EOF
+```
+
+Changes applied by both commands will not be persistant and will not survive reboots. Please refer to your operating
+system's documentation on how to store [nftables][nftables] or [iptables][iptables] rules persistently.
 
 :warning: **WARNING:**
 Run the following playbooks on disposable non-productive bare-metal machines only.
@@ -570,7 +613,7 @@ of that system which can be used for ssh'ing into it:
 
 ```sh
 # Establish SSH connection to Ansible host lvrt-lcl-session-srv-020-debian10
-ssh ansible@192.168.156.13
+ssh ansible@192.168.158.13
 ```
 
 Besides individual Ansible hosts, you can also use Ansible groups such as `build_level1` and `build_level2` to set up

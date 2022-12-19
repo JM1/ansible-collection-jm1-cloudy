@@ -19,6 +19,8 @@ services:
     privileged: true
     # TODO: Implement support for privileged: false.
     stdin_open: true
+    sysctls:
+      net.ipv4.conf.eth0.proxy_arp: 1
     tty: true
     volumes:
       # Persist storage volumes of libvirt domains
@@ -55,6 +57,8 @@ services:
     privileged: true
     # TODO: Implement support for privileged: false.
     stdin_open: true
+    sysctls:
+      net.ipv4.conf.eth0.proxy_arp: 1
     tty: true
     volumes:
       # Persist storage volumes of libvirt domains
@@ -91,6 +95,8 @@ services:
     privileged: true
     # TODO: Implement support for privileged: false.
     stdin_open: true
+    sysctls:
+      net.ipv4.conf.eth0.proxy_arp: 1
     tty: true
     volumes:
       # Persist storage volumes of libvirt domains
@@ -127,6 +133,8 @@ services:
     privileged: true
     # TODO: Implement support for privileged: false.
     stdin_open: true
+    sysctls:
+      net.ipv4.conf.eth0.proxy_arp: 1
     tty: true
     volumes:
       # Persist storage volumes of libvirt domains
@@ -163,6 +171,8 @@ services:
     privileged: true
     # TODO: Implement support for privileged: false.
     stdin_open: true
+    sysctls:
+      net.ipv4.conf.eth0.proxy_arp: 1
     tty: true
     volumes:
       # Persist storage volumes of libvirt domains
@@ -199,6 +209,8 @@ services:
     privileged: true
     # TODO: Implement support for privileged: false.
     stdin_open: true
+    sysctls:
+      net.ipv4.conf.eth0.proxy_arp: 1
     tty: true
     volumes:
       # Persist storage volumes of libvirt domains
@@ -235,6 +247,8 @@ services:
     privileged: true
     # TODO: Implement support for privileged: false.
     stdin_open: true
+    sysctls:
+      net.ipv4.conf.eth0.proxy_arp: 1
     tty: true
     volumes:
       # Persist storage volumes of libvirt domains
@@ -271,6 +285,8 @@ services:
     privileged: true
     # TODO: Implement support for privileged: false.
     stdin_open: true
+    sysctls:
+      net.ipv4.conf.eth0.proxy_arp: 1
     tty: true
     volumes:
       # Persist storage volumes of libvirt domains

@@ -1,5 +1,5 @@
 ---
-# Copyright (c) 2020 Jakob Meng, <jakobmeng@web.de>
+# Copyright (c) 2020-2022 Jakob Meng, <jakobmeng@web.de>
 # vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
 # kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
 
@@ -59,9 +59,7 @@ dhcpd_config:
         next-server {{ pxe_installer_host_address }};
         option host-name "{{ hostvars[pxe_client].inventory_hostname }}";
         {{ hostvars[pxe_client].dhcpd_host_config | indent(width=2) }}
-      } # host {{ hostvars[pxe_client].inventory_hostname }}
 
-      if option host-name = "{{ hostvars[pxe_client].inventory_hostname }}" {
         if option architecture-type = 00:07 {
           filename "{{ pxe_installer_distribution_filename_map
                        [hostvars[pxe_client]['distribution_id'] | join('_') | regex_replace('[^A-Za-z0-9_]', '_')]
@@ -71,7 +69,7 @@ dhcpd_config:
                        [hostvars[pxe_client]['distribution_id'] | join('_') | regex_replace('[^A-Za-z0-9_]', '_')]
                        [hostvars[pxe_client]['os_architecture']]['BIOS'] }}";
         }
-      } # option host-name = "{{ hostvars[pxe_client].inventory_hostname }}"
+      } # host {{ hostvars[pxe_client].inventory_hostname }}
       {% endfor %}
 
     dest: /etc/dhcp/dhcpd.conf
@@ -115,7 +113,7 @@ httpd_config:
         <Directory /var/www>
           Options -Indexes
           Require ip 192.168.153
-          Require ip 192.168.156.20
+          Require ip 192.168.158.20
           Require ip 127.
           Require ip ::1
         </Directory>
@@ -166,7 +164,7 @@ httpd_config:
         ProxyVia On
         <Proxy "*">
           Require ip 192.168.153
-          Require ip 192.168.156.20
+          Require ip 192.168.158.20
           Require ip 127.
           Require ip ::1
         </Proxy>
@@ -250,7 +248,7 @@ iptables_config:
     out_interface: 'eth0'
     source: 192.168.153.0/24
     table: nat
-    to_source: 192.168.156.20
+    to_source: 192.168.158.20
 
 iptables_persistence: yes
 
@@ -262,7 +260,7 @@ libvirt_hardware:
 - memory: '4096'
 - virt_type: 'kvm'
 - graphics: 'spice,listen=socket'
-- network: 'network=nat-1-no-dhcp,model=virtio'
+- network: 'network=route-1-no-dhcp,model=virtio'
 - network: 'network=isolated-2-no-dhcp,model=virtio'
 - disk: "vol='{{ libvirt_pool }}/{{ libvirt_volumes[0]['name'] }}',device=disk,bus=virtio"
 - disk: "vol='{{ libvirt_pool }}/{{ libvirt_configdrive }}',device=disk,bus=virtio,serial='cidata'"
@@ -278,14 +276,14 @@ libvirt_netplan:
       accept-ra: false
 
       addresses:
-      - 192.168.156.20/24
+      - 192.168.158.20/24
 
       nameservers:
         addresses:
-        - 192.168.156.1
+        - 192.168.158.1
       routes:
       - to: 0.0.0.0/0
-        via: 192.168.156.1
+        via: 192.168.158.1
     eth1:
       dhcp4: false
       dhcp6: false
@@ -352,7 +350,7 @@ pxe_installer_files_ubuntu_2204_amd64:
 sysctl_config:
 - ansible.builtin.copy:
     content: |
-      # 2021 Jakob Meng, <jakobmeng@web.de>
+      # 2021-2022 Jakob Meng, <jakobmeng@web.de>
       net.ipv4.ip_forward = 0
       net.ipv4.conf.eth0.forwarding = 1
       net.ipv4.conf.eth1.forwarding = 1

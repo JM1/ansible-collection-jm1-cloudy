@@ -25,7 +25,7 @@ RUN echo 'deb http://ppa.launchpad.net/ansible/ansible/ubuntu bionic main' > \
 # Satisfy Ansible requirements
 RUN apt-get update && \
   apt-get install -y --no-install-recommends \
-    ansible iproute2 make openssh-client procps python-pip python3 python3-pip sudo && \
+    ansible iproute2 make nftables openssh-client procps python-pip python3 python3-pip sudo && \
   apt-get install -y --no-install-recommends \
     acl hostname python-libvirt python-lxml python-netaddr python-pip python-pyghmi python-selinux \
     python3-libvirt python3-lxml python3-netaddr python3-pip python3-pyghmi python3-selinux && \

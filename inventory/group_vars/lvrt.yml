@@ -37,7 +37,7 @@ libvirt_hardware:
 - memory: '1024'
 - virt_type: 'kvm'
 - graphics: 'spice,listen=none'
-- network: 'network=nat-1-no-dhcp,model=virtio'
+- network: 'network=route-1-no-dhcp,model=virtio'
 - disk: "vol='{{ libvirt_pool }}/{{ libvirt_volumes[0]['name'] }}',device=disk,bus=virtio,serial='root'"
 - disk: "vol='{{ libvirt_pool }}/{{ libvirt_configdrive }}',device=disk,bus=virtio,serial='cidata'"
 # Specifying os variant is HIGHLY RECOMMENDED, as it can greatly increase performance by specifying virtio

@@ -16,7 +16,7 @@ iptables_config:
     out_interface: 'eth0'
     source: 192.168.152.0/24
     table: nat
-    to_source: 192.168.156.19
+    to_source: 192.168.158.19
 - # do SNAT for all packets coming from internal network
   ansible.builtin.iptables:
     chain: POSTROUTING
@@ -25,7 +25,7 @@ iptables_config:
     out_interface: 'eth0'
     source: 192.168.155.0/24
     table: nat
-    to_source: 192.168.156.19
+    to_source: 192.168.158.19
 
 iptables_persistence: yes
 
@@ -39,6 +39,7 @@ libvirt_hardware:
 - virt_type: 'kvm'
 - graphics: 'spice,listen=socket'
 - network: 'network=nat-1-no-dhcp,model=virtio'
+- network: 'network=route-1-no-dhcp,model=virtio'
 - network: 'network=isolated-1-dhcp,model=virtio,mac=RANDOM'
 - disk: "vol='{{ libvirt_pool }}/{{ libvirt_volumes[0]['name'] }}',device=disk,bus=virtio"
 - disk: "vol='{{ libvirt_pool }}/{{ libvirt_configdrive }}',device=disk,bus=virtio,serial='cidata'"
@@ -54,14 +55,14 @@ libvirt_netplan:
       accept-ra: false
 
       addresses:
-      - 192.168.156.19/24
+      - 192.168.158.19/24
 
       nameservers:
         addresses:
-        - 192.168.156.1
+        - 192.168.158.1
       routes:
       - to: 0.0.0.0/0
-        via: 192.168.156.1
+        via: 192.168.158.1
     eth1:
       dhcp4: false
       dhcp6: false

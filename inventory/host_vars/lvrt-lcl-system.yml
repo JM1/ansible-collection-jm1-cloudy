@@ -23,7 +23,7 @@ ansible_python_interpreter: "{{ ansible_playbook_python }}"
 libvirt_images: []
 
 libvirt_networks:
-- # network without host ip, withouth dhcp and without forwarding
+- # network without host ip, without dhcp, without forwarding and without masquerading
   acl: allow
   autostart: yes
   bridge:
@@ -40,7 +40,7 @@ libvirt_networks:
   state: active
   xml_var: 'libvirt_network_template_isolated'
 
-- # network with host ip, with dhcp and without forwarding
+- # network with host ip, with dhcp, without forwarding and without masquerading
   acl: allow
   autostart: yes
   bridge:
@@ -64,7 +64,7 @@ libvirt_networks:
   state: active
   xml_var: 'libvirt_network_template_isolated'
 
-- # network with host ip, without dhcp and without forwarding
+- # network with host ip, without dhcp, without forwarding and without masquerading
   acl: allow
   autostart: yes
   bridge:
@@ -84,7 +84,7 @@ libvirt_networks:
   state: active
   xml_var: 'libvirt_network_template_isolated'
 
-- # network with host ip, without dhcp and without forwarding
+- # network with host ip, without dhcp, without forwarding and without masquerading
   acl: allow
   autostart: yes
   bridge:
@@ -104,7 +104,7 @@ libvirt_networks:
   state: active
   xml_var: 'libvirt_network_template_isolated'
 
-- # network with host ip, with dhcp and with forwarding
+- # network with host ip, with dhcp, with forwarding and with masquerading
   acl: allow
   autostart: yes
   bridge:
@@ -128,7 +128,7 @@ libvirt_networks:
   state: active
   xml_var: 'libvirt_network_template_nat'
 
-- # network with host ip, without dhcp and with forwarding
+- # network with host ip, without dhcp, with forwarding and with masquerading
   acl: allow
   autostart: yes
   bridge:
@@ -147,6 +147,50 @@ libvirt_networks:
   restart_on_change: yes
   state: active
   xml_var: 'libvirt_network_template_nat'
+
+- # network with host ip, with dhcp, with forwarding and without masquerading
+  acl: allow
+  autostart: yes
+  bridge:
+    delay: '0'
+    name: 'virbr-local-6'
+    stp: yes
+  #domain:
+  #  name: 'route-0-dhcp'
+  ip:
+    address: '192.168.157.1'
+    netmask: '255.255.255.0'
+    dhcp:
+      range:
+        start: '192.168.157.2'
+        end: '192.168.157.254'
+  ignore:
+  - '/network/uuid'
+  - '/network/mac'
+  name: 'route-0-dhcp'
+  restart_on_change: yes
+  state: active
+  xml_var: 'libvirt_network_template_route'
+
+- # network with host ip, without dhcp, with forwarding and without masquerading
+  acl: allow
+  autostart: yes
+  bridge:
+    delay: '0'
+    name: 'virbr-local-7'
+    stp: yes
+  #domain:
+  #  name: 'route-1-no-dhcp'
+  ip:
+    address: '192.168.158.1'
+    netmask: '255.255.255.0'
+  ignore:
+  - '/network/uuid'
+  - '/network/mac'
+  name: 'route-1-no-dhcp'
+  restart_on_change: yes
+  state: active
+  xml_var: 'libvirt_network_template_route'
 
 libvirt_pools:
 # NOTE: When libvirt starts a domain, then libvirt will chown the storage volumes to libvirt-qemu:libvirt-qemu. When the

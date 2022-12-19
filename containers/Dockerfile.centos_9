@@ -20,7 +20,7 @@ RUN dnf install -y dnf-plugins-core && \
   dnf config-manager --set-enabled crb && \
   dnf install -y epel-release epel-next-release && \
   dnf install -y \
-    ansible iproute make openssh-clients procps python3 python3-jinja2 python3-pip sudo tzdata && \
+    ansible iproute nftables make openssh-clients procps python3 python3-jinja2 python3-pip sudo tzdata && \
   dnf install -y \
     acl hostname python3-libvirt python3-lxml python3-netaddr python3-pip python3-pyghmi && \
   dnf clean all

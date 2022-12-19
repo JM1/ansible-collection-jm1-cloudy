@@ -114,6 +114,23 @@ trap "trap - TERM && kill -- -$$" INT TERM EXIT
             --limit lvrt-lcl-system \
             --skip-tags "jm1.kvm_nested_virtualization" \
 
+    # Enable masquerading for internet connectivity from libvirt domains on networks route-0-dhcp and route-1-no-dhcp
+    nft --file - << '____EOF'
+    table ip nat {
+        chain POSTROUTING {
+            type nat hook postrouting priority srcnat
+
+            meta l4proto tcp ip saddr 192.168.157.0/24 ip daddr != 192.168.157.0/24 masquerade to :1024-65535
+            meta l4proto udp ip saddr 192.168.157.0/24 ip daddr != 192.168.157.0/24 masquerade to :1024-65535
+            ip saddr 192.168.157.0/24 ip daddr != 192.168.157.0/24 masquerade
+
+            meta l4proto tcp ip saddr 192.168.158.0/24 ip daddr != 192.168.158.0/24 masquerade to :1024-65535
+            meta l4proto udp ip saddr 192.168.158.0/24 ip daddr != 192.168.158.0/24 masquerade to :1024-65535
+            ip saddr 192.168.158.0/24 ip daddr != 192.168.158.0/24 masquerade
+        }
+    }
+____EOF
+
     if [ -z "$(groups cloudy | grep -w kvm)" ]; then
         sudo -u cloudy killall libvirtd || true
         usermod --append --groups kvm cloudy

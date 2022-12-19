@@ -40,7 +40,7 @@ libvirt_networks:
   state: active
   xml_var: 'libvirt_network_template_bridge'
 
-- # network with host ip, with dhcp and without forwarding
+- # network with host ip, with dhcp, without forwarding and without masquerading
   autostart: yes
   bridge:
     name: 'virbr-local-1'
@@ -51,7 +51,7 @@ libvirt_networks:
   state: active
   xml_var: 'libvirt_network_template_bridge'
 
-- # network with host ip, without dhcp and without forwarding
+- # network with host ip, without dhcp, without forwarding and without masquerading
   autostart: yes
   bridge:
     name: 'virbr-local-2'
@@ -62,7 +62,7 @@ libvirt_networks:
   state: active
   xml_var: 'libvirt_network_template_bridge'
 
-- # network with host ip, without dhcp and without forwarding
+- # network with host ip, without dhcp, without forwarding and without masquerading
   autostart: yes
   bridge:
     name: 'virbr-local-3'
@@ -73,7 +73,7 @@ libvirt_networks:
   state: active
   xml_var: 'libvirt_network_template_bridge'
 
-- # network with host ip, with dhcp and with forwarding
+- # network with host ip, with dhcp, with forwarding and with masquerading
   autostart: yes
   bridge:
     name: 'virbr-local-4'
@@ -84,13 +84,35 @@ libvirt_networks:
   state: active
   xml_var: 'libvirt_network_template_bridge'
 
-- # network with host ip, without dhcp and with forwarding
+- # network with host ip, without dhcp, with forwarding and with masquerading
   autostart: yes
   bridge:
     name: 'virbr-local-5'
   ignore:
   - '/network/uuid'
   name: 'nat-1-no-dhcp'
+  restart_on_change: yes
+  state: active
+  xml_var: 'libvirt_network_template_bridge'
+
+- # network with host ip, with dhcp, with forwarding and without masquerading
+  autostart: yes
+  bridge:
+    name: 'virbr-local-6'
+  ignore:
+  - '/network/uuid'
+  name: 'route-0-dhcp'
+  restart_on_change: yes
+  state: active
+  xml_var: 'libvirt_network_template_bridge'
+
+- # network with host ip, without dhcp, with forwarding and without masquerading
+  autostart: yes
+  bridge:
+    name: 'virbr-local-7'
+  ignore:
+  - '/network/uuid'
+  name: 'route-1-no-dhcp'
   restart_on_change: yes
   state: active
   xml_var: 'libvirt_network_template_bridge'
