@@ -24,6 +24,8 @@ RUN echo 'deb http://ppa.launchpad.net/ansible/ansible/ubuntu focal main' > \
 
 # Satisfy Ansible requirements
 RUN apt-get update && \
+  apt-get install -y \
+    iputils-ping man-db psmisc tcpdump tmux vim && \
   apt-get install -y --no-install-recommends \
     ansible iproute2 make nftables openssh-client procps python3 python3-pip sudo && \
   apt-get install -y --no-install-recommends \
