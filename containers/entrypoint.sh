@@ -109,6 +109,19 @@ trap "trap - TERM && kill -- -$$" INT TERM EXIT
         /usr/sbin/libvirtd --daemon ${LIBVIRTD_ARGS:-}
     )
 
+    # Enable unencrypted libvirt tcp transport and disable libvirt tls transport
+    if [ ! -e /home/cloudy/.config/libvirt/libvirtd.conf ]; then
+        sudo -u cloudy mkdir -p /home/cloudy/.config/libvirt/
+        cp -av /etc/libvirt/libvirtd.conf /home/cloudy/.config/libvirt/libvirtd.conf
+        chown cloudy.cloudy /home/cloudy/.config/libvirt/libvirtd.conf
+        sed -i \
+            -e 's/^[#]*listen_tls = .*/listen_tls = 0/g' \
+            -e 's/^[#]*listen_tcp = .*/listen_tcp = 1/g' \
+            -e 's/^[#]*listen_addr = .*/listen_addr = "192.168.150.2"/g' \
+            -e 's/^[#]*auth_tcp = .*/auth_tcp = "none"/g' \
+            /home/cloudy/.config/libvirt/libvirtd.conf
+    fi
+
     sudo -u cloudy --set-home \
         ansible-playbook playbooks/site.yml \
             --limit lvrt-lcl-system \
@@ -138,7 +151,7 @@ ____EOF
 
     # Start libvirt session daemon
     sudo -u cloudy --set-home \
-        sh -c 'pgrep --uid "$(id -u)" libvirtd || /usr/sbin/libvirtd --daemon'
+        sh -c 'pgrep --uid "$(id -u)" libvirtd || /usr/sbin/libvirtd --daemon --listen'
 
     sudo -u cloudy --set-home \
         ansible-playbook playbooks/site.yml \

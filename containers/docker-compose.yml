@@ -18,6 +18,11 @@ services:
     # privileged is required for libvirtd to be able to write to /proc/sys/net/ipv6/conf/*/disable_ipv6
     privileged: true
     # TODO: Implement support for privileged: false.
+    ports:
+      # libvirt tcp transport
+      - '127.0.0.1:16509:16509/tcp'
+      # VNC connections
+      - '127.0.0.1:5900-5999:5900-5999/tcp'
     stdin_open: true
     sysctls:
       net.ipv4.conf.eth0.proxy_arp: 1
@@ -56,6 +61,11 @@ services:
     # privileged is required for libvirtd to be able to write to /proc/sys/net/ipv6/conf/*/disable_ipv6
     privileged: true
     # TODO: Implement support for privileged: false.
+    ports:
+      # libvirt tcp transport
+      - '127.0.0.1:16509:16509/tcp'
+      # VNC connections
+      - '127.0.0.1:5900-5999:5900-5999/tcp'
     stdin_open: true
     sysctls:
       net.ipv4.conf.eth0.proxy_arp: 1
@@ -94,6 +104,11 @@ services:
     # privileged is required for libvirtd to be able to write to /proc/sys/net/ipv6/conf/*/disable_ipv6
     privileged: true
     # TODO: Implement support for privileged: false.
+    ports:
+      # libvirt tcp transport
+      - '127.0.0.1:16509:16509/tcp'
+      # VNC connections
+      - '127.0.0.1:5900-5999:5900-5999/tcp'
     stdin_open: true
     sysctls:
       net.ipv4.conf.eth0.proxy_arp: 1
@@ -132,6 +147,11 @@ services:
     # privileged is required for libvirtd to be able to write to /proc/sys/net/ipv6/conf/*/disable_ipv6
     privileged: true
     # TODO: Implement support for privileged: false.
+    ports:
+      # libvirt tcp transport
+      - '127.0.0.1:16509:16509/tcp'
+      # VNC connections
+      - '127.0.0.1:5900-5999:5900-5999/tcp'
     stdin_open: true
     sysctls:
       net.ipv4.conf.eth0.proxy_arp: 1
@@ -170,6 +190,11 @@ services:
     # privileged is required for libvirtd to be able to write to /proc/sys/net/ipv6/conf/*/disable_ipv6
     privileged: true
     # TODO: Implement support for privileged: false.
+    ports:
+      # libvirt tcp transport
+      - '127.0.0.1:16509:16509/tcp'
+      # VNC connections
+      - '127.0.0.1:5900-5999:5900-5999/tcp'
     stdin_open: true
     sysctls:
       net.ipv4.conf.eth0.proxy_arp: 1
@@ -208,6 +233,11 @@ services:
     # privileged is required for libvirtd to be able to write to /proc/sys/net/ipv6/conf/*/disable_ipv6
     privileged: true
     # TODO: Implement support for privileged: false.
+    ports:
+      # libvirt tcp transport
+      - '127.0.0.1:16509:16509/tcp'
+      # VNC connections
+      - '127.0.0.1:5900-5999:5900-5999/tcp'
     stdin_open: true
     sysctls:
       net.ipv4.conf.eth0.proxy_arp: 1
@@ -246,6 +276,11 @@ services:
     # privileged is required for libvirtd to be able to write to /proc/sys/net/ipv6/conf/*/disable_ipv6
     privileged: true
     # TODO: Implement support for privileged: false.
+    ports:
+      # libvirt tcp transport
+      - '127.0.0.1:16509:16509/tcp'
+      # VNC connections
+      - '127.0.0.1:5900-5999:5900-5999/tcp'
     stdin_open: true
     sysctls:
       net.ipv4.conf.eth0.proxy_arp: 1
@@ -284,6 +319,11 @@ services:
     # privileged is required for libvirtd to be able to write to /proc/sys/net/ipv6/conf/*/disable_ipv6
     privileged: true
     # TODO: Implement support for privileged: false.
+    ports:
+      # libvirt tcp transport
+      - '127.0.0.1:16509:16509/tcp'
+      # VNC connections
+      - '127.0.0.1:5900-5999:5900-5999/tcp'
     stdin_open: true
     sysctls:
       net.ipv4.conf.eth0.proxy_arp: 1

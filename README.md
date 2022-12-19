@@ -338,6 +338,24 @@ sudo -u cloudy --login
 Being logged in as `cloudy` inside the container, continue with [running playbook `playbooks/site.yml` for all remaining
 hosts](#usage-and-playbooks) from your copy of the [`inventory/`][inventory-example] directory.
 
+To connect to the libvirt daemon running inside the container from the container host, run the following command at your
+container host:
+
+```sh
+# List all libvirt domains running inside the container
+virsh --connect 'qemu+tcp://127.0.0.1:16509/session' list
+```
+
+The same connection URI `qemu+tcp://127.0.0.1:16509/session` can also be used with virt-manager at the container host.
+To view a virtual machine's graphical console, its Spice server or VNC server has to be changed, i.e. its listen type
+has to be changed to `address`, address has to be changed to `0.0.0.0` (aka `All interfaces`) or `192.168.150.2` and
+port has to be changed to a number between `5900-5999`. Then view its graphical console on your container host with:
+
+```sh
+# View a libvirt domain's graphical console with spice server at port 5900 running inside the container
+remote-viewer spice://127.0.0.1:5900
+```
+
 To stop the container, exit the container's Bash shells and run on your container host:
 
 ```sh
