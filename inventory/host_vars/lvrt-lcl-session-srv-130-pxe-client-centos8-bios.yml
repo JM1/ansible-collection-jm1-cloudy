@@ -81,7 +81,7 @@ libvirt_hardware:
 - vcpus: '2'
 - memory: '2048'
 - virt_type: 'kvm'
-- graphics: 'spice,listen=socket'
+- graphics: 'vnc,listen=socket'
 - network: 'network=isolated-2-no-dhcp,model=virtio,mac=52:54:00:aa:bb:05'
 - disk: "vol='{{ libvirt_pool }}/{{ libvirt_volumes[0]['name'] }}',device=disk,bus=virtio"
 - boot: 'hd,network'

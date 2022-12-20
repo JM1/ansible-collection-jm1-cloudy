@@ -75,7 +75,7 @@ libvirt_hardware:
 - vcpus: '2'
 - memory: '1024'
 - virt_type: 'kvm'
-- graphics: 'spice,listen=socket'
+- graphics: 'vnc,listen=socket'
 - network: 'bridge=virbr-nat-0,model=virtio'
 - disk: "vol='{{ libvirt_pool }}/{{ libvirt_volumes[0]['name'] }}',device=disk,bus=virtio,serial='root'"
 - disk: "vol='{{ libvirt_pool }}/{{ libvirt_configdrive }}',device=disk,bus=virtio,serial='cidata'"

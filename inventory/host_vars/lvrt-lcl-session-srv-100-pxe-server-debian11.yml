@@ -259,7 +259,7 @@ libvirt_hardware:
 - vcpus: '4'
 - memory: '4096'
 - virt_type: 'kvm'
-- graphics: 'spice,listen=socket'
+- graphics: 'vnc,listen=socket'
 - network: 'network=route-1-no-dhcp,model=virtio'
 - network: 'network=isolated-2-no-dhcp,model=virtio'
 - disk: "vol='{{ libvirt_pool }}/{{ libvirt_volumes[0]['name'] }}',device=disk,bus=virtio"

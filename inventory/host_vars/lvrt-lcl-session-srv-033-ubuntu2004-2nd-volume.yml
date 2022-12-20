@@ -14,7 +14,7 @@ libvirt_hardware:
 - vcpus: '2'
 - memory: '1024'
 - virt_type: 'kvm'
-- graphics: 'spice,listen=none'
+- graphics: 'vnc,listen=none'
 - network: 'network=route-1-no-dhcp,model=virtio'
 - disk: "vol='{{ libvirt_pool }}/{{ libvirt_volumes[0]['name'] }}',device=disk,bus=virtio"
 - disk: "vol='{{ libvirt_pool }}/{{ libvirt_volumes[1]['name'] }}',device=disk,bus=virtio"

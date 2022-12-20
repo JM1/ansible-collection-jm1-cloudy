@@ -352,8 +352,8 @@ has to be changed to `address`, address has to be changed to `0.0.0.0` (aka `All
 port has to be changed to a number between `5900-5999`. Then view its graphical console on your container host with:
 
 ```sh
-# View a libvirt domain's graphical console with spice server at port 5900 running inside the container
-remote-viewer spice://127.0.0.1:5900
+# View a libvirt domain's graphical console with vnc server at port 5900 running inside the container
+remote-viewer vnc://127.0.0.1:5900
 ```
 
 To stop the container, exit the container's Bash shells and run on your container host:
