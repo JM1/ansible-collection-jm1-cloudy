@@ -6,11 +6,11 @@ dependencies:
   "ansible.utils": '>=2.5.2'
   "community.general": '>=3.5.0'
   "community.libvirt": '>=1.0.2'
-  "jm1.ansible": '>=2022.10.23'
-  "jm1.libvirt": '>=2022.12.10'
-  "jm1.packages": '>=2022.12.10'
-  "jm1.pkg": '>=2022.12.10'
-  "jm1.openstack": '>=2022.12.10'
+  "jm1.ansible": '>=2022.12.20'
+  "jm1.libvirt": '>=2022.12.20'
+  "jm1.packages": '>=2022.12.20'
+  "jm1.pkg": '>=2022.12.20'
+  "jm1.openstack": '>=2022.12.20'
   "openstack.cloud": '>=1.5.0'
 description: null
 documentation: https://github.com/jm1/ansible-collection-jm1-cloudy/tree/master/docs
