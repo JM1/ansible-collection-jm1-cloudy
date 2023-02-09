@@ -519,6 +519,11 @@
     role: jm1.cloudy.services
     tags: ["jm1.cloudy.services"]
 
+  - name: Manage pods, containers and images with Podman
+    role: jm1.cloudy.podman
+    tags: ["jm1.cloudy.podman"]
+    when: inventory_hostname in groups.svc_podman
+
 - name: Prepare libvirt hosts
   hosts:
   # TODO: Why is svc_libvirt not excluded with ':&svc_libvirt'?

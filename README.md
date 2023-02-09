@@ -104,6 +104,7 @@ Click on the name of an inventory, module, playbook or role to view that content
     * [networkmanager](roles/networkmanager/README.md)
     * [openstack_server](roles/openstack_server/README.md)
     * [packages](roles/packages/README.md)
+    * [podman](roles/podman/README.md)
     * [pxe_hwfp](roles/pxe_hwfp/README.md)
     * [pxe_installer](roles/pxe_installer/README.md)
     * [selinux](roles/selinux/README.md)
