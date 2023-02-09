@@ -91,8 +91,9 @@ To install these collections you may follow the steps described in [`README.md`]
 supports modules and action plugins only. Some Ansible modules such as [`ansible.builtin.meta`][ansible-builtin-meta]
 and `ansible.builtin.{include,import}_{playbook,role,tasks}` are core features of Ansible, in fact not implemented as
 modules and thus cannot be called from `jm1.ansible.execute_module`. Doing so causes Ansible to raise errors such as
-`MODULE FAILURE\nSee stdout/stderr for the exact error`. In addition, Ansible does not support free-form parameters
-for arbitrary modules, so for example, change from `- debug: msg=""` to `- debug: { msg: "" }`.
+`MODULE FAILURE\nSee stdout/stderr for the exact error`. (Only exception is [`meta: flush_handlers`][
+ansible-builtin-meta] which is fully supported). In addition, Ansible does not support free-form parameters for
+arbitrary modules, so for example, change from `- debug: msg=""` to `- debug: { msg: "" }`.
 
 [^supported-keywords]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
 supports keywords `register`, `when` and a special keyword `handlers` only. Task keyword `handlers` defines a list of

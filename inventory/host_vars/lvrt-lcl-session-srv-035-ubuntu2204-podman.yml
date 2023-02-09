@@ -81,3 +81,5 @@ podman_config:
   ansible.builtin.service:
     enabled: true
     name: podman-httpd.service
+- # Force changes to be applied now
+  ansible.builtin.meta: flush_handlers

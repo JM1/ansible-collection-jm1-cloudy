@@ -31,13 +31,10 @@
     depends:
     - podman
 
+- name: Reset Podman related handlers
+  ansible.builtin.set_fact:
+    podman_handlers: []
+
 - name: Run tasks specified in podman_config variable
-  jm1.ansible.execute_module:
-    name: "{{ (item.keys() | difference(['handlers', 'register', 'when'])) | first }}"
-    args: "{{ item[(item.keys() | difference(['handlers', 'register', 'when'])) | first] }}"
-    register: "{{ item['register'] | default(omit) }}"
-    when: item['when'] | default(omit)
-  loop: "{{ podman_config | default([]) }}"
-  register: podman_config_result
-  notify:
-  - 'Run Podman handlers to apply changes'
+  loop: '{{ podman_config | default([]) }}'
+  ansible.builtin.include_tasks: setup.yml
