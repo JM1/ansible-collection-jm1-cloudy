@@ -1,0 +1,42 @@
+---
+# Copyright (c) 2023 Jakob Meng, <jakobmeng@web.de>
+# vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
+# kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
+
+- name: Verify task definitions specified in apparmor_config variable
+  when: item is not mapping or (item.keys() | difference(['register', 'when'])) | list | length != 1
+  ansible.builtin.fail:
+    msg: >-
+      Unsupported keyword or multiple module definitions found:
+      {{ (item.keys() | difference(['register', 'when'])) | join(', ') }}.
+  loop: '{{ apparmor_config | default([]) }}'
+
+- name: Install dependencies of collection jm1.pkg
+  ansible.builtin.import_role:
+    name: jm1.pkg.setup # If Ansible raises "ERROR! the role 'jm1.pkg.setup' was not found" then you might use the
+                        # ansible-galaxy and the provided requirements.yml to install all missing role dependencies.
+
+- name: Satisfy AppArmor requirements
+  jm1.pkg.meta_pkg:
+    name: "jm1-cloudy-apparmor"
+    version: "1"
+    depends:
+    - apparmor
+
+- name: Run tasks specified in apparmor_config variable
+  jm1.ansible.execute_module:
+    name: "{{ (item.keys() | difference(['register', 'when'])) | first }}"
+    args: "{{ item[(item.keys() | difference(['register', 'when'])) | first] }}"
+    register: "{{ item['register'] | default(omit) }}"
+    when: item['when'] | default(omit)
+  loop: "{{ apparmor_config | default([]) }}"
+  notify:
+  - 'Reboot to apply AppArmor configuration changes'
+
+- name: Manage AppArmor service
+  ansible.builtin.service:
+    enabled: '{{ apparmor_service_enabled }}'
+    name: '{{ apparmor_service_name }}'
+    state: '{{ apparmor_service_state }}'
+  notify:
+  - 'Reboot to apply AppArmor configuration changes'

@@ -1,0 +1,27 @@
+galaxy_info:
+  role_name: apparmor
+  author: Jakob Meng
+  description: Manage AppArmor service
+  license: license (GPLv3)
+
+  min_ansible_version: '2.9'
+
+  platforms:
+  # Ref.: https://galaxy.ansible.com/api/v1/platforms/
+  - name: Debian
+    versions:
+    - buster
+    - bullseye
+    - bookworm
+
+  - name: Ubuntu
+    versions:
+    - bionic
+    - focal
+    - jammy
+
+  galaxy_tags:
+  - development
+  - system
+
+dependencies: []

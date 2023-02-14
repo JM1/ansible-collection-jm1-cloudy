@@ -480,6 +480,11 @@
   gather_facts: yes # required when using e.g. ansible_env in inventory
 
   roles:
+  - name: Manage AppArmor service
+    role: jm1.cloudy.apparmor
+    tags: ["jm1.cloudy.apparmor"]
+    when: inventory_hostname in groups.svc_apparmor
+
   - name: Setup a DevStack environment
     role: jm1.cloudy.devstack
     tags: ["jm1.cloudy.devstack"]
