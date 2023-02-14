@@ -54,7 +54,7 @@ To install these collections you may follow the steps described in [`README.md`]
 
 | Name                     | Default value                  | Required | Description |
 | ------------------------ | ------------------------------ | -------- | ----------- |
-| `httpd_config`           | *refer to [`roles/httpd/defaults/main.yml`](defaults/main.yml)* | no | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to configure files in `/etc/apache2/` or `/etc/httpd/conf/` |
+| `httpd_config`           | `[]`                           | no       | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to configure files in `/etc/apache2/` or `/etc/httpd/conf/` |
 | `httpd_service_enabled`  | `yes`                          | no       | Whether the httpd service should start on boot |
 | `httpd_service_name`     | *depends on `distribution_id`* | no       | Name of the httpd service, e.g. `apache2.service` on Debian and `httpd.service` on Red Hat Enterprise Linux |
 | `httpd_service_state`    | `started`                      | no       | State of the httpd service |
