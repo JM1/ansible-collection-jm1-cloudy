@@ -1,0 +1,32 @@
+---
+# Copyright (c) 2023 Jakob Meng, <jakobmeng@web.de>
+# vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
+# kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
+
+# Variable distribution_id is a list which uniquely identifies a distribution release, e.g.
+#  [ 'CentOS', '8' ] for CentOS 8 (both Core and Stream)
+#  [ 'Debian', '10' ] for Debian 10 (Buster)
+#  [ 'Debian', 'Unstable' ] for Debian Unstable (Sid)
+#  [ 'Red Hat Enterprise Linux', '8' ]` for Red Hat Enterprise Linux (RHEL) 8
+#  [ 'Ubuntu', '20.04' ] for Ubuntu 20.04 LTS (Focal Fossa)
+distribution_id:
+- '{{ ansible_facts.distribution }}'
+- # Use major and minor version for Ubuntu, e.g. Ubuntu 18.04 LTS (Bionic Beaver) or Ubuntu 20.04 LTS (Focal Fossa).
+  # Use major version in title case for unknown Debian releases, i.e. the major version is not a number and not 'NA',
+  # e.g. when VERSION_ID is not set in /etc/os-release and lsb_release is available on that host, then
+  # ansible_facts.distribution_major_version is defined as 'testing' which will be converted to 'Testing'.
+  # Use major version for all other distributions, e.g. CentOS 7, Debian 10 (Buster) or Red Hat Enterprise Linux 8.
+  "{{ ansible_facts.distribution_version if ansible_facts.distribution == 'Ubuntu' else
+      ansible_facts.distribution_major_version | title if
+        ansible_facts.distribution == 'Debian' and
+        ansible_facts.distribution_major_version is not number and
+        ansible_facts.distribution_major_version != 'NA' else
+          ansible_facts.distribution_major_version }}"
+
+dnsmasq_config: []
+
+dnsmasq_service_enabled: yes
+
+dnsmasq_service_name: 'dnsmasq'
+
+dnsmasq_service_state: 'started'

@@ -87,6 +87,7 @@ Click on the name of an inventory, module, playbook or role to view that content
     * [debconf](roles/debconf/README.md)
     * [devstack](roles/devstack/README.md)
     * [dhcpd](roles/dhcpd/README.md)
+    * [dnsmasq](roles/dnsmasq/README.md)
     * [files](roles/files/README.md)
     * [groups](roles/groups/README.md)
     * [grub](roles/grub/README.md)

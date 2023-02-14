@@ -510,6 +510,11 @@
     tags: ["jm1.cloudy.dhcpd"]
     when: inventory_hostname in groups.svc_dhcpd
 
+  - name: Manage dnsmasq service
+    role: jm1.cloudy.dnsmasq
+    tags: ["jm1.cloudy.dnsmasq"]
+    when: inventory_hostname in groups.svc_dnsmasq
+
   - name: Manage httpd service
     role: jm1.cloudy.httpd
     tags: ["jm1.cloudy.httpd"]
