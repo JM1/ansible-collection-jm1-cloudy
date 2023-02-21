@@ -8,7 +8,7 @@
         # task will fail if list has other types
         packages is iterable and packages is not mapping and packages | length > 0 and
         (packages | map('type_debug') | unique | length > 1 or packages | first is mapping)
-  failed_when: packages_dicts_list_result.failed or not (item is mapping or item is string)
+        and packages | map('type_debug') | unique | list | sort in [['dict'], ['dict', 'str']]
   loop: '{{ packages if packages is iterable and packages is not mapping else [] }}'
   ansible.builtin.package:
     name: '{{ item.name | default(omit) if item is mapping else item }}'
