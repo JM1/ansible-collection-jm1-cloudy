@@ -54,15 +54,15 @@ To install these collections you may follow the steps described in [`README.md`]
 
 | Name                     | Default value                  | Required | Description |
 | ------------------------ | ------------------------------ | -------- | ----------- |
-| `dhcpd_config`           | *refer to [`roles/dhcpd/defaults/main.yml`](defaults/main.yml)* | no | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to configure `/etc/dhcp/dhcpd.conf` |
-| `dhcpd6_config`          | *refer to [`roles/dhcpd/defaults/main.yml`](defaults/main.yml)* | no | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to configure `/etc/dhcp/dhcpd6.conf` |
-| `dhcpd_service_enabled`  | `yes`                          | no       | Whether the DHCP IPv4 service should start on boot |
-| `dhcpd6_service_enabled` | `yes`                          | no       | Whether the DHCP IPv6 service should start on boot |
-| `dhcpd_service_name`     | *depends on `distribution_id`* | no       | Name of the DHCP IPv4 service, e.g. `isc-dhcp-server` on Debian and `dhcpd.service` on Red Hat Enterprise Linux |
-| `dhcpd6_service_name`    | *depends on `distribution_id`* | no       | Name of the DHCP IPv6 service, e.g. `isc-dhcp-server6` on Ubuntu and `dhcpd6.service` on Red Hat Enterprise Linux |
-| `dhcpd_service_state`    | `started`                      | no       | State of the DHCP IPv4 service |
-| `dhcpd6_service_state`   | `started`                      | no       | State of the DHCP IPv6 service |
-| `distribution_id`        | *depends on operating system*  | no       | List which uniquely identifies a distribution release, e.g. `[ 'Debian', '10' ]` for `Debian 10 (Buster)` |
+| `dhcpd_config`           | *refer to [`roles/dhcpd/defaults/main.yml`](defaults/main.yml)* | false | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to configure `/etc/dhcp/dhcpd.conf` |
+| `dhcpd6_config`          | *refer to [`roles/dhcpd/defaults/main.yml`](defaults/main.yml)* | false | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to configure `/etc/dhcp/dhcpd6.conf` |
+| `dhcpd_service_enabled`  | `true`                         | false    | Whether the DHCP IPv4 service should start on boot |
+| `dhcpd6_service_enabled` | `true`                         | false    | Whether the DHCP IPv6 service should start on boot |
+| `dhcpd_service_name`     | *depends on `distribution_id`* | false    | Name of the DHCP IPv4 service, e.g. `isc-dhcp-server` on Debian and `dhcpd.service` on Red Hat Enterprise Linux |
+| `dhcpd6_service_name`    | *depends on `distribution_id`* | false    | Name of the DHCP IPv6 service, e.g. `isc-dhcp-server6` on Ubuntu and `dhcpd6.service` on Red Hat Enterprise Linux |
+| `dhcpd_service_state`    | `started`                      | false    | State of the DHCP IPv4 service |
+| `dhcpd6_service_state`   | `started`                      | false    | State of the DHCP IPv6 service |
+| `distribution_id`        | *depends on operating system*  | false    | List which uniquely identifies a distribution release, e.g. `[ 'Debian', '10' ]` for `Debian 10 (Buster)` |
 
 [^supported-modules]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
 supports modules and action plugins only. Some Ansible modules such as [`ansible.builtin.meta`][ansible-builtin-meta]
@@ -97,7 +97,7 @@ ansible-builtin-lineinfile] and [`template`][ansible-builtin-template].
 
 ```yml
 - hosts: all
-  become: yes
+  become: true
   roles:
   - name: Manage DHCP IPv4 and DHCP IPv6 services
     role: jm1.cloudy.dhcpd

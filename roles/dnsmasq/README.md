@@ -61,11 +61,11 @@ To install these collections you may follow the steps described in [`README.md`]
 
 | Name                      | Default value                  | Required | Description |
 | ------------------------- | ------------------------------ | -------- | ----------- |
-| `distribution_id`         | *depends on operating system*  | no       | List which uniquely identifies a distribution release, e.g. `[ 'Debian', '10' ]` for `Debian 10 (Buster)` |
-| `dnsmasq_config`          | `[]`                           | no       | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to configure files in `/etc/dnsmasq.d/` |
-| `dnsmasq_service_enabled` | `yes`                          | no       | Whether the dnsmasq service should start on boot |
-| `dnsmasq_service_name`    | `dnsmasq`                      | no       | Name of the dnsmasq service |
-| `dnsmasq_service_state`   | `started`                      | no       | State of the dnsmasq service |
+| `distribution_id`         | *depends on operating system*  | false    | List which uniquely identifies a distribution release, e.g. `[ 'Debian', '10' ]` for `Debian 10 (Buster)` |
+| `dnsmasq_config`          | `[]`                           | false    | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to configure files in `/etc/dnsmasq.d/` |
+| `dnsmasq_service_enabled` | `true`                         | false    | Whether the dnsmasq service should start on boot |
+| `dnsmasq_service_name`    | `dnsmasq`                      | false    | Name of the dnsmasq service |
+| `dnsmasq_service_state`   | `started`                      | false    | State of the dnsmasq service |
 
 [^supported-modules]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
 supports modules and action plugins only. Some Ansible modules such as [`ansible.builtin.meta`][ansible-builtin-meta]
@@ -99,7 +99,7 @@ ansible-builtin-template].
 
 ```yml
 - hosts: all
-  become: yes
+  become: true
   roles:
   - name: Manage dnsmasq service
     role: jm1.cloudy.dnsmasq

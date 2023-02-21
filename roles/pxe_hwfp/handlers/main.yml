@@ -6,5 +6,5 @@
 - name: Restart hwfp's systemd service
   ansible.builtin.systemd:
     name: hwfp.service
-    daemon_reload: yes
+    daemon_reload: true
     state: restarted

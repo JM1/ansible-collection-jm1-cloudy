@@ -22,7 +22,7 @@
 - name: Setup bare-metal servers
   hosts:
   - bmtl
-  any_errors_fatal: yes
+  any_errors_fatal: true
   # do not become root because connection is local
   connection: local
   vars:
@@ -40,7 +40,7 @@
     #  https://docs.ansible.com/ansible/latest/user_guide/playbooks_delegation.html
     #  https://docs.ansible.com/ansible/latest/reference_appendices/interpreter_discovery.html
     ansible_python_interpreter: "{{ ansible_playbook_python }}"
-  gather_facts: no
+  gather_facts: false
   serial: 1
 
   roles:
@@ -52,14 +52,14 @@
 - name: Group bare-metal servers
   hosts:
   - bmtl
-  any_errors_fatal: yes
-  gather_facts: no
+  any_errors_fatal: true
+  gather_facts: false
   post_tasks:
   - name: Group bare-metal servers by power state
     group_by:
       key: "bmtl_{{ state }}_{{ ipmi_power_state }}"
       parents: [ bmtl ]
-    changed_when: no
+    changed_when: false
     tags:
     - always
 
@@ -70,7 +70,7 @@
   # Exclude meta hosts such as ostk-prj-*-srv-horizon, e.g.:
   #- ostk:!ostk-prj-admin-srv-horizon:!ostk-prj-jm1-srv-horizon
   - ostk
-  any_errors_fatal: yes
+  any_errors_fatal: true
   connection: local # Connection to OpenStack is handled by OpenStack SDK and Ansible's OpenStack modules
   vars:
     # For local connections use Python interpreter that is being used by Ansible on the controller.
@@ -87,7 +87,7 @@
     #  https://docs.ansible.com/ansible/latest/user_guide/playbooks_delegation.html
     #  https://docs.ansible.com/ansible/latest/reference_appendices/interpreter_discovery.html
     ansible_python_interpreter: "{{ ansible_playbook_python }}"
-  gather_facts: no
+  gather_facts: false
 
   roles:
   - name: Setup OpenStack resources
@@ -105,14 +105,14 @@
   # Exclude meta hosts such as ostk-prj-*-srv-horizon, e.g.:
   #- ostk:!ostk-prj-admin-srv-horizon:!ostk-prj-jm1-srv-horizon
   - ostk
-  any_errors_fatal: yes
-  gather_facts: no
+  any_errors_fatal: true
+  gather_facts: false
   post_tasks:
   - name: Group OpenStack servers by server state
     group_by:
       key: "ostk_{{ state }}_{{ openstack_server_state }}"
       parents: [ ostk ]
-    changed_when: no
+    changed_when: false
     tags:
     - always
 
@@ -121,7 +121,7 @@
 - name: Setup libvirt block storage volumes and domains
   hosts:
   - lvrt
-  any_errors_fatal: yes
+  any_errors_fatal: true
   # do not become root because connection is local
   connection: local # Assign libvirt_uri to setup a connection to the libvirt host
   vars:
@@ -139,7 +139,7 @@
     #  https://docs.ansible.com/ansible/latest/user_guide/playbooks_delegation.html
     #  https://docs.ansible.com/ansible/latest/reference_appendices/interpreter_discovery.html
     ansible_python_interpreter: "{{ ansible_playbook_python }}"
-  gather_facts: no
+  gather_facts: false
   serial: 1
 
   roles:
@@ -158,7 +158,7 @@
 - name: Group libvirt domains
   hosts:
   - lvrt
-  any_errors_fatal: yes
+  any_errors_fatal: true
   # do not become root because connection is local
   connection: local # Assign libvirt_uri to setup a connection to the libvirt host
   vars:
@@ -176,14 +176,14 @@
     #  https://docs.ansible.com/ansible/latest/user_guide/playbooks_delegation.html
     #  https://docs.ansible.com/ansible/latest/reference_appendices/interpreter_discovery.html
     ansible_python_interpreter: "{{ ansible_playbook_python }}"
-  gather_facts: no
+  gather_facts: false
 
   post_tasks:
   - name: Group libvirt domains by domain state
     group_by:
       key: "lvrt_{{ state }}_{{ libvirt_domain_state }}"
       parents: [ lvrt ]
-    changed_when: no
+    changed_when: false
     tags:
     - always
 
@@ -194,8 +194,8 @@
   - bmtl_present_on:!bootstrap_only
   - lvrt_present_running:!bootstrap_only
   - ostk_present_active:!bootstrap_only
-  any_errors_fatal: yes
-  gather_facts: no
+  any_errors_fatal: true
+  gather_facts: false
   tasks:
     - name: Wait for host to become usable
       when: state == 'present'
@@ -230,9 +230,9 @@
   - bmtl_present_on:!bootstrap_only
   - lvrt_present_running:!bootstrap_only
   - ostk_present_active:!bootstrap_only
-  any_errors_fatal: yes
-  become: yes
-  gather_facts: yes
+  any_errors_fatal: true
+  become: true
+  gather_facts: true
 
   roles:
   # SSH known hosts are managed via Ansible config with option StrictHostKeyChecking=accept-new. Previously, role
@@ -269,7 +269,7 @@
     tags: ["jm1.cloudy.debconf"]
     vars:
       debconf_config: '{{ debconf_early_config }}'
-      debconf_reconfigure: no
+      debconf_reconfigure: false
     when: debconf_early_config is defined and distribution_id | first in ['Debian', 'Ubuntu']
 
   - name: Manage files, directories, links and more early
@@ -301,7 +301,7 @@
     tags: ["jm1.pkg.apt_sources_list_removal"]
     when: distribution_id | first in ['Debian', 'Ubuntu']
     vars:
-      force_apt_sources_list_removal: yes
+      force_apt_sources_list_removal: true
 
   - name: Manage apt keys and apt repositories
     role: jm1.pkg.apt_repository
@@ -346,9 +346,9 @@
   - bmtl_present_on:!bootstrap_only
   - lvrt_present_running:!bootstrap_only
   - ostk_present_active:!bootstrap_only
-  any_errors_fatal: yes
-  become: yes
-  gather_facts: yes
+  any_errors_fatal: true
+  become: true
+  gather_facts: true
 
   roles:
   - name: Manage packages
@@ -428,7 +428,7 @@
   # List meta hosts such as ostk-prj-*-srv-horizon, e.g.:
   #- ostk-prj-admin-srv-horizon
   #- ostk-prj-jm1-srv-horizon
-  any_errors_fatal: yes
+  any_errors_fatal: true
   connection: local # Connection to OpenStack is handled by OpenStack SDK and Ansible's OpenStack modules
   vars:
     # For local connections use Python interpreter that is being used by Ansible on the controller.
@@ -445,7 +445,7 @@
     #  https://docs.ansible.com/ansible/latest/user_guide/playbooks_delegation.html
     #  https://docs.ansible.com/ansible/latest/reference_appendices/interpreter_discovery.html
     ansible_python_interpreter: "{{ ansible_playbook_python }}"
-  gather_facts: no
+  gather_facts: false
 
   roles:
   - name: Setup OpenStack resources
@@ -461,9 +461,9 @@
   hosts:
   - lvrt_present_running:!bootstrap_only
   - ostk_present_active:!bootstrap_only
-  any_errors_fatal: yes
-  become: yes
-  gather_facts: yes
+  any_errors_fatal: true
+  become: true
+  gather_facts: true
 
   roles:
   - name: Install QEMU Guest Agent
@@ -475,9 +475,9 @@
   - bmtl_present_on:!bootstrap_only
   - lvrt_present_running:!bootstrap_only
   - ostk_present_active:!bootstrap_only
-  any_errors_fatal: yes
-  become: yes
-  gather_facts: yes # required when using e.g. ansible_env in inventory
+  any_errors_fatal: true
+  become: true
+  gather_facts: true # required when using e.g. ansible_env in inventory
 
   roles:
   - name: Manage AppArmor service
@@ -521,9 +521,9 @@
   - bmtl_present_on
   - lvrt_present_running
   - ostk_present_active
-  any_errors_fatal: yes
-  become: yes
-  gather_facts: yes # required when using e.g. ansible_env in inventory
+  any_errors_fatal: true
+  become: true
+  gather_facts: true # required when using e.g. ansible_env in inventory
   serial: 1
 
   roles:
@@ -541,7 +541,7 @@
     role: jm1.kvm_nested_virtualization
     tags: ["jm1.kvm_nested_virtualization"]
     vars:
-      reload_module: yes
+      reload_module: true
       state: present
     when: inventory_hostname in groups.svc_libvirt and libvirt_hypervisors is defined and 'qemu' in libvirt_hypervisors
 
@@ -553,9 +553,9 @@
   - bmtl_present_on
   - lvrt_present_running
   - ostk_present_active
-  any_errors_fatal: yes
-  become: "{{ libvirt_host_become if libvirt_host_become is defined else 'yes' }}"
-  gather_facts: yes # required when using e.g. ansible_env in inventory
+  any_errors_fatal: true
+  become: "{{ libvirt_host_become if libvirt_host_become is defined else true }}"
+  gather_facts: true # required when using e.g. ansible_env in inventory
 
   roles:
   - name: Setup libvirt storage pools
@@ -578,9 +578,9 @@
   - bmtl_present_on:!bootstrap_only
   - lvrt_present_running:!bootstrap_only
   - ostk_present_active:!bootstrap_only
-  any_errors_fatal: yes
-  become: yes
-  gather_facts: yes # required when using e.g. ansible_env in inventory
+  any_errors_fatal: true
+  become: true
+  gather_facts: true # required when using e.g. ansible_env in inventory
 
   roles:
   - name: Setup a DevStack environment

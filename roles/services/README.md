@@ -11,7 +11,7 @@ to stop and disable [Samba][samba]'s [smbd][smbd] service, define variable `serv
 services_config:
 - # Stop and disable Samba's smbd service
   ansible.builtin.service:
-    enabled: no
+    enabled: false
     name: smbd
     state: stopped
 ```
@@ -52,7 +52,7 @@ jm1-cloudy-requirements].
 
 | Name              | Default value | Required | Description |
 | ----------------- | ------------- | -------- | ----------- |
-| `services_config` | `[]`          | no       | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to start or stop services |
+| `services_config` | `[]`          | false    | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to start or stop services |
 
 [^supported-modules]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
 supports modules and action plugins only. Some Ansible modules such as [`ansible.builtin.meta`][ansible-builtin-meta]
@@ -81,7 +81,7 @@ None.
 
 ```yml
 - hosts: all
-  become: yes
+  become: true
   vars:
     # Variables are listed here for convenience and illustration.
     # In a production setup, variables would be defined e.g. in
@@ -92,7 +92,7 @@ None.
     services_config:
     - # Stop and disable Samba's smbd service
       ansible.builtin.service:
-        enabled: no
+        enabled: false
         name: smbd
         state: stopped
   roles:

@@ -52,11 +52,11 @@ To install these collections you may follow the steps described in [`README.md`]
 
 | Name                    | Default value                  | Required | Description |
 | ----------------------- | ------------------------------ | -------- | ----------- |
-| `distribution_id`       | *depends on operating system*  | no       | List which uniquely identifies a distribution release, e.g. `[ 'Debian', '10' ]` for `Debian 10 (Buster)` |
-| `tftpd_config`          | `[]`                           | no       | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to edit `/etc/default/tftpd-hpa` on Debian |
-| `tftpd_service_enabled` | `yes`                          | no       | Whether the tftpd service should start on boot |
-| `tftpd_service_name`    | *depends on `distribution_id`* | no       | Name of the tftpd service, e.g. `tftpd-hpa` on Debian and `tftp.service` on Red Hat Enterprise Linux |
-| `tftpd_service_state`   | `started`                      | no       | State of the tftpd service |
+| `distribution_id`       | *depends on operating system*  | false    | List which uniquely identifies a distribution release, e.g. `[ 'Debian', '10' ]` for `Debian 10 (Buster)` |
+| `tftpd_config`          | `[]`                           | false    | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to edit `/etc/default/tftpd-hpa` on Debian |
+| `tftpd_service_enabled` | `true`                         | false    | Whether the tftpd service should start on boot |
+| `tftpd_service_name`    | *depends on `distribution_id`* | false    | Name of the tftpd service, e.g. `tftpd-hpa` on Debian and `tftp.service` on Red Hat Enterprise Linux |
+| `tftpd_service_state`   | `started`                      | false    | State of the tftpd service |
 
 [^supported-modules]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
 supports modules and action plugins only. Some Ansible modules such as [`ansible.builtin.meta`][ansible-builtin-meta]
@@ -91,7 +91,7 @@ ansible-builtin-lineinfile] and [`template`][ansible-builtin-template].
 
 ```yml
 - hosts: all
-  become: yes
+  become: true
   roles:
   - name: Manage tftpd service
     role: jm1.cloudy.tftpd

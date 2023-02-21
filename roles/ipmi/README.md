@@ -19,7 +19,7 @@ Next, run this role as an [ad hoc command][adhoc]:
 
 ```sh
 ansible server.home.arpa -m include_role -a name=jm1.cloudy.ipmi \
-    -e "ansible_connection=local force_ipmi_boot_from_network=yes"
+    -e "ansible_connection=local force_ipmi_boot_from_network=true"
 ```
 
 When this role is executed, it will first configure the system to boot from network. Then it will reset the system if it
@@ -44,17 +44,17 @@ jm1-cloudy-requirements].
 
 | Name                           | Default value | Required | Description |
 | ------------------------------ | ------------- | -------- | ----------- |
-| `force_ipmi_boot`              | `no`          | no       | Whether boot devices should be changed. :warning: This variable is supposed to be a safety guard and as such should be set as extra vars on the command line, *NOT* in `host_vars` or `group_vars`! :warning: |
-| `force_ipmi_power`             | `no`          | no       | Whether machine power state should be changed. :warning: This variable is supposed to be a safety guard and as such should be set as extra vars on the command line, *NOT* in `host_vars` or `group_vars`! :warning: |
-| `force_ipmi_boot_from_network` | `no`          | no       | Whether system should be reset and boot from network. :warning: This variable is supposed to be a safety guard and as such should be set as extra vars on the command line, *NOT* in `host_vars` or `group_vars`! :warning: |
-| `impi_boot_persistent`         | `no`          | no       | ["If set, ask that system firmware uses this device beyond next boot. Be aware many systems do not honor this."][ansible-module-ipmi-boot] |
-| `ipmi_boot_device`             | `default`     | no       | [Set boot device to use on next reboot. The choices for the device are: `['network', 'floppy', 'hd', 'safe', 'optical', 'setup', 'default']`][ansible-module-ipmi-boot] |
-| `ipmi_host`                    | *undefined*   | yes      | Hostname or IP address of the BMC |
-| `ipmi_password`                | `ADMIN`       | no       | Password which is used to connect to the BMC |
-| `ipmi_port`                    | `{{ omit }}`  | no       | Remote RMCP port |
-| `ipmi_power_state`             | `on`          | no       | [Possible power states: `['on', 'off']`][ansible-module-ipmi-power] |
-| `ipmi_uefiboot`                | `no`          | no       | ["If set, request UEFI boot explicitly. Strictly speaking, the spec suggests that if not set, the system should BIOS boot and offers no \"don't care\" option. In practice, this flag not being set does not preclude UEFI boot on any system I've encountered."][ansible-module-ipmi-boot] |
-| `ipmi_username`                | `ADMIN`       | no       | Username which is used to connect to the BMC |
+| `force_ipmi_boot`              | `false`       | false    | Whether boot devices should be changed. :warning: This variable is supposed to be a safety guard and as such should be set as extra vars on the command line, *NOT* in `host_vars` or `group_vars`! :warning: |
+| `force_ipmi_power`             | `false`       | false    | Whether machine power state should be changed. :warning: This variable is supposed to be a safety guard and as such should be set as extra vars on the command line, *NOT* in `host_vars` or `group_vars`! :warning: |
+| `force_ipmi_boot_from_network` | `false`       | false    | Whether system should be reset and boot from network. :warning: This variable is supposed to be a safety guard and as such should be set as extra vars on the command line, *NOT* in `host_vars` or `group_vars`! :warning: |
+| `impi_boot_persistent`         | `false`       | false    | ["If set, ask that system firmware uses this device beyond next boot. Be aware many systems do not honor this."][ansible-module-ipmi-boot] |
+| `ipmi_boot_device`             | `default`     | false    | [Set boot device to use on next reboot. The choices for the device are: `['network', 'floppy', 'hd', 'safe', 'optical', 'setup', 'default']`][ansible-module-ipmi-boot] |
+| `ipmi_host`                    | *undefined*   | true     | Hostname or IP address of the BMC |
+| `ipmi_password`                | `ADMIN`       | false    | Password which is used to connect to the BMC |
+| `ipmi_port`                    | `{{ omit }}`  | false    | Remote RMCP port |
+| `ipmi_power_state`             | `on`          | false    | [Possible power states: `['on', 'off']`][ansible-module-ipmi-power] |
+| `ipmi_uefiboot`                | `false`       | false    | ["If set, request UEFI boot explicitly. Strictly speaking, the spec suggests that if not set, the system should BIOS boot and offers no \"don't care\" option. In practice, this flag not being set does not preclude UEFI boot on any system I've encountered."][ansible-module-ipmi-boot] |
+| `ipmi_username`                | `ADMIN`       | false    | Username which is used to connect to the BMC |
 
 [ansible-module-ipmi-boot]: https://docs.ansible.com/ansible/latest/collections/community/general/ipmi_boot_module.html
 [ansible-module-ipmi-power]: https://docs.ansible.com/ansible/latest/collections/community/general/ipmi_power_module.html
@@ -95,21 +95,21 @@ A playbook to change the boot device of an Ansible host `server.home.arpa` could
 To execute this playbook, run
 
 ```sh
-ansible-playbook ipmi.yml -l server.home.arpa -e "force_ipmi_boot=yes"
+ansible-playbook ipmi.yml -l server.home.arpa -e "force_ipmi_boot=true"
 ```
 
 Instead of defining a playbook, this role can be run as an [ad hoc command][adhoc]. First, define the `ipmi_*` variables
 in [`group_vars` or `host_vars`][ansible-inventory] as shown in the introductory example. Then run:
 
 ```sh
-ansible server.home.arpa -m include_role -a name=jm1.cloudy.ipmi -e "ansible_connection=local force_ipmi_boot=yes"
+ansible server.home.arpa -m include_role -a name=jm1.cloudy.ipmi -e "ansible_connection=local force_ipmi_boot=true"
 ```
 
 To change the power state of a system only, define the `ipmi_power_state` and possibly other `ipmi_*` variables in
 [`group_vars` or `host_vars`][ansible-inventory] as shown in the introductory example. Then run:
 
 ```sh
-ansible server.home.arpa -m include_role -a name=jm1.cloudy.ipmi -e "ansible_connection=local force_ipmi_power=yes"
+ansible server.home.arpa -m include_role -a name=jm1.cloudy.ipmi -e "ansible_connection=local force_ipmi_power=true"
 ```
 
 To reset a system and boot it from network, refer to the introductory example.

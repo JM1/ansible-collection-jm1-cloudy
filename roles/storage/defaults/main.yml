@@ -5,4 +5,4 @@
 
 storage_config: []
 
-storage_reboot: no
+storage_reboot: false

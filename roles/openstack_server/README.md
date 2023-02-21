@@ -19,7 +19,7 @@ Then define properties of host `debian.home.arpa` like [Cinder (block storage) v
 ```yml
 openstack_server_config:
   boot_volume: 'debian-home-arpa'
-  config_drive: yes
+  config_drive: true
   flavor: 'm1.tiny'
   userdata: |
     #cloud-config
@@ -41,7 +41,7 @@ openstack_server_ports:
 openstack_server_state: active
 
 openstack_volumes:
-- bootable: yes
+- bootable: true
   display_name: 'debian-home-arpa'
   image: 'debian-11-genericcloud-amd64'
   size: 20
@@ -160,15 +160,15 @@ jm1-cloudy-requirements].
 
 | Name                            | Default value              | Required | Description                               |
 | ------------------------------- | -------------------------- | -------- | ----------------------------------------- |
-| `openstack_auth`                | `{{ omit }}`               | no       | ["Dictionary containing auth information as needed by the cloud's auth plugin strategy. For the default `password` plugin, this would contain `auth_url`, `username`, `password`, `project_name` and any information about domains (for example, `user_domain_name` or `project_domain_name`) if the cloud supports them. For other plugins, this param will need to contain whatever parameters that auth plugin requires. This parameter is not needed if a named cloud is provided or OpenStack `OS_*` environment variables are present"][openstack-cloud-server] |
-| `openstack_cloud`               | `{{ omit }}`               | no       | ["Named cloud or cloud config to operate against. If cloud is a string, it references a named cloud config as defined in an OpenStack clouds.yaml file. Provides default values for `auth` and `auth_type`. This parameter is not needed if `auth` is provided or if OpenStack `OS_*` environment variables are present. If cloud is a dict, it contains a complete cloud configuration like would be in a section of `clouds.yaml`"][openstack-cloud-server] |
-| `openstack_interface`           | `{{ omit }}`               | no       | ["Endpoint URL type to fetch from the service catalog"][openstack-cloud-server] |
-| `openstack_server_config`       | `{}`                       | no       | Parameter dictionary for module [`openstack.cloud.server`][openstack-cloud-server] from collection [`openstack.cloud`][galaxy-openstack-cloud] [^openstack-server-config-parameter] |
-| `openstack_server_floating_ips` | `[]`                       | no       | [Floating ips][neutron-intro] to be created and attached to the server. List of parameter dictionaries for module [`openstack.cloud.floating_ip`][openstack-cloud-floating-ip] from collection [`openstack.cloud`][galaxy-openstack-cloud] [^openstack-server-floating-ips-parameter] |
-| `openstack_server_name`         | `{{ inventory_hostname }}` | no       | Name of the [OpenStack Nova (Compute) instance][nova] aka server. It will be passed as parameter `name` to module [`openstack.cloud.server`][openstack-cloud-server] |
-| `openstack_server_ports`        | `[]`                       | no       | [Neutron (network) ports][neutron-intro] to be created and assigned to the server. List of parameter dictionaries for module [`openstack.cloud.port`][openstack-cloud-port] from collection [`openstack.cloud`][galaxy-openstack-cloud] [^openstack-server-ports-parameter] |
-| `openstack_server_state`        | `active`                   | no       | [Possible server states: `[active, paused, suspended, shutoff, shelved, shelved_offloaded]`][server-concepts] |
-| `state`                         | `present`                  | no       | Should the server be present or absent |
+| `openstack_auth`                | `{{ omit }}`               | false    | ["Dictionary containing auth information as needed by the cloud's auth plugin strategy. For the default `password` plugin, this would contain `auth_url`, `username`, `password`, `project_name` and any information about domains (for example, `user_domain_name` or `project_domain_name`) if the cloud supports them. For other plugins, this param will need to contain whatever parameters that auth plugin requires. This parameter is not needed if a named cloud is provided or OpenStack `OS_*` environment variables are present"][openstack-cloud-server] |
+| `openstack_cloud`               | `{{ omit }}`               | false    | ["Named cloud or cloud config to operate against. If cloud is a string, it references a named cloud config as defined in an OpenStack clouds.yaml file. Provides default values for `auth` and `auth_type`. This parameter is not needed if `auth` is provided or if OpenStack `OS_*` environment variables are present. If cloud is a dict, it contains a complete cloud configuration like would be in a section of `clouds.yaml`"][openstack-cloud-server] |
+| `openstack_interface`           | `{{ omit }}`               | false    | ["Endpoint URL type to fetch from the service catalog"][openstack-cloud-server] |
+| `openstack_server_config`       | `{}`                       | false    | Parameter dictionary for module [`openstack.cloud.server`][openstack-cloud-server] from collection [`openstack.cloud`][galaxy-openstack-cloud] [^openstack-server-config-parameter] |
+| `openstack_server_floating_ips` | `[]`                       | false    | [Floating ips][neutron-intro] to be created and attached to the server. List of parameter dictionaries for module [`openstack.cloud.floating_ip`][openstack-cloud-floating-ip] from collection [`openstack.cloud`][galaxy-openstack-cloud] [^openstack-server-floating-ips-parameter] |
+| `openstack_server_name`         | `{{ inventory_hostname }}` | false    | Name of the [OpenStack Nova (Compute) instance][nova] aka server. It will be passed as parameter `name` to module [`openstack.cloud.server`][openstack-cloud-server] |
+| `openstack_server_ports`        | `[]`                       | false    | [Neutron (network) ports][neutron-intro] to be created and assigned to the server. List of parameter dictionaries for module [`openstack.cloud.port`][openstack-cloud-port] from collection [`openstack.cloud`][galaxy-openstack-cloud] [^openstack-server-ports-parameter] |
+| `openstack_server_state`        | `active`                   | false    | [Possible server states: `[active, paused, suspended, shutoff, shelved, shelved_offloaded]`][server-concepts] |
+| `state`                         | `present`                  | false    | Should the server be present or absent |
 
 [^openstack-server-config-parameter]: If a list item does not contain key `auth`, `cloud` or `interface` then these will
 be initialized from Ansible variables `openstack_auth`, `openstack_cloud` and `openstack_interface` respectively. Keys

@@ -18,9 +18,9 @@ storage_config:
 ```
 
 When this role is executed, it will run all tasks listed in `storage_config` one after another. When `storage_config`
-includes `meta: flush_handlers` and `storage_reboot` evaluates to `yes`, then this role will reboot the system
+includes `meta: flush_handlers` and `storage_reboot` evaluates to `true`, then this role will reboot the system
 immediately and continue with remaining tasks in `storage_config` once the host has come up again. Once all tasks have
-finished, if anything has changed and `storage_reboot` evaluates to `yes`, then the system will be rebooted
+finished, if anything has changed and `storage_reboot` evaluates to `true`, then the system will be rebooted
 automatically.
 
 [ansible-inventory]: https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
@@ -56,8 +56,8 @@ jm1-cloudy-requirements].
 
 | Name             | Default value | Required | Description |
 | ---------------- | ------------- | -------- | ----------- |
-| `storage_config` | `[]`          | no       | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules] |
-| `storage_reboot` | `no`          | no       | Whether the system should be rebooted on `meta: flush_handlers` or after all changes have been applied |
+| `storage_config` | `[]`          | false    | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules] |
+| `storage_reboot` | `false`       | false    | Whether the system should be rebooted on `meta: flush_handlers` or after all changes have been applied |
 
 [^supported-modules]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
 supports modules and action plugins only. Some Ansible modules such as [`ansible.builtin.meta`][ansible-builtin-meta]
@@ -91,7 +91,7 @@ None.
 
 ```yml
 - hosts: all
-  become: yes
+  become: true
   vars:
     # Variables are listed here for convenience and illustration.
     # In a production setup, variables would be defined e.g. in
@@ -108,7 +108,7 @@ None.
         state: present
 
     # reboot system after changes have been applied
-    storage_reboot: yes
+    storage_reboot: true
   roles:
   - name: Manage partitions, encrypted (LUKS) devices, LVM volume groups, LVM volumes, filesystems and mountpoints
     role: jm1.cloudy.storage

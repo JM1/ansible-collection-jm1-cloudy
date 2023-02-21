@@ -16,7 +16,7 @@
   register: get_tripleo_repo
 
 - name: Install necessary tools
-  become: yes
+  become: true
   jm1.pkg.meta_pkg:
     name: "jm1-svc-tripleo-standalone"
     version: "1"
@@ -44,7 +44,7 @@
     state: present
 
 - name: Prepare TripleO container parameters
-  become: yes
+  become: true
   become_user: '{{ tripleo_standalone_user }}'
   ansible.builtin.shell:
     chdir: '{{ tripleo_standalone_home_dir }}'

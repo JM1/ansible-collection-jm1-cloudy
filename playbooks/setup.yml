@@ -5,7 +5,7 @@
 
 - name: Satisfy software requirements of required Ansible collections
   hosts: localhost
-  any_errors_fatal: yes
+  any_errors_fatal: true
   # do not become root because connection is local
   connection: local
   vars:
@@ -23,7 +23,7 @@
     #  https://docs.ansible.com/ansible/latest/user_guide/playbooks_delegation.html
     #  https://docs.ansible.com/ansible/latest/reference_appendices/interpreter_discovery.html
     ansible_python_interpreter: "{{ ansible_playbook_python }}"
-  gather_facts: yes
+  gather_facts: true
 
   roles:
   - name: Satisfy software requirements of Ansible collection jm1.pkg

@@ -5,10 +5,10 @@ example, it allows to enable or edit `apparmor.service` and edit config files in
 `apparmor_config` defines a list of tasks which will be run by this role. Each task calls an Ansible module similar to
 tasks in roles or playbooks except that only few [keywords][playbooks-keywords] such as `register` and  `when` are
 supported. For example, to disable `apparmor.service` define variable `apparmor_service_enabled` in [`group_vars` or
-`host_vars`][ansible-inventory] as `no`:
+`host_vars`][ansible-inventory] as `false`:
 
 ```yml
-apparmor_service_enabled: no
+apparmor_service_enabled: false
 ```
 
 First, this role will install packages for AppArmor which match the distribution specified in variable
@@ -46,11 +46,11 @@ To install these collections you may follow the steps described in [`README.md`]
 
 | Name                       | Default value                  | Required | Description |
 | -------------------------- | ------------------------------ | -------- | ----------- |
-| `apparmor_config`          | `[]`                           | no       | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to configure files in `/etc/apparmor.d/` |
-| `apparmor_service_enabled` | `yes`                          | no       | Whether the AppArmor service should start on boot |
-| `apparmor_service_name`    | `apparmor`                     | no       | Name of the AppArmor service |
-| `apparmor_service_state`   | `started`                      | no       | State of the AppArmor service |
-| `distribution_id`          | *depends on operating system*  | no       | List which uniquely identifies a distribution release, e.g. `[ 'Debian', '10' ]` for `Debian 10 (Buster)` |
+| `apparmor_config`          | `[]`                           | false    | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to configure files in `/etc/apparmor.d/` |
+| `apparmor_service_enabled` | `true`                         | false    | Whether the AppArmor service should start on boot |
+| `apparmor_service_name`    | `apparmor`                     | false    | Name of the AppArmor service |
+| `apparmor_service_state`   | `started`                      | false    | State of the AppArmor service |
+| `distribution_id`          | *depends on operating system*  | false    | List which uniquely identifies a distribution release, e.g. `[ 'Debian', '10' ]` for `Debian 10 (Buster)` |
 
 [^supported-modules]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
 supports modules and action plugins only. Some Ansible modules such as [`ansible.builtin.meta`][ansible-builtin-meta]
@@ -84,7 +84,7 @@ supports keywords `register` and `when` only.
 
 ```yml
 - hosts: all
-  become: yes
+  become: true
   roles:
   - name: Manage AppArmor service
     role: jm1.cloudy.apparmor

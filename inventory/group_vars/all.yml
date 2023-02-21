@@ -287,7 +287,7 @@ state: present # or absent
 
 sudoers_config:
 - ansible.builtin.lineinfile:
-    create: no # assert that file exist else system is probably not setup using cloud-init
+    create: false # assert that file exist else system is probably not setup using cloud-init
     group: root
     line: '{{ ansible_user }} ALL=(ALL) NOPASSWD:ALL'
     mode: u=r,g=r,o=
@@ -309,11 +309,11 @@ users_config:
 #
 - name: root
   #password: '*'
-  password_lock: yes
+  password_lock: true
   shell: '/bin/bash'
 - name: '{{ ansible_user }}'
   #password: '*'
-  password_lock: yes
+  password_lock: true
   shell: '/bin/bash'
 
 yum_repository_config: '{{ yum_repository_config_epel }}'

@@ -55,9 +55,9 @@ jm1-cloudy-requirements].
 
 | Name              | Default value                  | Required | Description |
 | ----------------- | ------------------------------ | -------- | ----------- |
-| `distribution_id` | *depends on operating system*  | no       | List which uniquely identifies a distribution release, e.g. `[ 'Debian', '10' ]` for `Debian 10 (Buster)` |
-| `initrd_cmd`      | *depends on `distribution_id`* | no       | Command to generate initramfs images, e.g. `update-initramfs -u -k all` on Debian and `dracut --regenerate-all --force` on Red Hat Enterprise Linux |
-| `initrd_config`   | `[]`                           | no       | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to edit `/etc/initramfs-tools/modules` on Debian |
+| `distribution_id` | *depends on operating system*  | false    | List which uniquely identifies a distribution release, e.g. `[ 'Debian', '10' ]` for `Debian 10 (Buster)` |
+| `initrd_cmd`      | *depends on `distribution_id`* | false    | Command to generate initramfs images, e.g. `update-initramfs -u -k all` on Debian and `dracut --regenerate-all --force` on Red Hat Enterprise Linux |
+| `initrd_config`   | `[]`                           | false    | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to edit `/etc/initramfs-tools/modules` on Debian |
 
 [^supported-modules]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
 supports modules and action plugins only. Some Ansible modules such as [`ansible.builtin.meta`][ansible-builtin-meta]
@@ -95,7 +95,7 @@ archlinux-pci-passthrough], [GPU passthrough with libvirt qemu kvm][gentoo-gpu-p
 
 ```yml
 - hosts: all
-  become: yes
+  become: true
   vars:
     # Variables are listed here for convenience and illustration.
     # In a production setup, variables would be defined e.g. in

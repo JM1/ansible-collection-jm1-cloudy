@@ -11,7 +11,7 @@ as such:
 sudoers_config:
 - # Ensure that the Ansible user can gain full root privileges with sudo
   ansible.builtin.lineinfile:
-    create: no # assert that file exist else system is probably not setup using cloud-init
+    create: false # assert that file exist else system is probably not setup using cloud-init
     group: root
     line: '{{ ansible_user }} ALL=(ALL) NOPASSWD:ALL'
     mode: u=r,g=r,o=
@@ -52,7 +52,7 @@ jm1-cloudy-requirements].
 ## Variables
 | Name             | Default value | Required | Description |
 | ---------------- | ------------- | -------- | ----------- |
-| `sudoers_config` | `[]`          | no       | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to edit `/etc/sudoers` |
+| `sudoers_config` | `[]`          | false    | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to edit `/etc/sudoers` |
 
 [^supported-modules]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
 supports modules and action plugins only. Some Ansible modules such as [`ansible.builtin.meta`][ansible-builtin-meta]
@@ -84,7 +84,7 @@ None.
 
 ```yml
 - hosts: all
-  become: yes
+  become: true
   vars:
     # Variables are listed here for convenience and illustration.
     # In a production setup, variables would be defined e.g. in
@@ -95,7 +95,7 @@ None.
     sudoers_config:
     - # Ensure that the Ansible user can gain full root privileges with sudo
       ansible.builtin.lineinfile:
-        create: no # assert that file exist else system is probably not setup using cloud-init
+        create: false # assert that file exist else system is probably not setup using cloud-init
         group: root
         line: '{{ ansible_user }} ALL=(ALL) NOPASSWD:ALL'
         mode: u=r,g=r,o=

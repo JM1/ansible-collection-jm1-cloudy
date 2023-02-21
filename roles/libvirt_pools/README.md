@@ -13,7 +13,7 @@ ansible-inventory] as such:
 ansible_connection: local
 
 libvirt_pools:
-- autostart: yes
+- autostart: true
   hardware:
   - type: dir
   - target: '{{ ansible_env.HOME }}/.local/share/libvirt/images'
@@ -27,7 +27,7 @@ libvirt_uri: 'qemu:///session'
 When this role is executed, it will pass each item of the `libvirt_pools` list one after another as parameters to module
 [`jm1.libvirt.pool`][jm1-libvirt-pool] from collection [`jm1.libvirt`][galaxy-jm1-libvirt] [^libvirt-pools-parameter].
 If a libvirt storage pool with the same name already exists, it will be updated if necessary. If a list item does not
-contain key `autostart` or if its set to `yes` then module [`community.libvirt.virt_pool`][community-libvirt-virt-pool]
+contain key `autostart` or if its set to `true` then module [`community.libvirt.virt_pool`][community-libvirt-virt-pool]
 from collection [`community.libvirt`][galaxy-community-libvirt] will be used to mark that storage pool to be started
 automatically when the libvirt daemon starts. At the end the same module will be used to stop and restart storage pools
 automatically to apply pending changes at runtime.
@@ -69,8 +69,8 @@ jm1-cloudy-readme] using the provided [`requirements.yml`][jm1-cloudy-requiremen
 
 | Name            | Default value    | Required | Description |
 | --------------- | ---------------- | -------- | ----------- |
-| `libvirt_pools` | `[]`             | no       | List of parameter dictionaries for module [`jm1.libvirt.pool`][jm1-libvirt-pool] or [`jm1.libvirt.pool_xml`][jm1-libvirt-pool-xml] from collection [`jm1.libvirt`][galaxy-jm1-libvirt] [^libvirt-pools-parameter] |
-| `libvirt_uri`   | `qemu:///system` | no       | [libvirt connection uri][libvirt-uri] |
+| `libvirt_pools` | `[]`             | false    | List of parameter dictionaries for module [`jm1.libvirt.pool`][jm1-libvirt-pool] or [`jm1.libvirt.pool_xml`][jm1-libvirt-pool-xml] from collection [`jm1.libvirt`][galaxy-jm1-libvirt] [^libvirt-pools-parameter] |
+| `libvirt_uri`   | `qemu:///system` | false    | [libvirt connection uri][libvirt-uri] |
 
 [^libvirt-pools-parameter]: If keys `xml`, `xml_file` or `xml_var` are *NOT* present in a list item, then the item, i.e.
 its key-value pairs, is passed to module [`jm1.libvirt.pool`][jm1-libvirt-pool] else it is passed to module
@@ -106,7 +106,7 @@ None.
     ansible_connection: local
 
     libvirt_pools:
-    - autostart: yes
+    - autostart: true
       hardware:
       - type: dir
       - target: '{{ ansible_env.HOME }}/.local/share/libvirt/images'

@@ -47,16 +47,16 @@ steps described in [`README.md`][jm1-cloudy-readme] using the provided [`require
 
 | Name                                 | Default value                  | Required | Description |
 | ------------------------------------ | ------------------------------ | -------- | ----------- |
-| `distribution_id`                    | *depends on operating system*  | no       | List which uniquely identifies a distribution release, e.g. `[ 'Debian', '10' ]` for `Debian 10 (Buster)` |
-| `pxe_hwfp_daemon_host`               | *undefined*                    | yes      | IP address on which the `hwfp` service will listen |
-| `pxe_hwfp_daemon_group`              | `nogroup`                      | no       | UNIX group that the `hwfp` service is executed as |
-| `pxe_hwfp_daemon_port`               | 8000                           | no       | TCP port on which the `hwfp` service will listen |
-| `pxe_hwfp_daemon_user`               | `hwfp`                         | no       | UNIX user that the `hwfp` service is executed as |
-| `pxe_hwfp_distribution_filename_map` | `{ x86_64: { UEFI: 'hwfp/amd64/debian-installer/amd64/bootnetx64.efi', BIOS: 'hwfp/amd64/pxelinux.0' } }` | no | Path for use in `filename` parameter of [`dhcpd.conf`][dhcpd-conf-man] so that PXE clients know where to find bootable files on the tftp server |
-| `pxe_hwfp_files_amd64`               | `https://deb.debian.org/debian/dists/bullseye/main/installer-amd64/current/images/netboot/netboot.tar.gz` | no | Where to download Debian's netboot files which will be used to boot BIOS based systems with PXELINUX and UEFI based systems with GRUB2 |
-| `pxe_hwfp_kernel_parameters`         | `''`                           | no       | Additional kernel parameters which will be passed to the kernel when booting via PXE to run the `hwfp` script |
-| `pxe_hwfp_tftpd_root`                | *depends on `distribution_id`* | no       | Base path which is served by `tftpd`, e.g. `/srv/tftp` on Debian and `/var/lib/tftpboot` on Red Hat Enterprise Linux |
-| `pxe_hwfp_virtualenv`                | `/opt/hwfp_venv/`              | no       | Base path where the [Python environment][virtualenv] for and with the `hwfp` service is installed to |
+| `distribution_id`                    | *depends on operating system*  | false    | List which uniquely identifies a distribution release, e.g. `[ 'Debian', '10' ]` for `Debian 10 (Buster)` |
+| `pxe_hwfp_daemon_host`               | *undefined*                    | true     | IP address on which the `hwfp` service will listen |
+| `pxe_hwfp_daemon_group`              | `nogroup`                      | false    | UNIX group that the `hwfp` service is executed as |
+| `pxe_hwfp_daemon_port`               | 8000                           | false    | TCP port on which the `hwfp` service will listen |
+| `pxe_hwfp_daemon_user`               | `hwfp`                         | false    | UNIX user that the `hwfp` service is executed as |
+| `pxe_hwfp_distribution_filename_map` | `{ x86_64: { UEFI: 'hwfp/amd64/debian-installer/amd64/bootnetx64.efi', BIOS: 'hwfp/amd64/pxelinux.0' } }` | false | Path for use in `filename` parameter of [`dhcpd.conf`][dhcpd-conf-man] so that PXE clients know where to find bootable files on the tftp server |
+| `pxe_hwfp_files_amd64`               | `https://deb.debian.org/debian/dists/bullseye/main/installer-amd64/current/images/netboot/netboot.tar.gz` | false | Where to download Debian's netboot files which will be used to boot BIOS based systems with PXELINUX and UEFI based systems with GRUB2 |
+| `pxe_hwfp_kernel_parameters`         | `''`                           | false    | Additional kernel parameters which will be passed to the kernel when booting via PXE to run the `hwfp` script |
+| `pxe_hwfp_tftpd_root`                | *depends on `distribution_id`* | false    | Base path which is served by `tftpd`, e.g. `/srv/tftp` on Debian and `/var/lib/tftpboot` on Red Hat Enterprise Linux |
+| `pxe_hwfp_virtualenv`                | `/opt/hwfp_venv/`              | false    | Base path where the [Python environment][virtualenv] for and with the `hwfp` service is installed to |
 
 [virtualenv]: https://virtualenv.pypa.io/en/latest/
 

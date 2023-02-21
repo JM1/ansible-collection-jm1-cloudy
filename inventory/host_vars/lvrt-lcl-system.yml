@@ -25,28 +25,28 @@ libvirt_images: []
 libvirt_networks:
 - # network without host ip, without dhcp, without forwarding and without masquerading
   acl: allow
-  autostart: yes
+  autostart: true
   bridge:
     delay: '0'
     name: 'virbr-local-0'
-    stp: yes
+    stp: true
   #domain:
   #  name: 'isolated-0-no-ip'
   ignore:
   - '/network/uuid'
   - '/network/mac'
   name: 'isolated-0-no-ip'
-  restart_on_change: yes
+  restart_on_change: true
   state: active
   xml_var: 'libvirt_network_template_isolated'
 
 - # network with host ip, with dhcp, without forwarding and without masquerading
   acl: allow
-  autostart: yes
+  autostart: true
   bridge:
     delay: '0'
     name: 'virbr-local-1'
-    stp: yes
+    stp: true
   #domain:
   #  name: 'isolated-1-dhcp'
   ip:
@@ -60,17 +60,17 @@ libvirt_networks:
   - '/network/uuid'
   - '/network/mac'
   name: 'isolated-1-dhcp'
-  restart_on_change: yes
+  restart_on_change: true
   state: active
   xml_var: 'libvirt_network_template_isolated'
 
 - # network with host ip, without dhcp, without forwarding and without masquerading
   acl: allow
-  autostart: yes
+  autostart: true
   bridge:
     delay: '0'
     name: 'virbr-local-2'
-    stp: yes
+    stp: true
   #domain:
   #  name: 'isolated-2-no-dhcp'
   ip:
@@ -80,17 +80,17 @@ libvirt_networks:
   - '/network/uuid'
   - '/network/mac'
   name: 'isolated-2-no-dhcp'
-  restart_on_change: yes
+  restart_on_change: true
   state: active
   xml_var: 'libvirt_network_template_isolated'
 
 - # network with host ip, without dhcp, without forwarding and without masquerading
   acl: allow
-  autostart: yes
+  autostart: true
   bridge:
     delay: '0'
     name: 'virbr-local-3'
-    stp: yes
+    stp: true
   #domain:
   #  name: 'isolated-3-no-dhcp'
   ip:
@@ -100,17 +100,17 @@ libvirt_networks:
   - '/network/uuid'
   - '/network/mac'
   name: 'isolated-3-no-dhcp'
-  restart_on_change: yes
+  restart_on_change: true
   state: active
   xml_var: 'libvirt_network_template_isolated'
 
 - # network with host ip, with dhcp, with forwarding and with masquerading
   acl: allow
-  autostart: yes
+  autostart: true
   bridge:
     delay: '0'
     name: 'virbr-local-4'
-    stp: yes
+    stp: true
   #domain:
   #  name: 'nat-0-dhcp'
   ip:
@@ -124,17 +124,17 @@ libvirt_networks:
   - '/network/uuid'
   - '/network/mac'
   name: 'nat-0-dhcp'
-  restart_on_change: yes
+  restart_on_change: true
   state: active
   xml_var: 'libvirt_network_template_nat'
 
 - # network with host ip, without dhcp, with forwarding and with masquerading
   acl: allow
-  autostart: yes
+  autostart: true
   bridge:
     delay: '0'
     name: 'virbr-local-5'
-    stp: yes
+    stp: true
   #domain:
   #  name: 'nat-1-no-dhcp'
   ip:
@@ -144,17 +144,17 @@ libvirt_networks:
   - '/network/uuid'
   - '/network/mac'
   name: 'nat-1-no-dhcp'
-  restart_on_change: yes
+  restart_on_change: true
   state: active
   xml_var: 'libvirt_network_template_nat'
 
 - # network with host ip, with dhcp, with forwarding and without masquerading
   acl: allow
-  autostart: yes
+  autostart: true
   bridge:
     delay: '0'
     name: 'virbr-local-6'
-    stp: yes
+    stp: true
   #domain:
   #  name: 'route-0-dhcp'
   ip:
@@ -168,17 +168,17 @@ libvirt_networks:
   - '/network/uuid'
   - '/network/mac'
   name: 'route-0-dhcp'
-  restart_on_change: yes
+  restart_on_change: true
   state: active
   xml_var: 'libvirt_network_template_route'
 
 - # network with host ip, without dhcp, with forwarding and without masquerading
   acl: allow
-  autostart: yes
+  autostart: true
   bridge:
     delay: '0'
     name: 'virbr-local-7'
-    stp: yes
+    stp: true
   #domain:
   #  name: 'route-1-no-dhcp'
   ip:
@@ -188,7 +188,7 @@ libvirt_networks:
   - '/network/uuid'
   - '/network/mac'
   name: 'route-1-no-dhcp'
-  restart_on_change: yes
+  restart_on_change: true
   state: active
   xml_var: 'libvirt_network_template_route'
 
@@ -196,7 +196,7 @@ libvirt_pools:
 # NOTE: When libvirt starts a domain, then libvirt will chown the storage volumes to libvirt-qemu:libvirt-qemu. When the
 #       domain is stopped, then libvirt will restore the ownership of storage volumes back to root:root!
 #       Ref.: https://bugzilla.redhat.com/show_bug.cgi?id=1004673#c3
-- autostart: yes
+- autostart: true
   hardware:
   - type: dir
   - target: /var/lib/libvirt/images
@@ -207,7 +207,7 @@ libvirt_pools:
   - '/pool/available'
   - '/pool/target/permissions'
   name: 'default'
-  restart_on_change: yes
+  restart_on_change: true
   state: 'active'
   xml_var: 'libvirt_pool_template_dir'
 

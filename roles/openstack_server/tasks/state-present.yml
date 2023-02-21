@@ -60,7 +60,7 @@
   ansible.builtin.fail:
     msg: |
         Compute instance {{ openstack_server_name }} is shelved, no modifications possible. Unshelve first to apply changes!
-  ignore_errors: yes # noqa ignore-errors
+  ignore_errors: true # noqa ignore-errors
 
 - name: Create/Delete network ports and list server nics
   block:
@@ -109,7 +109,7 @@
     cloud: '{{ openstack_cloud }}'
     interface: '{{ openstack_interface }}'
     name: '{{ (item.display_name | default(item.name)) | mandatory }}'
-    details: no # we only need the volume ids
+    details: false # we only need the volume ids
   when: item.state | default('present') == 'present'
   register: openstack_server_volumes_info
 
@@ -157,7 +157,7 @@
       address in another nat_destination, then openstack.cloud.floating_ip will raise an error "server {server} already
       has a floating-ip on a different nat-destination than '{nat_destination}'".
       Ref.: https://storyboard.openstack.org/#!/story/2008181
-  ignore_errors: yes # noqa ignore-errors
+  ignore_errors: true # noqa ignore-errors
   when: openstack_server_floating_ips | length > 1
 
 - name: Attach/Detach floating ips

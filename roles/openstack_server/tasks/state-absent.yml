@@ -11,7 +11,7 @@
     | combine({} if 'interface' in item else {'interface': openstack_interface})
     | combine({} if 'server' in item else {'server': openstack_server_name})
     | dict2items | rejectattr('key', 'eq', 'state') | list | items2dict
-    | combine({'state': 'absent', 'wait': 'yes'})
+    | combine({'state': 'absent', 'wait': 'true'})
   }}"
 
 - name: Delete compute instance

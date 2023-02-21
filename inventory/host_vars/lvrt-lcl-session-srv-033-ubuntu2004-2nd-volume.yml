@@ -7,7 +7,7 @@ distribution_id:
 - 'Ubuntu'
 - '20.04'
 
-libvirt_domain_autostart: no
+libvirt_domain_autostart: false
 
 libvirt_hardware:
 - cpu: 'host'
@@ -21,7 +21,7 @@ libvirt_hardware:
 - disk: "vol='{{ libvirt_pool }}/{{ libvirt_configdrive }}',device=disk,bus=virtio,serial='cidata'"
 - os_variant: 'ubuntu18.04' # TODO: Change to 'ubuntu20.04' once supported
 
-libvirt_host_become: no
+libvirt_host_become: false
 
 libvirt_netplan:
   ethernets:
@@ -49,10 +49,10 @@ libvirt_volumes:
   backing_vol_format: 'qcow2'
   capacity: 5G
   format: 'qcow2'
-  linked: no
+  linked: false
   name: '{{ fqdn }}.qcow2'
   pool: '{{ libvirt_pool }}'
-  prealloc_metadata: no
+  prealloc_metadata: false
   state: present
 - capacity: 5G
   pool: '{{ libvirt_pool }}'

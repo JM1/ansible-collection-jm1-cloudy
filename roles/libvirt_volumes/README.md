@@ -15,10 +15,10 @@ libvirt_volumes:
   backing_vol_format: 'qcow2'
   capacity: 5G
   format: 'qcow2'
-  linked: no
+  linked: false
   name: '{{ inventory_hostname }}.qcow2'
   pool: 'default'
-  prealloc_metadata: no
+  prealloc_metadata: false
   state: present
 
 # libvirt connection uri
@@ -73,8 +73,8 @@ jm1-cloudy-readme] using the provided [`requirements.yml`][jm1-cloudy-requiremen
 
 | Name              | Default value    | Required | Description |
 | ----------------- | ---------------- | -------- | ----------- |
-| `libvirt_volumes` | `[]`             | no       | List of parameter dictionaries for module [`jm1.libvirt.volume`][jm1-libvirt-volume] or [`jm1.libvirt.volume_snapshot`][jm1-libvirt-volume-snapshot] from collection [`jm1.libvirt`][galaxy-jm1-libvirt] [^libvirt-volumes-parameter] |
-| `libvirt_uri`     | `qemu:///system` | no       | [libvirt connection uri][libvirt-uri] |
+| `libvirt_volumes` | `[]`             | false    | List of parameter dictionaries for module [`jm1.libvirt.volume`][jm1-libvirt-volume] or [`jm1.libvirt.volume_snapshot`][jm1-libvirt-volume-snapshot] from collection [`jm1.libvirt`][galaxy-jm1-libvirt] [^libvirt-volumes-parameter] |
+| `libvirt_uri`     | `qemu:///system` | false    | [libvirt connection uri][libvirt-uri] |
 
 [^libvirt-volumes-parameter]: If key `backing_vol` is *NOT* present in a list item, then the item, i.e. its key-value
 pairs, is passed to module [`jm1.libvirt.volume`][jm1-libvirt-volume] else it is passed to module
@@ -113,10 +113,10 @@ role.
       backing_vol_format: 'qcow2'
       capacity: 5G
       format: 'qcow2'
-      linked: no
+      linked: false
       name: '{{ inventory_hostname }}.qcow2'
       pool: 'default'
-      prealloc_metadata: no
+      prealloc_metadata: false
       state: present
 
     # libvirt connection uri

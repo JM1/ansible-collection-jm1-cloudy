@@ -70,8 +70,8 @@ jm1-cloudy-readme] using the provided [`requirements.yml`][jm1-cloudy-requiremen
 
 | Name             | Default value    | Required | Description |
 | ---------------- | ---------------- | -------- | ----------- |
-| `libvirt_images` | `[]`             | no       | List of parameter dictionaries for module [`jm1.libvirt.volume_import`][jm1-libvirt-volume-import] from collection [`jm1.libvirt`][galaxy-jm1-libvirt] [^libvirt-images-parameter] |
-| `libvirt_uri`    | `qemu:///system` | no       | [libvirt connection uri][libvirt-uri] |
+| `libvirt_images` | `[]`             | false    | List of parameter dictionaries for module [`jm1.libvirt.volume_import`][jm1-libvirt-volume-import] from collection [`jm1.libvirt`][galaxy-jm1-libvirt] [^libvirt-images-parameter] |
+| `libvirt_uri`    | `qemu:///system` | false    | [libvirt connection uri][libvirt-uri] |
 
 [^libvirt-images-parameter]: If a list item does not contain key `uri` then it will be initialized from Ansible
 variables `libvirt_uri`.

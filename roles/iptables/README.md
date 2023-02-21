@@ -19,12 +19,12 @@ iptables_config:
     to_source: 10.10.10.10 # ip address on external network
 
 # persist iptables rules across reboots
-iptables_persistence: yes
+iptables_persistence: true
 ```
 
-First, if `iptables_persistence` evaluates to `yes`, then this role will install packages (matching the distribution
+First, if `iptables_persistence` evaluates to `true`, then this role will install packages (matching the distribution
 specified in `distribution_id`) to persist iptables rules across reboots. Next, it will run all tasks listed in
-`iptables_config`. Once all tasks have finished, if anything has changed and `iptables_persistence` evaluates to `yes`
+`iptables_config`. Once all tasks have finished, if anything has changed and `iptables_persistence` evaluates to `true`
 (and if `iptables_service_state` is not set to `stopped`), then all iptables rules are stored to survive reboots.
 
 [ansible-inventory]: https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
@@ -60,12 +60,12 @@ To install these collections you may follow the steps described in [`README.md`]
 
 | Name                       | Default value                  | Required | Description |
 | -------------------------- | ------------------------------ | -------- | ----------- |
-| `distribution_id`          | *depends on operating system*  | no       | List which uniquely identifies a distribution release, e.g. `[ 'Debian', '10' ]` for `Debian 10 (Buster)` |
-| `iptables_config`          | `[]`                           | no       | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to modify iptables rules |
-| `iptables_persistence`     | `no`                           | no       | Whether iptables rules should persist across reboots |
-| `iptables_service_enabled` | `yes`                          | no       | Whether the iptables service should start on boot (only used on CentOS and Red Hat Enterprise Linux) |
-| `iptables_service_name`    | `iptables`                     | no       | Name of the iptables service (only used on CentOS and Red Hat Enterprise Linux) |
-| `iptables_service_state`   | `started`                      | no       | State of the iptables service (only used on CentOS and Red Hat Enterprise Linux) |
+| `distribution_id`          | *depends on operating system*  | false    | List which uniquely identifies a distribution release, e.g. `[ 'Debian', '10' ]` for `Debian 10 (Buster)` |
+| `iptables_config`          | `[]`                           | false    | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to modify iptables rules |
+| `iptables_persistence`     | `false`                        | false    | Whether iptables rules should persist across reboots |
+| `iptables_service_enabled` | `true`                         | false    | Whether the iptables service should start on boot (only used on CentOS and Red Hat Enterprise Linux) |
+| `iptables_service_name`    | `iptables`                     | false    | Name of the iptables service (only used on CentOS and Red Hat Enterprise Linux) |
+| `iptables_service_state`   | `started`                      | false    | State of the iptables service (only used on CentOS and Red Hat Enterprise Linux) |
 
 [^supported-modules]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
 supports modules and action plugins only. Some Ansible modules such as [`ansible.builtin.meta`][ansible-builtin-meta]
@@ -101,7 +101,7 @@ To enable [SNAT (source NAT)][snat-wiki] for all packets coming from an internal
 
 ```yml
 - hosts: all
-  become: yes
+  become: true
   vars:
     # Variables are listed here for convenience and illustration.
     # In a production setup, variables would be defined e.g. in
@@ -119,7 +119,7 @@ To enable [SNAT (source NAT)][snat-wiki] for all packets coming from an internal
         source: 192.168.0.0/24
         table: nat
         to_source: 10.10.10.10
-    iptables_persistence: yes
+    iptables_persistence: true
   roles:
   - name: Manage iptables rules
     role: jm1.cloudy.iptables

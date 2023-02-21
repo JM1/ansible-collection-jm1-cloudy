@@ -54,11 +54,11 @@ To install these collections you may follow the steps described in [`README.md`]
 
 | Name                     | Default value                  | Required | Description |
 | ------------------------ | ------------------------------ | -------- | ----------- |
-| `httpd_config`           | `[]`                           | no       | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to configure files in `/etc/apache2/` or `/etc/httpd/conf/` |
-| `httpd_service_enabled`  | `yes`                          | no       | Whether the httpd service should start on boot |
-| `httpd_service_name`     | *depends on `distribution_id`* | no       | Name of the httpd service, e.g. `apache2.service` on Debian and `httpd.service` on Red Hat Enterprise Linux |
-| `httpd_service_state`    | `started`                      | no       | State of the httpd service |
-| `distribution_id`        | *depends on operating system*  | no       | List which uniquely identifies a distribution release, e.g. `[ 'Debian', '10' ]` for `Debian 10 (Buster)` |
+| `httpd_config`           | `[]`                           | false    | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to configure files in `/etc/apache2/` or `/etc/httpd/conf/` |
+| `httpd_service_enabled`  | `true`                         | false    | Whether the httpd service should start on boot |
+| `httpd_service_name`     | *depends on `distribution_id`* | false    | Name of the httpd service, e.g. `apache2.service` on Debian and `httpd.service` on Red Hat Enterprise Linux |
+| `httpd_service_state`    | `started`                      | false    | State of the httpd service |
+| `distribution_id`        | *depends on operating system*  | false    | List which uniquely identifies a distribution release, e.g. `[ 'Debian', '10' ]` for `Debian 10 (Buster)` |
 
 [^supported-modules]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
 supports modules and action plugins only. Some Ansible modules such as [`ansible.builtin.meta`][ansible-builtin-meta]
@@ -95,7 +95,7 @@ community-general-apache2-module], [`blockinfile`][ansible-builtin-blockinfile],
 
 ```yml
 - hosts: all
-  become: yes
+  become: true
   roles:
   - name: Manage httpd service
     role: jm1.cloudy.httpd

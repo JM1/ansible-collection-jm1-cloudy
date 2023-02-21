@@ -23,20 +23,20 @@ steps described in [`README.md`][jm1-cloudy-readme] using the provided [`require
 
 | Name                                          | Default value                         | Required | Description |
 | --------------------------------------------- | ------------------------------------- | -------- | ----------- |
-| `distribution_id`                             | *depends on operating system*         | no       | List which uniquely identifies a distribution release, e.g. `[ 'Debian', '10' ]` for `Debian 10 (Buster)` |
-| `dns_suffix`                                  | *undefined*                           | yes      | DNS domain of the host which is used e.g. for `tripleo_standalone_cloud_domain` and `tripleo_standalone_neutron_dns_domain` |
-| `tripleo_standalone_branch`                   | `master`                              | no       | TripleO ["Target branch. Should be the lowercase name of the OpenStack release. e.g. liberty"][tripleo-repos-main] |
-| `tripleo_standalone_cloud_name`               | `tripleo_standalone`                  | no       | ["The DNS name of this cloud. E.g. ci-overcloud.tripleo.org"][tripleo-heat-templates-overcloud] |
-| `tripleo_standalone_cloud_domain`             | `{{ dns_suffix }}`                    | no       | ["The DNS domain used for the hosts. This must match the overcloud_domain_name configured on the undercloud"][tripleo-heat-templates-deploy-steps] |
-| `tripleo_standalone_control_virtual_ip`       | *undefined*                           | yes      | ["Control plane VIP. This allows the undercloud installer to configure a custom VIP on the control plane"][tripleo-deploy-cmd] |
-| `tripleo_standalone_home_dir`                 | `/home/{{ tripleo_standalone_user }}` | no       | Home of `tripleo_standalone_user` where TripleO config files will be created |
-| `tripleo_standalone_local_ip`                 | *undefined*                           | yes      | ["Local IP/CIDR for undercloud traffic"][tripleo-deploy-cmd] |
-| `tripleo_standalone_neutron_dns_domain`       | `{{ dns_suffix }}`                    | no       | ["Domain to use for building the hostnames"][tripleo-heat-templates-neutron-base] |
-| `tripleo_standalone_neutron_public_interface` | *undefined*                           | yes      | ["Which interface to add to the NeutronPhysicalBridge"][tripleo-heat-templates-overcloud] |
-| `tripleo_standalone_parameters`               | *refer to [`roles/tripleo_standalone/defaults/main.yml`](defaults/main.yml)* | no | Content of TripleO standalone configuration file `{{ tripleo_standalone_home_dir }}/standalone_parameters.yaml` |
-| `tripleo_standalone_repo_uri`                 | `https://trunk.rdoproject.org/centos8-{{ tripleo_standalone_branch }}/component/tripleo/current/delorean.repo` | no | Where to download the Yum repository information file (`*.repo`) for TripleO |
-| `tripleo_standalone_repos`                    | `current`                             | no       | [Name of package repositories list which `tripleo-repos` will install][tripleo-repos] |
-| `tripleo_standalone_user`                     | `stack`                               | no       | UNIX user that TripleO will use for deployment aka `DeploymentUser` in ` tripleo_standalone_parameters` |
+| `distribution_id`                             | *depends on operating system*         | false    | List which uniquely identifies a distribution release, e.g. `[ 'Debian', '10' ]` for `Debian 10 (Buster)` |
+| `dns_suffix`                                  | *undefined*                           | true     | DNS domain of the host which is used e.g. for `tripleo_standalone_cloud_domain` and `tripleo_standalone_neutron_dns_domain` |
+| `tripleo_standalone_branch`                   | `master`                              | false    | TripleO ["Target branch. Should be the lowercase name of the OpenStack release. e.g. liberty"][tripleo-repos-main] |
+| `tripleo_standalone_cloud_name`               | `tripleo_standalone`                  | false    | ["The DNS name of this cloud. E.g. ci-overcloud.tripleo.org"][tripleo-heat-templates-overcloud] |
+| `tripleo_standalone_cloud_domain`             | `{{ dns_suffix }}`                    | false    | ["The DNS domain used for the hosts. This must match the overcloud_domain_name configured on the undercloud"][tripleo-heat-templates-deploy-steps] |
+| `tripleo_standalone_control_virtual_ip`       | *undefined*                           | true     | ["Control plane VIP. This allows the undercloud installer to configure a custom VIP on the control plane"][tripleo-deploy-cmd] |
+| `tripleo_standalone_home_dir`                 | `/home/{{ tripleo_standalone_user }}` | false    | Home of `tripleo_standalone_user` where TripleO config files will be created |
+| `tripleo_standalone_local_ip`                 | *undefined*                           | true     | ["Local IP/CIDR for undercloud traffic"][tripleo-deploy-cmd] |
+| `tripleo_standalone_neutron_dns_domain`       | `{{ dns_suffix }}`                    | false    | ["Domain to use for building the hostnames"][tripleo-heat-templates-neutron-base] |
+| `tripleo_standalone_neutron_public_interface` | *undefined*                           | true     | ["Which interface to add to the NeutronPhysicalBridge"][tripleo-heat-templates-overcloud] |
+| `tripleo_standalone_parameters`               | *refer to [`roles/tripleo_standalone/defaults/main.yml`](defaults/main.yml)* | false | Content of TripleO standalone configuration file `{{ tripleo_standalone_home_dir }}/standalone_parameters.yaml` |
+| `tripleo_standalone_repo_uri`                 | `https://trunk.rdoproject.org/centos8-{{ tripleo_standalone_branch }}/component/tripleo/current/delorean.repo` | false | Where to download the Yum repository information file (`*.repo`) for TripleO |
+| `tripleo_standalone_repos`                    | `current`                             | false    | [Name of package repositories list which `tripleo-repos` will install][tripleo-repos] |
+| `tripleo_standalone_user`                     | `stack`                               | false    | UNIX user that TripleO will use for deployment aka `DeploymentUser` in ` tripleo_standalone_parameters` |
 
 [tripleo-deploy-cmd]: https://docs.openstack.org/python-tripleoclient/latest/commands.html#tripleo-deploy
 [tripleo-heat-templates-deploy-steps]: https://opendev.org/openstack/tripleo-heat-templates/src/branch/master/common/deploy-steps.j2
@@ -66,7 +66,7 @@ the FQDN of the host is `tripleo_standalone.home.arpa`.
 
 ```yml
 - hosts: all
-  become: yes
+  become: true
   vars:
     # Variables are listed here for convenience and illustration.
     # In a production setup, variables would be defined e.g. in

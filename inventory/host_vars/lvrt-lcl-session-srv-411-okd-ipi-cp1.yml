@@ -10,7 +10,7 @@ cloudinit_userdata: !!null # disable cloud-init userdata to prevent Jinja2 templ
 
 libvirt_configdrive: !!null # disable cloud-init config drive
 
-libvirt_domain_autostart: no
+libvirt_domain_autostart: false
 
 libvirt_domain_state: shutoff
 
@@ -27,7 +27,7 @@ libvirt_hardware:
 - boot: 'hd,network,loader=/usr/share/OVMF/OVMF_CODE.fd'
 - os_variant: 'rhel8.0'
 
-libvirt_host_become: no
+libvirt_host_become: false
 
 libvirt_pool: 'default'
 
@@ -38,7 +38,7 @@ libvirt_volumes:
   format: 'qcow2'
   name: '{{ fqdn }}.qcow2'
   pool: '{{ libvirt_pool }}'
-  prealloc_metadata: no
+  prealloc_metadata: false
   state: present
 
 os_architecture: x86_64

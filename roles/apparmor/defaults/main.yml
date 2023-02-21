@@ -5,7 +5,7 @@
 
 apparmor_config: []
 
-apparmor_service_enabled: yes
+apparmor_service_enabled: true
 
 apparmor_service_name: 'apparmor'
 

@@ -36,7 +36,7 @@ sshd_config: []
 #     value: false
 #     vtype: boolean
 
-sshd_service_enabled: yes
+sshd_service_enabled: true
 
 sshd_service_name: 'sshd'
 

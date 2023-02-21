@@ -25,7 +25,7 @@ distribution_id:
 
 tftpd_config: []
 
-tftpd_service_enabled: yes
+tftpd_service_enabled: true
 
 tftpd_service_name: |-
   {{

@@ -7,9 +7,9 @@ distribution_id:
 - 'Debian'
 - '12'
 
-libvirt_domain_autostart: no
+libvirt_domain_autostart: false
 
-libvirt_host_become: no
+libvirt_host_become: false
 
 libvirt_netplan:
   ethernets:
@@ -38,8 +38,8 @@ libvirt_volumes:
   backing_vol_format: 'qcow2'
   capacity: 5G
   format: 'qcow2'
-  linked: no
+  linked: false
   name: '{{ fqdn }}.qcow2'
   pool: '{{ libvirt_pool }}'
-  prealloc_metadata: no
+  prealloc_metadata: false
   state: present

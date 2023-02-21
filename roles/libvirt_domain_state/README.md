@@ -54,10 +54,10 @@ jm1-cloudy-readme] using the provided [`requirements.yml`][jm1-cloudy-requiremen
 
 | Name                             | Default value              | Required | Description |
 | -------------------------------- | -------------------------- | -------- | ----------- |
-| `libvirt_domain`                 | `{{ inventory_hostname }}` | no       | Name of the domain |
-| `libvirt_domain_state`           | `running`                  | no       | [Possible domain states: `[running, paused, pmsuspended, shutoff]`][libvirt-domain-state] [^libvirt-domain-state-parameter] |
-| `libvirt_uri`                    | `qemu:///system`           | no       | [libvirt connection uri][libvirt-uri] |
-| `state`                          | `present`                  | no       | Should the libvirt domain be present or absent |
+| `libvirt_domain`                 | `{{ inventory_hostname }}` | false    | Name of the domain |
+| `libvirt_domain_state`           | `running`                  | false    | [Possible domain states: `[running, paused, pmsuspended, shutoff]`][libvirt-domain-state] [^libvirt-domain-state-parameter] |
+| `libvirt_uri`                    | `qemu:///system`           | false    | [libvirt connection uri][libvirt-uri] |
+| `state`                          | `present`                  | false    | Should the libvirt domain be present or absent |
 
 [^libvirt-domain-state-parameter]: Domain state `pmsuspended` is currently not supported by release version `1.0.0` of
 module [`community.libvirt.virt`][community-libvirt-virt] and so this role respectively.

@@ -9,7 +9,7 @@ distribution_id:
 - 'Ubuntu'
 - '20.04'
 
-libvirt_domain_autostart: no
+libvirt_domain_autostart: false
 
 libvirt_hardware:
 - cpu: 'host'
@@ -22,7 +22,7 @@ libvirt_hardware:
 - disk: "vol='{{ libvirt_pool }}/{{ libvirt_configdrive }}',device=disk,bus=virtio,serial='cidata'"
 - os_variant: 'ubuntu18.04'
 
-libvirt_host_become: no
+libvirt_host_become: false
 
 libvirt_netplan:
   ethernets:
@@ -50,10 +50,10 @@ libvirt_volumes:
   backing_vol_format: 'qcow2'
   capacity: 32G
   format: 'qcow2'
-  linked: no
+  linked: false
   name: '{{ fqdn }}.qcow2'
   pool: '{{ libvirt_pool }}'
-  prealloc_metadata: yes
+  prealloc_metadata: true
   state: present
 
 packages:
@@ -86,7 +86,7 @@ ssh_authorized_keys:
 # NOTE: Keep in sync with variable sudoers_config from group_vars/all.yml
 sudoers_config:
 - ansible.builtin.lineinfile:
-    create: no # assert that file exist else system is probably not setup using cloud-init
+    create: false # assert that file exist else system is probably not setup using cloud-init
     group: root
     line: '{{ ansible_user }} ALL=(ALL) NOPASSWD:ALL'
     mode: u=r,g=r,o=
@@ -94,7 +94,7 @@ sudoers_config:
     path: /etc/sudoers.d/90-cloud-init-users
     state: present
 - ansible.builtin.lineinfile:
-    create: no # assert that file exist else system is probably not setup using cloud-init
+    create: false # assert that file exist else system is probably not setup using cloud-init
     group: root
     line: '{{ devstack_user }} ALL=(ALL) NOPASSWD:ALL'
     mode: u=r,g=r,o=
@@ -106,15 +106,15 @@ sudoers_config:
 users_config:
 - name: root
   #password: '*'
-  password_lock: yes
+  password_lock: true
   shell: '/bin/bash'
 - name: '{{ ansible_user }}'
   #password: '*'
-  password_lock: yes
+  password_lock: true
   shell: '/bin/bash'
 - # home is not set to /opt/stack as suggested in DevStack's quick start guide, because
   # stack.sh fails if it has 0700 permissions which is the default e.g. on CentOS 9.
   name: '{{ devstack_user }}'
   #password: '*'
-  password_lock: yes
+  password_lock: true
   shell: '/bin/bash'

@@ -18,7 +18,7 @@
     - acl
 
 - name: Expand paths for Ansible user
-  become: no
+  become: false
   ansible.builtin.stat:
     path: '{{ item }}'
   loop:
@@ -91,7 +91,7 @@
     mode: u=rwx,g=rx,o=rx
     owner: root
     group: root
-    remote_src: yes
+    remote_src: true
     exclude: ['openshift-install', 'README.md']
 
 - name: Extract openshift-install
@@ -109,8 +109,8 @@
     creates: '/usr/local/bin/openshift-install'
 
 - name: Get OpenShift Client version
-  become: no
-  changed_when: no
+  become: false
+  changed_when: false
   ansible.builtin.command:
     chdir: '{{ openshift_ipi_home_dir }}'
     cmd: oc version
@@ -121,8 +121,8 @@
     msg: '{{ openshift_ipi_oc_version.stdout_lines }}'
 
 - name: Get openshift-install version
-  become: no
-  changed_when: no
+  become: false
+  changed_when: false
   ansible.builtin.command:
     chdir: '{{ openshift_ipi_home_dir }}'
     cmd: openshift-install version
@@ -136,7 +136,7 @@
   # openshift-install will delete manifests when cluster has been created
   when: not openshift_ipi_path_auth.stat.exists
   # Own manifests by Ansible user
-  become: yes
+  become: true
   become_user: '{{ ansible_user }}'
   ansible.builtin.command:
     chdir: '{{ openshift_ipi_home_dir }}'
@@ -146,7 +146,7 @@
 - name: Run OpenShift Installer-provisioned installation (IPI)
   # Run command as Ansible user and preserve environment variable SSH_AUTH_SOCK
   # which is required for SSH agent forwarding to the bootstrap virtual machine
-  become: yes
+  become: true
   become_user: '{{ ansible_user }}'
   become_flags: '--preserve-env=SSH_AUTH_SOCK'
   ansible.builtin.shell:

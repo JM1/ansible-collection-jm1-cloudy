@@ -50,7 +50,7 @@ steps described in [`README.md`][jm1-cloudy-readme] using the provided [`require
 
 | Name            | Default value | Required | Description                               |
 | --------------- | ------------- | -------- | ----------------------------------------- |
-| `meta_packages` | `[]`          | no       | List of parameter dictionaries or a single parameter dictionary for module [`jm1.pkg.meta_pkg`][jm1-pkg-meta-pkg] from collection [`jm1.pkg`][galaxy-jm1-pkg] |
+| `meta_packages` | `[]`          | false    | List of parameter dictionaries or a single parameter dictionary for module [`jm1.pkg.meta_pkg`][jm1-pkg-meta-pkg] from collection [`jm1.pkg`][galaxy-jm1-pkg] |
 
 ## Dependencies
 
@@ -62,7 +62,7 @@ steps described in [`README.md`][jm1-cloudy-readme] using the provided [`require
 
 ```yml
 - hosts: all
-  become: yes
+  become: true
   vars:
     # Variables are listed here for convenience and illustration.
     # In a production setup, variables would be defined e.g. in

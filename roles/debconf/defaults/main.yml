@@ -5,4 +5,4 @@
 
 debconf_config: []
 
-debconf_reconfigure: yes
+debconf_reconfigure: true

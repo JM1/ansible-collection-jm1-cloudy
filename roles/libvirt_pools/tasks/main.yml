@@ -47,7 +47,7 @@
 - name: Autostart libvirt storage pools
   loop: '{{ libvirt_pools | default([]) }}'
   community.libvirt.virt_pool:
-    autostart: '{{ item.autostart | default(no) }}'
+    autostart: '{{ item.autostart | default(false) }}'
     name: '{{ item.name | mandatory }}'
     uri: "{{ item.uri if 'uri' in item else libvirt_uri }}"
   when: item.state | default('present') != 'absent'

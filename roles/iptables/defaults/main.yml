@@ -25,9 +25,9 @@ distribution_id:
 
 iptables_config: []
 
-iptables_persistence: no
+iptables_persistence: false
 
-iptables_service_enabled: yes
+iptables_service_enabled: true
 
 iptables_service_name: 'iptables'
 

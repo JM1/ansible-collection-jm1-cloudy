@@ -7,7 +7,7 @@ distribution_id:
 - 'Debian'
 - '11'
 
-libvirt_domain_autostart: no
+libvirt_domain_autostart: false
 
 libvirt_hardware:
 - cpu: 'host'
@@ -21,7 +21,7 @@ libvirt_hardware:
 - disk: "vol='{{ libvirt_pool }}/{{ libvirt_configdrive }}',device=disk,bus=virtio,serial='cidata'"
 - os_variant: 'ubuntu18.04'
 
-libvirt_host_become: no
+libvirt_host_become: false
 
 libvirt_netplan:
   ethernets:
@@ -56,10 +56,10 @@ libvirt_volumes:
   backing_vol_format: 'qcow2'
   capacity: 20G
   format: 'qcow2'
-  linked: no
+  linked: false
   name: '{{ fqdn }}.qcow2'
   pool: '{{ libvirt_pool }}'
-  prealloc_metadata: no
+  prealloc_metadata: false
   state: present
 
 podman_config:

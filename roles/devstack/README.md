@@ -30,13 +30,13 @@ steps described in [`README.md`][jm1-cloudy-readme] using the provided [`require
 
 | Name                         | Default value                   | Required | Description |
 | ---------------------------- | ------------------------------- | -------- | ----------- |
-| `devstack_admin_password`    | `secret`                        | no       | Password for Horizon and Keystone (20 chars or less) |
-| `devstack_config`            | *refer to [`roles/devstack/defaults/main.yml`](defaults/main.yml)* | no | Content of `devstack/local.conf` which defines the OpenStack environment |
-| `devstack_database_password` | `{{ devstack_admin_password }}` | no       | Password to use for the database |
-| `devstack_rabbit_password`   | `{{ devstack_admin_password }}` | no       | Password to use for RabbitMQ |
-| `devstack_service_password`  | `{{ devstack_admin_password }}` | no       | Password to use for the service authentication |
-| `devstack_user`              | `stack`                         | no       | UNIX user that the `stack.sh` script is executed as |
-| `distribution_id`            | *depends on operating system*   | no       | List which uniquely identifies a distribution release, e.g. `[ 'Debian', '10' ]` for `Debian 10 (Buster)` |
+| `devstack_admin_password`    | `secret`                        | false    | Password for Horizon and Keystone (20 chars or less) |
+| `devstack_config`            | *refer to [`roles/devstack/defaults/main.yml`](defaults/main.yml)* | false | Content of `devstack/local.conf` which defines the OpenStack environment |
+| `devstack_database_password` | `{{ devstack_admin_password }}` | false    | Password to use for the database |
+| `devstack_rabbit_password`   | `{{ devstack_admin_password }}` | false    | Password to use for RabbitMQ |
+| `devstack_service_password`  | `{{ devstack_admin_password }}` | false    | Password to use for the service authentication |
+| `devstack_user`              | `stack`                         | false    | UNIX user that the `stack.sh` script is executed as |
+| `distribution_id`            | *depends on operating system*   | false    | List which uniquely identifies a distribution release, e.g. `[ 'Debian', '10' ]` for `Debian 10 (Buster)` |
 
 ## Dependencies
 
@@ -48,7 +48,7 @@ steps described in [`README.md`][jm1-cloudy-readme] using the provided [`require
 
 ```yml
 - hosts: all
-  become: yes
+  become: true
   roles:
   - name: Setup an OpenStack cluster with DevStack
     role: jm1.cloudy.devstack

@@ -44,7 +44,7 @@ None.
 
 | Name                  | Default value | Required | Description                               |
 | --------------------- | ------------- | -------- | ----------------------------------------- |
-| `ssh_authorized_keys` | `[]`          | no       | List of parameter dictionaries for Ansible's [authorized_key][ansible-module-authorized-key] module |
+| `ssh_authorized_keys` | `[]`          | false    | List of parameter dictionaries for Ansible's [authorized_key][ansible-module-authorized-key] module |
 
 ## Dependencies
 
@@ -54,7 +54,7 @@ None.
 
 ```yml
 - hosts: all
-  become: yes
+  become: true
   vars:
     # Variables are listed here for convenience and illustration.
     # In a production setup, variables would be defined e.g. in

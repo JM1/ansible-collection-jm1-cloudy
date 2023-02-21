@@ -15,7 +15,7 @@ sysctl_config:
     value: '1'
     state: present
     sysctl_file: /etc/sysctl.d/10-ip-forward.conf
-    sysctl_set: yes
+    sysctl_set: true
 - # Enable forwarding of IPv4 packets after reboots
   ansible.builtin.copy:
     content: |
@@ -55,7 +55,7 @@ jm1-cloudy-requirements].
 ## Variables
 | Name            | Default value | Required | Description |
 | --------------- | ------------- | -------- | ----------- |
-| `sysctl_config` | `[]`          | no       | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to update kernel parameters Ansible's [`sysctl`][ansible-builtin-sysctl] module |
+| `sysctl_config` | `[]`          | false    | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to update kernel parameters Ansible's [`sysctl`][ansible-builtin-sysctl] module |
 
 [^supported-modules]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
 supports modules and action plugins only. Some Ansible modules such as [`ansible.builtin.meta`][ansible-builtin-meta]
@@ -88,7 +88,7 @@ None.
 
 ```yml
 - hosts: all
-  become: yes
+  become: true
   vars:
     # Variables are listed here for convenience and illustration.
     # In a production setup, variables would be defined e.g. in
@@ -103,7 +103,7 @@ None.
         value: '1'
         state: present
         sysctl_file: /etc/sysctl.d/10-ip-forward.conf
-        sysctl_set: yes
+        sysctl_set: true
     - # Enable forwarding of IPv4 packets after reboots
       ansible.builtin.copy:
         content: |

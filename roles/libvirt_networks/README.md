@@ -14,7 +14,7 @@ ansible_connection: local
 
 libvirt_networks:
 - acl: allow
-  autostart: yes
+  autostart: true
   xml: |
     <network>
       <name>nat</name>
@@ -33,7 +33,7 @@ module [`jm1.libvirt.net_xml`][jm1-libvirt-net-xml] from collection [`jm1.libvir
 [^libvirt-networks-parameter-uri]. If a libvirt network with the same name already exists, it will be updated if
 necessary.
 
-If a list item does not contain key `autostart` or if its set to `yes` then module [`community.libvirt.virt_net`][
+If a list item does not contain key `autostart` or if its set to `true` then module [`community.libvirt.virt_net`][
 community-libvirt-virt-net] from collection [`community.libvirt`][galaxy-community-libvirt] will be used to mark that
 network to be started automatically when the libvirt daemon starts.
 
@@ -90,9 +90,9 @@ described in [`README.md`][jm1-cloudy-readme] using the provided [`requirements.
 
 | Name               | Default value                 | Required | Description |
 | ------------------ | ----------------------------- | -------- | ----------- |
-| `distribution_id`  | *depends on operating system* | no       | List which uniquely identifies a distribution release, e.g. `[ 'Debian', '10' ]` for `Debian 10 (Buster)` |
-| `libvirt_networks` | `[]`                          | no       | List of parameter dictionaries for module [`jm1.libvirt.net_xml`][jm1-libvirt-net-xml] from collection [`jm1.libvirt`][galaxy-jm1-libvirt] [^libvirt-networks-parameter-acl] [^libvirt-networks-parameter-autostart] [^libvirt-networks-parameter-uri] [^libvirt-networks-parameter-xml] |
-| `libvirt_uri`      | `qemu:///system`              | no       | [libvirt connection uri][libvirt-uri] |
+| `distribution_id`  | *depends on operating system* | false    | List which uniquely identifies a distribution release, e.g. `[ 'Debian', '10' ]` for `Debian 10 (Buster)` |
+| `libvirt_networks` | `[]`                          | false    | List of parameter dictionaries for module [`jm1.libvirt.net_xml`][jm1-libvirt-net-xml] from collection [`jm1.libvirt`][galaxy-jm1-libvirt] [^libvirt-networks-parameter-acl] [^libvirt-networks-parameter-autostart] [^libvirt-networks-parameter-uri] [^libvirt-networks-parameter-xml] |
+| `libvirt_uri`      | `qemu:///system`              | false    | [libvirt connection uri][libvirt-uri] |
 
 [^libvirt-networks-parameter-acl]: Each list item in `libvirt_networks` can have an optional key `acl` which specifies
 whether [unprivileged users do have access to bridges created by `qemu-bridge-helper` (implicitly invoked from libvirt
@@ -102,7 +102,7 @@ Details can be found in [`roles/libvirt_networks/tasks/main.yml`](tasks/main.yml
 and key `acl` is present, then any line in `/etc/qemu/bridge.conf` or `/etc/qemu-kvm/bridge.conf` which lists the
 libvirt network will be removed to revoke access to bridges for unprivileged users.
 
-[^libvirt-networks-parameter-autostart]: If key `autostart` is present in a list item and it evaluates to `yes`, then
+[^libvirt-networks-parameter-autostart]: If key `autostart` is present in a list item and it evaluates to `true`, then
 module [`community.libvirt.virt_net`][community-libvirt-virt-net] from collection [`community.libvirt`][
 galaxy-community-libvirt] will be used to mark that network to be started automatically when the libvirt daemon starts.
 
@@ -129,7 +129,7 @@ None.
 
 ```yml
 - hosts: all
-  become: yes # connection to system libvirt daemon requires root privileges
+  become: true # connection to system libvirt daemon requires root privileges
   vars:
     # Variables are listed here for convenience and illustration.
     # In a production setup, variables would be defined e.g. in
@@ -143,7 +143,7 @@ None.
 
     libvirt_networks:
     - acl: allow
-      autostart: yes
+      autostart: true
       xml: |
         <network>
           <name>nat</name>

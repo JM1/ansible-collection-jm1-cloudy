@@ -84,8 +84,8 @@ To install these collections you may follow the steps described in [`README.md`]
 
 | Name                     | Default value                  | Required | Description |
 | ------------------------ | ------------------------------ | -------- | ----------- |
-| `podman_config`          | `[]`                           | no       | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to create systemd unit files for containers and pods in `/etc/systemd/system` |
-| `distribution_id`        | *depends on operating system*  | no       | List which uniquely identifies a distribution release, e.g. `[ 'Debian', '10' ]` for `Debian 10 (Buster)` |
+| `podman_config`          | `[]`                           | false    | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to create systemd unit files for containers and pods in `/etc/systemd/system` |
+| `distribution_id`        | *depends on operating system*  | false    | List which uniquely identifies a distribution release, e.g. `[ 'Debian', '10' ]` for `Debian 10 (Buster)` |
 
 [^supported-modules]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
 supports modules and action plugins only. Some Ansible modules such as [`ansible.builtin.meta`][ansible-builtin-meta]
@@ -128,7 +128,7 @@ ansible-builtin-lineinfile], [`sefcontext`][community-general-sefcontext], [`sel
 
 ```yml
 - hosts: all
-  become: yes
+  become: true
   roles:
   - name: Manage pods, containers and images with Podman
     role: jm1.cloudy.podman

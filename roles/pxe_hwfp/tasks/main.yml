@@ -80,8 +80,8 @@
 - name: Enable and start hwfp's systemd service
   ansible.builtin.systemd:
     name: hwfp.service
-    daemon_reload: yes
-    enabled: yes
+    daemon_reload: true
+    enabled: true
     state: started
 
 - name: Create hwfp's database directory
@@ -116,7 +116,7 @@
   ansible.builtin.unarchive:
     src: '{{ pxe_hwfp_tftpd_root }}/hwfp/{{ item }}/netboot.tar.gz'
     dest: '{{ pxe_hwfp_tftpd_root }}/hwfp/{{ item }}/'
-    remote_src: yes
+    remote_src: true
     creates: '{{ pxe_hwfp_tftpd_root }}/hwfp/{{ item }}/debian-installer/{{ item }}/grubx64.efi'
   loop:
   - 'amd64'

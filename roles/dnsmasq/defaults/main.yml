@@ -25,7 +25,7 @@ distribution_id:
 
 dnsmasq_config: []
 
-dnsmasq_service_enabled: yes
+dnsmasq_service_enabled: true
 
 dnsmasq_service_name: 'dnsmasq'
 

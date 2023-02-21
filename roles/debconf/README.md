@@ -113,8 +113,8 @@ None.
 
 | Name                  | Default value | Required | Description                               |
 | --------------------- | ------------- | -------- | ----------------------------------------- |
-| `debconf_config`      | `[]`          | no       | List of parameter dictionaries or a single parameter dictionary for Ansible's [debconf][ansible-module-debconf] module |
-| `debconf_reconfigure` | `yes`         | no       | Run [`dpkg-reconfigure`][dpkg-reconfigure-man] once the debconf database has been updated                              |
+| `debconf_config`      | `[]`          | false    | List of parameter dictionaries or a single parameter dictionary for Ansible's [debconf][ansible-module-debconf] module |
+| `debconf_reconfigure` | `true`        | false    | Run [`dpkg-reconfigure`][dpkg-reconfigure-man] once the debconf database has been updated                              |
 
 ## Dependencies
 
@@ -124,7 +124,7 @@ None.
 
 ```yml
 - hosts: all
-  become: yes
+  become: true
   vars:
     # Variables are listed here for convenience and illustration.
     # In a production setup, variables would be defined e.g. in

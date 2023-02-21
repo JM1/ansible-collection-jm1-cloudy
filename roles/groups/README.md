@@ -10,7 +10,7 @@ groups_config:
 - # Ensure system group libvirt exists
   name: libvirt
   state: present
-  system: yes
+  system: true
 ```
 
 [ansible-inventory]: https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
@@ -37,7 +37,7 @@ None.
 
 | Name            | Default value | Required | Description |
 | --------------- | ------------- | -------- | ----------- |
-| `groups_config` | `[]`          | no       | List of parameter dictionaries for Ansible's [`group`][ansible-module-group] module |
+| `groups_config` | `[]`          | false    | List of parameter dictionaries for Ansible's [`group`][ansible-module-group] module |
 
 ## Dependencies
 
@@ -47,7 +47,7 @@ None.
 
 ```yml
 - hosts: all
-  become: yes
+  become: true
   vars:
     # Variables are listed here for convenience and illustration.
     # In a production setup, variables would be defined e.g. in
@@ -59,7 +59,7 @@ None.
     - # Ensure system group libvirt exists
       name: libvirt
       state: present
-      system: yes
+      system: true
   roles:
   - name: Setup local groups
     role: jm1.cloudy.groups

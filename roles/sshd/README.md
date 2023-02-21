@@ -56,11 +56,11 @@ To install these collections you may follow the steps described in [`README.md`]
 
 | Name                   | Default value                  | Required | Description |
 | ---------------------- | ------------------------------ | -------- | ----------- |
-| `distribution_id`      | *depends on operating system*  | no       | List which uniquely identifies a distribution release, e.g. `[ 'Debian', '10' ]` for `Debian 10 (Buster)` |
-| `sshd_config`          | `[]`                           | no       | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to edit `/etc/ssh/sshd_config` |
-| `sshd_service_enabled` | `yes`                          | no       | Whether the sshd service should start on boot |
-| `sshd_service_name`    | `sshd`                         | no       | Name of the sshd service |
-| `sshd_service_state`   | `started`                      | no       | State of the sshd service |
+| `distribution_id`      | *depends on operating system*  | false    | List which uniquely identifies a distribution release, e.g. `[ 'Debian', '10' ]` for `Debian 10 (Buster)` |
+| `sshd_config`          | `[]`                           | false    | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to edit `/etc/ssh/sshd_config` |
+| `sshd_service_enabled` | `true`                         | false    | Whether the sshd service should start on boot |
+| `sshd_service_name`    | `sshd`                         | false    | Name of the sshd service |
+| `sshd_service_state`   | `started`                      | false    | State of the sshd service |
 
 [^supported-modules]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
 supports modules and action plugins only. Some Ansible modules such as [`ansible.builtin.meta`][ansible-builtin-meta]
@@ -95,7 +95,7 @@ ansible-builtin-lineinfile] and [`template`][ansible-builtin-template].
 
 ```yml
 - hosts: all
-  become: yes
+  become: true
   roles:
   - name: Manage sshd service
     role: jm1.cloudy.sshd

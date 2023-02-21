@@ -25,7 +25,7 @@ libvirt_configdrive_pool: '{{ libvirt_pool }}'
 
 libvirt_domain: '{{ fqdn }}'
 
-libvirt_domain_autostart: yes
+libvirt_domain_autostart: true
 
 # Possible domain states: [running, paused, pmsuspended, shutoff]
 # Ref.: https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainState
@@ -45,7 +45,7 @@ libvirt_hardware:
 # Ref.: man virt-install
 - os_variant: 'debian10'
 
-libvirt_host_become: yes
+libvirt_host_become: true
 
 libvirt_netplan: {}
 
@@ -56,10 +56,10 @@ libvirt_volumes:
   backing_vol_format: 'qcow2'
   capacity: 5G
   format: 'qcow2'
-  linked: no
+  linked: false
   name: '{{ fqdn }}.qcow2'
   pool: '{{ libvirt_pool }}'
-  prealloc_metadata: no
+  prealloc_metadata: false
   state: present
 
 libvirt_pool: 'default'

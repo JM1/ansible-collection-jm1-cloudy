@@ -19,7 +19,7 @@ distribution_id:
 
 libvirt_configdrive: !!null # disable cloud-init config drive
 
-libvirt_domain_autostart: no
+libvirt_domain_autostart: false
 
 libvirt_hardware:
 - cpu: 'host-passthrough,cache.mode=passthrough'
@@ -33,7 +33,7 @@ libvirt_hardware:
 - boot: 'loader=/usr/share/OVMF/OVMF_CODE.fd,hd,network'
 - os_variant: 'debian10'
 
-libvirt_host_become: no
+libvirt_host_become: false
 
 libvirt_pool: 'default'
 
@@ -44,7 +44,7 @@ libvirt_volumes:
   format: 'qcow2'
   name: '{{ fqdn }}.qcow2'
   pool: '{{ libvirt_pool }}'
-  prealloc_metadata: no
+  prealloc_metadata: false
   state: present
 
 os_architecture: x86_64

@@ -21,7 +21,7 @@ dhcpd6_config:
     owner: root
     src: "{{ distribution_id | join('_') | lower | regex_replace('[^a-z0-9_]', '_') + '/etc/dhcp/dhcpd6.conf' }}"
 
-dhcpd_service_enabled: yes
+dhcpd_service_enabled: true
 
 dhcpd_service_name: |-
   {{
@@ -43,7 +43,7 @@ dhcpd_service_name: |-
 
 dhcpd_service_state: 'started'
 
-dhcpd6_service_enabled: yes
+dhcpd6_service_enabled: true
 
 dhcpd6_service_name: |-
   {{

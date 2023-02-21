@@ -63,7 +63,7 @@ None.
 
 | Name       | Default value | Required | Description                               |
 | ---------- | ------------- | -------- | ----------------------------------------- |
-| `packages` | `[]`          | no       | List of parameter dictionaries, a single parameter dictionary or a list of strings for Ansible's [package][ansible-module-package] module |
+| `packages` | `[]`          | false    | List of parameter dictionaries, a single parameter dictionary or a list of strings for Ansible's [package][ansible-module-package] module |
 
 ## Dependencies
 
@@ -73,7 +73,7 @@ None.
 
 ```yml
 - hosts: all
-  become: yes
+  become: true
   vars:
     # Variables are listed here for convenience and illustration.
     # In a production setup, variables would be defined e.g. in

@@ -69,7 +69,7 @@ using the provided [`requirements.yml`][jm1-cloudy-requirements].
 
 | Name           | Default value | Required | Description |
 | -------------- | ------------- | -------- | ----------- |
-| `files_config` | `[]`          | no       | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules] |
+| `files_config` | `[]`          | false    | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules] |
 
 [^supported-modules]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
 supports modules and action plugins only. Some Ansible modules such as [`ansible.builtin.meta`][ansible-builtin-meta]
@@ -116,7 +116,7 @@ None.
 
 ```yml
 - hosts: all
-  become: yes
+  become: true
   vars:
     # Variables are listed here for convenience and illustration.
     # In a production setup, variables would be defined e.g. in

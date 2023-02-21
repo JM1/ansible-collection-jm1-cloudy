@@ -86,7 +86,7 @@ libvirt_hardware:
 
 # Indicate to playbooks/site.yml that libvirt-related tasks should not be executed with root privileges. Privilege
 # escalation is not necessary because the local libvirt daemon (qemu:///session) on the Ansible controller is used.
-libvirt_host_become: no
+libvirt_host_become: false
 
 libvirt_pool: 'default'
 
@@ -99,10 +99,10 @@ libvirt_volumes:
   backing_vol_format: 'qcow2'
   capacity: 5G
   format: 'qcow2'
-  linked: no
+  linked: false
   name: '{{ inventory_hostname }}.qcow2'
   pool: '{{ libvirt_pool }}'
-  prealloc_metadata: no
+  prealloc_metadata: false
   state: present
 ```
 
@@ -125,7 +125,7 @@ Once all previous roles have finished, execute this role `jm1.cloudy.libvirt_dom
 jm1-libvirt-volume-cloudinit] from collection [`jm1.libvirt`][galaxy-jm1-libvirt] [^libvirt-configdrive-parameter].
 Next, variables `libvirt_domain` and `libvirt_hardware` will be passed to [`jm1.libvirt.domain`][jm1-libvirt-domain] to
 create libvirt domain `debian.home.arpa` [^libvirt-domain-parameter]. If a libvirt domain with the same name already
-exists, it will not be changed. If `libvirt_domain_autostart` evaluates to `yes`, then module
+exists, it will not be changed. If `libvirt_domain_autostart` evaluates to `true`, then module
 [`community.libvirt.virt`][community-libvirt-virt] from collection [`community.libvirt`][galaxy-community-libvirt] will
 be used to mark that domain to be started automatically when the libvirt daemon starts. At the end the same module will
 be used to start the newly created domain if `libvirt_domain_state` is `running`.
@@ -185,19 +185,19 @@ jm1-cloudy-readme] using the provided [`requirements.yml`][jm1-cloudy-requiremen
 
 | Name                             | Default value              | Required | Description |
 | -------------------------------- | -------------------------- | -------- | ----------- |
-| `cloudinit_metadata`             | `{{ omit }}`               | no       | [cloud-init meta data][cloud-init-nocloud] |
-| `cloudinit_networkconfig`        | `{{ omit }}`               | no       | [cloud-init network configuration][cloud-init-network-config] |
-| `cloudinit_userdata`             | *undefined*                | yes      | [cloud-init user data][cloud-init-examples] |
-| `libvirt_configdrive`            | `{{ inventory_hostname }}_cidata.{{ libvirt_configdrive_format }}'` | no | Name of the config drive volume. Passed as parameter `name` to module [`jm1.libvirt.volume_cloudinit`][jm1-libvirt-volume-cloudinit] |
-| `libvirt_configdrive_filesystem` | `iso`                      | no       | Filesystem format (vfat or iso) of the config drive volume. Passed as parameter `filesystem` to module [`jm1.libvirt.volume_cloudinit`][jm1-libvirt-volume-cloudinit] |
-| `libvirt_configdrive_format`     | `qcow2`                    | no       | Disk image format of the config drive volume (see [manpage of qemu-img][qemu-img] for allowed image file formats). Passed as parameter `format` to module [`jm1.libvirt.volume_cloudinit`][jm1-libvirt-volume-cloudinit] |
-| `libvirt_configdrive_pool`       | `default`                  | no       | Name or UUID of the storage pool to create the config drive volume in. Passed as parameter `pool` to module [`jm1.libvirt.volume_cloudinit`][jm1-libvirt-volume-cloudinit] |
-| `libvirt_domain`                 | `{{ inventory_hostname }}` | no       | Name of the domain |
-| `libvirt_domain_autostart`       | `no`                       | no       | Start libvirt domain at startup of the libvirt daemon |
-| `libvirt_domain_state`           | `running`                  | no       | [Possible domain states: `[running, paused, pmsuspended, shutoff]`][libvirt-domain-state] |
-| `libvirt_hardware`               | `{{ omit }}`               | no       | Hardware specification of the libvirt domain. Accepts all two-dash command line arguments (those with a leading `--`) of `virt-install` as a list. Arguments are formatted as key-value pairs without the leading '--' and having other dashs replaced by underscores. Arguments without a value (flags), e.g. pxe, must be specified with a value of `!!null`. See [manpage of virt-install][virt-install] for available arguments. |
-| `libvirt_uri`                    | `qemu:///system`           | no       | [libvirt connection uri][libvirt-uri] |
-| `state`                          | `present`                  | no       | Should the libvirt domain be present or absent |
+| `cloudinit_metadata`             | `{{ omit }}`               | false    | [cloud-init meta data][cloud-init-nocloud] |
+| `cloudinit_networkconfig`        | `{{ omit }}`               | false    | [cloud-init network configuration][cloud-init-network-config] |
+| `cloudinit_userdata`             | *undefined*                | true     | [cloud-init user data][cloud-init-examples] |
+| `libvirt_configdrive`            | `{{ inventory_hostname }}_cidata.{{ libvirt_configdrive_format }}'` | false | Name of the config drive volume. Passed as parameter `name` to module [`jm1.libvirt.volume_cloudinit`][jm1-libvirt-volume-cloudinit] |
+| `libvirt_configdrive_filesystem` | `iso`                      | false    | Filesystem format (vfat or iso) of the config drive volume. Passed as parameter `filesystem` to module [`jm1.libvirt.volume_cloudinit`][jm1-libvirt-volume-cloudinit] |
+| `libvirt_configdrive_format`     | `qcow2`                    | false    | Disk image format of the config drive volume (see [manpage of qemu-img][qemu-img] for allowed image file formats). Passed as parameter `format` to module [`jm1.libvirt.volume_cloudinit`][jm1-libvirt-volume-cloudinit] |
+| `libvirt_configdrive_pool`       | `default`                  | false    | Name or UUID of the storage pool to create the config drive volume in. Passed as parameter `pool` to module [`jm1.libvirt.volume_cloudinit`][jm1-libvirt-volume-cloudinit] |
+| `libvirt_domain`                 | `{{ inventory_hostname }}` | false    | Name of the domain |
+| `libvirt_domain_autostart`       | `false`                    | false    | Start libvirt domain at startup of the libvirt daemon |
+| `libvirt_domain_state`           | `running`                  | false    | [Possible domain states: `[running, paused, pmsuspended, shutoff]`][libvirt-domain-state] |
+| `libvirt_hardware`               | `{{ omit }}`               | false    | Hardware specification of the libvirt domain. Accepts all two-dash command line arguments (those with a leading `--`) of `virt-install` as a list. Arguments are formatted as key-value pairs without the leading '--' and having other dashs replaced by underscores. Arguments without a value (flags), e.g. pxe, must be specified with a value of `!!null`. See [manpage of virt-install][virt-install] for available arguments. |
+| `libvirt_uri`                    | `qemu:///system`           | false    | [libvirt connection uri][libvirt-uri] |
+| `state`                          | `present`                  | false    | Should the libvirt domain be present or absent |
 
 [cloud-init-nocloud]: https://cloudinit.readthedocs.io/en/latest/topics/datasources/nocloud.html
 [libvirt-domain-state]: https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainState

@@ -20,7 +20,7 @@ ansible_connection: local
 #  https://docs.ansible.com/ansible/latest/reference_appendices/interpreter_discovery.html
 ansible_python_interpreter: "{{ ansible_playbook_python }}"
 
-libvirt_host_become: no
+libvirt_host_become: false
 
 # NOTE: All libvirt networks listed below are expected to created and managed by the system libvirt daemon. The networks
 #       below are merely created to make the system-wide networks known to the user-session libvirt daemon. The real
@@ -30,95 +30,95 @@ libvirt_host_become: no
 #       bridges. See e.g. host lvrt-lcl-system on how to set up the system-wide libvirt networks.
 libvirt_networks:
 - # network without host ip, without dhcp and without forwarding
-  autostart: yes
+  autostart: true
   bridge:
     name: 'virbr-local-0'
   ignore:
   - '/network/uuid'
   name: 'isolated-0-no-ip'
-  restart_on_change: yes
+  restart_on_change: true
   state: active
   xml_var: 'libvirt_network_template_bridge'
 
 - # network with host ip, with dhcp, without forwarding and without masquerading
-  autostart: yes
+  autostart: true
   bridge:
     name: 'virbr-local-1'
   ignore:
   - '/network/uuid'
   name: 'isolated-1-dhcp'
-  restart_on_change: yes
+  restart_on_change: true
   state: active
   xml_var: 'libvirt_network_template_bridge'
 
 - # network with host ip, without dhcp, without forwarding and without masquerading
-  autostart: yes
+  autostart: true
   bridge:
     name: 'virbr-local-2'
   ignore:
   - '/network/uuid'
   name: 'isolated-2-no-dhcp'
-  restart_on_change: yes
+  restart_on_change: true
   state: active
   xml_var: 'libvirt_network_template_bridge'
 
 - # network with host ip, without dhcp, without forwarding and without masquerading
-  autostart: yes
+  autostart: true
   bridge:
     name: 'virbr-local-3'
   ignore:
   - '/network/uuid'
   name: 'isolated-3-no-dhcp'
-  restart_on_change: yes
+  restart_on_change: true
   state: active
   xml_var: 'libvirt_network_template_bridge'
 
 - # network with host ip, with dhcp, with forwarding and with masquerading
-  autostart: yes
+  autostart: true
   bridge:
     name: 'virbr-local-4'
   ignore:
   - '/network/uuid'
   name: 'nat-0-dhcp'
-  restart_on_change: yes
+  restart_on_change: true
   state: active
   xml_var: 'libvirt_network_template_bridge'
 
 - # network with host ip, without dhcp, with forwarding and with masquerading
-  autostart: yes
+  autostart: true
   bridge:
     name: 'virbr-local-5'
   ignore:
   - '/network/uuid'
   name: 'nat-1-no-dhcp'
-  restart_on_change: yes
+  restart_on_change: true
   state: active
   xml_var: 'libvirt_network_template_bridge'
 
 - # network with host ip, with dhcp, with forwarding and without masquerading
-  autostart: yes
+  autostart: true
   bridge:
     name: 'virbr-local-6'
   ignore:
   - '/network/uuid'
   name: 'route-0-dhcp'
-  restart_on_change: yes
+  restart_on_change: true
   state: active
   xml_var: 'libvirt_network_template_bridge'
 
 - # network with host ip, without dhcp, with forwarding and without masquerading
-  autostart: yes
+  autostart: true
   bridge:
     name: 'virbr-local-7'
   ignore:
   - '/network/uuid'
   name: 'route-1-no-dhcp'
-  restart_on_change: yes
+  restart_on_change: true
   state: active
   xml_var: 'libvirt_network_template_bridge'
 
 libvirt_pools:
-- autostart: yes
+- autostart: true
   hardware:
   - type: dir
   - target: '{{ ansible_env.HOME }}/.local/share/libvirt/images'

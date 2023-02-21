@@ -9,7 +9,7 @@ password is locked, define variable `users_config` in [`group_vars` or `host_var
 users_config:
 - # Ensure user for Ansible exists and its password is lock
   name: '{{ ansible_user }}'
-  password_lock: yes
+  password_lock: true
   shell: '/bin/bash'
   state: present
 ```
@@ -38,7 +38,7 @@ None.
 
 | Name           | Default value | Required | Description |
 | -------------- | ------------- | -------- | ----------- |
-| `users_config` | `[]`          | no       | List of parameter dictionaries for Ansible's [`user`][ansible-module-user] module |
+| `users_config` | `[]`          | false    | List of parameter dictionaries for Ansible's [`user`][ansible-module-user] module |
 
 ## Dependencies
 
@@ -48,7 +48,7 @@ None.
 
 ```yml
 - hosts: all
-  become: yes
+  become: true
   vars:
     # Variables are listed here for convenience and illustration.
     # In a production setup, variables would be defined e.g. in
@@ -59,7 +59,7 @@ None.
     users_config:
     - # Ensure user for Ansible exists and its password is lock
       name: '{{ ansible_user }}'
-      password_lock: yes
+      password_lock: true
       shell: '/bin/bash'
       state: present
   roles:

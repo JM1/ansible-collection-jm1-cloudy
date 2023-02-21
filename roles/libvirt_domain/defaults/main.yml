@@ -19,7 +19,7 @@ libvirt_configdrive_pool: 'default'
 
 libvirt_domain: '{{ inventory_hostname }}'
 
-libvirt_domain_autostart: no
+libvirt_domain_autostart: false
 
 # Possible domain states: [running, paused, pmsuspended, shutoff]
 # Ref.: https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainState

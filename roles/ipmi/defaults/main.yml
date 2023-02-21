@@ -5,17 +5,17 @@
 
 # This variable is supposed to be a safety guard and as such should be set
 # as extra vars on the command line, *NOT* in  host_vars or group_vars!
-force_ipmi_boot: no #
+force_ipmi_boot: false
 
 # This variable is supposed to be a safety guard and as such should be set
 # as extra vars on the command line, *NOT* in  host_vars or group_vars!
-force_ipmi_power: no
+force_ipmi_power: false
 
 # This variable is supposed to be a safety guard and as such should be set
 # as extra vars on the command line, *NOT* in  host_vars or group_vars!
-force_ipmi_boot_from_network: no
+force_ipmi_boot_from_network: false
 
-impi_boot_persistent: no
+impi_boot_persistent: false
 
 ipmi_boot_device: 'default'
 
@@ -29,6 +29,6 @@ ipmi_port: '{{ omit }}'
 # Ref.: https://docs.ansible.com/ansible/latest/collections/community/general/ipmi_power_module.html
 ipmi_power_state: 'on'
 
-ipmi_uefiboot: no
+ipmi_uefiboot: false
 
 ipmi_username: 'ADMIN'

@@ -7,9 +7,9 @@ distribution_id:
 - 'CentOS'
 - '7'
 
-libvirt_domain_autostart: no
+libvirt_domain_autostart: false
 
-libvirt_host_become: no
+libvirt_host_become: false
 
 libvirt_netplan:
   ethernets:
@@ -19,7 +19,7 @@ libvirt_netplan:
       # setting is not defined here which causes cloud-init to use BOOTPROTO=none.
       #dhcp4: false
 
-      # When dhcp4 is set here then cloud-init on CentOS 7 will set IPV6INIT=yes and DHCPV6C=yes in
+      # When dhcp4 is set here then cloud-init on CentOS 7 will set IPV6INIT=true and DHCPV6C=true in
       # /etc/sysconfig/network-scripts/ifcfg-eth0 which will cause long boot delays while system is waiting on the
       # network. To workaround this bug, the dhcp6 setting is not defined here.
       #dhcp6: false
@@ -44,8 +44,8 @@ libvirt_volumes:
   backing_vol_format: 'qcow2'
   capacity: 10G
   format: 'qcow2'
-  linked: no
+  linked: false
   name: '{{ fqdn }}.qcow2'
   pool: '{{ libvirt_pool }}'
-  prealloc_metadata: no
+  prealloc_metadata: false
   state: present

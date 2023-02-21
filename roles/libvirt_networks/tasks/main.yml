@@ -73,7 +73,7 @@
   loop: '{{ libvirt_networks | default([]) }}'
   when: item.state | default('present') != 'absent' and 'acl' in item
   ansible.builtin.lineinfile:
-    create: yes
+    create: true
     group: root
     line: '{{ item.acl }} {{ item.bridge.name }}'
     mode: u=rw,g=r,o=r

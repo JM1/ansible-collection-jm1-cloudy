@@ -87,7 +87,7 @@ dhcpd_config:
     regexp: "^INTERFACESv6=.*"
     line: 'INTERFACESv6=""'
 
-dhcpd6_service_enabled: no
+dhcpd6_service_enabled: false
 
 dhcpd6_service_state: 'stopped'
 
@@ -250,9 +250,9 @@ iptables_config:
     table: nat
     to_source: 192.168.158.20
 
-iptables_persistence: yes
+iptables_persistence: true
 
-libvirt_domain_autostart: no
+libvirt_domain_autostart: false
 
 libvirt_hardware:
 - cpu: 'host-passthrough,cache.mode=passthrough'
@@ -266,7 +266,7 @@ libvirt_hardware:
 - disk: "vol='{{ libvirt_pool }}/{{ libvirt_configdrive }}',device=disk,bus=virtio,serial='cidata'"
 - os_variant: 'debian10'
 
-libvirt_host_become: no
+libvirt_host_become: false
 
 libvirt_netplan:
   ethernets:
@@ -301,10 +301,10 @@ libvirt_volumes:
   backing_vol_format: 'qcow2'
   capacity: 64G
   format: 'qcow2'
-  linked: no
+  linked: false
   name: '{{ fqdn }}.qcow2'
   pool: '{{ libvirt_pool }}'
-  prealloc_metadata: no
+  prealloc_metadata: false
   state: present
 
 meta_packages:
@@ -361,16 +361,16 @@ sysctl_config:
     value: '0'
     state: present
     sysctl_file: /etc/sysctl.d/10-ip-forward.conf
-    sysctl_set: yes
+    sysctl_set: true
 - ansible.posix.sysctl:
     name: net.ipv4.conf.eth0.forwarding
     value: '1'
     state: present
     sysctl_file: /etc/sysctl.d/10-ip-forward.conf
-    sysctl_set: yes
+    sysctl_set: true
 - ansible.posix.sysctl:
     name: net.ipv4.conf.eth1.forwarding
     value: '1'
     state: present
     sysctl_file: /etc/sysctl.d/10-ip-forward.conf
-    sysctl_set: yes
+    sysctl_set: true

@@ -32,7 +32,7 @@
     that: devstack_user_home | length > 0
 
 - name: Git clone DevStack repository to DevStack user's home
-  become: yes
+  become: true
   become_user: '{{ devstack_user }}'
   ansible.builtin.git: # noqa latest[git]
     depth: 1
@@ -48,7 +48,7 @@
     src: local.conf.j2
 
 - name: Run DevStack setup script
-  become: yes
+  become: true
   become_user: '{{ devstack_user }}'
   ansible.builtin.shell:
     chdir: '{{ devstack_user_home }}/devstack'

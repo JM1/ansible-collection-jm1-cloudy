@@ -30,14 +30,14 @@ cloudinit_userdata: |
 openstack_keypairs: "{{ ssh_authorized_keys | selectattr('user', 'equalto', ansible_user) | selectattr('state', 'equalto', 'present') | list }}"
 
 openstack_server_config:
-  auto_ip: no
+  auto_ip: false
   boot_volume: '{{ openstack_volumes | first if openstack_volumes is defined and openstack_volumes | length > 0 else None }}'
-  config_drive: no
+  config_drive: false
   flavor: 'c2.m4'
   # key_name is not set because it is set using cloudinit_userdata
   security_groups:
   - default
-  terminate_volume: no
+  terminate_volume: false
   userdata: '{{ cloudinit_userdata }}'
   volumes: '{{ openstack_volumes[1:] if openstack_volumes is defined and openstack_volumes | length > 1 else [] }}'
 
@@ -62,7 +62,7 @@ openstack_server_state: active
 
 openstack_volumes:
 - openstack.cloud.volume:
-    bootable: yes
+    bootable: true
     display_name: '{{ openstack_server_name }}'
     image: "{{ openstack_server_images[distribution_id | join('_') | regex_replace('[^A-Za-z0-9_]', '_')] }}"
     size: 10

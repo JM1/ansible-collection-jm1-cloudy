@@ -138,7 +138,7 @@
     ansible.builtin.copy:
       src: "{{ pxe_installer_httpd_root }}/archive/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/os/EFI/BOOT/grubx64.efi"
       dest: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/grubx64.efi.orig'
-      remote_src: yes
+      remote_src: true
       mode: u=rwx,g=rx,o=rx
       owner: root
       group: root
@@ -206,7 +206,7 @@
     ansible.builtin.copy:
       src: "{{ pxe_installer_httpd_root }}/archive/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/os/isolinux/vmlinuz"
       dest: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/vmlinuz'
-      remote_src: yes
+      remote_src: true
       mode: u=rw,g=r,o=r
       owner: root
       group: root
@@ -219,7 +219,7 @@
     ansible.builtin.copy:
       src: "{{ pxe_installer_httpd_root }}/archive/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/os/isolinux/initrd.img"
       dest: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/initrd.img'
-      remote_src: yes
+      remote_src: true
       mode: u=rw,g=r,o=r
       owner: root
       group: root
@@ -338,7 +338,7 @@
     ansible.builtin.unarchive:
       src: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/netboot.tar.gz'
       dest: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/'
-      remote_src: yes
+      remote_src: true
       creates: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/debian-installer/{{ item.2 }}/grubx64.efi'
     loop:
     - ['Debian', '10', 'amd64']
@@ -625,7 +625,7 @@
     ansible.builtin.unarchive:
       src: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/netboot.tar.gz'
       dest: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/'
-      remote_src: yes
+      remote_src: true
       creates: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/pxelinux.0'
     loop:
     - ['Ubuntu', '18.04', 'amd64']
