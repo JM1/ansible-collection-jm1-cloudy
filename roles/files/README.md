@@ -110,13 +110,7 @@ community-general-xattr].
 
 ## Dependencies
 
-This role uses module(s) from collection [`jm1.ansible`][galaxy-jm1-ansible]. To install this collection you may follow
-the steps described in [`README.md`][jm1-cloudy-readme] using the provided [`requirements.yml`][
-jm1-cloudy-requirements].
-
-[galaxy-jm1-ansible]: https://galaxy.ansible.com/jm1/ansible
-[jm1-cloudy-readme]: ../../README.md
-[jm1-cloudy-requirements]: ../../requirements.yml
+None.
 
 ## Example Playbook
 
