@@ -79,6 +79,7 @@ booted manually (once provisioned with Ansible) to showcase and debug the whole 
 cycle. The top-level [`README.md`][jm1-cloudy-readme] describes how hosts can be provisioned with playbook
 [`playbooks/site.yml`][playbook-site-yml].
 
+[inventory-example]: ../../inventory/
 [playbook-site-yml]: ../../playbooks/site.yml
 
 For instructions on how to run Ansible playbooks have look at Ansible's
