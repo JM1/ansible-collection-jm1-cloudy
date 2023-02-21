@@ -24,6 +24,11 @@ that demonstrates how to setup a cloud infrastructure using [libvirt][libvirt] a
 * Host [`lvrt-lcl-session-srv-3*`][inventory-example] showcases how to [fingerprint and report hardware specifications
   of systems][pxe-hwfp] which can be booted via [PXE][pxe-wiki]. Hosts `lvrt-lcl-session-srv-310-*` and
   `lvrt-lcl-session-srv-311-*` demonstrate how a poweron-fingerprint-report-poweroff cycle works in practice.
+* Hosts [`lvrt-lcl-session-srv-4*`][inventory-example] showcase how to deploy an [installer-provisioned][okd-ipi]
+  [OKD][okd] cluster on bare-metal servers. This setup uses libvirt domains (QEMU/KVM based virtual machines) to
+  simulate bare-metal servers and auxiliary resources. [sushy-emulator][sushy-emulator] provides a virtual Redfish BMC
+  to power cycle servers and mount virtual media for hardware inspection and provisioning. Beware of high resource
+  utilization, e.g. this cluster requires >64GB of RAM.
 
 [cloud-init-doc]: https://cloudinit.readthedocs.io/
 [devstack]: https://docs.openstack.org/devstack/latest/
@@ -31,6 +36,10 @@ that demonstrates how to setup a cloud infrastructure using [libvirt][libvirt] a
 [pxe-hwfp]: roles/pxe_hwfp/README.md
 [pxe-installer]: roles/pxe_installer/README.md
 [pxe-wiki]: https://en.wikipedia.org/wiki/Preboot_Execution_Environment
+[okd]: https://www.okd.io/
+[okd-ipi]: https://docs.okd.io/latest/installing/installing_bare_metal_ipi/ipi-install-overview.html
+[ocp-ipi]: https://docs.openshift.com/container-platform/4.12/installing/installing_bare_metal_ipi/ipi-install-overview.html
+[sushy-emulator]: https://docs.openstack.org/sushy-tools/latest/user/dynamic-emulator.html
 
 This collection has been developed and tested for compatibility with:
 * Debian 10 (Buster)
@@ -104,6 +113,7 @@ Click on the name of an inventory, module, playbook or role to view that content
     * [meta_packages](roles/meta_packages/README.md)
     * [netplan](roles/netplan/README.md)
     * [networkmanager](roles/networkmanager/README.md)
+    * [openshift_ipi](roles/openshift_ipi/README.md)
     * [openstack_server](roles/openstack_server/README.md)
     * [packages](roles/packages/README.md)
     * [podman](roles/podman/README.md)
@@ -583,6 +593,37 @@ EOF
 
 Changes applied by both commands will not be persistant and will not survive reboots. Please refer to your operating
 system's documentation on how to store [nftables][nftables] or [iptables][iptables] rules persistently.
+
+Once ip subnets have been set up properly, the libvirtd configuration for your local user (not root) has to be changed
+to allow tcp connections from libvirt isolated network `192.168.153.0/24` which is used for virtual BMCs:
+
+```sh
+# Disable libvirt tls transport, enable unauthenticated libvirt tcp transport
+# and bind to 192.168.153.1 for connectivity from libvirt domains.
+mkdir -p ~/.config/libvirt/
+cp -nv /etc/libvirt/libvirtd.conf ~/.config/libvirt/libvirtd.conf
+sed -i \
+    -e 's/^[#]*listen_tls = .*/listen_tls = 0/g' \
+    -e 's/^[#]*listen_tcp = .*/listen_tcp = 1/g' \
+    -e 's/^[#]*listen_addr = .*/listen_addr = "192.168.153.1"/g' \
+    -e 's/^[#]*auth_tcp = .*/auth_tcp = "none"/g' \
+    ~/.config/libvirt/libvirtd.conf
+```
+
+An SSH agent must be running and your SSH private key(s) must be loaded. Ansible will use SSH agent forwarding to access
+nested virtual machines such as the bootstrap virtual machine of [OpenShift Installer-provisioned installation (IPI)][
+ocp-ipi] or [OKD Installer-provisioned installation (IPI)][okd-ipi].
+
+```sh
+# Start ssh-agent and add SSH private keys if ssh-agent is not running
+if [ -z "$SSH_AGENT_PID" ]; then
+    eval $(ssh-agent)
+    ssh-add
+fi
+
+# Ensure your SSH public key is listed
+ssh-add -L
+```
 
 :warning: **WARNING:**
 Run the following playbooks on disposable non-productive bare-metal machines only.

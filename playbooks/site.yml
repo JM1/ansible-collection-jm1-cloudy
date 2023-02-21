@@ -191,9 +191,9 @@
 ###################################### OS ######################################
 
 - hosts:
-  - bmtl_present_on
-  - lvrt_present_running
-  - ostk_present_active
+  - bmtl_present_on:!bootstrap_only
+  - lvrt_present_running:!bootstrap_only
+  - ostk_present_active:!bootstrap_only
   any_errors_fatal: yes
   gather_facts: no
   tasks:
@@ -227,9 +227,9 @@
 
 - name: Perform basic configuration of operating system
   hosts:
-  - bmtl_present_on
-  - lvrt_present_running
-  - ostk_present_active
+  - bmtl_present_on:!bootstrap_only
+  - lvrt_present_running:!bootstrap_only
+  - ostk_present_active:!bootstrap_only
   any_errors_fatal: yes
   become: yes
   gather_facts: yes
@@ -343,9 +343,9 @@
 
 - name: Perform advanced configuration of operating system
   hosts:
-  - bmtl_present_on
-  - lvrt_present_running
-  - ostk_present_active
+  - bmtl_present_on:!bootstrap_only
+  - lvrt_present_running:!bootstrap_only
+  - ostk_present_active:!bootstrap_only
   any_errors_fatal: yes
   become: yes
   gather_facts: yes
@@ -459,8 +459,8 @@
 
 - name: Manage services on virtual machines
   hosts:
-  - lvrt_present_running
-  - ostk_present_active
+  - lvrt_present_running:!bootstrap_only
+  - ostk_present_active:!bootstrap_only
   any_errors_fatal: yes
   become: yes
   gather_facts: yes
@@ -470,11 +470,11 @@
     role: jm1.packages.qemu_guest_agent
     tags: ["jm1.packages.qemu_guest_agent"]
 
-- name: Manage services
+- name: Manage early services
   hosts:
-  - bmtl_present_on
-  - lvrt_present_running
-  - ostk_present_active
+  - bmtl_present_on:!bootstrap_only
+  - lvrt_present_running:!bootstrap_only
+  - ostk_present_active:!bootstrap_only
   any_errors_fatal: yes
   become: yes
   gather_facts: yes # required when using e.g. ansible_env in inventory
@@ -484,26 +484,6 @@
     role: jm1.cloudy.apparmor
     tags: ["jm1.cloudy.apparmor"]
     when: inventory_hostname in groups.svc_apparmor
-
-  - name: Setup a DevStack environment
-    role: jm1.cloudy.devstack
-    tags: ["jm1.cloudy.devstack"]
-    when: inventory_hostname in groups.svc_devstack
-
-  - name: Prepare hardware fingerprinting using PXE network boot
-    role: jm1.cloudy.pxe_hwfp
-    tags: ["jm1.cloudy.pxe_hwfp"]
-    when: inventory_hostname in groups.svc_pxe_hwfp
-
-  - name: Prepare server installation using PXE network boot
-    role: jm1.cloudy.pxe_installer
-    tags: ["jm1.cloudy.pxe_installer"]
-    when: inventory_hostname in groups.svc_pxe_installer
-
-  - name: Deploy TripleO standalone
-    role: jm1.cloudy.tripleo_standalone
-    tags: ["jm1.cloudy.tripleo_standalone"]
-    when: inventory_hostname in groups.svc_tripleo_standalone
 
   - name: Manage dhcpd service
     role: jm1.cloudy.dhcpd
@@ -592,5 +572,40 @@
     role: jm1.cloudy.libvirt_networks
     tags: ["jm1.cloudy.libvirt_networks"]
     when: inventory_hostname in groups.svc_libvirt
+
+- name: Manage late services
+  hosts:
+  - bmtl_present_on:!bootstrap_only
+  - lvrt_present_running:!bootstrap_only
+  - ostk_present_active:!bootstrap_only
+  any_errors_fatal: yes
+  become: yes
+  gather_facts: yes # required when using e.g. ansible_env in inventory
+
+  roles:
+  - name: Setup a DevStack environment
+    role: jm1.cloudy.devstack
+    tags: ["jm1.cloudy.devstack"]
+    when: inventory_hostname in groups.svc_devstack
+
+  - name: Prepare hardware fingerprinting using PXE network boot
+    role: jm1.cloudy.pxe_hwfp
+    tags: ["jm1.cloudy.pxe_hwfp"]
+    when: inventory_hostname in groups.svc_pxe_hwfp
+
+  - name: Prepare server installation using PXE network boot
+    role: jm1.cloudy.pxe_installer
+    tags: ["jm1.cloudy.pxe_installer"]
+    when: inventory_hostname in groups.svc_pxe_installer
+
+  - name: Deploy TripleO standalone
+    role: jm1.cloudy.tripleo_standalone
+    tags: ["jm1.cloudy.tripleo_standalone"]
+    when: inventory_hostname in groups.svc_tripleo_standalone
+
+  - name: Create an OpenShift cluster with Installer-provisioned installation (IPI)
+    role: jm1.cloudy.openshift_ipi
+    tags: ["jm1.cloudy.openshift_ipi"]
+    when: inventory_hostname in groups.svc_openshift_ipi
 
 ################################################################################

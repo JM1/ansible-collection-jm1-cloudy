@@ -25,6 +25,7 @@ set -eu
 # Environment variables
 DEBUG=${DEBUG:-}
 DEBUG_SHELL=${DEBUG_SHELL:-}
+SSH_AUTH_SOCK=${SSH_AUTH_SOCK:-}
 
 if [ "$DEBUG" = "yes" ] || [ "$DEBUG" = "true" ]; then
     set -x
@@ -68,6 +69,15 @@ trap "trap - TERM && kill -- -$$" INT TERM EXIT
     # Ansible requires SSH keys to be able to connect to virtual machines
     sudo -u cloudy --set-home sh -c '[ -e ~/.ssh/id_rsa ] || ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa'
 
+    # Ansible uses SSH agent forwarding for accessing nested virtual machines
+    if [ -z "$SSH_AUTH_SOCK" ]; then
+        # Using SSH_AUTH_SOCK instead of SSH_AGENT_PID
+        # because ssh-agent is running on the container host
+
+        eval $(sudo -u cloudy --set-home ssh-agent)
+        sudo -u cloudy --set-home --preserve-env=SSH_AUTH_SOCK ssh-add
+    fi
+
     cd /home/cloudy/project/
 
     if [ ! -e "ansible.cfg" ]; then
@@ -109,7 +119,8 @@ trap "trap - TERM && kill -- -$$" INT TERM EXIT
         /usr/sbin/libvirtd --daemon ${LIBVIRTD_ARGS:-}
     )
 
-    # Enable unencrypted libvirt tcp transport and disable libvirt tls transport
+    # Disable libvirt tls transport, enable unauthenticated libvirt tcp transport and bind
+    # to all network interfaces for connectivity from container host and virtual machines.
     if [ ! -e /home/cloudy/.config/libvirt/libvirtd.conf ]; then
         sudo -u cloudy mkdir -p /home/cloudy/.config/libvirt/
         cp -av /etc/libvirt/libvirtd.conf /home/cloudy/.config/libvirt/libvirtd.conf
@@ -117,7 +128,7 @@ trap "trap - TERM && kill -- -$$" INT TERM EXIT
         sed -i \
             -e 's/^[#]*listen_tls = .*/listen_tls = 0/g' \
             -e 's/^[#]*listen_tcp = .*/listen_tcp = 1/g' \
-            -e 's/^[#]*listen_addr = .*/listen_addr = "192.168.150.2"/g' \
+            -e 's/^[#]*listen_addr = .*/listen_addr = "0.0.0.0"/g' \
             -e 's/^[#]*auth_tcp = .*/auth_tcp = "none"/g' \
             /home/cloudy/.config/libvirt/libvirtd.conf
     fi
@@ -159,9 +170,9 @@ ____EOF
             --skip-tags "jm1.kvm_nested_virtualization"
 
     if [ $# -eq 0 ]; then
-        sudo -u cloudy --set-home bash --login
+        sudo -u cloudy --set-home --preserve-env=SSH_AUTH_SOCK bash --login
     else
-        sudo -u cloudy --set-home env -- "$@"
+        sudo -u cloudy --set-home --preserve-env=SSH_AUTH_SOCK env -- "$@"
 
         # wait for libvirtd daemon
         tail "--pid=$(cat /var/run/libvirtd.pid)" -f /dev/null
