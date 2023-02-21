@@ -11,3 +11,9 @@
 * Add OpenStack-based hosts to example inventory to showcase OpenStack integration
 
 * Replace role `jm1.cloudy.tripleo_standalone` with tripleo.operator collection and its `playbooks/standalone.yml` play
+
+* Migrate `users_config`, `ssh_authorized_keys`, `groups_config` and others to `jm1.ansible.execute_module`?
+
+* Added support for Fedora
+
+* Drop `jm1.cloudy.openstack_server` role
