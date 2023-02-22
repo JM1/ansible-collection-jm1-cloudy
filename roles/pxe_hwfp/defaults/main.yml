@@ -23,7 +23,7 @@ distribution_id:
         ansible_facts.distribution_major_version != 'NA' else
           ansible_facts.distribution_major_version }}"
 
-# pxe_hwfp_daemon_host is set in host_vars
+pxe_hwfp_daemon_host: !!null # is set in host_vars
 
 pxe_hwfp_daemon_group: nogroup
 
