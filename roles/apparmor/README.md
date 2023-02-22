@@ -3,9 +3,9 @@
 This role helps with configuring [AppArmor][apparmor], the Linux kernel security module, from Ansible variables. For
 example, it allows to enable or edit `apparmor.service` and edit config files in `/etc/apparmor.d/`. Variable
 `apparmor_config` defines a list of tasks which will be run by this role. Each task calls an Ansible module similar to
-tasks in roles or playbooks except that only few [keywords][playbooks-keywords] such as `register` and  `when` are
-supported. For example, to disable `apparmor.service` define variable `apparmor_service_enabled` in [`group_vars` or
-`host_vars`][ansible-inventory] as `false`:
+tasks in roles or playbooks except that only few [keywords][playbooks-keywords] such as `when` are supported. For
+example, to disable `apparmor.service` define variable `apparmor_service_enabled` in [`group_vars` or `host_vars`][
+ansible-inventory] as `false`:
 
 ```yml
 apparmor_service_enabled: false
@@ -60,7 +60,7 @@ modules and thus cannot be called from `jm1.ansible.execute_module`. Doing so ca
 for arbitrary modules, so for example, change from `- debug: msg=""` to `- debug: { msg: "" }`.
 
 [^supported-keywords]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
-supports keywords `register` and `when` only.
+supports keyword `when` only.
 
 [^example-modules]: Useful Ansible modules in this context could be [`blockinfile`][ansible-builtin-blockinfile],
 [`copy`][ansible-builtin-copy], [`file`][ansible-builtin-file], [`lineinfile`][ansible-builtin-lineinfile] and

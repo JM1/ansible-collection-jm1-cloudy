@@ -3,9 +3,9 @@
 This role helps with configuring the [Apache HTTP Server][httpd] aka `httpd` from Ansible variables. For example, it
 allows to edit config files in `/etc/apache2/` (on Debian) or `/etc/httpd/conf/` (on Red Hat Enterprise Linux). Variable
 `httpd_config` defines a list of tasks which will be run by this role. Each task calls an Ansible module similar to
-tasks in roles or playbooks except that only few [keywords][playbooks-keywords] such as `register` and  `when` are
-supported. For example, to drop Apache's default site on Debian define variable `httpd_config` in [`group_vars` or
-`host_vars`][ansible-inventory] as such:
+tasks in roles or playbooks except that only few [keywords][playbooks-keywords] such as `when` are supported. For
+example, to drop Apache's default site on Debian define variable `httpd_config` in [`group_vars` or `host_vars`][
+ansible-inventory] as such:
 
 ```yml
 httpd_config:
@@ -68,7 +68,7 @@ modules and thus cannot be called from `jm1.ansible.execute_module`. Doing so ca
 for arbitrary modules, so for example, change from `- debug: msg=""` to `- debug: { msg: "" }`.
 
 [^supported-keywords]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
-supports keywords `register` and `when` only.
+supports keyword `when` only.
 
 [^example-modules]: Useful Ansible modules in this context could be [`apache2_module`][
 community-general-apache2-module], [`blockinfile`][ansible-builtin-blockinfile], [`copy`][ansible-builtin-copy],

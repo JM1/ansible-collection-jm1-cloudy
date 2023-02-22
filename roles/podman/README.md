@@ -3,8 +3,7 @@
 This role helps with managing the [Podman][podman] container engine from Ansible variables. For example, it allows to
 pulling or pushing container images, running commands in containers and managing groups of containers aka pods. Variable
 `podman_config` defines a list of tasks which will be run by this role. Each task calls an Ansible module similar to
-tasks in roles or playbooks except that only few [keywords][playbooks-keywords] such as `register` and  `when` are
-supported.
+tasks in roles or playbooks except that only few [keywords][playbooks-keywords] such as `when` are supported.
 
 For example, to run [Apache HTTP Server][httpd] aka `httpd` in a rootful Podman container on system boot define variable
 `podman_config` in [`group_vars` or `host_vars`][ansible-inventory] as such:
@@ -96,9 +95,9 @@ ansible-builtin-meta] which is fully supported). In addition, Ansible does not s
 arbitrary modules, so for example, change from `- debug: msg=""` to `- debug: { msg: "" }`.
 
 [^supported-keywords]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
-supports keywords `register`, `when` and a special keyword `handlers` only. Task keyword `handlers` defines a list of
-handlers which will be notified and run when a task has changed anything. Handlers will also be executed with
-[`jm1.ansible.execute_module`][jm1-ansible-execute-module] and thus only keywords `register` and  `when` are supported.
+supports keyword `when` and a special keyword `handlers` only. Task keyword `handlers` defines a list of handlers which
+will be notified and run when a task has changed anything. Handlers will also be executed with
+[`jm1.ansible.execute_module`][jm1-ansible-execute-module] and thus only keyword `when` is supported.
 
 [^example-modules]: Useful Ansible modules in this context could be [`blockinfile`][ansible-builtin-blockinfile],
 [`command`][ansible-builtin-command], [`copy`][ansible-builtin-copy], [`file`][ansible-builtin-file], [`lineinfile`][

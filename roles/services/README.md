@@ -3,9 +3,9 @@
 This role helps with managing services from Ansible variables. For example, it allows to start, stop, enable and disable
 [systemd units][archlinux-wiki-systemd] and [SysV services][gentoo-wiki-sysvinit]. Role variable `services_config`
 defines a list of tasks which will be run by this role. Each task calls an Ansible module similar to tasks in roles or
-playbooks except that only few [keywords][playbooks-keywords] such as `register` and `when` are supported. For example,
-to stop and disable [Samba][samba]'s [smbd][smbd] service, define variable `services_config` in [`group_vars` or
-`host_vars`][ansible-inventory] as such:
+playbooks except that only few [keywords][playbooks-keywords] such as `when` are supported. For example, to stop and
+disable [Samba][samba]'s [smbd][smbd] service, define variable `services_config` in [`group_vars` or `host_vars`][
+ansible-inventory] as such:
 
 ```yml
 services_config:
@@ -62,7 +62,7 @@ modules and thus cannot be called from `jm1.ansible.execute_module`. Doing so ca
 for arbitrary modules, so for example, change from `- debug: msg=""` to `- debug: { msg: "" }`.
 
 [^supported-keywords]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
-supports keywords `register` and `when` only.
+supports keyword `when` only.
 
 [^example-modules]: Useful Ansible modules in this context could be [`service`][ansible-builtin-service], [`systemd`][
 ansible-builtin-systemd] and [`sysvinit`][ansible-builtin-sysvinit].

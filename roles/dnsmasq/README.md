@@ -3,9 +3,9 @@
 This role helps with managing the [dnsmasq][dnsmasq], a lightweight DHCP and caching DNS server, from Ansible variables.
 For example, it allows to edit config files in `/etc/dnsmasq.d/` and define [systemd units][archlinux-wiki-systemd].
 Variable `dnsmasq_config` defines a list of tasks which will be run by this role. Each task calls an Ansible module
-similar to tasks in roles or playbooks except that only few [keywords][playbooks-keywords] such as `register` and `when`
-are supported. For example, to run [dnsmasq][dnsmasq] as a DHCP and DNS server on Debian 11 (Bullseye) define variable
-`dnsmasq_config` in [`group_vars` or `host_vars`][ansible-inventory] as such:
+similar to tasks in roles or playbooks except that only few [keywords][playbooks-keywords] such as `when` are supported.
+For example, to run [dnsmasq][dnsmasq] as a DHCP and DNS server on Debian 11 (Bullseye) define variable `dnsmasq_config`
+in [`group_vars` or `host_vars`][ansible-inventory] as such:
 
 ```yml
 dnsmasq_config:
@@ -75,7 +75,7 @@ modules and thus cannot be called from `jm1.ansible.execute_module`. Doing so ca
 arbitrary modules, so for example, change from `- debug: msg=""` to `- debug: { msg: "" }`.
 
 [^supported-keywords]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
-supports keywords `register` and `when` only.
+supports keyword `when` only.
 
 [^example-modules]: Useful Ansible modules in this context could be [`blockinfile`][ansible-builtin-blockinfile],
 [`copy`][ansible-builtin-copy], [`file`][ansible-builtin-file], [`lineinfile`][ansible-builtin-lineinfile] and [`template`][

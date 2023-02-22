@@ -3,8 +3,8 @@
 This role helps with managing [partitions][redhat-filesystem], [encrypted (LUKS) devices][redhat-luks], [LVM volume
 groups, LVM volumes][redhat-lvm], [filesystems and mountpoints][redhat-filesystem] from Ansible variables. Role variable
 `storage_config` defines a list of tasks which will be run by this role. Each task calls an Ansible module similar to
-tasks in roles or playbooks except that only few [keywords][playbooks-keywords] such as `register` and `when` are
-supported. For example, to create an ext4 primary partition on device `/dev/sdb`, define variable `storage_config` in
+tasks in roles or playbooks except that only few [keywords][playbooks-keywords] such as `when` are supported. For
+example, to create an ext4 primary partition on device `/dev/sdb`, define variable `storage_config` in
 [`group_vars` or `host_vars`][ansible-inventory] as such:
 
 ```yml
@@ -68,7 +68,7 @@ ansible-builtin-meta] which is fully supported). In addition, Ansible does not s
 modules, so for example, change from `- debug: msg=""` to `- debug: { msg: "" }`.
 
 [^supported-keywords]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
-supports keywords `register` and `when` only.
+supports keyword `when` only.
 
 [^example-modules]: Useful Ansible modules in this context could be [`crypttab`][community-general-crypttab], [`mount`][
 ansible-posix-mount], [`luks_device`][community-crypto-luks-device], [`lvg`][community-general-lvg], [`lvol`][

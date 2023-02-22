@@ -5,9 +5,9 @@ links, changing ownership and permissions, cloning git and subversion repositori
 services and more from Ansible variables.
 
 Role variable `files_config` defines a list of tasks which will be run by this role. Each task calls an Ansible module
-similar to tasks in roles or playbooks except that only few [keywords][playbooks-keywords] such as `register` and `when`
-are supported. For example, to ensure the inventory name for the current Ansible host being iterated over in the play is
-in `/etc/hosts` define variable `files_config` in [`group_vars` or `host_vars`][ansible-inventory] as such:
+similar to tasks in roles or playbooks except that only few [keywords][playbooks-keywords] such as `when` are supported.
+For example, to ensure the inventory name for the current Ansible host being iterated over in the play is in
+`/etc/hosts` define variable `files_config` in [`group_vars` or `host_vars`][ansible-inventory] as such:
 
 ```yml
 files_config:
@@ -79,7 +79,7 @@ modules and thus cannot be called from `jm1.ansible.execute_module`. Doing so ca
 for arbitrary modules, so for example, change from `- debug: msg=""` to `- debug: { msg: "" }`.
 
 [^supported-keywords]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
-supports keywords `register` and `when` only.
+supports keyword `when` only.
 
 [^example-modules]: Useful Ansible modules in this context could be [`assemble`][ansible-builtin-assemble],
 [`blockinfile`][ansible-builtin-blockinfile], [`capabilities`][community-general-capabilities], [`copy`][

@@ -3,8 +3,8 @@
 This role helps with configuring a [tftp server][tftp-hpa] from Ansible variables. For example, it allows to edit config
 file `/etc/default/tftpd-hpa` on Debian. Variable `tftpd_config` defines a list of tasks which will be run by this role.
 Each task calls an Ansible module similar to tasks in roles or playbooks except that only few [keywords][
-playbooks-keywords] such as `register` and `when` are supported. For example, to bind tftpd to localhost on Debian
-define variable `tftpd_config` in [`group_vars` or `host_vars`][ansible-inventory] as such:
+playbooks-keywords] such as `when` are supported. For example, to bind tftpd to localhost on Debian define variable
+`tftpd_config` in [`group_vars` or `host_vars`][ansible-inventory] as such:
 
 ```yml
 tftpd_config:
@@ -66,7 +66,7 @@ modules and thus cannot be called from `jm1.ansible.execute_module`. Doing so ca
 for arbitrary modules, so for example, change from `- debug: msg=""` to `- debug: { msg: "" }`.
 
 [^supported-keywords]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
-supports keywords `register` and `when` only.
+supports keyword `when` only.
 
 [^example-modules]: Useful Ansible modules in this context could be [`blockinfile`][ansible-builtin-blockinfile],
 [`copy`][ansible-builtin-copy], [`debconf`][ansible-builtin-debconf], [`file`][ansible-builtin-file], [`lineinfile`][

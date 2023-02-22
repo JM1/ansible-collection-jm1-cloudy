@@ -3,9 +3,9 @@
 This role helps with managing [SELinux][what-is-selinux] from Ansible variables. For example, it allows to toggle
 [SELinux booleans][selinux-booleans] and change the [SELinux policy and state][selinux-howto]. Role variable
 `selinux_config` defines a list of tasks which will be run by this role. Each task calls an Ansible module similar to
-tasks in roles or playbooks except that only few [keywords][playbooks-keywords] such as `register` and `when` are
-supported. For example, to put SELinux in permissive mode so that actions will be logged instead of being blocked,
-define variable `selinux_config` in [`group_vars` or `host_vars`][ansible-inventory] as such:
+tasks in roles or playbooks except that only few [keywords][playbooks-keywords] such as `when` are supported. For
+example, to put SELinux in permissive mode so that actions will be logged instead of being blocked, define variable
+`selinux_config` in [`group_vars` or `host_vars`][ansible-inventory] as such:
 
 ```yml
 selinux_config:
@@ -68,7 +68,7 @@ modules and thus cannot be called from `jm1.ansible.execute_module`. Doing so ca
 for arbitrary modules, so for example, change from `- debug: msg=""` to `- debug: { msg: "" }`.
 
 [^supported-keywords]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
-supports keywords `register` and `when` only.
+supports keyword `when` only.
 
 [^example-modules]: Useful Ansible modules in this context could be [`seboolean`][ansible-posix-seboolean] and
 [`selinux`][ansible-posix-selinux].

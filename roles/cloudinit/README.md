@@ -2,8 +2,8 @@
 
 This role helps with changing the [cloud-init][cloud-init-doc] configuration, e.g. files in `/etc/cloud/cloud.cfg.d/`.
 Role variable `cloudinit_config` defines a list of tasks which will be run by this role. Each task calls an Ansible
-module similar to tasks in roles or playbooks except that only few [keywords][playbooks-keywords] such as `register` and
-`when` are supported. For example, to disable cloud-init's network configuration, define variable `cloudinit_config` in
+module similar to tasks in roles or playbooks except that only few [keywords][playbooks-keywords] such as `when` are
+supported. For example, to disable cloud-init's network configuration, define variable `cloudinit_config` in
 [`group_vars` or `host_vars`][ansible-inventory] as such:
 
 ```yml
@@ -63,7 +63,7 @@ modules and thus cannot be called from `jm1.ansible.execute_module`. Doing so ca
 for arbitrary modules, so for example, change from `- debug: msg=""` to `- debug: { msg: "" }`.
 
 [^supported-keywords]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
-supports keywords `register` and `when` only.
+supports keyword `when` only.
 
 [^example-modules]: Useful Ansible modules in this context could be [`blockinfile`][ansible-builtin-blockinfile],
 [`copy`][ansible-builtin-copy], [`debconf`][ansible-builtin-debconf], [`file`][ansible-builtin-file], [`lineinfile`][

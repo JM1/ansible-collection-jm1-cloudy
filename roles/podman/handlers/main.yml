@@ -6,10 +6,9 @@
 - name: 'Run Podman handlers to apply changes'
   loop: "{{ podman_handlers | default([]) }}"
   jm1.ansible.execute_module:
-    name: "{{ (item.keys() | difference(['register', 'when'])) | first }}"
-    args: "{{ item[(item.keys() | difference(['register', 'when'])) | first] }}"
-    register: "{{ item['register'] | default(omit) }}"
-    when: item['when'] | default(omit)
+    name: "{{ (item.keys() | difference(['when'])) | first }}"
+    args: "{{ item[(item.keys() | difference(['when'])) | first] }}"
+    when: "{{ item['when'] | default(omit) }}"
   notify:
   - 'Reset Podman related handlers'
 

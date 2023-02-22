@@ -6,10 +6,9 @@
 - name: Run task specified in item variable
   when: "item not in [{'meta': 'flush_handlers'}, {'ansible.builtin.meta': 'flush_handlers'}]"
   jm1.ansible.execute_module:
-    name: "{{ (item.keys() | difference(['register', 'when'])) | first }}"
-    args: "{{ item[(item.keys() | difference(['register', 'when'])) | first] }}"
-    register: "{{ item['register'] | default(omit) }}"
-    when: item['when'] | default(omit)
+    name: "{{ (item.keys() | difference(['when'])) | first }}"
+    args: "{{ item[(item.keys() | difference(['when'])) | first] }}"
+    when: "{{ item['when'] | default(omit) }}"
   notify:
   - 'Reboot after partitions, encrypted (LUKS) devices, LVM devices, filesystems or mountpoints have been changed'
 

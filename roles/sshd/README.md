@@ -3,9 +3,8 @@
 This role helps with configuring the [OpenSSH server][sshd] aka `sshd` from Ansible variables. For example, it
 allows to edit sshd's config file `/etc/ssh/sshd_config`. Variable `sshd_config` defines a list of tasks which will be
 run by this role. Each task calls an Ansible module similar to tasks in roles or playbooks except that only few
-[keywords][playbooks-keywords] such as `register` and `when` are supported. For example, to disable password
-authentication and deny root login define variable `sshd_config` in [`group_vars` or `host_vars`][ansible-inventory] as
-such:
+[keywords][playbooks-keywords] such as `when` are supported. For example, to disable password authentication and deny
+root login define variable `sshd_config` in [`group_vars` or `host_vars`][ansible-inventory] as such:
 
 ```yml
 sshd_config:
@@ -70,7 +69,7 @@ modules and thus cannot be called from `jm1.ansible.execute_module`. Doing so ca
 for arbitrary modules, so for example, change from `- debug: msg=""` to `- debug: { msg: "" }`.
 
 [^supported-keywords]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
-supports keywords `register` and `when` only.
+supports keyword `when` only.
 
 [^example-modules]: Useful Ansible modules in this context could be [`blockinfile`][ansible-builtin-blockinfile],
 [`copy`][ansible-builtin-copy], [`debconf`][ansible-builtin-debconf], [`file`][ansible-builtin-file], [`lineinfile`][

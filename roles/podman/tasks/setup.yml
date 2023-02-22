@@ -8,10 +8,9 @@
   block:
   - name: Run task specified in item variable
     jm1.ansible.execute_module:
-      name: "{{ (item.keys() | difference(['handlers', 'register', 'when'])) | first }}"
-      args: "{{ item[(item.keys() | difference(['handlers', 'register', 'when'])) | first] }}"
-      register: "{{ item['register'] | default(omit) }}"
-      when: item['when'] | default(omit)
+      name: "{{ (item.keys() | difference(['handlers', 'when'])) | first }}"
+      args: "{{ item[(item.keys() | difference(['handlers', 'when'])) | first] }}"
+      when: "{{ item['when'] | default(omit) }}"
     register: podman_config_result
     notify:
     - 'Run Podman handlers to apply changes'
