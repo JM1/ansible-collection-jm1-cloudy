@@ -6,13 +6,13 @@
 - name: Change debconf database
   when: debconf_config is iterable and debconf_config is not mapping # list
   loop: '{{ debconf_config if debconf_config is iterable and debconf_config is not mapping else [] }}'
-  ansible.builtin.debconf: '{{ item }}'
+  ansible.builtin.debconf: '{{ item }}' # noqa args[module]
   register: debconf_list_result
   notify:
   - 'Reconfigure debian packages to apply debconf database changes'
 
 - name: Change debconf database
   when: debconf_config is mapping # dictionary
-  ansible.builtin.debconf: '{{ item }}'
+  ansible.builtin.debconf: '{{ item }}' # noqa args[module]
   notify:
   - 'Reconfigure debian package to apply debconf database changes'

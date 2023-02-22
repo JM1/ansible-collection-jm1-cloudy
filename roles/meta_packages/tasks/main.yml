@@ -12,8 +12,8 @@
 - name: Install, upgrade or remove meta packages
   when: meta_packages is iterable and meta_packages is not mapping # list
   loop: '{{ meta_packages if meta_packages is iterable and meta_packages is not mapping else [] }}'
-  jm1.pkg.meta_pkg: '{{ item }}'
+  jm1.pkg.meta_pkg: '{{ item }}' # noqa args[module]
 
 - name: Install, upgrade or remove meta packages
   when: meta_packages is mapping # dictionary
-  jm1.pkg.meta_pkg: '{{ item }}'
+  jm1.pkg.meta_pkg: '{{ item }}' # noqa args[module]

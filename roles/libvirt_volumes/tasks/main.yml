@@ -5,10 +5,10 @@
 
 - name: Add/Remove libvirt block storage volumes
   loop: "{{ libvirt_volumes | default([]) }}"
-  jm1.libvirt.volume: "{{ item | combine({} if 'uri' in item else {'uri': libvirt_uri}) }}"
+  jm1.libvirt.volume: "{{ item | combine({} if 'uri' in item else {'uri': libvirt_uri}) }}" # noqa args[module]
   when: item.backing_vol | default(None) == None
 
 - name: Add/Remove libvirt block storage volume snapshots
   loop: "{{ libvirt_volumes | default([]) }}"
-  jm1.libvirt.volume_snapshot: "{{ item | combine({} if 'uri' in item else {'uri': libvirt_uri}) }}"
+  jm1.libvirt.volume_snapshot: "{{ item | combine({} if 'uri' in item else {'uri': libvirt_uri}) }}" # noqa args[module]
   when: item.backing_vol | default(None) != None

@@ -70,7 +70,7 @@
       | combine({} if 'auth' in item else {'auth': openstack_auth})
       | combine({} if 'cloud' in item else {'cloud': openstack_cloud})
       | combine({} if 'interface' in item else {'interface': openstack_interface})
-    }}"
+    }}" # noqa args[module]
     when: item.network | default(None) != None
 
   - name: Retrieve network ports
@@ -144,7 +144,7 @@
 
 - name: Create/Modify compute instance if it is not shelved
   when: openstack_server_info == None or openstack_server_info.status not in ['SHELVED', 'SHELVED_OFFLOADED']
-  openstack.cloud.server: "{{ openstack_server }}"
+  openstack.cloud.server: "{{ openstack_server }}" # noqa args[module]
 
 - name: Warn if more than one floating ip should be assigned to server because older releases of Ansible's openstack.cloud.floating_ip module are flawed
   ansible.builtin.fail:
@@ -167,7 +167,7 @@
     | combine({} if 'cloud' in item else {'cloud': openstack_cloud})
     | combine({} if 'interface' in item else {'interface': openstack_interface})
     | combine({} if 'server' in item else {'server': openstack_server_name})
-  }}"
+  }}" # noqa args[module]
   register: openstack_server_floating_ips_result
 
 - name: Check if floating ips got assigned as requested

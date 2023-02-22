@@ -5,4 +5,4 @@
 
 - name: Add/Modify/Delete groups
   loop: '{{ groups_config | default([]) }}'
-  ansible.builtin.group: '{{ item }}'
+  ansible.builtin.group: '{{ item }}' # noqa args[module]

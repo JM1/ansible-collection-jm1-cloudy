@@ -28,6 +28,7 @@
     - python3-tripleo-repos
 
 - name: Enable Yum repositories of TripleO standalone
+  # noqa no-changed-when
   when: get_tripleo_repo.changed # noqa no-handler
   # tripleo-repos always triggers a change event because it will remove and add Yum repositories each time it runs
   ansible.builtin.command:

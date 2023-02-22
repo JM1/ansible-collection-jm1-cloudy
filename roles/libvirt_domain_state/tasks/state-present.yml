@@ -78,5 +78,5 @@
   - name: Destroy domain
     community.libvirt.virt:
       name: '{{ libvirt_domain }}'
-      state: destroy
+      state: destroyed
       uri: '{{ libvirt_uri }}'

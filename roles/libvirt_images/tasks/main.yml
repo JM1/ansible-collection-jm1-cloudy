@@ -5,4 +5,4 @@
 
 - name: Load/Remove images as libvirt block storage volumes
   loop: '{{ libvirt_images | default([]) }}'
-  jm1.libvirt.volume_import: "{{ item | combine({} if 'uri' in item else {'uri': libvirt_uri}) }}"
+  jm1.libvirt.volume_import: "{{ item | combine({} if 'uri' in item else {'uri': libvirt_uri}) }}" # noqa args[module]

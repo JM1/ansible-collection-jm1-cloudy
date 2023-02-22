@@ -5,4 +5,4 @@
 
 - name: Add/Modify/Delete users
   loop: '{{ users_config | default([]) }}'
-  ansible.builtin.user: '{{ item }}'
+  ansible.builtin.user: '{{ item }}' # noqa args[module]
