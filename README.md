@@ -522,7 +522,7 @@ You can also include it in a `requirements.yml` file and install it via
 ---
 collections:
   - name: jm1.cloudy
-    version: 2022.12.20
+    version: 2023.2.22
 ```
 
 #### Configure bare-metal system with Ansible
