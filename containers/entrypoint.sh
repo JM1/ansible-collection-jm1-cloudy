@@ -86,6 +86,7 @@ trap "trap - TERM && kill -- -$$" INT TERM EXIT
     fi
 
     sudo -u cloudy make install-requirements
+    sudo -u cloudy ansible-galaxy collection install jm1.cloudy
 
     ansible-playbook -vvv playbooks/setup.yml
 
