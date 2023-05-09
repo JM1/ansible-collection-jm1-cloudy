@@ -2,7 +2,7 @@
 # vim:set tabstop=8 shiftwidth=4 expandtab:
 # kate: space-indent on; indent-width 4;
 #
-# Copyright (c) 2022 Jakob Meng, <jakobmeng@web.de>
+# Copyright (c) 2022-2023 Jakob Meng, <jakobmeng@web.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,31 +23,20 @@
 set -eu
 
 # Environment variables
-DEBUG=${DEBUG:-}
-DEBUG_SHELL=${DEBUG_SHELL:-}
+DEBUG=${DEBUG:=no}
+DEBUG_SHELL=${DEBUG_SHELL:=no}
 SSH_AUTH_SOCK=${SSH_AUTH_SOCK:-}
 
 if [ "$DEBUG" = "yes" ] || [ "$DEBUG" = "true" ]; then
     set -x
 fi
 
-stderr() {
-    while read -r _msg
-    do
-        echo "$_msg" 1>&2
-    done
-}
-
 error() {
-    stderr << ____EOF
-ERROR: $*
-____EOF
+    echo "ERROR: $*" 1>&2
 }
 
 warn() {
-    stderr << ____EOF
-WARN: $*
-____EOF
+    echo "WARNING: $*" 1>&2
 }
 
 if [ "$(id -u)" -ne 0 ]; then
@@ -73,8 +62,7 @@ trap "trap - TERM && kill -- -$$" INT TERM EXIT
     if [ -z "$SSH_AUTH_SOCK" ]; then
         # Using SSH_AUTH_SOCK instead of SSH_AGENT_PID
         # because ssh-agent is running on the container host
-
-        eval $(sudo -u cloudy --set-home ssh-agent)
+        eval "$(sudo -u cloudy --set-home ssh-agent)"
         sudo -u cloudy --set-home --preserve-env=SSH_AUTH_SOCK ssh-add
     fi
 
@@ -110,10 +98,13 @@ trap "trap - TERM && kill -- -$$" INT TERM EXIT
         set -eu
 
         # Exit subshell if libvirtd is already running
-        pgrep --uid "$(id -u)" libvirtd && exit || true
+        { pgrep --uid "$(id -u)" libvirtd && exit; } || true
 
         # Ref.: /lib/systemd/system/libvirtd.service
+
+        # shellcheck disable=SC1091
         [ -e /etc/default/libvirtd ] && . /etc/default/libvirtd
+        # shellcheck disable=SC1091
         [ -e /etc/sysconfig/libvirtd ] && . /etc/sysconfig/libvirtd
 
         # shellcheck disable=SC2086
@@ -156,7 +147,7 @@ trap "trap - TERM && kill -- -$$" INT TERM EXIT
     }
 ____EOF
 
-    if [ -z "$(groups cloudy | grep -w kvm)" ]; then
+    if ! groups cloudy | grep -q -w kvm; then
         sudo -u cloudy killall libvirtd || true
         usermod --append --groups kvm cloudy
     fi
