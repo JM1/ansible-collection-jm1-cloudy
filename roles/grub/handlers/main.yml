@@ -6,7 +6,7 @@
 - name: 'Apply GRUB2 configuration on CentOS and Red Hat Enterprise Linux'
   listen: 'Apply GRUB2 configuration'
   when: distribution_id | first in ['CentOS', 'Red Hat Enterprise Linux']
-  ansible.builtin.shell:
+  ansible.builtin.shell: # noqa no-changed-when
     cmd: |-
       if [ -l /etc/grub2.cfg ] && readlink -f -q /etc/grub2.cfg; then \
         grub2-mkconfig -o "$(readlink -f /etc/grub2.cfg)"; \
@@ -31,7 +31,7 @@
 - name: 'Apply GRUB2 configuration on Debian and Ubuntu'
   listen: 'Apply GRUB2 configuration'
   when: distribution_id | first in ['Debian', 'Ubuntu']
-  ansible.builtin.command:
+  ansible.builtin.command: # noqa no-changed-when
     cmd: 'update-grub'
   notify:
   - "Reboot after GRUB2 configuration changes have been applied successfully"

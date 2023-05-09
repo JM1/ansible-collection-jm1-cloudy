@@ -7,10 +7,10 @@
   when: distribution_id | first in ['CentOS', 'Red Hat Enterprise Linux'] and
         iptables_service_state not in ['stopped', 'absent'] and
         iptables_persistence
-  ansible.builtin.command:
+  ansible.builtin.command: # noqa no-changed-when
     cmd: service iptables save # noqa command-instead-of-module
 
 - name: 'Store iptables rules on Debian and Ubuntu'
   when: distribution_id | first in ['Debian', 'Ubuntu'] and iptables_persistence
-  ansible.builtin.command:
+  ansible.builtin.command: # noqa no-changed-when
     cmd: netfilter-persistent save

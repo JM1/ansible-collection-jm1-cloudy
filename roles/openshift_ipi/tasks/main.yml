@@ -95,7 +95,7 @@
     exclude: ['openshift-install', 'README.md']
 
 - name: Extract openshift-install
-  ansible.builtin.shell:
+  ansible.builtin.shell: # noqa risky-shell-pipe
     chdir: '{{ openshift_ipi_home_dir }}'
     cmd: |
       oc adm release extract \
