@@ -55,6 +55,9 @@ trap "trap - TERM && kill -- -$$" INT TERM EXIT
         set -x
     fi
 
+    # Ensure user cloudy has full access to mounted directories
+    chown -v cloudy.cloudy /home/cloudy/.local/share/libvirt/images/ /home/cloudy/.ssh/
+
     # Ansible requires SSH keys to be able to connect to virtual machines
     sudo -u cloudy --set-home sh -c '[ -e ~/.ssh/id_rsa ] || ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa'
 
