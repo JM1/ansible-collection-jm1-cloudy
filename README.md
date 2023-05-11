@@ -144,28 +144,29 @@ such as inventories, playbooks and roles and prepare your host environment](
 #define-cloud-infrastructure-and-prepare-host-environment).
 
 To deploy this customized cloud infrastructure, you can either [deploy a container with Docker Compose](
-#containerized-setup-with-docker-compose) or [utilize a bare-metal system](#bare-metal-setup). The container-based
-approach requires less changes to the Ansible controller system, is mostly automated and is less likely to break your
-host system.
+#containerized-setup-with-docker-compose), [deploy a container with Podman](#containerized-setup-with-podman) or
+[utilize a bare-metal system](#bare-metal-setup). Both container-based approaches will start [libvirt][libvirt], bridged
+networks and all QEMU/KVM based virtual machines in a single container. This is easier to get started with, is mostly
+automated, requires less changes to the Ansible controller system and is less likely to break your host system.
 
 ### Define cloud infrastructure and prepare host environment
 
 To build your own cloud infrastructure based on this collection, copy directories [`inventory/`][inventory-example],
-[`playbooks/`][playbooks-example], [`containers/`][containers-example] ([containerized setup only](
-#containerized-setup-with-docker-compose)) and config file [`ansible.cfg.example`][ansible-cfg-example] to a new
-directory.
+[`playbooks/`][playbooks-example], [`containers/`][containers-example] (containerized setup with [Docker](
+#containerized-setup-with-docker-compose) or [Podman](#containerized-setup-with-podman) only) and config file
+[`ansible.cfg.example`][ansible-cfg-example] to a new directory.
 
 [ansible-cfg-example]: ansible.cfg.example
 [containers-example]: containers/
 [inventory-example]: inventory/
 [playbooks-example]: playbooks/
 
-Host `lvrt-lcl-system` defines a libvirt environment to be set up on a bare-metal system or inside a Docker container.
-For example, this includes required packages for libvirt and QEMU, [libvirt virtual networks][libvirt-networking] such
-as [NAT based networks as well as isolated networks][libvirt-format-network]) and a default libvirt storage pool.
+Host `lvrt-lcl-system` defines a libvirt environment to be set up on a bare-metal system or inside a container. For
+example, this includes required packages for libvirt and QEMU, [libvirt virtual networks][libvirt-networking] such as
+[NAT based networks as well as isolated networks][libvirt-format-network]) and a default libvirt storage pool.
 
 Host `lvrt-lcl-session` defines the libvirt session of your local user on a bare-metal system or user `cloudy` inside
-the Docker container. For example, this includes a default libvirt storage pool and OS images for host provisioning.
+the container. For example, this includes a default libvirt storage pool and OS images for host provisioning.
 
 All remaining Ansible hosts inside the [example inventory][inventory-example] define libvirt domains (QEMU/KVM based
 virtual machines) which require both hosts `lvrt-lcl-system` and `lvrt-lcl-session` to be provisioned successfully.
@@ -207,17 +208,11 @@ To run playbooks and roles of this collection with Docker Compose,
 
 Ensure Docker or [Podman][docker-to-podman-transition] is installed on your system.
 
-| OS                                           | Install Instructions |
-| -------------------------------------------- | -------------------- |
-| Debian 10 (Buster)                           | `apt install docker.io docker-compose` or follow [Docker's official install guide][docker-install-debian] for Debian and [their install guide for Docker Compose][docker-compose-install] |
-| Debian 11 (Bullseye)                         | `apt install docker.io docker-compose` or follow [Docker's official install guide][docker-install-debian] for Debian and [their install guide for Docker Compose][docker-compose-install] |
-| Debian 12 (Bookworm)                         | `apt install docker.io docker-compose` or follow [Docker's official install guide][docker-install-debian] for Debian and [their install guide for Docker Compose][docker-compose-install] |
-| Red Hat Enterprise Linux (RHEL) 7 / CentOS 7 | Follow Docker's official install guide for [CentOS][docker-install-centos] and [RHEL][docker-install-rhel] and [their install guide for Docker Compose][docker-compose-install] or use [Podman][podman-install] with [Docker Compose][podman-docker-compose] |
-| Red Hat Enterprise Linux (RHEL) 8 / CentOS 8 | Follow Docker's official install guide for [CentOS][docker-install-centos] and [RHEL][docker-install-rhel] and [their install guide for Docker Compose][docker-compose-install] or use [Podman][podman-install] with [Docker Compose][podman-docker-compose] |
-| Red Hat Enterprise Linux (RHEL) 9 / CentOS 9 | Follow Docker's official install guide for [CentOS][docker-install-centos] and [RHEL][docker-install-rhel] and [their install guide for Docker Compose][docker-compose-install] or use [Podman][podman-install] with [Docker Compose][podman-docker-compose] |
-| Ubuntu 18.04 LTS (Bionic Beaver)             | `apt install docker.io docker-compose` or follow [Docker's official install guide][docker-install-ubuntu] for Ubuntu and [their install guide for Docker Compose][docker-compose-install] |
-| Ubuntu 20.04 LTS (Focal Fossa)               | `apt install docker.io docker-compose` or follow [Docker's official install guide][docker-install-ubuntu] for Ubuntu and [their install guide for Docker Compose][docker-compose-install] |
-| Ubuntu 22.04 LTS (Jammy Jellyfish)           | `apt install docker.io docker-compose` or follow [Docker's official install guide][docker-install-ubuntu] for Ubuntu and [their install guide for Docker Compose][docker-compose-install] |
+| OS  | Install Instructions |
+| --- | -------------------- |
+| Debian 10 (Buster), 11 (Bullseye), 12 (Bookworm) | `apt install docker.io docker-compose` or follow [Docker's official install guide][docker-install-debian] for Debian and [their install guide for Docker Compose][docker-compose-install] |
+| Red Hat Enterprise Linux (RHEL) 7, 8, 9 / CentOS 7, 8, 9 | Follow Docker's official install guide for [CentOS][docker-install-centos] and [RHEL][docker-install-rhel] and [their install guide for Docker Compose][docker-compose-install] or use [Podman][podman-install] with [Docker Compose][podman-docker-compose] |
+| Ubuntu 18.04 LTS (Bionic Beaver), 20.04 LTS (Focal Fossa), 22.04 LTS (Jammy Jellyfish) | `apt install docker.io docker-compose` or follow [Docker's official install guide][docker-install-ubuntu] for Ubuntu and [their install guide for Docker Compose][docker-compose-install] |
 
 [docker-compose-install]: https://docs.docker.com/compose/install/
 [docker-install-centos]: https://docs.docker.com/engine/install/centos/
@@ -226,7 +221,7 @@ Ensure Docker or [Podman][docker-to-podman-transition] is installed on your syst
 [docker-install-rhel]: https://docs.docker.com/engine/install/rhel/
 [docker-to-podman-transition]: https://developers.redhat.com/blog/2020/11/19/transitioning-from-docker-to-podman/
 [podman-docker-compose]: https://www.redhat.com/sysadmin/podman-docker-compose
-[podman-install]: https://podman.io/getting-started/installation
+[podman-install]: https://podman.io/docs/installation
 
 #### Enable KVM nested virtualization
 
@@ -315,7 +310,7 @@ containers-docker-compose-yml] is called `debian_11`. To start it, run these com
 [containers-docker-compose-yml]: containers/docker-compose.yml
 
 ```sh
-# Change to Docker Compose directory inside project directory
+# Change to Docker Compose directory inside your project directory
 # containing your Ansible inventory, playbooks and ansible.cfg
 cd containers/
 
@@ -334,22 +329,14 @@ container again.
 [containers-entrypoint-sh]: containers/entrypoint.sh
 
 When all Ansible playbook runs for both Ansible hosts `lvrt-lcl-system` and `lvrt-lcl-session` have been completed
-successfully, attach to the Bash shell of the root user running inside the container:
+successfully, attach to the Bash shell for user `cloudy` running inside the container:
 
 ```sh
-# Attach to Bash shell which is running inside the container
+# Attach to Bash shell for user cloudy who runs the libvirt domains (QEMU/KVM based virtual machines)
 docker attach cloudy-debian-11
 ```
-
-Inside this root shell execute the following command to log in as user `cloudy`:
-
-```sh
-# Login as user cloudy who runs the libvirt domains (QEMU/KVM based virtual machines)
-sudo -u cloudy --login
-```
-
-Being logged in as `cloudy` inside the container, continue with [running playbook `playbooks/site.yml` for all remaining
-hosts](#usage-and-playbooks) from your copy of the [`inventory/`][inventory-example] directory.
+Inside the container continue with [running playbook `playbooks/site.yml` for all remaining hosts](#usage-and-playbooks)
+from your copy of the [`inventory/`][inventory-example] directory which is available in `/home/cloudy/project`.
 
 To connect to the libvirt daemon running inside the container from the container host, run the following command at your
 container host:
@@ -369,7 +356,7 @@ port has to be changed to a number between `5900-5999`. Then view its graphical 
 remote-viewer vnc://127.0.0.1:5900
 ```
 
-To stop the container, exit the container's Bash shells and run on your container host:
+To stop and remove the container(s), exit the container's Bash shells and run on your container host:
 
 ```sh
 # Stop and remove container(s)
@@ -386,6 +373,116 @@ docker volume ls
 
 # Remove Docker volumes
 docker volume rm containers_cloudy-debian-11-images containers_cloudy-debian-11-ssh
+```
+
+### Containerized setup with Podman
+
+To run playbooks and roles of this collection with Podman,
+
+* [Podman has to be installed](#installing-podman),
+* [KVM nested virtualization has to be enabled](#enable-kvm-nested-virtualization),
+* [a container has to be started with Podman](#start-container-with-podman).
+
+#### Installing Podman
+
+Ensure [Podman][podman-install] is installed on your system.
+
+| OS  | Install Instructions |
+| --- | -------------------- |
+| Debian 11 (Bullseye), 12 (Bookworm) | `apt install podman` |
+| Red Hat Enterprise Linux (RHEL) 7, 8, 9 / CentOS 7, 8, 9 | `yum install podman` |
+| Ubuntu 22.04 LTS (Jammy Jellyfish) | `apt install podman` |
+
+#### Start container with Podman
+
+[`podman-compose.sh`][podman-compose-sh] helps with managing Podman storage volumes, establishing network connectivity
+between host and container as well as running our Ansible code and virtual machines inside containers. It offers command
+line arguments similar to `docker-compose`, run `containers/podman-compose.sh --help` to find out more about its usage.
+
+[podman-compose-sh]: containers/podman-compose.sh
+
+[`podman-compose.sh`][podman-compose-sh] will create a [bridged Podman network `cloudy`][podman-networking] which
+libvirt domains (QEMU/KVM based virtual machines) will use to connect to the internet. The bridge has no physical
+network ports attached, because connectivity is established with [ip routing]. The script will also configure ip routes
+for networks `192.168.157.0/24` and `192.168.158.0/24` at the container host which allows to access the libvirt domains
+running inside the containers from the host.
+
+[podman-networking]: https://www.redhat.com/sysadmin/container-networking-podman
+
+**NOTE:** Ensure both ip networks `192.168.157.0/24` and `192.168.158.0/24` are not present at the container host before
+executing [`podman-compose.sh`][podman-compose-sh] else the script will fail.
+
+The following example shows how to use an example of how to use [`podman-compose.sh`][podman-compose-sh] at a container
+host running on `Debian 11 (Bullseye)`:
+
+```sh
+# Change to containers directory inside your project directory
+# containing your Ansible inventory, playbooks and ansible.cfg
+cd containers/
+
+# Start Podman networks, volumes and containers in the background
+sudo DEBUG=yes DEBUG_SHELL=yes podman-compose.sh up --distribution debian_11 --detach
+
+# Monitor container activity
+sudo podman logs --follow cloudy-debian-11
+```
+
+Inside the container, script [`containers/entrypoint.sh`][containers-entrypoint-sh] will execute playbook
+[`playbooks/site.yml`][playbook-site-yml] for hosts `lvrt-lcl-system` and `lvrt-lcl-session`, as [defined in the
+inventory](#define-cloud-infrastructure-and-prepare-host-environment). When container execution fails, try to start the
+container again.
+
+[containers-entrypoint-sh]: containers/entrypoint.sh
+
+When all Ansible playbook runs for both Ansible hosts `lvrt-lcl-system` and `lvrt-lcl-session` have been completed
+successfully, attach to the Bash shell for user `cloudy` running inside the container:
+
+```sh
+# Attach to Bash shell for user cloudy who runs the libvirt domains (QEMU/KVM based virtual machines)
+sudo podman attach cloudy-debian-11
+```
+
+Inside the container continue with [running playbook `playbooks/site.yml` for all remaining hosts](#usage-and-playbooks)
+from your copy of the [`inventory/`][inventory-example] directory which is available in `/home/cloudy/project`.
+
+To connect to the libvirt daemon running inside the container from the container host, run the following command at your
+container host:
+
+```sh
+# List all libvirt domains running inside the container
+virsh --connect 'qemu+tcp://127.0.0.1:16509/session' list
+```
+
+The same connection URI `qemu+tcp://127.0.0.1:16509/session` can also be used with virt-manager at the container host.
+To view a virtual machine's graphical console, its Spice server or VNC server has to be changed, i.e. its listen type
+has to be changed to `address`, address has to be changed to `0.0.0.0` (aka `All interfaces`) or `192.168.150.2` and
+port has to be changed to a number between `5900-5999`. Then view its graphical console on your container host with:
+
+```sh
+# View a libvirt domain's graphical console with vnc server at port 5900 running inside the container
+remote-viewer vnc://127.0.0.1:5900
+```
+
+To stop the containers, exit the container's Bash shells and run on your container host:
+
+```sh
+# Stop containers
+sudo DEBUG=yes podman-compose.sh stop
+```
+
+Both the SSH credentials and the libvirt storage volumes of the libvirt domains (QEMU/KVM based virtual machines) have
+been persisted in Podman volumes which will not be deleted when stopping the Podman container:
+
+```sh
+# List all Podman volumes
+sudo podman volume ls
+```
+
+To remove all container(s), networks and wipe all volumes, run:
+
+```sh
+# Stop and remove containers, volumes and networks
+sudo DEBUG=yes podman-compose.sh down
 ```
 
 ### Bare-metal setup
@@ -414,17 +511,11 @@ operating systems and with `pip`.
 
 First, make sure that `pip` is available on your system.
 
-| OS                                           | Install Instructions              |
-| -------------------------------------------- | --------------------------------- |
-| Debian 10 (Buster)                           | `apt install python3 python3-pip` |
-| Debian 11 (Bullseye)                         | `apt install python3 python3-pip` |
-| Debian 12 (Bookworm)                         | `apt install python3 python3-pip` |
-| Red Hat Enterprise Linux (RHEL) 7 / CentOS 7 | `yum install python3 python3-pip` |
-| Red Hat Enterprise Linux (RHEL) 8 / CentOS 8 | `yum install python3 python3-pip` |
-| Red Hat Enterprise Linux (RHEL) 9 / CentOS 9 | `yum install python3 python3-pip` |
-| Ubuntu 18.04 LTS (Bionic Beaver)             | `apt install python3 python3-pip` |
-| Ubuntu 20.04 LTS (Focal Fossa)               | `apt install python3 python3-pip` |
-| Ubuntu 22.04 LTS (Jammy Jellyfish)           | `apt install python3 python3-pip` |
+| OS  | Install Instructions |
+| --- | -------------------- |
+| Debian 10 (Buster), 11 (Bullseye), 12 (Bookworm) | `apt install python3 python3-pip` |
+| Red Hat Enterprise Linux (RHEL) 7, 8, 9 / CentOS 7, 8, 9 | `yum install python3 python3-pip` |
+| Ubuntu 18.04 LTS (Bionic Beaver), 20.04 LTS (Focal Fossa), 22.04 LTS (Jammy Jellyfish) | `apt install python3 python3-pip` |
 
 Run `pip3 install --user --upgrade pip` to upgrade `pip` to the latest version because an outdated `pip` version is the
 single most common cause of installation problems. Before proceeding, please follow the hints and instructions given in
@@ -444,17 +535,14 @@ Using `pip` instead of OS package managers is preferred because distribution-pro
 
 To install Ansible 2.9 or later using OS package managers do:
 
-| OS                                           | Install Instructions                                                |
-| -------------------------------------------- | ------------------------------------------------------------------- |
-| Debian 10 (Buster)                           | Enable [Backports](https://backports.debian.org/Instructions/). `apt install ansible ansible-doc make` |
-| Debian 11 (Bullseye)                         | `apt install ansible make` |
-| Debian 12 (Bookworm)                         | `apt install ansible make` |
+| OS  | Install Instructions |
+| --- | -------------------- |
+| Debian 10 (Buster)  | Enable [Backports](https://backports.debian.org/Instructions/). `apt install ansible ansible-doc make` |
+| Debian 11 (Bullseye), 12 (Bookworm) | `apt install ansible make` |
 | Red Hat Enterprise Linux (RHEL) 7 / CentOS 7 | Enable [EPEL](https://fedoraproject.org/wiki/EPEL). `yum install ansible ansible-doc make` |
-| Red Hat Enterprise Linux (RHEL) 8 / CentOS 8 | Enable [EPEL](https://fedoraproject.org/wiki/EPEL). `yum install ansible make` |
-| Red Hat Enterprise Linux (RHEL) 9 / CentOS 9 | Enable [EPEL](https://fedoraproject.org/wiki/EPEL). `yum install ansible make` |
-| Ubuntu 18.04 LTS (Bionic Beaver)             | Enable [Launchpad PPA Ansible by Ansible, Inc.](https://launchpad.net/~ansible/+archive/ubuntu/ansible). `apt install ansible ansible-doc make` |
-| Ubuntu 20.04 LTS (Focal Fossa)               | Enable [Launchpad PPA Ansible by Ansible, Inc.](https://launchpad.net/~ansible/+archive/ubuntu/ansible). `apt install ansible ansible-doc make` |
-| Ubuntu 22.04 LTS (Jammy Jellyfish)           | `apt install ansible make` |
+| Red Hat Enterprise Linux (RHEL) 8, 9 / CentOS 8, 9 | Enable [EPEL](https://fedoraproject.org/wiki/EPEL). `yum install ansible make` |
+| Ubuntu 18.04 LTS (Bionic Beaver), 20.04 LTS (Focal Fossa) | Enable [Launchpad PPA Ansible by Ansible, Inc.](https://launchpad.net/~ansible/+archive/ubuntu/ansible). `apt install ansible ansible-doc make` |
+| Ubuntu 22.04 LTS (Jammy Jellyfish) | `apt install ansible make` |
 
 Some Ansible modules used in this collection require additional tools and Python libraries which have to be installed 
 manually. Refer to [`pip-requirements.txt`][pip-requirements-txt] for a complete list. Use a [package search][pkgs-org]
@@ -655,9 +743,10 @@ With both hosts `lvrt-lcl-system` and `lvrt-lcl-session` being set up, continue 
 The [example inventory][inventory-example] of this collection, [on which your cloud infrastructure can be build upon](
 #define-cloud-infrastructure-and-prepare-host-environment), defines several libvirt domains (QEMU/KVM based virtual
 machines) `lvrt-lcl-session-srv-*` and two special Ansible hosts `lvrt-lcl-system` and `lvrt-lcl-session`. The latter
-two have been used above to [deploy a container with Docker Compose](#containerized-setup-with-docker-compose) or
-[prepare a bare-metal system](#bare-metal-setup) and are not of interest here. For an overview about the libvirt domains
-please refer to the introduction at the beginning.
+two have been used above to [deploy a container with Docker Compose](#containerized-setup-with-docker-compose),
+[deploy a container with Podman](#containerized-setup-with-podman) or[prepare a bare-metal system](#bare-metal-setup)
+and are not of interest here. For an overview about the libvirt domains please refer to the introduction at the
+beginning.
 
 For example, to set up Ansible host `lvrt-lcl-session-srv-020-debian10` run the following command from inside [your
 project directory](#define-cloud-infrastructure-and-prepare-host-environment) as local non-root user, e.g. `cloudy` in
@@ -740,17 +829,14 @@ https://docs.ansible.com/ansible/latest/reference_appendices/config.html#collect
 Helpful tools for developing collections are `ansible`, `ansible-doc`, `ansible-galaxy`, `ansible-lint`, `flake8`,
 `make` and `yamllint`.
 
-| OS                                           | Install Instructions                                                |
-| -------------------------------------------- | ------------------------------------------------------------------- |
-| Debian 10 (Buster)                           | Enable [Backports](https://backports.debian.org/Instructions/). `apt install ansible ansible-doc ansible-lint flake8 make yamllint` |
-| Debian 11 (Bullseye)                         | `apt install ansible ansible-lint flake8 make yamllint` |
-| Debian 12 (Bookworm)                         | `apt install ansible ansible-lint flake8 make yamllint` |
+| OS  | Install Instructions |
+| --- | -------------------- |
+| Debian 10 (Buster) | Enable [Backports](https://backports.debian.org/Instructions/). `apt install ansible ansible-doc ansible-lint flake8 make yamllint` |
+| Debian 11 (Bullseye), 12 (Bookworm) | `apt install ansible ansible-lint flake8 make yamllint` |
 | Red Hat Enterprise Linux (RHEL) 7 / CentOS 7 | Enable [EPEL](https://fedoraproject.org/wiki/EPEL). `yum install ansible ansible-lint ansible-doc  python-flake8 make yamllint` |
-| Red Hat Enterprise Linux (RHEL) 8 / CentOS 8 | Enable [EPEL](https://fedoraproject.org/wiki/EPEL). `yum install ansible                          python3-flake8 make yamllint` |
-| Red Hat Enterprise Linux (RHEL) 9 / CentOS 9 | Enable [EPEL](https://fedoraproject.org/wiki/EPEL). `yum install ansible                          python3-flake8 make yamllint` |
-| Ubuntu 18.04 LTS (Bionic Beaver)             | Enable [Launchpad PPA Ansible by Ansible, Inc.](https://launchpad.net/~ansible/+archive/ubuntu/ansible). `apt install ansible ansible-doc ansible-lint flake8 make yamllint` |
-| Ubuntu 20.04 LTS (Focal Fossa)               | Enable [Launchpad PPA Ansible by Ansible, Inc.](https://launchpad.net/~ansible/+archive/ubuntu/ansible). `apt install ansible ansible-doc ansible-lint flake8 make yamllint` |
-| Ubuntu 22.04 LTS (Jammy Jellyfish)           | `apt install ansible ansible-lint flake8 make yamllint` |
+| Red Hat Enterprise Linux (RHEL) 8, 9 / CentOS 8, 9 | Enable [EPEL](https://fedoraproject.org/wiki/EPEL). `yum install ansible python3-flake8 make yamllint` |
+| Ubuntu 18.04 LTS (Bionic Beaver), 20.04 LTS (Focal Fossa) | Enable [Launchpad PPA Ansible by Ansible, Inc.](https://launchpad.net/~ansible/+archive/ubuntu/ansible). `apt install ansible ansible-doc ansible-lint flake8 make yamllint` |
+| Ubuntu 22.04 LTS (Jammy Jellyfish) | `apt install ansible ansible-lint flake8 make yamllint` |
 
 Have a look at the included [`Makefile`](Makefile) for
 several frequently used commands, to e.g. build and lint a collection.
