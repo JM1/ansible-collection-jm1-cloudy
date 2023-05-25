@@ -121,8 +121,11 @@ openshift_ipi_config: |
         - 192.168.158.36
       provisioningNetwork: "Disabled"
       bootstrapExternalStaticIP: 192.168.158.99
-      # bootstrapExternalStaticGateway will also be used to define DNS nameservers of the bootstrap VM
+      # Until 4.13 option bootstrapExternalStaticGateway will be used to define the DNS nameserver of the bootstrap VM
       bootstrapExternalStaticGateway: 192.168.158.26
+      # Since 4.14 a dedicated option bootstrapExternalStaticDNS has been introduced to define the DNS nameserver of the
+      # bootstrap VM and it has to be specified when bootstrapExternalStaticGateway is set.
+      #bootstrapExternalStaticDNS: 192.168.158.26
       hosts:
         - name: cp0
           role: master
