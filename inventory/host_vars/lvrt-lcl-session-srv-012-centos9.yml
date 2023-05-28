@@ -33,7 +33,7 @@ libvirt_pool: 'default'
 libvirt_uri: 'qemu:///session'
 
 libvirt_volumes:
-- backing_vol: 'CentOS-Stream-GenericCloud-9-20230417.0.x86_64.qcow2'
+- backing_vol: 'CentOS-Stream-GenericCloud-9-20230523.0.x86_64.qcow2'
   backing_vol_format: 'qcow2'
   capacity: 10G
   format: 'qcow2'
