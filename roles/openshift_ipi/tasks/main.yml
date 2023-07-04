@@ -26,15 +26,15 @@
   - '{{ openshift_ipi_config_dir }}'
   - '{{ openshift_ipi_download_dir }}'
   - '{{ openshift_ipi_pullsecret_file }}'
-  register: openstack_ipi_paths
+  register: openshift_ipi_paths
 
 - name: Extract paths for Ansible user
   ansible.builtin.set_fact:
-    # openstack_ipi_paths.results.*.stat.path is returned for existing paths only
-    openshift_ipi_home_dir: '{{ openstack_ipi_paths.results.0.invocation.module_args.path }}'
-    openshift_ipi_config_dir: '{{ openstack_ipi_paths.results.1.invocation.module_args.path }}'
-    openshift_ipi_download_dir: '{{ openstack_ipi_paths.results.2.invocation.module_args.path }}'
-    openshift_ipi_pullsecret_file: '{{ openstack_ipi_paths.results.3.invocation.module_args.path }}'
+    # openshift_ipi_paths.results.*.stat.path is returned for existing paths only
+    openshift_ipi_home_dir: '{{ openshift_ipi_paths.results.0.invocation.module_args.path }}'
+    openshift_ipi_config_dir: '{{ openshift_ipi_paths.results.1.invocation.module_args.path }}'
+    openshift_ipi_download_dir: '{{ openshift_ipi_paths.results.2.invocation.module_args.path }}'
+    openshift_ipi_pullsecret_file: '{{ openshift_ipi_paths.results.3.invocation.module_args.path }}'
 
 - name: Create config directory for openshift-install
   ansible.builtin.file:
