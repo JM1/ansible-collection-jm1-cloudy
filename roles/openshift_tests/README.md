@@ -92,13 +92,17 @@ For a complete example on how to use this role and `jm1.cloudy.openshift_ipi`, r
 provisioned with playbook [`playbooks/site.yml`][playbook-site-yml].
 
 If you want to run tests for OpenShift instead of OKD, download a [pull secret][using-image-pull-secrets] from [Red Hat
-Cloud Console][rh-console-ipi]. It is required to authenticate with Container registries `Quay.io` and 
+Cloud Console][rh-console-ipi]. It is required to authenticate with Container registries `Quay.io` and
 `registry.redhat.io`, which serve the container images for OpenShift Container Platform components. Next, change the
 following [`host_vars` of Ansible host `lvrt-lcl-session-srv-430-okd-ipi-provisioner`][provisioner-host-vars]:
 
 ```yml
 openshift_tests_pullsecret: |
   {"auths":{"xxxxxxx": {"auth": "xxxxxx","email": "xxxxxx"}}}
+
+# Or read pull secret from file ~/pull-secret.txt residing at the Ansible controller
+#openshift_tests_pullsecret: |
+#  {{ lookup('ansible.builtin.file', lookup('ansible.builtin.env', 'HOME') + '/pull-secret.txt') }}
 
 openshift_tests_release_image: "{{ lookup('ansible.builtin.pipe', openshift_tests_release_image_query) }}"
 

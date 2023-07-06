@@ -103,6 +103,10 @@ Ansible host `lvrt-lcl-session-srv-430-okd-ipi-provisioner`][provisioner-host-va
 openshift_ipi_pullsecret: |
   {"auths":{"xxxxxxx": {"auth": "xxxxxx","email": "xxxxxx"}}}
 
+# Or read pull secret from file ~/pull-secret.txt residing at the Ansible controller
+#openshift_ipi_pullsecret: |
+#  {{ lookup('ansible.builtin.file', lookup('ansible.builtin.env', 'HOME') + '/pull-secret.txt') }}
+
 openshift_ipi_release_image: "{{ lookup('ansible.builtin.pipe', openshift_ipi_release_image_query) }}"
 
 openshift_ipi_release_image_query: |
