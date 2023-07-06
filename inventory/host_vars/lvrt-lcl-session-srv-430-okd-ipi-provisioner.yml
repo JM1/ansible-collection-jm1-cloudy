@@ -192,6 +192,16 @@ openshift_ipi_pullsecret_default: '{"auths":{"xxxxxxx": {"auth": "xxxxxx","email
 
 openshift_ipi_release_image: 'registry.ci.openshift.org/origin/release-scos:scos-4.12'
 
+openshift_tests_kubeconfig_file: '{{ openshift_ipi_config_dir }}/auth/kubeconfig'
+
+openshift_tests_oc_checksum: '{{ openshift_ipi_oc_checksum }}'
+
+openshift_tests_oc_url: '{{ openshift_ipi_oc_url }}'
+
+openshift_tests_pullsecret: '{{ openshift_ipi_pullsecret | default(None) }}'
+
+openshift_tests_release_image: '{{ openshift_ipi_release_image }}'
+
 # NOTE: Keep in sync with variable users_config from group_vars/all.yml
 users_config:
 - name: root

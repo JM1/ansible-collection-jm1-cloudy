@@ -1,0 +1,183 @@
+---
+# Copyright (c) 2023 Jakob Meng, <jakobmeng@web.de>
+# vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
+# kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
+
+- name: Install dependencies of collection jm1.pkg
+  ansible.builtin.import_role:
+    name: jm1.pkg.setup # If Ansible raises "ERROR! the role 'jm1.pkg.setup' was not found" then you might use the
+                        # ansible-galaxy and the provided requirements.yml to install all missing role dependencies.
+
+- name: Install necessary tools
+  jm1.pkg.meta_pkg:
+    name: "jm1-svc-openshift-tests"
+    version: "1"
+    depends:
+    # setfacl tool is used to set permissions on temporary files when becoming an unprivileged user
+    # Ref.: https://stackoverflow.com/questions/46352173/ansible-failed-to-set-permissions-on-the-temporary#comment116424403_56379678
+    - acl
+    - podman
+
+- name: Expand paths for Ansible user
+  become: false
+  ansible.builtin.stat:
+    path: '{{ item }}'
+  loop:
+  - '~'
+  - '{{ openshift_tests_artifact_dir }}'
+  - '{{ openshift_tests_download_dir }}'
+  - '{{ openshift_tests_kubeconfig_file }}'
+  - '{{ openshift_tests_pullsecret_file }}'
+  register: openshift_tests_paths
+
+- name: Extract paths for Ansible user
+  ansible.builtin.set_fact:
+    # openshift_tests_paths.results.*.stat.path is returned for existing paths only
+    openshift_tests_home_dir: '{{ openshift_tests_paths.results.0.invocation.module_args.path }}'
+    openshift_tests_artifact_dir: '{{ openshift_tests_paths.results.1.invocation.module_args.path }}'
+    openshift_tests_download_dir: '{{ openshift_tests_paths.results.2.invocation.module_args.path }}'
+    openshift_tests_kubeconfig_file: '{{ openshift_tests_paths.results.3.invocation.module_args.path }}'
+    openshift_tests_pullsecret_file: '{{ openshift_tests_paths.results.4.invocation.module_args.path }}'
+
+- name: Create artifact directory for openshift-tests
+  ansible.builtin.file:
+    group: '{{ ansible_user }}'
+    mode: u=rwx,g=rx,o=
+    owner: '{{ ansible_user }}'
+    path: '{{ openshift_tests_artifact_dir }}'
+    state: directory
+
+- name: Create pull secret for openshift-tests
+  when: openshift_tests_pullsecret | default(None) != None
+  ansible.builtin.template:
+    dest: '{{ openshift_tests_pullsecret_file }}'
+    group: '{{ ansible_user }}'
+    mode: u=rw,g=r,o=
+    owner: '{{ ansible_user }}'
+    src: pull-secret.txt.j2
+
+- name: Download OpenShift Client
+  ansible.builtin.get_url:
+    url: '{{ openshift_tests_oc_url | mandatory }}'
+    dest: '{{ openshift_tests_download_dir }}/'
+    checksum: '{{ openshift_tests_oc_checksum | mandatory }}'
+    mode: u=rwx,g=rx,o=rx
+    owner: root
+    group: root
+  register: openshift_tests_oc_file
+
+- name: Extract OpenShift Client
+  ansible.builtin.unarchive:
+    src: '{{ openshift_tests_oc_file.dest }}'
+    dest: /usr/local/bin/
+    mode: u=rwx,g=rx,o=rx
+    owner: root
+    group: root
+    remote_src: true
+    exclude: ['openshift-install', 'README.md']
+
+- name: Get OpenShift Client version
+  become: false
+  changed_when: false
+  ansible.builtin.command:
+    chdir: '{{ openshift_tests_home_dir }}'
+    cmd: oc version
+  register: openshift_tests_oc_version
+
+- name: Print OpenShift Client version
+  ansible.builtin.debug:
+    msg: '{{ openshift_tests_oc_version.stdout_lines }}'
+
+- name: Wait until number of nodes matches number of machines
+  # Ref.: https://github.com/openshift/release/blob/master/ci-operator/step-registry/openshift/e2e/test/openshift-e2e-test-commands.sh
+  become: false
+  changed_when: false
+  ansible.builtin.shell:
+    chdir: '{{ openshift_tests_home_dir }}'
+    cmd: |
+      set -euxo pipefail
+      nodes="$(oc get nodes --no-headers | wc -l)"
+      machines="$(oc get machines -A --no-headers | wc -l)"
+      [ "$machines" -le "$nodes" ]
+    executable: '/bin/bash'
+  environment:
+    KUBECONFIG: '{{ openshift_tests_kubeconfig_file | mandatory }}'
+  retries: 20
+  delay: 30
+
+- name: Wait for nodes to be ready
+  # Ensure that nodes are up before running tests because the latter might require workload capacity
+  # Ref.: https://github.com/openshift/release/blob/master/ci-operator/step-registry/openshift/e2e/test/openshift-e2e-test-commands.sh
+  become: false
+  changed_when: false
+  ansible.builtin.command:
+    chdir: '{{ openshift_tests_home_dir }}'
+    cmd: oc wait nodes --all --for=condition=Ready=true --timeout=10m
+  environment:
+    KUBECONFIG: '{{ openshift_tests_kubeconfig_file | mandatory }}'
+
+- name: Waiting for clusteroperators to finish progressing
+  # Ensure that configuration specified at installation time has been achieved before running tests
+  # Ref.: https://github.com/openshift/release/blob/master/ci-operator/step-registry/openshift/e2e/test/openshift-e2e-test-commands.sh
+  become: false
+  changed_when: false
+  ansible.builtin.command:
+    chdir: '{{ openshift_tests_home_dir }}'
+    cmd: oc wait clusteroperators --all --for=condition=Progressing=false --timeout=10m
+  environment:
+    KUBECONFIG: '{{ openshift_tests_kubeconfig_file | mandatory }}'
+
+- name: Identify container image of OpenShift's conformance test suite
+  become: false
+  changed_when: false
+  ansible.builtin.shell: # noqa risky-shell-pipe
+    chdir: '{{ openshift_tests_home_dir }}'
+    cmd: |
+      oc adm release info \
+        {{ ('--registry-config ' + openshift_tests_pullsecret_file)
+           if openshift_tests_pullsecret | default(None) != None
+           else ''
+        }} \
+        --image-for=tests \
+        '{{ openshift_tests_release_image }}'
+  register: openshift_tests_image_identification
+
+- name: Run OpenShift's conformance test suite
+  become: false
+  ansible.builtin.shell:
+    chdir: '{{ openshift_tests_home_dir }}'
+    cmd: |
+      set -euxo pipefail
+
+      [ -d "{{ openshift_tests_artifact_dir }}" ] # assert
+      [ -f "{{ openshift_tests_kubeconfig_file | mandatory }}" ] # assert
+
+      max_uid_count=$(grep -e "^$(id -n -u):" /etc/subuid | cut -d ':' -f 3)
+      [ -n "$max_uid_count" ] # assert
+
+      podman run --rm -ti \
+        --security-opt=label=disable --privileged \
+        {{ ('--authfile ' + openshift_tests_pullsecret_file)
+           if openshift_tests_pullsecret | default(None) != None
+           else ''
+        }} \
+        --uidmap $UID:0:1 \
+        --uidmap 0:1:$UID \
+        --uidmap $((UID+1)):$((UID+1)):$((max_uid_count-UID)) \
+        -u "$(id -u):$(id -g)" \
+        -v '{{ openshift_tests_artifact_dir }}:/artifacts/' \
+        -v '{{ openshift_tests_kubeconfig_file }}:{{ openshift_tests_kubeconfig_file }}:ro' \
+        -e KUBECONFIG \
+        '{{ openshift_tests_image_identification.stdout }}' \
+        openshift-tests run '{{ openshift_tests_suite }}' \
+          -o "/artifacts/e2e.log" \
+          --junit-dir "/artifacts/junit" \
+    creates: '{{ openshift_tests_artifact_dir }}/e2e.log'
+    executable: '/bin/bash'
+  environment:
+    KUBECONFIG: '{{ openshift_tests_kubeconfig_file | mandatory }}'
+  register: openshift_tests_run
+
+- name: Print results of OpenShift's conformance test suite
+  ansible.builtin.debug:
+    var: openshift_tests_run.stdout_lines

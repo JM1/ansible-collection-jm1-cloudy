@@ -25,10 +25,10 @@ that demonstrates how to setup a cloud infrastructure using [libvirt][libvirt] a
   of systems][pxe-hwfp] which can be booted via [PXE][pxe-wiki]. Hosts `lvrt-lcl-session-srv-310-*` and
   `lvrt-lcl-session-srv-311-*` demonstrate how a poweron-fingerprint-report-poweroff cycle works in practice.
 * Hosts [`lvrt-lcl-session-srv-4*`][inventory-example] showcase how to deploy an [installer-provisioned][okd-ipi]
-  [OKD][okd] cluster on bare-metal servers. This setup uses libvirt domains (QEMU/KVM based virtual machines) to
-  simulate bare-metal servers and auxiliary resources. [sushy-emulator][sushy-emulator] provides a virtual Redfish BMC
-  to power cycle servers and mount virtual media for hardware inspection and provisioning. Beware of high resource
-  utilization, e.g. this cluster requires >64GB of RAM.
+  [OKD][okd] cluster on bare-metal servers and run [OpenShift's conformance test suite][ocp-tests]. This setup uses
+  libvirt domains (QEMU/KVM based virtual machines) to simulate bare-metal servers and auxiliary resources.
+  [sushy-emulator][sushy-emulator] provides a virtual Redfish BMC to power cycle servers and mount virtual media for
+  hardware inspection and provisioning. Beware of high resource utilization, e.g. this cluster requires >96GB of RAM.
 
 [cloud-init-doc]: https://cloudinit.readthedocs.io/
 [devstack]: https://docs.openstack.org/devstack/latest/
@@ -39,6 +39,7 @@ that demonstrates how to setup a cloud infrastructure using [libvirt][libvirt] a
 [okd]: https://www.okd.io/
 [okd-ipi]: https://docs.okd.io/latest/installing/installing_bare_metal_ipi/ipi-install-overview.html
 [ocp-ipi]: https://docs.openshift.com/container-platform/4.12/installing/installing_bare_metal_ipi/ipi-install-overview.html
+[ocp-tests]: https://github.com/openshift/origin
 [sushy-emulator]: https://docs.openstack.org/sushy-tools/latest/user/dynamic-emulator.html
 
 This collection has been developed and tested for compatibility with:
@@ -114,6 +115,7 @@ Click on the name of an inventory, module, playbook or role to view that content
     * [netplan](roles/netplan/README.md)
     * [networkmanager](roles/networkmanager/README.md)
     * [openshift_ipi](roles/openshift_ipi/README.md)
+    * [openshift_tests](roles/openshift_tests/README.md)
     * [openstack_server](roles/openstack_server/README.md)
     * [packages](roles/packages/README.md)
     * [podman](roles/podman/README.md)
