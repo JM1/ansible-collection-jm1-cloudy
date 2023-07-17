@@ -5,10 +5,17 @@
 
 - name: 'Run Podman handlers to apply changes'
   loop: "{{ podman_handlers | default([]) }}"
+  # Values for 'become' and related keywords will not be inherited from the role's caller when using 'omit' as default.
+  become: "{{ item['become'] | default(omit) }}"
+  become_exe: "{{ item['become_exe'] | default(omit) }}"
+  become_flags: "{{ item['become_flags'] | default(omit) }}"
+  become_method: "{{ item['become_method'] | default(omit) }}"
+  become_user: "{{ item['become_user'] | default(omit) }}"
   jm1.ansible.execute_module:
-    name: "{{ (item.keys() | difference(['when'])) | first }}"
-    args: "{{ item[(item.keys() | difference(['when'])) | first] }}"
+    name: "{{ (item.keys() | difference(['become', 'become_user', 'environment', 'when'])) | first }}"
+    args: "{{ item[(item.keys() | difference(['become', 'become_user', 'environment', 'when'])) | first] }}"
     when: "{{ item['when'] | default(omit) }}"
+  environment: "{{ item['environment'] | default(omit) }}"
   notify:
   - 'Reset Podman related handlers'
 

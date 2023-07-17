@@ -64,6 +64,7 @@ libvirt_volumes:
 
 podman_config:
 - # Create systemd service unit for running sushy-emulator in a Podman container
+  become: true
   ansible.builtin.copy:
     content: |
       [Unit]
@@ -97,11 +98,13 @@ podman_config:
     dest: /etc/systemd/system/podman-sushy-emulator.service
   handlers:
   - # On changes reload systemd daemon and restart Podman container of sushy-emulator
+    become: true
     ansible.builtin.service:
       daemon_reload: true
       name: podman-sushy-emulator.service
       state: restarted
 - # Ensure systemd service of sushy-emulator is enabled
+  become: true
   ansible.builtin.service:
     enabled: true
     name: podman-sushy-emulator.service

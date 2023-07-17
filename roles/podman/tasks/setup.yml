@@ -7,10 +7,18 @@
   when: "item not in [{'meta': 'flush_handlers'}, {'ansible.builtin.meta': 'flush_handlers'}]"
   block:
   - name: Run task specified in item variable
+    # Values for 'become' and related keywords will not be inherited from the role's caller when using 'omit' as default.
+    become: "{{ item['become'] | default(omit) }}"
+    become_exe: "{{ item['become_exe'] | default(omit) }}"
+    become_flags: "{{ item['become_flags'] | default(omit) }}"
+    become_method: "{{ item['become_method'] | default(omit) }}"
+    become_user: "{{ item['become_user'] | default(omit) }}"
     jm1.ansible.execute_module:
-      name: "{{ (item.keys() | difference(['handlers', 'when'])) | first }}"
-      args: "{{ item[(item.keys() | difference(['handlers', 'when'])) | first] }}"
+      name: "{{ (item.keys() | difference(['become', 'become_user', 'environment', 'handlers', 'when'])) | first }}"
+      args: "{{ item[(item.keys() | difference(['become', 'become_user', 'environment',
+                                                'handlers', 'when'])) | first] }}"
       when: "{{ item['when'] | default(omit) }}"
+    environment: "{{ item['environment'] | default(omit) }}"
     register: podman_config_result
     notify:
     - 'Run Podman handlers to apply changes'

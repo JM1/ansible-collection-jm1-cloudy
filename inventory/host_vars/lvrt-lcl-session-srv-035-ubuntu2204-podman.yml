@@ -45,6 +45,7 @@ libvirt_volumes:
 
 podman_config:
 - # Create systemd service unit for running Apache HTTP server in a Podman container
+  become: true
   ansible.builtin.copy:
     content: |
       [Unit]
@@ -73,11 +74,13 @@ podman_config:
     dest: /etc/systemd/system/podman-httpd.service
   handlers:
   - # On changes reload systemd daemon and restart Podman container
+    become: true
     ansible.builtin.service:
       daemon_reload: true
       name: podman-httpd.service
       state: restarted
 - # Ensure systemd service is enabled
+  become: true
   ansible.builtin.service:
     enabled: true
     name: podman-httpd.service

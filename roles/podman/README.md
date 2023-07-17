@@ -3,7 +3,8 @@
 This role helps with managing the [Podman][podman] container engine from Ansible variables. For example, it allows to
 pulling or pushing container images, running commands in containers and managing groups of containers aka pods. Variable
 `podman_config` defines a list of tasks which will be run by this role. Each task calls an Ansible module similar to
-tasks in roles or playbooks except that only few [keywords][playbooks-keywords] such as `when` are supported.
+tasks in roles or playbooks except that only few [keywords][playbooks-keywords] such as `become` and `when` are
+supported.
 
 For example, to run [Apache HTTP Server][httpd] aka `httpd` in a rootful Podman container on system boot define variable
 `podman_config` in [`group_vars` or `host_vars`][ansible-inventory] as such:
@@ -11,6 +12,7 @@ For example, to run [Apache HTTP Server][httpd] aka `httpd` in a rootful Podman 
 ```yml
 podman_config:
 - # Create systemd service unit for running Apache HTTP server in a Podman container
+  become: true
   ansible.builtin.copy:
     content: |
       [Unit]
@@ -39,11 +41,13 @@ podman_config:
     dest: /etc/systemd/system/podman-httpd.service
   handlers:
   - # On changes reload systemd daemon and restart Podman container
+    become: true
     ansible.builtin.service:
       daemon_reload: true
       name: podman-httpd.service
       state: restarted
 - # Ensure systemd service is enabled
+  become: true
   ansible.builtin.service:
     enabled: true
     name: podman-httpd.service
@@ -95,9 +99,13 @@ ansible-builtin-meta] which is fully supported). In addition, Ansible does not s
 arbitrary modules, so for example, change from `- debug: msg=""` to `- debug: { msg: "" }`.
 
 [^supported-keywords]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
-supports keyword `when` and a special keyword `handlers` only. Task keyword `handlers` defines a list of handlers which
-will be notified and run when a task has changed anything. Handlers will also be executed with
-[`jm1.ansible.execute_module`][jm1-ansible-execute-module] and thus only keyword `when` is supported.
+supports keywords `become`, `become_exe`, `become_flags`, `become_method`, `become_user`, `environment`, `when` and
+special keyword `handlers` only. Task keyword `handlers` defines a list of handlers which will be notified and run when
+a task has changed anything. Handlers will also be executed with [`jm1.ansible.execute_module`][
+jm1-ansible-execute-module] and thus only keywords `become`, `become_exe`, `become_flags`, `become_method`,
+`become_user`, `environment` and `when` are supported. **NOTE:** Keywords related to `become` will not inherit values
+from the role's caller. For example, when `become` is defined in a playbook it will not be passed on to a task or
+handler here.
 
 [^example-modules]: Useful Ansible modules in this context could be [`blockinfile`][ansible-builtin-blockinfile],
 [`command`][ansible-builtin-command], [`copy`][ansible-builtin-copy], [`file`][ansible-builtin-file], [`lineinfile`][
@@ -127,7 +135,6 @@ ansible-builtin-lineinfile], [`sefcontext`][community-general-sefcontext], [`sel
 
 ```yml
 - hosts: all
-  become: true
   roles:
   - name: Manage pods, containers and images with Podman
     role: jm1.cloudy.podman
