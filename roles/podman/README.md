@@ -53,10 +53,9 @@ podman_config:
     name: podman-httpd.service
 ```
 
-First, this role will install packages for Podman which match the distribution specified in variable `distribution_id`.
-Next, it will run all tasks listed in `podman_config`. Once all tasks have finished and if anything has changed, then
-special task variable `handlers` will be evaluated for any changed tasks and all tasks defined in `handlers` will be
-run.
+First, this role will install packages for Podman. Next, it will run all tasks listed in `podman_config`. Once all tasks
+have finished and if anything has changed, then special task variable `handlers` will be evaluated for any changed tasks
+and all tasks defined in `handlers` will be run.
 
 [ansible-inventory]: https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
 [httpd]: https://httpd.apache.org/
