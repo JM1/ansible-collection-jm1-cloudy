@@ -24,7 +24,7 @@
   loop:
   - '~'
   - '{{ openshift_ipi_config_dir }}'
-  - '{{ openshift_ipi_download_dir }}'
+  - '{{ openshift_ipi_install_dir }}'
   - '{{ openshift_ipi_pullsecret_file }}'
   register: openshift_ipi_paths
 
@@ -33,7 +33,7 @@
     # openshift_ipi_paths.results.*.stat.path is returned for existing paths only
     openshift_ipi_home_dir: '{{ openshift_ipi_paths.results.0.invocation.module_args.path }}'
     openshift_ipi_config_dir: '{{ openshift_ipi_paths.results.1.invocation.module_args.path }}'
-    openshift_ipi_download_dir: '{{ openshift_ipi_paths.results.2.invocation.module_args.path }}'
+    openshift_ipi_install_dir: '{{ openshift_ipi_paths.results.2.invocation.module_args.path }}'
     openshift_ipi_pullsecret_file: '{{ openshift_ipi_paths.results.3.invocation.module_args.path }}'
 
 - name: Create config directory for openshift-install
@@ -74,26 +74,6 @@
     owner: '{{ ansible_user }}'
     src: pull-secret.txt.j2
 
-- name: Download OpenShift Client
-  ansible.builtin.get_url:
-    url: '{{ openshift_ipi_oc_url | mandatory }}'
-    dest: '{{ openshift_ipi_download_dir }}/'
-    checksum: '{{ openshift_ipi_oc_checksum | mandatory }}'
-    mode: u=rwx,g=rx,o=rx
-    owner: root
-    group: root
-  register: openshift_ipi_oc_file
-
-- name: Extract OpenShift Client
-  ansible.builtin.unarchive:
-    src: '{{ openshift_ipi_oc_file.dest }}'
-    dest: /usr/local/bin/
-    mode: u=rwx,g=rx,o=rx
-    owner: root
-    group: root
-    remote_src: true
-    exclude: ['openshift-install', 'README.md']
-
 - name: Extract openshift-install
   ansible.builtin.shell: # noqa risky-shell-pipe
     chdir: '{{ openshift_ipi_home_dir }}'
@@ -104,21 +84,9 @@
            else ''
         }} \
         --command=openshift-install \
-        --to /usr/local/bin/ \
+        --to '{{ openshift_ipi_install_dir }}/' \
         '{{ openshift_ipi_release_image }}'
-    creates: '/usr/local/bin/openshift-install'
-
-- name: Get OpenShift Client version
-  become: false
-  changed_when: false
-  ansible.builtin.command:
-    chdir: '{{ openshift_ipi_home_dir }}'
-    cmd: oc version
-  register: openshift_ipi_oc_version
-
-- name: Print OpenShift Client version
-  ansible.builtin.debug:
-    msg: '{{ openshift_ipi_oc_version.stdout_lines }}'
+    creates: '{{ openshift_ipi_install_dir }}/openshift-install'
 
 - name: Get openshift-install version
   become: false

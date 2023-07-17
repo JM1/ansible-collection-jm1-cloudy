@@ -96,6 +96,10 @@ libvirt_volumes:
   prealloc_metadata: false
   state: present
 
+openshift_client_checksum: 'sha256:664362e82648a5727dce090ffd545103b9c037d18836527a1951f02b20c12725'
+
+openshift_client_url: 'https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.12.4/openshift-client-linux-4.12.4.tar.gz'
+
 openshift_ipi_config: |
   apiVersion: v1
   baseDomain: home.arpa
@@ -184,19 +188,11 @@ openshift_ipi_config: |
               | map(attribute='key')
               | list | join('\n') }}'
 
-openshift_ipi_oc_checksum: 'sha256:664362e82648a5727dce090ffd545103b9c037d18836527a1951f02b20c12725'
-
-openshift_ipi_oc_url: 'https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.12.4/openshift-client-linux-4.12.4.tar.gz'
-
 openshift_ipi_pullsecret_default: '{"auths":{"xxxxxxx": {"auth": "xxxxxx","email": "xxxxxx"}}}'
 
 openshift_ipi_release_image: 'registry.ci.openshift.org/origin/release-scos:scos-4.12'
 
 openshift_tests_kubeconfig_file: '{{ openshift_ipi_config_dir }}/auth/kubeconfig'
-
-openshift_tests_oc_checksum: '{{ openshift_ipi_oc_checksum }}'
-
-openshift_tests_oc_url: '{{ openshift_ipi_oc_url }}'
 
 openshift_tests_pullsecret: '{{ openshift_ipi_pullsecret | default(None) }}'
 

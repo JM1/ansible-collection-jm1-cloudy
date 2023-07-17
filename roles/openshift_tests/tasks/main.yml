@@ -25,7 +25,6 @@
   loop:
   - '~'
   - '{{ openshift_tests_artifact_dir }}'
-  - '{{ openshift_tests_download_dir }}'
   - '{{ openshift_tests_kubeconfig_file }}'
   - '{{ openshift_tests_pullsecret_file }}'
   register: openshift_tests_paths
@@ -35,9 +34,8 @@
     # openshift_tests_paths.results.*.stat.path is returned for existing paths only
     openshift_tests_home_dir: '{{ openshift_tests_paths.results.0.invocation.module_args.path }}'
     openshift_tests_artifact_dir: '{{ openshift_tests_paths.results.1.invocation.module_args.path }}'
-    openshift_tests_download_dir: '{{ openshift_tests_paths.results.2.invocation.module_args.path }}'
-    openshift_tests_kubeconfig_file: '{{ openshift_tests_paths.results.3.invocation.module_args.path }}'
-    openshift_tests_pullsecret_file: '{{ openshift_tests_paths.results.4.invocation.module_args.path }}'
+    openshift_tests_kubeconfig_file: '{{ openshift_tests_paths.results.2.invocation.module_args.path }}'
+    openshift_tests_pullsecret_file: '{{ openshift_tests_paths.results.3.invocation.module_args.path }}'
 
 - name: Create artifact directory for openshift-tests
   ansible.builtin.file:
@@ -55,38 +53,6 @@
     mode: u=rw,g=r,o=
     owner: '{{ ansible_user }}'
     src: pull-secret.txt.j2
-
-- name: Download OpenShift Client
-  ansible.builtin.get_url:
-    url: '{{ openshift_tests_oc_url | mandatory }}'
-    dest: '{{ openshift_tests_download_dir }}/'
-    checksum: '{{ openshift_tests_oc_checksum | mandatory }}'
-    mode: u=rwx,g=rx,o=rx
-    owner: root
-    group: root
-  register: openshift_tests_oc_file
-
-- name: Extract OpenShift Client
-  ansible.builtin.unarchive:
-    src: '{{ openshift_tests_oc_file.dest }}'
-    dest: /usr/local/bin/
-    mode: u=rwx,g=rx,o=rx
-    owner: root
-    group: root
-    remote_src: true
-    exclude: ['openshift-install', 'README.md']
-
-- name: Get OpenShift Client version
-  become: false
-  changed_when: false
-  ansible.builtin.command:
-    chdir: '{{ openshift_tests_home_dir }}'
-    cmd: oc version
-  register: openshift_tests_oc_version
-
-- name: Print OpenShift Client version
-  ansible.builtin.debug:
-    msg: '{{ openshift_tests_oc_version.stdout_lines }}'
 
 - name: Wait until number of nodes matches number of machines
   # Ref.: https://github.com/openshift/release/blob/master/ci-operator/step-registry/openshift/e2e/test/openshift-e2e-test-commands.sh

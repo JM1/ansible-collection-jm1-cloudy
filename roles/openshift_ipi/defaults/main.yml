@@ -7,11 +7,7 @@ openshift_ipi_config: !!null # is set in host_vars
 
 openshift_ipi_config_dir: '~/clusterconfigs'
 
-openshift_ipi_download_dir: '~'
-
-openshift_ipi_oc_checksum: !!null # is set in host_vars
-
-openshift_ipi_oc_url: !!null # is set in host_vars
+openshift_ipi_install_dir: '/usr/local/bin'
 
 openshift_ipi_pullsecret: !!null # is set in host_vars
 

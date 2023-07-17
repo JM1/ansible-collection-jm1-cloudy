@@ -114,6 +114,7 @@ Click on the name of an inventory, module, playbook or role to view that content
     * [meta_packages](roles/meta_packages/README.md)
     * [netplan](roles/netplan/README.md)
     * [networkmanager](roles/networkmanager/README.md)
+    * [openshift_client](roles/openshift_client/README.md)
     * [openshift_ipi](roles/openshift_ipi/README.md)
     * [openshift_tests](roles/openshift_tests/README.md)
     * [openstack_server](roles/openstack_server/README.md)

@@ -5,13 +5,7 @@
 
 openshift_tests_artifact_dir: '~/tests'
 
-openshift_tests_download_dir: '~'
-
 openshift_tests_kubeconfig_file: !!null # is set in host_vars
-
-openshift_tests_oc_checksum: !!null # is set in host_vars
-
-openshift_tests_oc_url: !!null # is set in host_vars
 
 openshift_tests_pullsecret: !!null # is set in host_vars
 

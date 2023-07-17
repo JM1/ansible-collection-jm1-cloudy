@@ -1,0 +1,66 @@
+---
+# Copyright (c) 2023 Jakob Meng, <jakobmeng@web.de>
+# vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
+# kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
+
+- name: Expand paths for Ansible user
+  become: false
+  ansible.builtin.stat:
+    path: '{{ item }}'
+  loop:
+  - '{{ openshift_client_install_dir }}'
+  register: openshift_client_paths
+
+- name: Extract paths for Ansible user
+  ansible.builtin.set_fact:
+    # openshift_client_paths.results.*.stat.path is returned for existing paths only
+    openshift_client_install_dir: '{{ openshift_client_paths.results.0.invocation.module_args.path }}'
+
+- name: Download and extract OpenShift Client
+  block:
+  - name: Ensure clean environment
+    ansible.builtin.set_fact:
+      openshift_client_download_dir: !!null
+
+  - name: Create OpenShift Client download directory
+    ansible.builtin.tempfile:
+      state: directory
+    register: openshift_client_download_dir
+
+  - name: Download OpenShift Client
+    ansible.builtin.get_url:
+      url: '{{ openshift_client_url | mandatory }}'
+      dest: '{{ openshift_client_download_dir.path }}/'
+      checksum: '{{ openshift_client_checksum | mandatory }}'
+      mode: u=rwx,g=rx,o=rx
+      owner: root
+      group: root
+    register: openshift_client_file
+
+  - name: Extract OpenShift Client
+    ansible.builtin.unarchive:
+      src: '{{ openshift_client_file.dest }}'
+      dest: '{{ openshift_client_install_dir }}'
+      mode: u=rwx,g=rx,o=rx
+      owner: root
+      group: root
+      remote_src: true
+      exclude: ['openshift-install', 'README.md']
+
+  always:
+    - name: Remove OpenShift Client download directory
+      ansible.builtin.file:
+        path: "{{ openshift_client_download_dir.path }}"
+        state: absent
+      when: openshift_client_download_dir | default(None) != None and 'path' in openshift_client_download_dir
+
+- name: Get OpenShift Client version
+  become: false
+  changed_when: false
+  ansible.builtin.command:
+    cmd: oc version
+  register: openshift_client_version
+
+- name: Print OpenShift Client version
+  ansible.builtin.debug:
+    msg: '{{ openshift_client_version.stdout_lines }}'

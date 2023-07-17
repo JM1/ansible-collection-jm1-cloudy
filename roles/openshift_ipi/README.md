@@ -9,13 +9,9 @@ will be created and filled with contents from variable `openshift_ipi_config`. W
 using-image-pull-secrets] has been defined in variable `openshift_ipi_pullsecret`, then it will be written to file
 `openshift_ipi_pullsecret_file`.
 
-Next, an archive containing the OpenShift Client aka `oc` will be downloaded from `openshift_ipi_oc_url` and stored in
-directory `openshift_ipi_download_dir`. Its checksum will be compared to `openshift_ipi_oc_checksum` to ensure its
-integrity and then it will be extracted to `/usr/local/bin`.
-
-With OpenShift Client aka `oc` and the container image defined in `openshift_ipi_release_image` the `openshift-install`
-binary will be extracted to `/usr/local/bin`. To aid debugging the versions of `oc` and `openshift-install` will be
-printed afterwards.
+Next, the `openshift-install` binary will be extracted from container image defined in `openshift_ipi_release_image` to
+directory `openshift_ipi_install_dir` which defaults to `/usr/local/bin`. To aid debugging, the version of
+`openshift-install` will be printed afterwards.
 
 Finally, `openshift-install` will generate the manifests for OpenShift Installer-provisioned installation (IPI) from
 `install-config.yaml` and then create the cluster.
@@ -40,6 +36,11 @@ Available on Ansible Galaxy in Collection [jm1.cloudy](https://galaxy.ansible.co
 
 ## Requirements
 
+[OpenShift Client aka `oc`][ocp-oc] is required for extracting `openshift-install` from the release image and managing
+Kubernetes resources. You may use role [`jm1.cloudy.openshift_client`](../openshift_client/README.md) to install it.
+
+[ocp-oc]: https://github.com/openshift/oc
+
 This role uses module(s) from collection [`jm1.pkg`][galaxy-jm1-pkg]. To install this collection you may follow the
 steps described in [`README.md`][jm1-cloudy-readme] using the provided [`requirements.yml`][jm1-cloudy-requirements].
 
@@ -53,9 +54,7 @@ steps described in [`README.md`][jm1-cloudy-readme] using the provided [`require
 | ------------------------------- | ------------------- | -------- | ----------- |
 | `openshift_ipi_config`          | *undefined*         | true     | Contents of `install-config.yaml` file for `openshift-install` |
 | `openshift_ipi_config_dir`      | `~/clusterconfigs`  | false    | Directory where `install-config.yaml` file will be created. Defaults to `clusterconfigs` in `ansible_user`'s home |
-| `openshift_ipi_download_dir`    | `~`                 | false    | Directory where OpenShift Client archive will be downloaded to. Defaults to `ansible_user`'s home |
-| `openshift_ipi_oc_checksum`     | *undefined*         | true     | Checksum of OpenShift Client archive, e.g. `'sha256:664362e82648a5727dce090ffd545103b9c037d18836527a1951f02b20c12725'` |
-| `openshift_ipi_oc_url`          | *undefined*         | true     | URL to OpenShift Client archive, e.g. `'https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.12.4/openshift-client-linux-4.12.4.tar.gz'` |
+| `openshift_ipi_install_dir`     | `/usr/local/bin`    | false    | Directory where `openshift-install` will be installed to |
 | `openshift_ipi_pullsecret`      | *undefined*         | false    | [Pull secret][using-image-pull-secrets] downloaded from [Red Hat Cloud Console][rh-console-ipi] which will be used to authenticate with Container registries `Quay.io` and `registry.redhat.io`, which serve the container images for OpenShift Container Platform components. A pull secret is required for OpenShift deployments only, but not for OKD deployments. |
 | `openshift_ipi_pullsecret_file` | `~/pull-secret.txt` | false    | Path to pull secret file |
 | `openshift_ipi_release_image`   | *undefined*         | true     | Container image from which `openshift-install` will be extracted, e.g. `'registry.ci.openshift.org/origin/release-scos:scos-4.12'` |

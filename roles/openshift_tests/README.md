@@ -8,12 +8,7 @@ ocp-tests] container. A directory, defined in variable `openshift_tests_artifact
 artifacts such as logs and test results. When a [pull secret][using-image-pull-secrets] has been defined in variable
 `openshift_tests_pullsecret`, then it will be written to file `openshift_tests_pullsecret_file`.
 
-An archive containing the OpenShift Client aka `oc` will be downloaded from `openshift_tests_oc_url` and stored in
-directory `openshift_tests_download_dir`. Its checksum will be compared to `openshift_tests_oc_checksum` to ensure its
-integrity and then it will be extracted to `/usr/local/bin`. To aid debugging the version of `oc` will be printed
-afterwards.
-
-With OpenShift Client aka `oc` being available, it will be waited until:
+[OpenShift Client aka `oc`][ocp-oc] will wait until:
 - the number of nodes matches the number of machines,
 - all nodes are ready, because the tests might require workload capacity, and
 - clusteroperators have finished progressing to ensure that the configuration which had been specified at installation
@@ -41,6 +36,11 @@ Available on Ansible Galaxy in Collection [jm1.cloudy](https://galaxy.ansible.co
 
 ## Requirements
 
+[OpenShift Client aka `oc`][ocp-oc] is required for extracting `openshift-install` from the release image and managing
+Kubernetes resources. You may use role [`jm1.cloudy.openshift_client`](../openshift_client/README.md) to install it.
+
+[ocp-oc]: https://github.com/openshift/oc
+
 This role uses module(s) from collection [`jm1.pkg`][galaxy-jm1-pkg]. To install this collection you may follow the
 steps described in [`README.md`][jm1-cloudy-readme] using the provided [`requirements.yml`][jm1-cloudy-requirements].
 
@@ -48,15 +48,15 @@ steps described in [`README.md`][jm1-cloudy-readme] using the provided [`require
 [jm1-cloudy-readme]: ../../README.md
 [jm1-cloudy-requirements]: ../../requirements.yml
 
+[Podman][podman] is required to run [OpenShift's conformance test suite][ocp-tests] container but it will be installed
+automatically upfront.
+
 ## Variables
 
 | Name                              | Default value                    | Required | Description |
 | --------------------------------- | -------------------------------- | -------- | ----------- |
 | `openshift_tests_artifact_dir`    | `~/tests`                        | false    | Directory where logs and test results will be stored. Defaults to `tests` in `ansible_user`'s home |
-| `openshift_tests_download_dir`    | `~`                              | false    | Directory where OpenShift Client archive will be downloaded to. Defaults to `ansible_user`'s home |
 | `openshift_tests_kubeconfig_file` | *undefined*                      | true     | Path to a [kubeconfig][kubeconfig] file which contains cluster details, certificates, authentication tokens etc. |
-| `openshift_tests_oc_checksum`     | *undefined*                      | true     | Checksum of OpenShift Client archive, e.g. `'sha256:664362e82648a5727dce090ffd545103b9c037d18836527a1951f02b20c12725'` |
-| `openshift_tests_oc_url`          | *undefined*                      | true     | URL to OpenShift Client archive, e.g. `'https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.12.4/openshift-client-linux-4.12.4.tar.gz'` |
 | `openshift_tests_pullsecret`      | *undefined*                      | false    | [Pull secret][using-image-pull-secrets] downloaded from [Red Hat Cloud Console][rh-console-ipi] which will be used to authenticate with Container registries `Quay.io` and `registry.redhat.io`, which serve the container images for OpenShift Container Platform components. A pull secret is required for OpenShift deployments only, but not for OKD deployments. |
 | `openshift_tests_pullsecret_file` | `~/pull-secret.txt`              | false    | Path to pull secret file |
 | `openshift_tests_release_image`   | *undefined*                      | true     | Container image from which `openstack-install` will be extracted, e.g. `'registry.ci.openshift.org/origin/release-scos:scos-4.12'` |
@@ -71,9 +71,6 @@ steps described in [`README.md`][jm1-cloudy-readme] using the provided [`require
 | Name                | Description |
 | ------------------- | ----------- |
 | `jm1.pkg.setup`     | Installs necessary software for module `jm1.pkg.meta_pkg` from collection `jm1.pkg`. This role is called automatically, manual execution is *NOT* required. |
-
-[Podman][podman] is required to run [OpenShift's conformance test suite][ocp-tests] container but it will be installed
-automatically upfront.
 
 ## Example Playbook
 

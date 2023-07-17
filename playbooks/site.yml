@@ -411,6 +411,11 @@
     tags: ["jm1.packages.git"]
     when: inventory_hostname in groups.pkg_git
 
+  - name: Install OpenShift Client
+    role: jm1.cloudy.openshift_client
+    tags: ["jm1.cloudy.openshift_client"]
+    when: inventory_hostname in groups.pkg_openshift_client
+
   - name: Change debconf database
     role: jm1.cloudy.debconf
     tags: ["jm1.cloudy.debconf"]
