@@ -105,6 +105,7 @@ Click on the name of an inventory, module, playbook or role to view that content
     * [initrd](roles/initrd/README.md)
     * [ipmi](roles/ipmi/README.md)
     * [iptables](roles/iptables/README.md)
+    * [kubernetes_resources](roles/kubernetes_resources/README.md)
     * [libvirt_domain](roles/libvirt_domain/README.md)
     * [libvirt_domain_state](roles/libvirt_domain_state/README.md)
     * [libvirt_images](roles/libvirt_images/README.md)

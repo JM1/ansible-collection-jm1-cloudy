@@ -1,0 +1,33 @@
+---
+# Copyright (c) 2023 Jakob Meng, <jakobmeng@web.de>
+# vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
+# kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
+
+- name: Process task specified in item variable
+  when: "item not in [{'meta': 'flush_handlers'}, {'ansible.builtin.meta': 'flush_handlers'}]"
+  block:
+  - name: Run task specified in item variable
+    # Values for 'become' and related keywords will not be inherited from the role's caller when using 'omit' as default.
+    become: "{{ item['become'] | default(omit) }}"
+    become_exe: "{{ item['become_exe'] | default(omit) }}"
+    become_flags: "{{ item['become_flags'] | default(omit) }}"
+    become_method: "{{ item['become_method'] | default(omit) }}"
+    become_user: "{{ item['become_user'] | default(omit) }}"
+    jm1.ansible.execute_module:
+      name: "{{ (item.keys() | difference(['become', 'become_user', 'environment', 'handlers', 'when'])) | first }}"
+      args: "{{ item[(item.keys() | difference(['become', 'become_user', 'environment',
+                                                'handlers', 'when'])) | first] }}"
+      when: "{{ item['when'] | default(omit) }}"
+    environment: "{{ item['environment'] | default(omit) }}"
+    register: kubernetes_resources_config_result
+    notify:
+    - 'Run Kubernetes resources handlers to apply changes'
+
+  - name: Gather Kubernetes resources related handlers
+    when: kubernetes_resources_config_result.changed and 'handlers' in item and item.handlers | length > 0
+    ansible.builtin.set_fact:
+      kubernetes_resources_handlers: "{{ kubernetes_resources_handlers + item.handlers }}"
+
+- name: Force changes to be applied now
+  when: "item in [{'meta': 'flush_handlers'}, {'ansible.builtin.meta': 'flush_handlers'}]"
+  ansible.builtin.meta: flush_handlers

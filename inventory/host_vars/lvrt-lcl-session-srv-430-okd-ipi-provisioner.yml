@@ -38,6 +38,27 @@ groups_config:
   state: present
   system: true
 
+kubernetes_resources_config:
+- # Configure OpenShift's image registry which is removed during installation
+  # Ref.: https://docs.openshift.com/container-platform/4.13/registry/configuring-registry-operator.html
+  become: false
+  kubernetes.core.k8s:
+    api_version: imageregistry.operator.openshift.io/v1
+    definition:
+      spec:
+        managementState: Managed
+        # NOTE: Option emptyDir is for non-production clusters only
+        # Ref.:
+        # https://docs.openshift.com/container-platform/4.13/registry/configuring_registry_storage/configuring-registry-storage-vsphere.html
+        # https://kubernetes.io/docs/concepts/storage/volumes/
+        storage:
+          emptyDir: {}
+    kind: Config
+    kubeconfig: '/home/{{ ansible_user }}/clusterconfigs/auth/kubeconfig'
+    name: cluster
+    state: patched
+    wait: true
+
 libvirt_domain_autostart: false
 
 libvirt_hardware:
@@ -197,6 +218,15 @@ openshift_tests_kubeconfig_file: '{{ openshift_ipi_config_dir }}/auth/kubeconfig
 openshift_tests_pullsecret: '{{ openshift_ipi_pullsecret | default(None) }}'
 
 openshift_tests_release_image: '{{ openshift_ipi_release_image }}'
+
+packages:
+- name:
+  # Python modules jsonpatch, kubernetes and PyYAML are required by Ansible collection kubernetes.core
+  # Ref.: https://github.com/ansible-collections/kubernetes.core/blob/main/requirements.txt
+  - python3-jsonpatch
+  - python3-kubernetes
+  - python3-yaml
+  state: present
 
 # NOTE: Keep in sync with variable users_config from group_vars/all.yml
 users_config:

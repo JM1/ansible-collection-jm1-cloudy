@@ -613,6 +613,10 @@
     tags: ["jm1.cloudy.openshift_ipi"]
     when: inventory_hostname in groups.svc_openshift_ipi
 
+  - name: Manage Kubernetes resources
+    role: jm1.cloudy.kubernetes_resources
+    tags: ["jm1.cloudy.kubernetes_resources"]
+
   - name: Run OpenShift's conformance test suite
     role: jm1.cloudy.openshift_tests
     tags: ["jm1.cloudy.openshift_tests"]

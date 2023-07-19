@@ -37,6 +37,14 @@ ansible-lint
 # Used in Makefile
 flake8
 
+# Required by Ansible collection kubernetes.core
+# Ref.: https://github.com/ansible-collections/kubernetes.core/blob/main/requirements.txt
+jsonpatch
+
+# Required by Ansible collection kubernetes.core
+# Ref.: https://github.com/ansible-collections/kubernetes.core/blob/main/requirements.txt
+kubernetes >= 12.0.0
+
 # libvirt-python requires libvirt C headers and compilers.
 #
 # On Debian 10 (Buster), Debian 11 (Bullseye), Debian 12 (Bookworm), Ubuntu 18.04 LTS (Bionic Beaver),

@@ -12,4 +12,5 @@ collections:
 - jm1.packages
 - jm1.pkg
 - jm1.openstack
+- kubernetes.core
 - openstack.cloud
