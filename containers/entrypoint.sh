@@ -81,10 +81,30 @@ trap "trap - TERM && kill -- -$$" INT TERM EXIT
     [ -e "/usr/share/ansible/collections/ansible_collections/jm1/cloudy" ] \
         || sudo -u cloudy ansible-galaxy collection install jm1.cloudy
 
-    ansible-playbook -vvv playbooks/setup.yml
+    # Sorted in ascending order of priority
+    for dir in \
+        "/usr/share/ansible/collections/ansible_collections/jm1/cloudy/playbooks" \
+        "/home/cloudy/project/.cache/ansible/collections/ansible_collections/jm1/cloudy/playbooks" \
+        "/home/cloudy/project/playbooks";
+    do
+        [ -e "$dir/setup.yml" ] && playbook_setup="$dir/setup.yml"
+        [ -e "$dir/site.yml" ] && playbook_site="$dir/site.yml"
+    done
+
+    if [ -z "$playbook_setup" ]; then
+        error "Ansible playbook setup.yml not found"
+        exit 122
+    fi
+
+    if [ -z "$playbook_site" ]; then
+        error "Ansible playbook site.yml not found"
+        exit 121
+    fi
+
+    ansible-playbook -vvv "$playbook_setup"
 
     sudo -u cloudy --set-home \
-        ansible-playbook playbooks/site.yml \
+        ansible-playbook "$playbook_site" \
             --limit lvrt-lcl-system \
             --skip-tags "jm1.kvm_nested_virtualization" \
             --skip-tags "jm1.cloudy.libvirt_pools" \
@@ -131,7 +151,7 @@ trap "trap - TERM && kill -- -$$" INT TERM EXIT
     fi
 
     sudo -u cloudy --set-home \
-        ansible-playbook playbooks/site.yml \
+        ansible-playbook "$playbook_site" \
             --limit lvrt-lcl-system \
             --skip-tags "jm1.kvm_nested_virtualization" \
 
@@ -162,7 +182,7 @@ ____EOF
         sh -c 'pgrep --uid "$(id -u)" libvirtd || /usr/sbin/libvirtd --daemon --listen'
 
     sudo -u cloudy --set-home \
-        ansible-playbook playbooks/site.yml \
+        ansible-playbook "$playbook_site" \
             --limit lvrt-lcl-session \
             --skip-tags "jm1.kvm_nested_virtualization"
 
