@@ -101,7 +101,9 @@ trap "trap - TERM && kill -- -$$" INT TERM EXIT
         exit 121
     fi
 
-    ansible-playbook -vvv "$playbook_setup"
+    sudo -u cloudy --set-home \
+        ansible-playbook "$playbook_setup" \
+            --limit lvrt-lcl-system
 
     sudo -u cloudy --set-home \
         ansible-playbook "$playbook_site" \
