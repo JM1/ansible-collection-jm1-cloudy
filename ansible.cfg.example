@@ -2,13 +2,17 @@
 ;;
 ;; Ansible Configuration Settings
 ;;
-;; Ref.:
-;;  https://docs.ansible.com/ansible/latest/reference_appendices/config.html
+;; Ref.: https://docs.ansible.com/ansible/latest/reference_appendices/config.html
 
 [defaults]
 
-;; project-local collections in [CWD]/ansible_collections/[NAMESPACE]/[COLLECTION_NAME]
-collections_paths = ./.cache/ansible/collections/:./collections:~/.ansible/collections:/usr/local/share/ansible/collections:/usr/share/ansible/collections
+;; Example for storing collections in local project directory.
+;; NOTE: The project directory is mounted read-only in containers, so ansible-galaxy
+;;       will fail when installing collections to the project directory.
+;;
+;; Search pattern for collections is [COLLECTIONS_PATH]/ansible_collections/[NAMESPACE]/[COLLECTION_NAME]
+;; Ref.: https://docs.ansible.com/ansible/latest/reference_appendices/config.html#collections-paths
+;collections_paths = ./.cache/ansible/collections/:./collections:~/.ansible/collections:/usr/local/share/ansible/collections:/usr/share/ansible/collections
 
 ;enable_task_debugger = True
 
@@ -18,8 +22,13 @@ nocows = 1
 
 retry_files_enabled = False
 
-;; project-local roles in [CWD]/roles/[NAMESPACE].[ROLE_NAME]
-roles_path = ./.cache/ansible/roles/:./roles:~/.ansible/roles:/etc/ansible/roles:/usr/share/ansible/roles
+;; Example for storing roles in local project directory
+;; NOTE: The project directory is mounted read-only in containers, so ansible-galaxy
+;;       will fail when installing roles to the project directory.
+;;
+;; Search pattern for roles is [ROLES_PATH]/roles/[NAMESPACE].[ROLE_NAME]
+;; Ref.: https://docs.ansible.com/ansible/latest/reference_appendices/config.html#default-roles-path
+;roles_path = ./.cache/ansible/roles/:~/.ansible/roles:/usr/share/ansible/roles:/etc/ansible/roles
 
 [ssh_connection]
 

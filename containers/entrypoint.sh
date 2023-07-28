@@ -84,7 +84,7 @@ trap "trap - TERM && kill -- -$$" INT TERM EXIT
     # Sorted in ascending order of priority
     for dir in \
         "/usr/share/ansible/collections/ansible_collections/jm1/cloudy/playbooks" \
-        "/home/cloudy/project/.cache/ansible/collections/ansible_collections/jm1/cloudy/playbooks" \
+        "/home/cloudy/.ansible/collections/ansible_collections/jm1/cloudy/playbooks" \
         "/home/cloudy/project/playbooks";
     do
         [ -e "$dir/setup.yml" ] && playbook_setup="$dir/setup.yml"
