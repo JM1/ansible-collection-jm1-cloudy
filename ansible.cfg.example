@@ -30,6 +30,10 @@ retry_files_enabled = False
 ;; Ref.: https://docs.ansible.com/ansible/latest/reference_appendices/config.html#default-roles-path
 ;roles_path = ./.cache/ansible/roles/:~/.ansible/roles:/usr/share/ansible/roles:/etc/ansible/roles
 
+;; Password file to unlock vaults
+;; Ref.: https://docs.ansible.com/ansible/latest/reference_appendices/config.html#default-vault-password-file
+;vault_password_file = ./.vault_pass.txt
+
 [ssh_connection]
 
 ; "Pipelining, if supported by the connection plugin, reduces the number of network operations required to execute a
