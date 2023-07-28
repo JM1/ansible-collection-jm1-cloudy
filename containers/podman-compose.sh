@@ -71,6 +71,8 @@ OPTIONS:
                                   debian_11, debian_12, ubuntu_1804, ubuntu_2004 and ubuntu_2204.
     --infra-image IMAGE           Container image that will be used for the infra container.
                                   Defaults to '$infra_image_default'.
+    --project DIR                 Directory where Ansible playbooks and the inventory are stored.
+                                  Defaults to the directory that contains this script.
     -h, --help                    Print usage.
 ________EOF
     }
@@ -81,6 +83,7 @@ ________EOF
     distribution_default="debian_11"
     infra_image=""
     infra_image_default="alpine:latest"
+    project=""
 
     while [ $# -ne 0 ]; do
         case "$1" in
@@ -109,6 +112,15 @@ ________EOF
                 help
                 return 0
                 ;;
+            "--project")
+                if [ -z "$2" ]; then
+                    error "flag is missing arg: --project"
+                    return 255
+                fi
+
+                project="$2"
+                shift
+                ;;
             -*)
                 error "Unknown flag: $1"
                 return 255
@@ -135,8 +147,17 @@ ________EOF
 
     distribution_alt="$(echo "$distribution" | tr '_' '-')"
 
-    cmd="$(readlink -f "$0")"
-    cd "$(dirname "$cmd")"
+    # Locate script directory
+    # NOTE: Symbolic links are followed first in order to always resolve to
+    #       the script's directory even if called through a symbolic link.
+    cmd_dir=$(dirname "$(readlink -f "$0")")
+
+    # Locate project directory
+    if [ -n "$project" ]; then
+        project_dir=$(readlink -f "$project")
+    else
+        project_dir=$(readlink -f "$cmd_dir/..")
+    fi
 
     # Podman 3.0.1 does not support podman network exists and does not support regular expressions in filters
     if ! podman network ls -q '--filter=name=cloudy' | grep -q -e '^cloudy$'; then
@@ -191,7 +212,7 @@ ________EOF
         fi
     else # Container does not exist
         if ! podman image exists "cloudy-$distribution_alt:latest"; then
-            podman image build -f "Dockerfile.$distribution" -t "cloudy-$distribution_alt:latest" .
+            (cd "$cmd_dir" && podman image build -f "Dockerfile.$distribution" -t "cloudy-$distribution_alt:latest" .)
         fi
 
         podman_args=()
@@ -218,10 +239,10 @@ ________EOF
         #podman_args+=(-v "$HOME/.ssh/:/home/cloudy/.ssh/:ro")
 
         # Grant access to user's playbooks, inventories and Ansible configuration
-        podman_args+=(-v "$PWD/../:/home/cloudy/project/:ro")
+        podman_args+=(-v "$project_dir/:/home/cloudy/project/:ro")
 
         # For development only
-        podman_args+=(-v "$PWD/entrypoint.sh:/usr/local/bin/entrypoint.sh:ro")
+        podman_args+=(-v "$cmd_dir/entrypoint.sh:/usr/local/bin/entrypoint.sh:ro")
 
         if [ "$detach" = "yes" ]; then
             podman_args+=(--detach)

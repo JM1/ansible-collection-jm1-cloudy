@@ -155,9 +155,9 @@ automated, requires less changes to the Ansible controller system and is less li
 
 ### Define cloud infrastructure and prepare host environment
 
-To build your own cloud infrastructure based on this collection, copy directories [`inventory/`][inventory-example],
-[`playbooks/`][playbooks-example], [`containers/`][containers-example] (containerized setup with [Docker](
-#containerized-setup-with-docker-compose) or [Podman](#containerized-setup-with-podman) only) and config file
+To build your own cloud infrastructure based on this collection, copy or link directories [`inventory/`][
+inventory-example], [`playbooks/`][playbooks-example], [`containers/`][containers-example] (containerized setup with
+[Docker](#containerized-setup-with-docker-compose) or [Podman](#containerized-setup-with-podman) only) and config file
 [`ansible.cfg.example`][ansible-cfg-example] to a new directory.
 
 [ansible-cfg-example]: ansible.cfg.example
