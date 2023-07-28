@@ -196,6 +196,9 @@ ________EOF
 
         podman_args=()
 
+        # Disable SELinux separation for the container
+        podman_args+=(--security-opt label=disable)
+
         # privileged is required for libvirtd to be able to write to /proc/sys/net/ipv6/conf/*/disable_ipv6
         podman_args+=(--privileged)
 
