@@ -76,19 +76,18 @@ trap "trap - TERM && kill -- -$$" INT TERM EXIT
         exit 123
     fi
 
-    sudo -u cloudy make install-requirements
-
     [ -e "/usr/share/ansible/collections/ansible_collections/jm1/cloudy" ] \
         || sudo -u cloudy ansible-galaxy collection install jm1.cloudy
 
     # Sorted in ascending order of priority
     for dir in \
-        "/usr/share/ansible/collections/ansible_collections/jm1/cloudy/playbooks" \
-        "/home/cloudy/.ansible/collections/ansible_collections/jm1/cloudy/playbooks" \
-        "/home/cloudy/project/playbooks";
+        "/usr/share/ansible/collections/ansible_collections/jm1/cloudy" \
+        "/home/cloudy/.ansible/collections/ansible_collections/jm1/cloudy" \
+        "/home/cloudy/project";
     do
-        [ -e "$dir/setup.yml" ] && playbook_setup="$dir/setup.yml"
-        [ -e "$dir/site.yml" ] && playbook_site="$dir/site.yml"
+        [ -e "$dir/playbooks/setup.yml" ] && playbook_setup="$dir/playbooks/setup.yml"
+        [ -e "$dir/playbooks/site.yml" ] && playbook_site="$dir/playbooks/site.yml"
+        [ -e "$dir/requirements.yml" ] && requirements="$dir/requirements.yml"
     done
 
     if [ -z "$playbook_setup" ]; then
@@ -100,6 +99,14 @@ trap "trap - TERM && kill -- -$$" INT TERM EXIT
         error "Ansible playbook site.yml not found"
         exit 121
     fi
+
+    if [ -z "$requirements" ]; then
+        error "Ansible Galaxy's requirements.yml not found"
+        exit 120
+    fi
+
+    sudo -u cloudy ansible-galaxy collection install --requirements-file "$requirements"
+    sudo -u cloudy ansible-galaxy role install --role-file "$requirements"
 
     sudo -u cloudy --set-home \
         ansible-playbook "$playbook_setup" \
