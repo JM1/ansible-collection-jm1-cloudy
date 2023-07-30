@@ -35,6 +35,7 @@ retry_files_enabled = False
 ;vault_password_file = ./.vault_pass.txt
 
 [ssh_connection]
+; Ref.: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/ssh_connection.html
 
 ; "Pipelining, if supported by the connection plugin, reduces the number of network operations required to execute a
 ;  module on the remote server, by executing many Ansible modules without actual file transfer. This can result in a
@@ -46,4 +47,6 @@ retry_files_enabled = False
 ; Ref.: https://docs.ansible.com/ansible/latest/reference_appendices/config.html
 pipelining = True
 
-ssh_args = -C -o ControlMaster=auto -o ControlPersist=30m -o StrictHostKeyChecking=accept-new -o 'UserKnownHostsFile=.ssh_known_hosts'
+ssh_args = -C -o ControlMaster=auto -o ControlPersist=30m -o StrictHostKeyChecking=accept-new
+; Example for storing user host key database in local project directory instead of ~/.ssh/known_hosts
+;ssh_args = ... -o 'UserKnownHostsFile=.ssh_known_hosts'
