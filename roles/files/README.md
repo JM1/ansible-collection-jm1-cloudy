@@ -18,7 +18,7 @@ files_config:
     owner: root
     group: root
     mode: '0644'
-  when: distribution_id|first in ['CentOS', 'Red Hat Enterprise Linux']
+  when: distribution_id | first in ['CentOS', 'Red Hat Enterprise Linux']
         or distribution_id in [['Debian', '10']]
 - ansible.builtin.lineinfile:
     path: /etc/hosts
@@ -27,7 +27,7 @@ files_config:
     owner: root
     group: root
     mode: '0644'
-  when: distribution_id|first not in ['CentOS', 'Red Hat Enterprise Linux']
+  when: distribution_id | first not in ['CentOS', 'Red Hat Enterprise Linux']
         and distribution_id not in [['Debian', '10']]
 - ansible.builtin.lineinfile:
     path: /etc/hosts

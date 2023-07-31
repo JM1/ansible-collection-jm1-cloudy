@@ -11,7 +11,7 @@ runs Ansible on the Ansible controller is present on an Ansible host, define var
 ssh_authorized_keys:
 - comment: >-
     {{ lookup('pipe','whoami') + '@' + lookup('pipe','hostname') + ':' + lookup('env','HOME') + '/.ssh/id_rsa.pub' }}
-  key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub')|mandatory }}"
+  key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') | mandatory }}"
   state: present
   user: '{{ ansible_user }}'
 ```
