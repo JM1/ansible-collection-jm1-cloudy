@@ -5,20 +5,24 @@
 
 - name: Verify task definitions specified in kubernetes_resources_config variable
   when: item is not mapping
-        or (item.keys() | difference(['become', 'become_user', 'environment', 'handlers', 'when'])) | list | length != 1
+        or (item.keys() | difference(['become', 'become_exe', 'become_flags', 'become_method', 'become_user',
+                                      'environment', 'handlers', 'when'])) | list | length != 1
   ansible.builtin.fail:
     msg: >-
       Unsupported keyword or multiple module definitions found:
-      {{ (item.keys() | difference(['become', 'become_user', 'environment', 'handlers', 'when'])) | join(', ') }}.
+      {{ (item.keys() | difference(['become', 'become_exe', 'become_flags', 'become_method', 'become_user',
+                                    'environment', 'handlers', 'when'])) | join(', ') }}.
   loop: '{{ kubernetes_resources_config | default([]) }}'
 
 - name: Verify handler definitions specified in kubernetes_resources_config variable
   when: item.1 is not mapping
-        or (item.1.keys() | difference(['become', 'become_user', 'environment', 'when'])) | list | length != 1
+        or (item.1.keys() | difference(['become', 'become_exe', 'become_flags', 'become_method', 'become_user',
+                                        'environment', 'when'])) | list | length != 1
   ansible.builtin.fail:
     msg: >-
       Unsupported keyword or multiple module definitions found:
-      {{ (item.1.keys() | difference(['become', 'become_user', 'environment', 'when'])) | join(', ') }}.
+      {{ (item.1.keys() | difference(['become', 'become_exe', 'become_flags', 'become_method', 'become_user',
+                                      'environment', 'when'])) | join(', ') }}.
   loop: "{{ kubernetes_resources_config | default([]) | subelements('handlers', skip_missing=True) }}"
 
 - name: Reset Kubernetes resources related handlers
