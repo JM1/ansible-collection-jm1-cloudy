@@ -244,6 +244,9 @@ ________EOF
         # For development only
         podman_args+=(-v "$cmd_dir/entrypoint.sh:/usr/local/bin/entrypoint.sh:ro")
 
+        # For development only
+        #podman_args+=(-v "$project_dir/:/usr/share/ansible/collections/ansible_collections/jm1/cloudy/:ro")
+
         if [ "$detach" = "yes" ]; then
             podman_args+=(--detach)
         fi
