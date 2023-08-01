@@ -25,7 +25,7 @@
   loop:
   - '~'
   - '{{ openshift_tests_artifact_dir }}'
-  - '{{ openshift_tests_kubeconfig_file }}'
+  - '{{ openshift_tests_kubeconfig_file | mandatory }}'
   - '{{ openshift_tests_pullsecret_file }}'
   register: openshift_tests_paths
 
@@ -105,7 +105,7 @@
            else ''
         }} \
         --image-for=tests \
-        '{{ openshift_tests_release_image }}'
+        '{{ openshift_tests_release_image | mandatory }}'
   register: openshift_tests_image_identification
 
 - name: Run OpenShift's conformance test suite
@@ -132,7 +132,7 @@
         --uidmap $((UID+1)):$((UID+1)):$((max_uid_count-UID)) \
         -u "$(id -u):$(id -g)" \
         -v '{{ openshift_tests_artifact_dir }}:/artifacts/' \
-        -v '{{ openshift_tests_kubeconfig_file }}:{{ openshift_tests_kubeconfig_file }}:ro' \
+        -v '{{ openshift_tests_kubeconfig_file | mandatory }}:{{ openshift_tests_kubeconfig_file | mandatory }}:ro' \
         -e KUBECONFIG \
         '{{ openshift_tests_image_identification.stdout }}' \
         openshift-tests run '{{ openshift_tests_suite }}' \

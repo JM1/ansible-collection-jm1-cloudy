@@ -85,7 +85,7 @@
         }} \
         --command=openshift-install \
         --to '{{ openshift_ipi_install_dir }}/' \
-        '{{ openshift_ipi_release_image }}'
+        '{{ openshift_ipi_release_image | mandatory }}'
     creates: '{{ openshift_ipi_install_dir }}/openshift-install'
 
 - name: Get openshift-install version

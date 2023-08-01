@@ -29,15 +29,15 @@ tripleo_standalone_cloud_name: 'tripleo_standalone'
 
 tripleo_standalone_cloud_domain: '{{ dns_suffix }}'
 
-tripleo_standalone_control_virtual_ip: !!null # is set in host_vars
+#tripleo_standalone_control_virtual_ip is set in host_vars
 
 tripleo_standalone_home_dir: '/home/{{ tripleo_standalone_user }}'
 
-tripleo_standalone_local_ip: !!null # is set in host_vars
+#tripleo_standalone_local_ip is set in host_vars
 
 tripleo_standalone_neutron_dns_domain: '{{ dns_suffix }}'
 
-tripleo_standalone_neutron_public_interface: !!null # is set in host_vars
+#tripleo_standalone_neutron_public_interface is set in host_vars
 
 tripleo_standalone_parameters: |
   # 2021 Jakob Meng, <jakobmeng@web.de>
@@ -58,11 +58,11 @@ tripleo_standalone_parameters: |
       - 1.1.1.1
       - 8.8.8.8
     DockerInsecureRegistryAddress:
-      - {{ tripleo_standalone_local_ip | ansible.utils.ipaddr('address') }}:8787
+      - {{ tripleo_standalone_local_ip | mandatory | ansible.utils.ipaddr('address') }}:8787
     InterfaceLocalMtu: 1500
     # needed for vip & pacemaker
     KernelIpNonLocalBind: 1
-    NeutronPublicInterface: {{ tripleo_standalone_neutron_public_interface }}
+    NeutronPublicInterface: {{ tripleo_standalone_neutron_public_interface | mandatory }}
     NeutronDnsDomain: {{ tripleo_standalone_neutron_dns_domain }}
     # re-use ctlplane bridge for public net, defined in the standalone
     # net config (do not change unless you know what you're doing)

@@ -7,7 +7,7 @@
   when: force_ipmi_boot
   community.general.ipmi_boot:
     bootdev: '{{ ipmi_boot_device }}'
-    name: '{{ ipmi_host }}'
+    name: '{{ ipmi_host | mandatory }}'
     password: '{{ ipmi_password }}'
     persistent: '{{ impi_boot_persistent }}'
     port: '{{ ipmi_port }}'
@@ -17,7 +17,7 @@
 - name: Manage power state
   when: force_ipmi_power
   community.general.ipmi_power:
-    name: '{{ ipmi_host }}'
+    name: '{{ ipmi_host | mandatory }}'
     password: '{{ ipmi_password }}'
     port: '{{ ipmi_port }}'
     state: '{{ ipmi_power_state }}'
@@ -29,7 +29,7 @@
   - name: Configure system to boot from network
     community.general.ipmi_boot:
       bootdev: network
-      name: '{{ ipmi_host }}'
+      name: '{{ ipmi_host | mandatory }}'
       password: '{{ ipmi_password }}'
       persistent: false
       port: '{{ ipmi_port }}'
@@ -38,7 +38,7 @@
 
   - name: Boot if system is off else reset it
     community.general.ipmi_power:
-      name: '{{ ipmi_host }}'
+      name: '{{ ipmi_host | mandatory }}'
       password: '{{ ipmi_password }}'
       port: '{{ ipmi_port }}'
       state: boot

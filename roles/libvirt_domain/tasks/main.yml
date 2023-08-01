@@ -31,7 +31,7 @@
     networkconfig: '{{ cloudinit_networkconfig }}'
     pool: '{{ libvirt_configdrive_pool }}'
     state: present
-    userdata: '{{ cloudinit_userdata }}'
+    userdata: '{{ cloudinit_userdata | mandatory }}'
     uri: '{{ libvirt_uri }}'
 
 - name: Create/Remove domain

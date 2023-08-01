@@ -19,7 +19,7 @@ impi_boot_persistent: false
 
 ipmi_boot_device: 'default'
 
-ipmi_host: !!null # is set in host_vars
+#ipmi_host is set in host_vars
 
 ipmi_password: 'ADMIN'
 
