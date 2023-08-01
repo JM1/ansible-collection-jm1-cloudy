@@ -15,16 +15,16 @@ libvirt_images:
   name: CentOS-7-x86_64-GenericCloud-2003.qcow2
   pool: 'default'
   state: present
-- checksum: sha256:b69a5198ed1d507bb350b47f6ca8f40c661e6901c25cdd93e6167a3a7474bf7e
+- checksum: sha256:2bf523dec83dbf4e11435c66f229622719ed9a84f216bb05ad9817be26faca82
   format: 'qcow2'
-  image: https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-20230523.0.x86_64.qcow2
-  name: CentOS-Stream-GenericCloud-8-20230523.0.x86_64.qcow2
+  image: https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-20230710.0.x86_64.qcow2
+  name: CentOS-Stream-GenericCloud-8-20230710.0.x86_64.qcow2
   pool: 'default'
   state: present
-- checksum: sha256:47dca0f014aff27bad5a4156f7ce3168fc339546d6e66bfaf52617a773f05bf0
+- checksum: sha256:f23d3f002948141ac6b3287ccdc43a7c7b5a1266fdd08c104e74dbc20f0074ae
   format: 'qcow2'
-  image: https://cloud.centos.org/centos/9-stream/x86_64/images/CentOS-Stream-GenericCloud-9-20230523.0.x86_64.qcow2
-  name: CentOS-Stream-GenericCloud-9-20230523.0.x86_64.qcow2
+  image: https://cloud.centos.org/centos/9-stream/x86_64/images/CentOS-Stream-GenericCloud-9-20230720.0.x86_64.qcow2
+  name: CentOS-Stream-GenericCloud-9-20230720.0.x86_64.qcow2
   pool: 'default'
   state: present
 - # no checksum because image is updated every week
