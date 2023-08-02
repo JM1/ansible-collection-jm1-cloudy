@@ -25,7 +25,11 @@
   loop:
   - '~'
   - '{{ openshift_tests_artifact_dir }}'
-  - '{{ openshift_tests_kubeconfig_file | mandatory }}'
+  - "{{ openshift_tests_kubeconfig_file | default('/') }}"
+    # Ansible will evaluate 'loop' when handling conditionals aka 'when'. When openshift_tests_kubeconfig_file is not
+    # defined Ansible's mandatory filter will raise an exception while evaluating 'when' and thus 'loop'. For hosts
+    # which are supposed to skip this role, e.g. because they are not in group svc_openshift_tests, this is undesired,
+    # so the mandatory filter cannot be used here.
   - '{{ openshift_tests_pullsecret_file }}'
   register: openshift_tests_paths
 
