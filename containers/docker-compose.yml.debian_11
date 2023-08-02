@@ -1,0 +1,55 @@
+version: "3.7"
+
+services:
+
+  debian_11: # Debian 11 (Bullseye)
+    build:
+      context: '.'
+      dockerfile: Dockerfile.debian_11
+    container_name: cloudy-debian-11
+    devices:
+      - '/dev/kvm:/dev/kvm'
+    environment:
+      - DEBUG=${DEBUG:-no}
+      - DEBUG_SHELL=${DEBUG_SHELL:-no}
+    init: true
+    networks:
+      cloudy:
+    # privileged is required for libvirtd to be able to write to /proc/sys/net/ipv6/conf/*/disable_ipv6
+    privileged: true
+    # TODO: Implement support for privileged: false.
+    ports:
+      # libvirt tcp transport
+      - '127.0.0.1:16509:16509/tcp'
+      # VNC connections
+      - '127.0.0.1:5900-5999:5900-5999/tcp'
+    stdin_open: true
+    sysctls:
+      net.ipv4.conf.eth0.proxy_arp: 1
+    tty: true
+    volumes:
+      # Persist storage volumes of libvirt domains
+      - 'cloudy-debian-11-images:/home/cloudy/.local/share/libvirt/images/'
+      #
+      # Persist SSH credentials and configuration for accessing virtual machines
+      - 'cloudy-debian-11-ssh:/home/cloudy/.ssh/'
+      # Or instead:
+      # Grant access to SSH credentials and configuration on Ansible controller for accessing virtual machines
+      #- '~/.ssh/:/home/cloudy/.ssh/:ro'
+      #
+      # Grant access to user's playbooks, inventories and Ansible configuration
+      - '../:/home/cloudy/project/:ro'
+      #
+      # For development only
+      - type: bind
+        source: './entrypoint.sh'
+        target: '/usr/local/bin/entrypoint.sh'
+
+networks:
+  cloudy:
+    external: true
+    name: ${HOST_LAN:-cloudy}
+
+volumes:
+  cloudy-debian-11-images:
+  cloudy-debian-11-ssh:

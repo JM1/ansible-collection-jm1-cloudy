@@ -306,12 +306,10 @@ docker network create --subnet=192.168.150.0/24 --gateway=192.168.150.1 cloudy
 
 #### Start container with Docker Compose
 
-Open [`docker-compose.yml`][containers-docker-compose-yml] in your copy of the [`containers/`][containers-example]
-directory and find the container based on the distribution matching the container host. The following example assumes
-that the container host is running on `Debian 11 (Bullseye)`. The matching container name in [`docker-compose.yml`][
-containers-docker-compose-yml] is called `debian_11`. To start it, run these commands on the container host:
-
-[containers-docker-compose-yml]: containers/docker-compose.yml
+Open a `docker-compose.yml.*` in your copy of the [`containers/`][containers-example] directory which matches the
+distribution of the container host. The following example assumes that the container host is running on
+`Debian 11 (Bullseye)`. The matching Docker Compose file is named `docker-compose.yml.debian_11`. To start it, run these
+commands on the container host:
 
 ```sh
 # Change to Docker Compose directory inside your project directory
@@ -319,10 +317,10 @@ containers-docker-compose-yml] is called `debian_11`. To start it, run these com
 cd containers/
 
 # Start container in the background
-DEBUG=yes DEBUG_SHELL=yes docker-compose up -d debian_11
+DEBUG=yes DEBUG_SHELL=yes docker-compose -f docker-compose.yml.debian_11 up -d
 
 # Monitor container activity
-docker-compose logs --follow
+docker-compose -f docker-compose.yml.debian_11 logs --follow
 ```
 
 Inside the container, script [`containers/entrypoint.sh`][containers-entrypoint-sh] will execute playbook
@@ -364,7 +362,7 @@ To stop and remove the container(s), exit the container's Bash shells and run on
 
 ```sh
 # Stop and remove container(s)
-docker-compose down
+docker-compose -f docker-compose.yml.debian_11 down
 ```
 
 Both the SSH credentials and the libvirt storage volumes of the libvirt domains (QEMU/KVM based virtual machines) have
