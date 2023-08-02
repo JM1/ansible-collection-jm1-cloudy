@@ -73,6 +73,8 @@ OPTIONS:
                                   Defaults to '$infra_image_default'.
     --project DIR                 Directory where Ansible playbooks and the inventory are stored.
                                   Defaults to the directory that contains this script.
+    --project-name NAME           Name to label and find containers, images and volumes with.
+                                  Defaults to '$project_name_default'.
     -h, --help                    Print usage.
 ________EOF
     }
@@ -84,6 +86,8 @@ ________EOF
     infra_image=""
     infra_image_default="alpine:latest"
     project=""
+    project_name=""
+    project_name_default="cloudy"
 
     while [ $# -ne 0 ]; do
         case "$1" in
@@ -121,6 +125,15 @@ ________EOF
                 project="$2"
                 shift
                 ;;
+            "--project-name")
+                if [ -z "$2" ]; then
+                    error "flag is missing arg: --project-name"
+                    return 255
+                fi
+
+                project_name="$2"
+                shift
+                ;;
             -*)
                 error "Unknown flag: $1"
                 return 255
@@ -135,6 +148,7 @@ ________EOF
 
     [ -n "$distribution" ] || distribution=$distribution_default
     [ -n "$infra_image" ] || infra_image=$infra_image_default
+    [ -n "$project_name" ] || project_name=$project_name_default
 
     case "$distribution" in
         "centos_8"|"centos_9"|"debian_10"|"debian_11"|"debian_12"|"ubuntu_1804"|"ubuntu_2004"|"ubuntu_2204")
@@ -144,8 +158,6 @@ ________EOF
             return 255
             ;;
     esac
-
-    distribution_alt="$(echo "$distribution" | tr '_' '-')"
 
     # Locate script directory
     # NOTE: Symbolic links are followed first in order to always resolve to
@@ -160,31 +172,31 @@ ________EOF
     fi
 
     # Podman 3.0.1 does not support podman network exists and does not support regular expressions in filters
-    if ! podman network ls -q '--filter=name=cloudy' | grep -q -e '^cloudy$'; then
+    if ! podman network ls -q "--filter=name=${project_name}" | grep -q -e "^${project_name}\$"; then
         podman network create --driver=bridge \
             --subnet=192.168.150.0/24 \
             --ip-range=192.168.150.0/24 \
             --gateway=192.168.150.1 \
-            cloudy
+            "${project_name}"
     fi
 
-    for volume in "cloudy-$distribution_alt-images" "cloudy-$distribution_alt-ssh"; do
+    for volume in "${project_name}-images" "${project_name}-ssh"; do
         # Podman 3.0.1 does not support podman volume exists and does not support regular expressions in filters
         if ! podman volume ls -q "--filter=name=$volume" | grep -q -e "^$volume\$"; then
             podman volume create "$volume"
         fi
     done
 
-    if podman container exists cloudy-infra; then
-        if [ -z "$(podman container ls -a -q '--filter=name=^cloudy-infra$' --filter=status=running)" ]; then
-            warn "Stopped container cloudy-infra will be (re)started, but not rebuild."\
+    if podman container exists "${project_name}-infra"; then
+        if [ -z "$(podman container ls -a -q "--filter=name=^${project_name}-infra\$" --filter=status=running)" ]; then
+            warn "Stopped container ${project_name}-infra will be (re)started, but not rebuild."\
                  "Remove container first to force rebuild."
-            podman start cloudy-infra
+            podman start "${project_name}-infra"
         fi
     else
-        # Start a container to bring up Podman network cloudy
-        # Podman network cloudy has to be started for the following ip route add commands
-        podman run --detach --stop-signal SIGKILL --network cloudy --name cloudy-infra \
+        # Start a container to bring up Podman network
+        # Podman network has to be started for the following ip route add commands
+        podman run --detach --stop-signal SIGKILL --network "${project_name}" --name "${project_name}-infra" \
             "$infra_image" sleep infinity
     fi
 
@@ -198,21 +210,21 @@ ________EOF
         ip route add 192.168.158.0/24 via 192.168.150.1
     fi
 
-    if podman container exists "cloudy-$distribution_alt"; then
+    if podman container exists "${project_name}"; then
         # Container exists
-        if [ -z "$(podman container ls -a -q "--filter=name=^cloudy-$distribution_alt\$" --filter=status=running)" ]
+        if [ -z "$(podman container ls -a -q "--filter=name=^${project_name}\$" --filter=status=running)" ]
         then
-            warn "Stopped container cloudy-$distribution_alt will be (re)started, but not rebuild."\
+            warn "Stopped container ${project_name} will be (re)started, but not rebuild."\
                  "Remove container first to force rebuild."
-            podman start "cloudy-$distribution_alt"
+            podman start "${project_name}"
 
             if [ "$detach" != "yes" ]; then
-                podman attach "cloudy-$distribution_alt"
+                podman attach "${project_name}"
             fi
         fi
     else # Container does not exist
-        if ! podman image exists "cloudy-$distribution_alt:latest"; then
-            (cd "$cmd_dir" && podman image build -f "Dockerfile.$distribution" -t "cloudy-$distribution_alt:latest" .)
+        if ! podman image exists "${project_name}:latest"; then
+            (cd "$cmd_dir" && podman image build -f "Dockerfile.$distribution" -t "${project_name}:latest" .)
         fi
 
         podman_args=()
@@ -230,10 +242,10 @@ ________EOF
         podman_args+=(--publish '127.0.0.1:5900-5999:5900-5999/tcp')
 
         # Persist storage volumes of libvirt domains
-        podman_args+=(-v "cloudy-$distribution_alt-images:/home/cloudy/.local/share/libvirt/images/")
+        podman_args+=(-v "${project_name}-images:/home/cloudy/.local/share/libvirt/images/")
 
         # Persist SSH credentials and configuration for accessing virtual machines
-        podman_args+=(-v "cloudy-$distribution_alt-ssh:/home/cloudy/.ssh/")
+        podman_args+=(-v "${project_name}-ssh:/home/cloudy/.ssh/")
         # Or instead:
         # Grant access to SSH credentials and configuration on Ansible controller for accessing virtual machines
         #podman_args+=(-v "$HOME/.ssh/:/home/cloudy/.ssh/:ro")
@@ -255,15 +267,15 @@ ________EOF
             --init \
             --interactive \
             --tty \
-            --name "cloudy-$distribution_alt" \
+            --name "${project_name}" \
             --security-opt label=disable \
             -e "DEBUG=${DEBUG:=no}" \
             -e "DEBUG_SHELL=${DEBUG_SHELL:=no}" \
-            --network cloudy \
+            --network "${project_name}" \
             --device '/dev/kvm:/dev/kvm' \
             --sysctl "net.ipv4.conf.eth0.proxy_arp=1" \
             "${podman_args[@]}" \
-            "cloudy-$distribution_alt:latest" "${cmd_args[@]}"
+            "${project_name}:latest" "${cmd_args[@]}"
     fi
 }
 
@@ -276,15 +288,29 @@ Usage:  $cmd stop [OPTIONS]
 Stop containers.
 
 OPTIONS:
-    -h, --help      Print usage
+    --project-name NAME   Name to label and find containers, images and volumes with.
+                          Defaults to '$project_name_default'.
+    -h, --help            Print usage
 ________EOF
     }
+
+    project_name=""
+    project_name_default="cloudy"
 
     while [ $# -ne 0 ]; do
         case "$1" in
             "-h"|"--help")
                 help
                 return 0
+                ;;
+            "--project-name")
+                if [ -z "$2" ]; then
+                    error "flag is missing arg: --project-name"
+                    return 255
+                fi
+
+                project_name="$2"
+                shift
                 ;;
             -*)
                 error "Unknown flag: $1"
@@ -298,14 +324,13 @@ ________EOF
         shift
     done
 
-    for distribution_alt in \
-        "centos-8" "centos-9" "debian-10" "debian-11" "debian-12" "ubuntu-1804" "ubuntu-2004" "ubuntu-2204"; do
-        podman stop --ignore "cloudy-$distribution_alt"
-    done
+    [ -n "$project_name" ] || project_name=$project_name_default
+
+    podman stop --ignore "${project_name}"
 
     ip route del 192.168.158.0/24 via 192.168.150.1 || true
     ip route del 192.168.157.0/24 via 192.168.150.1 || true
-    podman stop --ignore cloudy-infra
+    podman stop --ignore "${project_name}-infra"
 }
 
 down() {
@@ -317,15 +342,29 @@ Usage:  $cmd down [OPTIONS]
 Stop and remove containers, volumes and networks.
 
 OPTIONS:
-    -h, --help      Print usage
+    --project-name NAME   Name to label and find containers, images and volumes with.
+                          Defaults to '$project_name_default'.
+    -h, --help            Print usage
 ________EOF
     }
+
+    project_name=""
+    project_name_default="cloudy"
 
     while [ $# -ne 0 ]; do
         case "$1" in
             "-h"|"--help")
                 help
                 return 0
+                ;;
+            "--project-name")
+                if [ -z "$2" ]; then
+                    error "flag is missing arg: --project-name"
+                    return 255
+                fi
+
+                project_name="$2"
+                shift
                 ;;
             -*)
                 error "Unknown flag: $1"
@@ -339,24 +378,21 @@ ________EOF
         shift
     done
 
-    for distribution_alt in \
-        "centos-8" "centos-9" "debian-10" "debian-11" "debian-12" "ubuntu-1804" "ubuntu-2004" "ubuntu-2204"; do
-        podman stop --ignore "cloudy-$distribution_alt"
-        podman rm --force --ignore "cloudy-$distribution_alt"
-    done
+    [ -n "$project_name" ] || project_name=$project_name_default
+
+
+    podman stop --ignore "${project_name}"
+    podman rm --force --ignore "${project_name}"
 
     ip route del 192.168.158.0/24 via 192.168.150.1 || true
     ip route del 192.168.157.0/24 via 192.168.150.1 || true
-    podman rm --force --ignore cloudy-infra
+    podman rm --force --ignore "${project_name}-infra"
 
-    for distribution_alt in \
-        "centos-8" "centos-9" "debian-10" "debian-11" "debian-12" "ubuntu-1804" "ubuntu-2004" "ubuntu-2204"; do
-        podman image rm --force "cloudy-$distribution_alt:latest" || true
-        podman volume rm --force "cloudy-$distribution_alt-images" || true
-        podman volume rm --force "cloudy-$distribution_alt-ssh" || true
-    done
+    podman image rm --force "${project_name}:latest" || true
+    podman volume rm --force "${project_name}-images" || true
+    podman volume rm --force "${project_name}-ssh" || true
 
-    podman network rm --force cloudy || true
+    podman network rm --force "${project_name}" || true
 }
 
 if [ $# -eq 0 ]; then

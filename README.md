@@ -426,7 +426,7 @@ cd containers/
 sudo DEBUG=yes DEBUG_SHELL=yes podman-compose.sh up --distribution debian_11 --detach
 
 # Monitor container activity
-sudo podman logs --follow cloudy-debian-11
+sudo podman logs --follow cloudy
 ```
 
 Inside the container, script [`containers/entrypoint.sh`][containers-entrypoint-sh] will execute playbook
@@ -441,7 +441,7 @@ successfully, attach to the Bash shell for user `cloudy` running inside the cont
 
 ```sh
 # Attach to Bash shell for user cloudy who runs the libvirt domains (QEMU/KVM based virtual machines)
-sudo podman attach cloudy-debian-11
+sudo podman attach cloudy
 ```
 
 Inside the container continue with [running playbook `playbooks/site.yml` for all remaining hosts](#usage-and-playbooks)
