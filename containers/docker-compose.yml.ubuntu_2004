@@ -2,11 +2,11 @@ version: "3.7"
 
 services:
 
-  ubuntu_2004: # Ubuntu 20.04 LTS (Focal Fossa)
+  cloudy: # Ubuntu 20.04 LTS (Focal Fossa)
     build:
       context: '.'
       dockerfile: Dockerfile.ubuntu_2004
-    container_name: cloudy-ubuntu-2004
+    container_name: cloudy
     devices:
       - '/dev/kvm:/dev/kvm'
     environment:
@@ -29,10 +29,10 @@ services:
     tty: true
     volumes:
       # Persist storage volumes of libvirt domains
-      - 'cloudy-ubuntu-2004-images:/home/cloudy/.local/share/libvirt/images/'
+      - 'images:/home/cloudy/.local/share/libvirt/images/'
       #
       # Persist SSH credentials and configuration for accessing virtual machines
-      - 'cloudy-ubuntu-2004-ssh:/home/cloudy/.ssh/'
+      - 'ssh:/home/cloudy/.ssh/'
       # Or instead:
       # Grant access to SSH credentials and configuration on Ansible controller for accessing virtual machines
       #- '~/.ssh/:/home/cloudy/.ssh/:ro'
@@ -51,5 +51,5 @@ networks:
     name: ${HOST_LAN:-cloudy}
 
 volumes:
-  cloudy-ubuntu-2004-images:
-  cloudy-ubuntu-2004-ssh:
+  images:
+  ssh:

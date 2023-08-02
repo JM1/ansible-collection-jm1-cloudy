@@ -317,10 +317,10 @@ commands on the container host:
 cd containers/
 
 # Start container in the background
-DEBUG=yes DEBUG_SHELL=yes docker-compose -f docker-compose.yml.debian_11 up -d
+DEBUG=yes DEBUG_SHELL=yes docker-compose -f docker-compose.yml.debian_11 -p cloudy up -d
 
 # Monitor container activity
-docker-compose -f docker-compose.yml.debian_11 logs --follow
+docker-compose -f docker-compose.yml.debian_11 -p cloudy logs --follow
 ```
 
 Inside the container, script [`containers/entrypoint.sh`][containers-entrypoint-sh] will execute playbook
@@ -335,7 +335,7 @@ successfully, attach to the Bash shell for user `cloudy` running inside the cont
 
 ```sh
 # Attach to Bash shell for user cloudy who runs the libvirt domains (QEMU/KVM based virtual machines)
-docker attach cloudy-debian-11
+docker attach cloudy
 ```
 Inside the container continue with [running playbook `playbooks/site.yml` for all remaining hosts](#usage-and-playbooks)
 from your copy of the [`inventory/`][inventory-example] directory which is available in `/home/cloudy/project`.
@@ -362,7 +362,7 @@ To stop and remove the container(s), exit the container's Bash shells and run on
 
 ```sh
 # Stop and remove container(s)
-docker-compose -f docker-compose.yml.debian_11 down
+docker-compose -f docker-compose.yml.debian_11 -p cloudy down
 ```
 
 Both the SSH credentials and the libvirt storage volumes of the libvirt domains (QEMU/KVM based virtual machines) have
@@ -374,7 +374,7 @@ those Docker volumes, run:
 docker volume ls
 
 # Remove Docker volumes
-docker volume rm containers_cloudy-debian-11-images containers_cloudy-debian-11-ssh
+docker volume rm cloudy_images cloudy_ssh
 ```
 
 ### Containerized setup with Podman

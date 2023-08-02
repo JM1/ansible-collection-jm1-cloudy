@@ -2,11 +2,11 @@ version: "3.7"
 
 services:
 
-  debian_10: # Debian 10 (Buster)
+  cloudy: # Debian 10 (Buster)
     build:
       context: '.'
       dockerfile: Dockerfile.debian_10
-    container_name: cloudy-debian-10
+    container_name: cloudy
     devices:
       - '/dev/kvm:/dev/kvm'
     environment:
@@ -29,10 +29,10 @@ services:
     tty: true
     volumes:
       # Persist storage volumes of libvirt domains
-      - 'cloudy-debian-10-images:/home/cloudy/.local/share/libvirt/images/'
+      - 'images:/home/cloudy/.local/share/libvirt/images/'
       #
       # Persist SSH credentials and configuration for accessing virtual machines
-      - 'cloudy-debian-10-ssh:/home/cloudy/.ssh/'
+      - 'ssh:/home/cloudy/.ssh/'
       # Or instead:
       # Grant access to SSH credentials and configuration on Ansible controller for accessing virtual machines
       #- '~/.ssh/:/home/cloudy/.ssh/:ro'
@@ -51,5 +51,5 @@ networks:
     name: ${HOST_LAN:-cloudy}
 
 volumes:
-  cloudy-debian-10-images:
-  cloudy-debian-10-ssh:
+  images:
+  ssh:
