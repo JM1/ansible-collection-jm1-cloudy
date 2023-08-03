@@ -75,6 +75,8 @@
     src: pull-secret.txt.j2
 
 - name: Extract openshift-install
+  become: true
+  become_flags: '--preserve-env=PATH'
   ansible.builtin.shell: # noqa risky-shell-pipe
     chdir: '{{ openshift_ipi_home_dir }}'
     cmd: |
@@ -105,6 +107,7 @@
   when: not openshift_ipi_path_auth.stat.exists
   # Own manifests by Ansible user
   become: true
+  become_flags: '--preserve-env=PATH'
   become_user: '{{ ansible_user }}'
   ansible.builtin.command:
     chdir: '{{ openshift_ipi_home_dir }}'
@@ -116,7 +119,7 @@
   # which is required for SSH agent forwarding to the bootstrap virtual machine
   become: true
   become_user: '{{ ansible_user }}'
-  become_flags: '--preserve-env=SSH_AUTH_SOCK'
+  become_flags: '--preserve-env=PATH,SSH_AUTH_SOCK'
   ansible.builtin.shell:
     chdir: '{{ openshift_ipi_home_dir }}'
     cmd: |
