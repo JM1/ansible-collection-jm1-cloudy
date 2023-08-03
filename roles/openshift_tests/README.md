@@ -59,7 +59,7 @@ automatically upfront.
 | `openshift_tests_kubeconfig_file` | *undefined*                      | true     | Path to a [kubeconfig][kubeconfig] file which contains cluster details, certificates, authentication tokens etc. |
 | `openshift_tests_pullsecret`      | *undefined*                      | false    | [Pull secret][using-image-pull-secrets] downloaded from [Red Hat Cloud Console][rh-console-ipi] which will be used to authenticate with Container registries `Quay.io` and `registry.redhat.io`, which serve the container images for OpenShift Container Platform components. A pull secret is required for OpenShift deployments only, but not for OKD deployments. |
 | `openshift_tests_pullsecret_file` | `~/pull-secret.txt`              | false    | Path to pull secret file |
-| `openshift_tests_release_image`   | *undefined*                      | true     | Container image from which `openstack-install` will be extracted, e.g. `'registry.ci.openshift.org/origin/release-scos:scos-4.12'` |
+| `openshift_tests_release_image`   | *undefined*                      | true     | Container image from which `openstack-install` will be extracted, e.g. `'quay.io/okd/scos-release:4.12.0-0.okd-scos-2023-04-14-052931'` |
 | `openshift_tests_suite`           | `openshift/conformance/parallel` | false    | The test suite to run.  Use `openshift-tests run --help` to list available suites. [Defaults to OpenShift CI's default test suite][ocp-e2e-test-step] |
 
 [kubeconfig]: https://www.redhat.com/sysadmin/kubeconfig
