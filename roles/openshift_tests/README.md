@@ -23,7 +23,7 @@ directory `openshift_tests_artifact_dir` and test results will be written to its
 [ocp-tests]: https://github.com/openshift/origin
 [okd]: https://www.okd.io/
 [podman]: https://podman.io/
-[using-image-pull-secrets]: https://docs.openshift.com/container-platform/4.12/openshift_images/managing_images/using-image-pull-secrets.html
+[using-image-pull-secrets]: https://docs.openshift.com/container-platform/4.13/openshift_images/managing_images/using-image-pull-secrets.html
 
 **Tested OS images**
 - Cloud image of [`Debian 11 (Bullseye)` \[`amd64`\]](https://cdimage.debian.org/images/cloud/bullseye/latest/)
@@ -59,7 +59,7 @@ automatically upfront.
 | `openshift_tests_kubeconfig_file` | *undefined*                      | true     | Path to a [kubeconfig][kubeconfig] file which contains cluster details, certificates, authentication tokens etc. |
 | `openshift_tests_pullsecret`      | *undefined*                      | false    | [Pull secret][using-image-pull-secrets] downloaded from [Red Hat Cloud Console][rh-console-ipi] which will be used to authenticate with Container registries `Quay.io` and `registry.redhat.io`, which serve the container images for OpenShift Container Platform components. A pull secret is required for OpenShift deployments only, but not for OKD deployments. |
 | `openshift_tests_pullsecret_file` | `~/pull-secret.txt`              | false    | Path to pull secret file |
-| `openshift_tests_release_image`   | *undefined*                      | true     | Container image from which `openstack-install` will be extracted, e.g. `'quay.io/okd/scos-release:4.12.0-0.okd-scos-2023-04-14-052931'` |
+| `openshift_tests_release_image`   | *undefined*                      | true     | Container image from which `openstack-install` will be extracted, e.g. `'quay.io/okd/scos-release:4.13.0-0.okd-scos-2023-07-20-165025'` |
 | `openshift_tests_suite`           | `openshift/conformance/parallel` | false    | The test suite to run.  Use `openshift-tests run --help` to list available suites. [Defaults to OpenShift CI's default test suite][ocp-e2e-test-step] |
 
 [kubeconfig]: https://www.redhat.com/sysadmin/kubeconfig
@@ -104,7 +104,7 @@ openshift_tests_pullsecret: |
 openshift_tests_release_image: "{{ lookup('ansible.builtin.pipe', openshift_tests_release_image_query) }}"
 
 openshift_tests_release_image_query: |
-  curl -s https://mirror.openshift.com/pub/openshift-v4/amd64/clients/ocp/stable-4.12/release.txt \
+  curl -s https://mirror.openshift.com/pub/openshift-v4/amd64/clients/ocp/stable-4.13/release.txt \
     | grep 'Pull From: quay.io' \
     | awk -F ' ' '{print $3}'
 ```

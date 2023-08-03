@@ -117,9 +117,9 @@ libvirt_volumes:
   prealloc_metadata: false
   state: present
 
-openshift_client_checksum: 'sha256:664362e82648a5727dce090ffd545103b9c037d18836527a1951f02b20c12725'
+openshift_client_checksum: 'sha256:59cfdc9161c4d86ad1d0fe8789ae4c28aba64f2bbdf1cf748747694b54ff005b'
 
-openshift_client_url: 'https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.12.4/openshift-client-linux-4.12.4.tar.gz'
+openshift_client_url: 'https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.13.7/openshift-client-linux-4.13.7.tar.gz'
 
 openshift_ipi_config: |
   apiVersion: v1
@@ -211,7 +211,7 @@ openshift_ipi_config: |
 
 openshift_ipi_pullsecret_default: '{"auths":{"xxxxxxx": {"auth": "xxxxxx","email": "xxxxxx"}}}'
 
-openshift_ipi_release_image: 'quay.io/okd/scos-release:4.12.0-0.okd-scos-2023-04-14-052931'
+openshift_ipi_release_image: 'quay.io/okd/scos-release:4.13.0-0.okd-scos-2023-07-20-165025'
 
 openshift_tests_kubeconfig_file: '{{ openshift_ipi_config_dir }}/auth/kubeconfig'
 

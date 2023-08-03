@@ -38,7 +38,7 @@ that demonstrates how to setup a cloud infrastructure using [libvirt][libvirt] a
 [pxe-wiki]: https://en.wikipedia.org/wiki/Preboot_Execution_Environment
 [okd]: https://www.okd.io/
 [okd-ipi]: https://docs.okd.io/latest/installing/installing_bare_metal_ipi/ipi-install-overview.html
-[ocp-ipi]: https://docs.openshift.com/container-platform/4.12/installing/installing_bare_metal_ipi/ipi-install-overview.html
+[ocp-ipi]: https://docs.openshift.com/container-platform/4.13/installing/installing_bare_metal_ipi/ipi-install-overview.html
 [ocp-tests]: https://github.com/openshift/origin
 [sushy-emulator]: https://docs.openstack.org/sushy-tools/latest/user/dynamic-emulator.html
 

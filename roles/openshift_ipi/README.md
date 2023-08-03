@@ -17,7 +17,7 @@ Finally, `openshift-install` will generate the manifests for OpenShift Installer
 `install-config.yaml` and then create the cluster.
 
 [ocp]: https://openshift.com/
-[ocp-ipi]: https://docs.openshift.com/container-platform/4.12/installing/installing_bare_metal_ipi/ipi-install-overview.html
+[ocp-ipi]: https://docs.openshift.com/container-platform/4.13/installing/installing_bare_metal_ipi/ipi-install-overview.html
 [okd]: https://www.okd.io/
 [okd-ipi]: https://docs.okd.io/latest/installing/installing_bare_metal_ipi/ipi-install-overview.html
 
@@ -57,10 +57,10 @@ steps described in [`README.md`][jm1-cloudy-readme] using the provided [`require
 | `openshift_ipi_install_dir`     | `/usr/local/bin`    | false    | Directory where `openshift-install` will be installed to |
 | `openshift_ipi_pullsecret`      | *undefined*         | false    | [Pull secret][using-image-pull-secrets] downloaded from [Red Hat Cloud Console][rh-console-ipi] which will be used to authenticate with Container registries `Quay.io` and `registry.redhat.io`, which serve the container images for OpenShift Container Platform components. A pull secret is required for OpenShift deployments only, but not for OKD deployments. |
 | `openshift_ipi_pullsecret_file` | `~/pull-secret.txt` | false    | Path to pull secret file |
-| `openshift_ipi_release_image`   | *undefined*         | true     | Container image from which `openshift-install` will be extracted, e.g. `'quay.io/okd/scos-release:4.12.0-0.okd-scos-2023-04-14-052931'` |
+| `openshift_ipi_release_image`   | *undefined*         | true     | Container image from which `openshift-install` will be extracted, e.g. `'quay.io/okd/scos-release:4.13.0-0.okd-scos-2023-07-20-165025'` |
 
 [rh-console-ipi]: https://console.redhat.com/openshift/install/metal/installer-provisioned
-[using-image-pull-secrets]: https://docs.openshift.com/container-platform/4.12/openshift_images/managing_images/using-image-pull-secrets.html
+[using-image-pull-secrets]: https://docs.openshift.com/container-platform/4.13/openshift_images/managing_images/using-image-pull-secrets.html
 
 ## Dependencies
 
@@ -109,7 +109,7 @@ openshift_ipi_pullsecret: |
 openshift_ipi_release_image: "{{ lookup('ansible.builtin.pipe', openshift_ipi_release_image_query) }}"
 
 openshift_ipi_release_image_query: |
-  curl -s https://mirror.openshift.com/pub/openshift-v4/amd64/clients/ocp/stable-4.12/release.txt \
+  curl -s https://mirror.openshift.com/pub/openshift-v4/amd64/clients/ocp/stable-4.13/release.txt \
     | grep 'Pull From: quay.io' \
     | awk -F ' ' '{print $3}'
 ```

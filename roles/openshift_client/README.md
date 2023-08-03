@@ -34,9 +34,9 @@ None.
 
 | Name                           | Default value     | Required | Description |
 | ------------------------------ | ----------------- | -------- | ----------- |
-| `openshift_client_checksum`    | *undefined*       | true     | Checksum of OpenShift Client archive, e.g. `'sha256:664362e82648a5727dce090ffd545103b9c037d18836527a1951f02b20c12725'` |
+| `openshift_client_checksum`    | *undefined*       | true     | Checksum of OpenShift Client archive, e.g. `'sha256:59cfdc9161c4d86ad1d0fe8789ae4c28aba64f2bbdf1cf748747694b54ff005b'` |
 | `openshift_client_install_dir` | `/usr/local/bin/` | false    | Directory where OpenShift Client will be installed to. |
-| `openshift_client_url`         | *undefined*       | true     | URL to OpenShift Client archive, e.g. `'https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.12.4/openshift-client-linux-4.12.4.tar.gz'` |
+| `openshift_client_url`         | *undefined*       | true     | URL to OpenShift Client archive, e.g. `'https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.13.7/openshift-client-linux-4.13.7.tar.gz'` |
 
 ## Dependencies
 
@@ -54,8 +54,9 @@ None.
     # Ref.:
     # https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html
     # https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
-    openshift_client_checksum: 'sha256:664362e82648a5727dce090ffd545103b9c037d18836527a1951f02b20c12725'
-    openshift_client_url: 'https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.12.4/openshift-client-linux-4.12.4.tar.gz'
+    openshift_client_checksum: 'sha256:59cfdc9161c4d86ad1d0fe8789ae4c28aba64f2bbdf1cf748747694b54ff005b'
+    openshift_client_url: 'https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.13.7/openshift-client-linux-4.13.7.tar.gz'
+
   roles:
   - name: Install OpenShift Client
     role: jm1.cloudy.openshift_client
