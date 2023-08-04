@@ -1,0 +1,44 @@
+---
+# Copyright (c) 2023 Jakob Meng, <jakobmeng@web.de>
+# vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
+# kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
+
+# Ansible controller is not supposed to connect to this host
+ansible_host: !!null
+
+cloudinit_userdata: !!null # disable cloud-init userdata to prevent Jinja2 template errors due to undefined variables
+
+libvirt_configdrive: !!null # disable cloud-init config drive
+
+libvirt_domain_autostart: false
+
+libvirt_domain_state: shutoff
+
+libvirt_hardware:
+- metadata: 'uuid=deadbeef-1337-1337-1337-000000000003'
+- cpu: 'host'
+- vcpus: '4'
+- memory: '16384'
+- virt_type: 'kvm'
+- graphics: 'vnc,listen=socket'
+- network: 'network=route-1-no-dhcp,model=virtio,mac=52:54:00:aa:bb:16'
+- disk: "vol='{{ libvirt_pool }}/{{ libvirt_volumes[0]['name'] }}',device=disk,bus=virtio"
+- machine: 'q35'
+- boot: 'hd,cdrom,loader=/usr/share/OVMF/OVMF_CODE.fd'
+- os_variant: 'rhel8.0'
+
+libvirt_host_become: false
+
+libvirt_pool: 'default'
+
+libvirt_uri: 'qemu:///session'
+
+libvirt_volumes:
+- capacity: 100G
+  format: 'qcow2'
+  name: '{{ fqdn }}.qcow2'
+  pool: '{{ libvirt_pool }}'
+  prealloc_metadata: false
+  state: present
+
+os_architecture: x86_64

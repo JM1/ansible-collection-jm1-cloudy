@@ -1,0 +1,145 @@
+---
+# Copyright (c) 2023 Jakob Meng, <jakobmeng@web.de>
+# vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
+# kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
+
+distribution_id:
+- 'Debian'
+- '11'
+
+dnsmasq_config:
+- ansible.builtin.copy:
+    content: |
+      address=/apps.okd-abi-ha.home.arpa/192.168.158.56
+      bind-dynamic
+      dhcp-authoritative
+      dhcp-host=52:54:00:aa:bb:14,192.168.158.49,cp0.okd-abi-ha.home.arpa,infinite
+      dhcp-host=52:54:00:aa:bb:15,192.168.158.50,cp1.okd-abi-ha.home.arpa,infinite
+      dhcp-host=52:54:00:aa:bb:16,192.168.158.51,cp2.okd-abi-ha.home.arpa,infinite
+      dhcp-host=52:54:00:aa:bb:17,192.168.158.52,w0.okd-abi-ha.home.arpa,infinite
+      dhcp-host=52:54:00:aa:bb:18,192.168.158.53,w1.okd-abi-ha.home.arpa,infinite
+      dhcp-host=52:54:00:aa:bb:19,192.168.158.48,provisioner.okd-abi-ha.home.arpa,infinite
+      dhcp-ignore=tag:!known
+      dhcp-no-override
+      dhcp-option=option:dns-server,192.168.158.46
+      dhcp-option=option:router,192.168.158.46
+      dhcp-range=192.168.158.100,192.168.158.254,255.255.255.0
+      domain=okd-abi-ha.home.arpa,192.168.158.48/32
+      domain=okd-abi-ha.home.arpa,192.168.158.49/32
+      domain=okd-abi-ha.home.arpa,192.168.158.50/32
+      domain=okd-abi-ha.home.arpa,192.168.158.51/32
+      domain=okd-abi-ha.home.arpa,192.168.158.52/32
+      domain=okd-abi-ha.home.arpa,192.168.158.53/32
+      domain=okd-abi-ha.home.arpa,192.168.158.54/32
+      host-record=api.okd-abi-ha.home.arpa,192.168.158.55
+      host-record=cp0.okd-abi-ha.home.arpa,192.168.158.49
+      host-record=cp1.okd-abi-ha.home.arpa,192.168.158.50
+      host-record=cp2.okd-abi-ha.home.arpa,192.168.158.51
+      host-record=provisioner.okd-abi-ha.home.arpa,192.168.158.48
+      host-record=w0.okd-abi-ha.home.arpa,192.168.158.52
+      host-record=w1.okd-abi-ha.home.arpa,192.168.158.53
+      listen-address=192.168.158.46,127.0.0.1
+      no-resolv
+      server=192.168.158.1
+      strict-order
+    dest: /etc/dnsmasq.d/home.arpa.conf
+    mode: u=rw,g=r,o=
+    group: root
+    owner: root
+
+# This virtual machine must provide routing services because IPI's bootstrap VM uses the same setting
+# bootstrapExternalStaticGateway in install-config.yaml to define the standard gateway as well as the DNS nameservers.
+# Ref.: https://github.com/openshift/installer/pull/6585
+iptables_config:
+- # do not do SNAT for all packets going to libvirt networks, allowing traffic from container host to libvirt domains
+  ansible.builtin.iptables:
+    chain: POSTROUTING
+    destination: 192.168.150.0/24,192.168.157.0/24,192.168.158.0/24
+    jump: RETURN
+    source: 192.168.158.0/24
+    table: nat
+- # do SNAT for all packets coming from baremetal network
+  ansible.builtin.iptables:
+    chain: POSTROUTING
+    destination: 0.0.0.0/0
+    jump: SNAT
+    out_interface: 'eth0'
+    source: 192.168.158.0/24
+    table: nat
+    to_source: 192.168.158.46
+
+iptables_persistence: true
+
+libvirt_domain_autostart: false
+
+libvirt_hardware:
+- cpu: 'host'
+- vcpus: '2'
+- memory: '1024'
+- virt_type: 'kvm'
+- graphics: 'vnc,listen=socket'
+- network: 'network=route-1-no-dhcp,model=virtio'
+- disk: "vol='{{ libvirt_pool }}/{{ libvirt_volumes[0]['name'] }}',device=disk,bus=virtio"
+- disk: "vol='{{ libvirt_pool }}/{{ libvirt_configdrive }}',device=disk,bus=virtio,serial='cidata'"
+- os_variant: 'ubuntu18.04'
+
+libvirt_host_become: false
+
+libvirt_netplan:
+  ethernets:
+    eth0:
+      dhcp4: false
+      dhcp6: false
+      accept-ra: false
+
+      addresses:
+      - 192.168.158.46/24
+
+      nameservers:
+        addresses:
+        - 192.168.158.1
+      routes:
+      - to: 0.0.0.0/0
+        via: 192.168.158.1
+
+libvirt_pool: 'default'
+
+libvirt_uri: 'qemu:///session'
+
+libvirt_volumes:
+- backing_vol: 'debian-11-genericcloud-amd64.qcow2'
+  backing_vol_format: 'qcow2'
+  capacity: 5G
+  format: 'qcow2'
+  linked: false
+  name: '{{ fqdn }}.qcow2'
+  pool: '{{ libvirt_pool }}'
+  prealloc_metadata: false
+  state: present
+
+meta_packages:
+- name: jm1-system-tools
+  depends:
+  - iptables-persistent # Used to (re)store iptables SNAT rules
+  version: 1
+
+sysctl_config:
+- ansible.builtin.copy:
+    content: |
+      # 2023 Jakob Meng, <jakobmeng@web.de>
+      net.ipv4.ip_forward = 0
+      net.ipv4.conf.eth0.forwarding = 1
+    dest: /etc/sysctl.d/10-ip-forward.conf
+# Apply changes using Ansible's sysctl module
+- ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    value: '0'
+    state: present
+    sysctl_file: /etc/sysctl.d/10-ip-forward.conf
+    sysctl_set: true
+- ansible.posix.sysctl:
+    name: net.ipv4.conf.eth0.forwarding
+    value: '1'
+    state: present
+    sysctl_file: /etc/sysctl.d/10-ip-forward.conf
+    sysctl_set: true
