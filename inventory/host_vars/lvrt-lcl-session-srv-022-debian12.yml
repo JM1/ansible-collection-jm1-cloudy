@@ -33,8 +33,7 @@ libvirt_pool: 'default'
 libvirt_uri: 'qemu:///session'
 
 libvirt_volumes:
-- # TODO: Replace with non-daily image name when Debian 12 (Bookworm) has been released.
-  backing_vol: 'debian-12-genericcloud-amd64-daily.qcow2'
+- backing_vol: 'debian-12-genericcloud-amd64.qcow2'
   backing_vol_format: 'qcow2'
   capacity: 5G
   format: 'qcow2'

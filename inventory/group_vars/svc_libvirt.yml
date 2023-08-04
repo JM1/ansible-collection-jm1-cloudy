@@ -41,10 +41,8 @@ libvirt_images:
   state: present
 - # no checksum because image is updated every week
   format: 'qcow2'
-  # TODO: Replace with non-daily image url when Debian 12 (Bookworm) has been released.
-  image: https://cdimage.debian.org/images/cloud/bookworm/daily/latest/debian-12-genericcloud-amd64-daily.qcow2
-  # TODO: Replace with non-daily image name when Debian 12 (Bookworm) has been released.
-  name: debian-12-genericcloud-amd64-daily.qcow2
+  image: https://cdimage.debian.org/images/cloud/bookworm/latest/debian-12-genericcloud-amd64.qcow2
+  name: debian-12-genericcloud-amd64.qcow2
   pool: 'default'
   state: present
 - # no checksum because image is updated every week
