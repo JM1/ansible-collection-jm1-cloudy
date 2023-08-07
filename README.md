@@ -162,15 +162,36 @@ automated, requires less changes to the Ansible controller system and is less li
 
 ### Define cloud infrastructure and prepare host environment
 
-To build your own cloud infrastructure based on this collection, copy or link directories [`inventory/`][
-inventory-example], [`playbooks/`][playbooks-example], [`containers/`][containers-example] (containerized setup with
-[Docker](#containerized-setup-with-docker-compose) or [Podman](#containerized-setup-with-podman) only) and config file
-[`ansible.cfg.example`][ansible-cfg-example] to a new directory.
+To build your own cloud infrastructure based on this collection, create a new git repository and copy both directories
+[`inventory/`][inventory-example] and [`playbooks/`][playbooks-example] as well as file [`ansible.cfg.example`][
+ansible-cfg-example] to it. For a containerized setup with [Docker](#containerized-setup-with-docker-compose) or
+[Podman](#containerized-setup-with-podman) also copy directory [`containers/`][containers-example]. Instead of copying
+[`containers/`][containers-example] and [`playbooks/`][playbooks-example] you could also add this collection as a
+[git submodule][git-submodules] and refer directly to those directories inside the git submodule. Git submodules can be
+difficult to use but allow to pin your code a specific commit of this collection, making it more resilient against
+breaking changes. The following example shows how to use derive a new project utilizing containers and [git submodules][
+git-submodules]:
+
+```sh
+git init new-project
+cd new-project
+
+git submodule add https://github.com/JM1/ansible-collection-jm1-cloudy.git vendor/cloudy
+
+cp -ri vendor/cloudy/inventory/ .
+ln -s vendor/cloudy/playbooks
+cp -i vendor/cloudy/ansible.cfg.example ansible.cfg
+
+git add inventory/ playbooks ansible.cfg # git submodule has been added already
+
+git commit -m "Example inventory"
+```
 
 [ansible-cfg-example]: ansible.cfg.example
 [containers-example]: containers/
 [inventory-example]: inventory/
 [playbooks-example]: playbooks/
+[git-submodules]: https://git-scm.com/book/en/v2/Git-Tools-Submodules
 
 Host `lvrt-lcl-system` defines a libvirt environment to be set up on a bare-metal system or inside a container. For
 example, this includes required packages for libvirt and QEMU, [libvirt virtual networks][libvirt-networking] such as
@@ -190,7 +211,7 @@ Dig into the inventory and playbooks and customize them as needed.
 Edit `ansible.cfg` to match your environment, i.e. set `inventory` path where Ansible will find your inventory:
 
 ```sh
-cp -raiv ansible.cfg.example ansible.cfg
+cp -nv ansible.cfg.example ansible.cfg
 editor ansible.cfg
 ```
 
