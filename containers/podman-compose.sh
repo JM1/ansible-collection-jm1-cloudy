@@ -256,8 +256,16 @@ ________EOF
         # For development only
         podman_args+=(-v "$cmd_dir/entrypoint.sh:/usr/local/bin/entrypoint.sh:ro")
 
-        # For development only
-        #podman_args+=(-v "$project_dir/:/usr/share/ansible/collections/ansible_collections/jm1/cloudy/:ro")
+        # Bind mount collection into container which allows derived collections to pin this collection and allows
+        # developers of this collection to test changes to this collection, skipping the collection installation from
+        # Ansible Galaxy.
+        collection_dir=$(readlink -f "$cmd_dir/..")
+        if [ -e "$collection_dir/galaxy.yml" ] \
+           && grep -q -e '^name: cloudy$' "$collection_dir/galaxy.yml" \
+           && grep -q -e '^namespace: jm1$' "$collection_dir/galaxy.yml"
+        then
+            podman_args+=(-v "$collection_dir/:/usr/share/ansible/collections/ansible_collections/jm1/cloudy/:ro")
+        fi
 
         if [ "$detach" = "yes" ]; then
             podman_args+=(--detach)
