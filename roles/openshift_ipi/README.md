@@ -4,17 +4,20 @@ This role helps with using [OpenShift Installer-provisioned installation (IPI)][
 [ODK Installer-provisioned installation (IPI)][okd-ipi] to create [OpenShift clusters][ocp] and [OKD clusters][okd].
 
 First, a directory for all installer related files such as `install-config.yaml` and manifests will be created, defined
-in variable `openshift_ipi_config_dir`. Insides this directory a file `install-config.yaml` for `openshift-install`
-will be created and filled with contents from variable `openshift_ipi_config`. When a [pull secret][
-using-image-pull-secrets] has been defined in variable `openshift_ipi_pullsecret`, then it will be written to file
-`openshift_ipi_pullsecret_file`.
+in variable `openshift_ipi_config_dir`. Files insides this directory such as `install-config.yaml` will be created from
+variable `openshift_ipi_config` which defines a list of tasks to be run by this role. Each task calls an Ansible module
+similar to tasks in roles or playbooks except that only few [keywords][playbooks-keywords] such as `become` and `when`
+are supported.
+
+When a [pull secret][using-image-pull-secrets] has been defined in variable `openshift_ipi_pullsecret`, then it will be
+written to file `openshift_ipi_pullsecret_file`.
 
 Next, the `openshift-install` binary will be extracted from container image defined in `openshift_ipi_release_image` to
 directory `openshift_ipi_install_dir` which defaults to `/usr/local/bin`. To aid debugging, the version of
 `openshift-install` will be printed afterwards.
 
 Finally, `openshift-install` will generate the manifests for OpenShift Installer-provisioned installation (IPI) from
-`install-config.yaml` and then create the cluster.
+`install-config.yaml` and other manifests and then create the cluster.
 
 [ocp]: https://openshift.com/
 [ocp-ipi]: https://docs.openshift.com/container-platform/4.13/installing/installing_bare_metal_ipi/ipi-install-overview.html
@@ -41,9 +44,11 @@ Kubernetes resources. You may use role [`jm1.cloudy.openshift_client`](../opensh
 
 [ocp-oc]: https://github.com/openshift/oc
 
-This role uses module(s) from collection [`jm1.pkg`][galaxy-jm1-pkg]. To install this collection you may follow the
-steps described in [`README.md`][jm1-cloudy-readme] using the provided [`requirements.yml`][jm1-cloudy-requirements].
+This role uses module(s) from collection [`jm1.ansible`][galaxy-jm1-ansible] and collection [`jm1.pkg`][galaxy-jm1-pkg].
+To install these collections you may follow the steps described in [`README.md`][jm1-cloudy-readme] using the provided
+[`requirements.yml`][jm1-cloudy-requirements].
 
+[galaxy-jm1-ansible]: https://galaxy.ansible.com/jm1/ansible
 [galaxy-jm1-pkg]: https://galaxy.ansible.com/jm1/pkg
 [jm1-cloudy-readme]: ../../README.md
 [jm1-cloudy-requirements]: ../../requirements.yml
@@ -52,7 +57,7 @@ steps described in [`README.md`][jm1-cloudy-readme] using the provided [`require
 
 | Name                            | Default value       | Required | Description |
 | ------------------------------- | ------------------- | -------- | ----------- |
-| `openshift_ipi_config`          | *undefined*         | true     | Contents of `install-config.yaml` file for `openshift-install` |
+| `openshift_ipi_config`          | *undefined*         | true     | List of tasks to run in order to create `install-config.yaml` and other manifests for `openshift-install` in `openshift_ipi_config_dir` [^example-modules] [^supported-keywords] [^supported-modules] |
 | `openshift_ipi_config_dir`      | `~/clusterconfigs`  | false    | Directory where `install-config.yaml` file will be created. Defaults to `clusterconfigs` in `ansible_user`'s home |
 | `openshift_ipi_install_dir`     | `/usr/local/bin`    | false    | Directory where `openshift-install` will be installed to |
 | `openshift_ipi_pullsecret`      | *undefined*         | false    | [Pull secret][using-image-pull-secrets] downloaded from [Red Hat Cloud Console][rh-console-ipi] which will be used to authenticate with Container registries `Quay.io` and `registry.redhat.io`, which serve the container images for OpenShift Container Platform components. A pull secret is required for OpenShift deployments only, but not for OKD deployments. |
@@ -61,6 +66,31 @@ steps described in [`README.md`][jm1-cloudy-readme] using the provided [`require
 
 [rh-console-ipi]: https://console.redhat.com/openshift/install/metal/installer-provisioned
 [using-image-pull-secrets]: https://docs.openshift.com/container-platform/4.13/openshift_images/managing_images/using-image-pull-secrets.html
+
+[^supported-modules]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
+supports modules and action plugins only. Some Ansible modules such as [`ansible.builtin.meta`][ansible-builtin-meta]
+and `ansible.builtin.{include,import}_{playbook,role,tasks}` are core features of Ansible, in fact not implemented as
+modules and thus cannot be called from `jm1.ansible.execute_module`. Doing so causes Ansible to raise errors such as
+`MODULE FAILURE\nSee stdout/stderr for the exact error`. In addition, Ansible does not support free-form parameters for
+arbitrary modules, so for example, change from `- debug: msg=""` to `- debug: { msg: "" }`.
+
+[^supported-keywords]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
+supports keywords `become`, `become_exe`, `become_flags`, `become_method`, `become_user`, `environment` and `when` only.
+**NOTE:** Keywords related to `become` will not inherit values from the role's caller. For example, when `become` is
+defined in a playbook it will not be passed on to a task here.
+
+[^example-modules]: Useful Ansible modules in this context could be [`blockinfile`][ansible-builtin-blockinfile],
+[`command`][ansible-builtin-command], [`copy`][ansible-builtin-copy], [`file`][ansible-builtin-file], [`lineinfile`][
+ansible-builtin-lineinfile] and [`template`][ansible-builtin-template].
+
+[ansible-builtin-blockinfile]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/blockinfile_module.html
+[ansible-builtin-command]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/command_module.html
+[ansible-builtin-copy]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/copy_module.html
+[ansible-builtin-file]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/file_module.html
+[ansible-builtin-lineinfile]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/lineinfile_module.html
+[ansible-builtin-meta]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/meta_module.html
+[ansible-builtin-template]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/template_module.html
+[jm1-ansible-execute-module]: https://github.com/JM1/ansible-collection-jm1-ansible/blob/master/plugins/modules/execute_module.py
 
 ## Dependencies
 

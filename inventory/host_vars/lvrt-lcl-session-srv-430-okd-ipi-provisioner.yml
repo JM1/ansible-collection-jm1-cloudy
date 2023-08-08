@@ -121,93 +121,100 @@ openshift_client_checksum: 'sha256:59cfdc9161c4d86ad1d0fe8789ae4c28aba64f2bbdf1c
 
 openshift_client_url: 'https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.13.7/openshift-client-linux-4.13.7.tar.gz'
 
-openshift_ipi_config: |
-  apiVersion: v1
-  baseDomain: home.arpa
-  metadata:
-    name: okd-ipi
-  networking:
-    machineNetwork:
-    - cidr: 192.168.158.0/24
-    networkType: OVNKubernetes
-  compute:
-  - name: worker
-    replicas: 2
-  controlPlane:
-    name: master
-    replicas: 3
-    platform:
-      baremetal: {}
-  platform:
-    baremetal:
-      apiVIPs:
-        - 192.168.158.35
-      ingressVIPs:
-        - 192.168.158.36
-      provisioningNetwork: "Disabled"
-      bootstrapExternalStaticIP: 192.168.158.99
-      # Until 4.13 option bootstrapExternalStaticGateway will be used to define the DNS nameserver of the bootstrap VM
-      bootstrapExternalStaticGateway: 192.168.158.26
-      # Since 4.14 a dedicated option bootstrapExternalStaticDNS has been introduced to define the DNS nameserver of the
-      # bootstrap VM and it has to be specified when bootstrapExternalStaticGateway is set.
-      #bootstrapExternalStaticDNS: 192.168.158.26
-      hosts:
-        - name: cp0
-          role: master
-          bmc:
-            address: 'redfish-virtualmedia+http://192.168.158.27:8000/redfish/v1/Systems/deadbeef-1337-1337-1337-000000000001'
-            username: admin
-            password: empty
-            disableCertificateVerification: True
-          bootMACAddress: 52:54:00:aa:bb:0d
-          rootDeviceHints:
-            deviceName: "/dev/vda"
-        - name: cp1
-          role: master
-          bmc:
-            address: 'redfish-virtualmedia+http://192.168.158.27:8000/redfish/v1/Systems/deadbeef-1337-1337-1337-000000000002'
-            username: admin
-            password: empty
-            disableCertificateVerification: True
-          bootMACAddress: 52:54:00:aa:bb:0e
-          rootDeviceHints:
-            deviceName: "/dev/vda"
-        - name: cp2
-          role: master
-          bmc:
-            address: 'redfish-virtualmedia+http://192.168.158.27:8000/redfish/v1/Systems/deadbeef-1337-1337-1337-000000000003'
-            username: admin
-            password: empty
-            disableCertificateVerification: True
-          bootMACAddress: 52:54:00:aa:bb:0f
-          rootDeviceHints:
-            deviceName: "/dev/vda"
-        - name: w0
-          role: worker
-          bmc:
-            address: 'redfish-virtualmedia+http://192.168.158.27:8000/redfish/v1/Systems/deadbeef-1337-1337-1337-000000000004'
-            username: admin
-            password: empty
-            disableCertificateVerification: True
-          bootMACAddress: 52:54:00:aa:bb:10
-          rootDeviceHints:
-            deviceName: "/dev/vda"
-        - name: w1
-          role: worker
-          bmc:
-            address: 'redfish-virtualmedia+http://192.168.158.27:8000/redfish/v1/Systems/deadbeef-1337-1337-1337-000000000005'
-            username: admin
-            password: empty
-            disableCertificateVerification: True
-          bootMACAddress: 52:54:00:aa:bb:11
-          rootDeviceHints:
-            deviceName: "/dev/vda"
-  pullSecret: '{{ openshift_ipi_pullsecret | default(openshift_ipi_pullsecret_default | from_json) | to_json }}'
-  sshKey: '{{ ssh_authorized_keys
-              | selectattr('user', 'equalto', ansible_user)
-              | selectattr('state', 'equalto', 'present')
-              | map(attribute='key')
-              | list | join('\n') }}'
+openshift_ipi_config:
+- # Create install-config.yaml for openshift-install
+  ansible.builtin.copy:
+    content: |
+      apiVersion: v1
+      baseDomain: home.arpa
+      metadata:
+        name: okd-ipi
+      networking:
+        machineNetwork:
+        - cidr: 192.168.158.0/24
+        networkType: OVNKubernetes
+      compute:
+      - name: worker
+        replicas: 2
+      controlPlane:
+        name: master
+        replicas: 3
+        platform:
+          baremetal: {}
+      platform:
+        baremetal:
+          apiVIPs:
+            - 192.168.158.35
+          ingressVIPs:
+            - 192.168.158.36
+          provisioningNetwork: "Disabled"
+          bootstrapExternalStaticIP: 192.168.158.99
+          # Until 4.13 option bootstrapExternalStaticGateway will be used to define the DNS nameserver of the bootstrap VM
+          bootstrapExternalStaticGateway: 192.168.158.26
+          # Since 4.14 a dedicated option bootstrapExternalStaticDNS has been introduced to define the DNS nameserver of the
+          # bootstrap VM and it has to be specified when bootstrapExternalStaticGateway is set.
+          #bootstrapExternalStaticDNS: 192.168.158.26
+          hosts:
+            - name: cp0
+              role: master
+              bmc:
+                address: 'redfish-virtualmedia+http://192.168.158.27:8000/redfish/v1/Systems/deadbeef-1337-1337-1337-000000000001'
+                username: admin
+                password: empty
+                disableCertificateVerification: True
+              bootMACAddress: 52:54:00:aa:bb:0d
+              rootDeviceHints:
+                deviceName: "/dev/vda"
+            - name: cp1
+              role: master
+              bmc:
+                address: 'redfish-virtualmedia+http://192.168.158.27:8000/redfish/v1/Systems/deadbeef-1337-1337-1337-000000000002'
+                username: admin
+                password: empty
+                disableCertificateVerification: True
+              bootMACAddress: 52:54:00:aa:bb:0e
+              rootDeviceHints:
+                deviceName: "/dev/vda"
+            - name: cp2
+              role: master
+              bmc:
+                address: 'redfish-virtualmedia+http://192.168.158.27:8000/redfish/v1/Systems/deadbeef-1337-1337-1337-000000000003'
+                username: admin
+                password: empty
+                disableCertificateVerification: True
+              bootMACAddress: 52:54:00:aa:bb:0f
+              rootDeviceHints:
+                deviceName: "/dev/vda"
+            - name: w0
+              role: worker
+              bmc:
+                address: 'redfish-virtualmedia+http://192.168.158.27:8000/redfish/v1/Systems/deadbeef-1337-1337-1337-000000000004'
+                username: admin
+                password: empty
+                disableCertificateVerification: True
+              bootMACAddress: 52:54:00:aa:bb:10
+              rootDeviceHints:
+                deviceName: "/dev/vda"
+            - name: w1
+              role: worker
+              bmc:
+                address: 'redfish-virtualmedia+http://192.168.158.27:8000/redfish/v1/Systems/deadbeef-1337-1337-1337-000000000005'
+                username: admin
+                password: empty
+                disableCertificateVerification: True
+              bootMACAddress: 52:54:00:aa:bb:11
+              rootDeviceHints:
+                deviceName: "/dev/vda"
+      pullSecret: '{{ openshift_ipi_pullsecret | default(openshift_ipi_pullsecret_default | from_json) | to_json }}'
+      sshKey: '{{ ssh_authorized_keys
+                  | selectattr('user', 'equalto', ansible_user)
+                  | selectattr('state', 'equalto', 'present')
+                  | map(attribute='key')
+                  | list | join('\n') }}'
+    dest: '{{ openshift_ipi_config_dir }}/install-config.yaml'
+    group: '{{ ansible_user }}'
+    mode: u=rw,g=r,o=
+    owner: '{{ ansible_user }}'
 
 openshift_ipi_pullsecret_default: '{"auths":{"xxxxxxx": {"auth": "xxxxxx","email": "xxxxxx"}}}'
 
