@@ -57,6 +57,14 @@ Agent-based Installer, i.e. `openshift-install`, requires [nmstate][nmstate] dur
 [nmstate]: https://nmstate.io
 [ocp-oc]: https://github.com/openshift/oc
 
+This role uses module(s) from collection [`jm1.ansible`][galaxy-jm1-ansible]. To install this collection you may follow
+the steps described in [`README.md`][jm1-cloudy-readme] using the provided [`requirements.yml`][
+jm1-cloudy-requirements].
+
+[galaxy-jm1-ansible]: https://galaxy.ansible.com/jm1/ansible
+[jm1-cloudy-readme]: ../../README.md
+[jm1-cloudy-requirements]: ../../requirements.yml
+
 ## Variables
 
 | Name                            | Default value       | Required | Description |
@@ -91,8 +99,6 @@ For a complete example on how to use this role, refer to hosts `lvrt-lcl-session
 `lvrt-lcl-session-srv-530-okd-abi-ha-provisioner` from the provided [examples inventory][inventory-example]. The
 top-level [`README.md`][jm1-cloudy-readme] describes how these hosts can be provisioned with playbook
 [`playbooks/site.yml`][playbook-site-yml].
-
-[jm1-cloudy-readme]: ../../README.md
 
 If you want to deploy OpenShift instead of OKD, download a [pull secret][using-image-pull-secrets] from [Red Hat Cloud
 Console][rh-console-abi]. It is required to authenticate with Container registries `Quay.io` and `registry.redhat.io`,
