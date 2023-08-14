@@ -12,12 +12,12 @@ are supported.
 When a [pull secret][using-image-pull-secrets] has been defined in variable `openshift_ipi_pullsecret`, then it will be
 written to file `openshift_ipi_pullsecret_file`.
 
-Next, the `openshift-install` binary will be extracted from container image defined in `openshift_ipi_release_image` to
-directory `openshift_ipi_install_dir` which defaults to `/usr/local/bin`. To aid debugging, the version of
-`openshift-install` will be printed afterwards.
+Next, the `openshift-baremetal-install` binary will be extracted from container image defined in
+`openshift_ipi_release_image` to directory `openshift_ipi_install_dir` which defaults to `/usr/local/bin`. To aid
+debugging, the version of `openshift-baremetal-install` will be printed afterwards.
 
-Finally, `openshift-install` will generate the manifests for OpenShift Installer-provisioned installation (IPI) from
-`install-config.yaml` and other manifests and then create the cluster.
+Finally, `openshift-baremetal-install` will generate the manifests for OpenShift Installer-provisioned installation
+(IPI) from `install-config.yaml` and other manifests and then create the cluster.
 
 [ocp]: https://openshift.com/
 [ocp-ipi]: https://docs.openshift.com/container-platform/4.13/installing/installing_bare_metal_ipi/ipi-install-overview.html
@@ -39,8 +39,9 @@ Available on Ansible Galaxy in Collection [jm1.cloudy](https://galaxy.ansible.co
 
 ## Requirements
 
-[OpenShift Client aka `oc`][ocp-oc] is required for extracting `openshift-install` from the release image and managing
-Kubernetes resources. You may use role [`jm1.cloudy.openshift_client`](../openshift_client/README.md) to install it.
+[OpenShift Client aka `oc`][ocp-oc] is required for extracting `openshift-baremetal-install` from the release image and
+managing Kubernetes resources. You may use role [`jm1.cloudy.openshift_client`](../openshift_client/README.md) to
+install it.
 
 [ocp-oc]: https://github.com/openshift/oc
 
@@ -57,12 +58,12 @@ To install these collections you may follow the steps described in [`README.md`]
 
 | Name                            | Default value       | Required | Description |
 | ------------------------------- | ------------------- | -------- | ----------- |
-| `openshift_ipi_config`          | *undefined*         | true     | List of tasks to run in order to create `install-config.yaml` and other manifests for `openshift-install` in `openshift_ipi_config_dir` [^example-modules] [^supported-keywords] [^supported-modules] |
+| `openshift_ipi_config`          | *undefined*         | true     | List of tasks to run in order to create `install-config.yaml` and other manifests for `openshift-baremetal-install` in `openshift_ipi_config_dir` [^example-modules] [^supported-keywords] [^supported-modules] |
 | `openshift_ipi_config_dir`      | `~/clusterconfigs`  | false    | Directory where `install-config.yaml` file will be created. Defaults to `clusterconfigs` in `ansible_user`'s home |
-| `openshift_ipi_install_dir`     | `/usr/local/bin`    | false    | Directory where `openshift-install` will be installed to |
+| `openshift_ipi_install_dir`     | `/usr/local/bin`    | false    | Directory where `openshift-baremetal-install` will be installed to |
 | `openshift_ipi_pullsecret`      | *undefined*         | false    | [Pull secret][using-image-pull-secrets] downloaded from [Red Hat Cloud Console][rh-console-ipi] which will be used to authenticate with Container registries `Quay.io` and `registry.redhat.io`, which serve the container images for OpenShift Container Platform components. A pull secret is required for OpenShift deployments only, but not for OKD deployments. |
 | `openshift_ipi_pullsecret_file` | `~/pull-secret.txt` | false    | Path to pull secret file |
-| `openshift_ipi_release_image`   | *undefined*         | true     | Container image from which `openshift-install` will be extracted, e.g. `'quay.io/okd/scos-release:4.13.0-0.okd-scos-2023-07-20-165025'` |
+| `openshift_ipi_release_image`   | *undefined*         | true     | Container image from which `openshift-baremetal-install` will be extracted, e.g. `'quay.io/okd/scos-release:4.13.0-0.okd-scos-2023-07-20-165025'` |
 
 [rh-console-ipi]: https://console.redhat.com/openshift/install/metal/installer-provisioned
 [using-image-pull-secrets]: https://docs.openshift.com/container-platform/4.13/openshift_images/managing_images/using-image-pull-secrets.html

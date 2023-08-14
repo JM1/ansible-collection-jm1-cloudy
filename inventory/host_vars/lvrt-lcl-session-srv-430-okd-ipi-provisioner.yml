@@ -122,7 +122,7 @@ openshift_client_checksum: 'sha256:59cfdc9161c4d86ad1d0fe8789ae4c28aba64f2bbdf1c
 openshift_client_url: 'https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.13.7/openshift-client-linux-4.13.7.tar.gz'
 
 openshift_ipi_config:
-- # Create install-config.yaml for openshift-install
+- # Create install-config.yaml for openshift-baremetal-install
   ansible.builtin.copy:
     content: |
       apiVersion: v1

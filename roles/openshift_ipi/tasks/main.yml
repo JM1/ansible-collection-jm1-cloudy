@@ -8,7 +8,7 @@
   ansible.builtin.fail:
     msg: >-
       Variable 'openshift_ipi_config' must define tasks which creating install-config.yaml and other manifests for
-      openshift-install.
+      openshift-baremetal-install.
 
 - name: Verify task definitions which create install-config.yaml and other manifests
   when: item is not mapping
@@ -58,7 +58,7 @@
     openshift_ipi_install_dir: '{{ openshift_ipi_paths.results.2.invocation.module_args.path }}'
     openshift_ipi_pullsecret_file: '{{ openshift_ipi_paths.results.3.invocation.module_args.path }}'
 
-- name: Create config directory for openshift-install
+- name: Create config directory for openshift-baremetal-install
   ansible.builtin.file:
     group: '{{ ansible_user }}'
     mode: u=rwx,g=rx,o=
@@ -76,9 +76,9 @@
     path: '{{ openshift_ipi_config_dir }}/auth/kubeconfig'
   register: openshift_ipi_path_install_marker
 
-- name: Create install-config.yaml and other manifests for openshift-install
-  # openshift-install will delete install-config.yaml when generating manifests
-  # openshift-install will delete manifests when cluster has been created
+- name: Create install-config.yaml and other manifests for openshift-baremetal-install
+  # openshift-baremetal-install will delete install-config.yaml when generating manifests
+  # openshift-baremetal-install will delete manifests when cluster has been created
   when: not openshift_ipi_path_manifests_marker.stat.exists and not openshift_ipi_path_install_marker.stat.exists
   # Values for 'become' and related keywords will not be inherited from the role's caller when using 'omit' as
   # default.
@@ -96,7 +96,7 @@
   environment: "{{ item['environment'] | default(omit) }}"
   loop: "{{ openshift_ipi_config | default([]) }}"
 
-- name: Create pull secret for openshift-install
+- name: Create pull secret for openshift-baremetal-install
   when: openshift_ipi_pullsecret | default(None) != None
   ansible.builtin.template:
     dest: '{{ openshift_ipi_pullsecret_file }}'
@@ -105,7 +105,7 @@
     owner: '{{ ansible_user }}'
     src: pull-secret.txt.j2
 
-- name: Extract openshift-install
+- name: Extract openshift-baremetal-install
   become: true
   become_flags: '--preserve-env=PATH'
   ansible.builtin.shell: # noqa risky-shell-pipe
@@ -116,25 +116,25 @@
            if openshift_ipi_pullsecret | default(None) != None
            else ''
         }} \
-        --command=openshift-install \
+        --command=openshift-baremetal-install \
         --to '{{ openshift_ipi_install_dir }}/' \
         '{{ openshift_ipi_release_image | mandatory }}'
-    creates: '{{ openshift_ipi_install_dir }}/openshift-install'
+    creates: '{{ openshift_ipi_install_dir }}/openshift-baremetal-install'
 
-- name: Get openshift-install version
+- name: Get openshift-baremetal-install version
   become: false
   changed_when: false
   ansible.builtin.command:
     chdir: '{{ openshift_ipi_home_dir }}'
-    cmd: openshift-install version
+    cmd: openshift-baremetal-install version
   register: openshift_ipi_openshift_install_version
 
-- name: Print openshift-install version
+- name: Print openshift-baremetal-install version
   ansible.builtin.debug:
     msg: '{{ openshift_ipi_openshift_install_version.stdout_lines }}'
 
 - name: Generate manifests for OpenShift Installer-provisioned installation (IPI)
-  # openshift-install will delete manifests when cluster has been created
+  # openshift-baremetal-install will delete manifests when cluster has been created
   when: not openshift_ipi_path_install_marker.stat.exists
   # Own manifests by Ansible user
   become: true
@@ -142,7 +142,7 @@
   become_user: '{{ ansible_user }}'
   ansible.builtin.command:
     chdir: '{{ openshift_ipi_home_dir }}'
-    cmd: openshift-install --dir '{{ openshift_ipi_config_dir }}' --log-level debug create manifests
+    cmd: openshift-baremetal-install --dir '{{ openshift_ipi_config_dir }}' --log-level debug create manifests
     creates: '{{ openshift_ipi_config_dir }}/manifests'
 
 - name: Run OpenShift Installer-provisioned installation (IPI)
@@ -154,10 +154,10 @@
   ansible.builtin.shell:
     chdir: '{{ openshift_ipi_home_dir }}'
     cmd: |
-      # The sudo below is required to run the openshift-install command with all group memberships, esp. kvm
-      # and libvirt. Without sudo the user which runs openshift-install will only be in group ansible.
+      # The sudo below is required to run the openshift-baremetal-install command with all group memberships, esp. kvm
+      # and libvirt. Without sudo the user which runs openshift-baremetal-install will only be in group ansible.
       sudo -u '{{ ansible_user }}' --preserve-env=SSH_AUTH_SOCK \
-        openshift-install --dir '{{ openshift_ipi_config_dir }}' --log-level debug create cluster
+        openshift-baremetal-install --dir '{{ openshift_ipi_config_dir }}' --log-level debug create cluster
     creates: '{{ openshift_ipi_config_dir }}/auth/kubeconfig'
   register: openshift_ipi_cluster_creation
 
