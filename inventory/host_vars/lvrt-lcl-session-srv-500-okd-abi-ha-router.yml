@@ -30,7 +30,6 @@ dnsmasq_config:
       domain=okd-abi-ha.home.arpa,192.168.158.51/32
       domain=okd-abi-ha.home.arpa,192.168.158.52/32
       domain=okd-abi-ha.home.arpa,192.168.158.53/32
-      domain=okd-abi-ha.home.arpa,192.168.158.54/32
       host-record=api.okd-abi-ha.home.arpa,192.168.158.55
       host-record=cp0.okd-abi-ha.home.arpa,192.168.158.49
       host-record=cp1.okd-abi-ha.home.arpa,192.168.158.50
