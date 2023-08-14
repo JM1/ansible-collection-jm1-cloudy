@@ -36,8 +36,9 @@ Available on Ansible Galaxy in Collection [jm1.cloudy](https://galaxy.ansible.co
 
 ## Requirements
 
-[OpenShift Client aka `oc`][ocp-oc] is required for extracting `openshift-install` from the release image and managing
-Kubernetes resources. You may use role [`jm1.cloudy.openshift_client`](../openshift_client/README.md) to install it.
+[OpenShift Client aka `oc`][ocp-oc] is required for waiting until the cluster is ready and for identifying the container
+image which contains the `openshift-tests` binary. You may use role [`jm1.cloudy.openshift_client`](
+../openshift_client/README.md) to install it.
 
 [ocp-oc]: https://github.com/openshift/oc
 
