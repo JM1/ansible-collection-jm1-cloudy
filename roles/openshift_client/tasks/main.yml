@@ -45,7 +45,7 @@
       owner: root
       group: root
       remote_src: true
-      exclude: ['openshift-install', 'README.md']
+      exclude: ['README.md'] # include keyword is not supported before 2.11
 
   always:
     - name: Remove OpenShift Client download directory
