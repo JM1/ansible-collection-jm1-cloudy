@@ -99,10 +99,10 @@ Goals for this collection are:
 Click on the name of an inventory, module, playbook or role to view that content's documentation:
 
 - **Inventories**:
-    * [`inventory/`](inventory/hosts.yml)
+    * [inventory/](inventory/hosts.yml)
 - **Playbooks**:
-    * [`setup.yml`](playbooks/setup.yml)
-    * [`site.yml`](playbooks/site.yml)
+    * [setup.yml](playbooks/setup.yml)
+    * [site.yml](playbooks/site.yml)
 - **Roles**:
     * [apparmor](roles/apparmor/README.md)
     * [cloudinit](roles/cloudinit/README.md)
