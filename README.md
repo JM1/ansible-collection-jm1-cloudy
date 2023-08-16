@@ -34,6 +34,11 @@ that demonstrates how to setup a cloud infrastructure using [libvirt][libvirt] a
   libvirt domains (QEMU/KVM based virtual machines) to simulate bare-metal servers and auxiliary resources.
   [sushy-emulator][sushy-emulator] provides a virtual Redfish BMC to power cycle servers and mount virtual media for
   hardware inspection and provisioning. Beware of high resource utilization, e.g. this cluster requires >96GB of RAM.
+* Hosts [`lvrt-lcl-session-srv-6*`][inventory-example] showcase how to deploy an [installer-provisioned][okd-ipi]
+  [OKD][okd] cluster on bare-metal servers and run [OpenShift's conformance test suite][ocp-tests]. This setup is
+  similar to that of hosts [`lvrt-lcl-session-srv-4*`][inventory-example] except for a additional provisioning network
+  to PXE boot servers and [VirtualBMC][virtualbmc], a virtual IPMI BMC, to power cycle servers. Beware of high resource
+  utilization, e.g. this cluster requires >96GB of RAM.
 
 [cloud-init-doc]: https://cloudinit.readthedocs.io/
 [devstack]: https://docs.openstack.org/devstack/latest/
@@ -47,6 +52,7 @@ that demonstrates how to setup a cloud infrastructure using [libvirt][libvirt] a
 [ocp-ipi]: https://docs.openshift.com/container-platform/4.13/installing/installing_bare_metal_ipi/ipi-install-overview.html
 [ocp-tests]: https://github.com/openshift/origin
 [sushy-emulator]: https://docs.openstack.org/sushy-tools/latest/user/dynamic-emulator.html
+[virtualbmc]: https://docs.openstack.org/virtualbmc/latest/
 
 This collection has been developed and tested for compatibility with:
 * Debian 10 (Buster)

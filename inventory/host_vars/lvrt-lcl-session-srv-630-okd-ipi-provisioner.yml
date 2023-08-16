@@ -1,0 +1,276 @@
+---
+# Copyright (c) 2023 Jakob Meng, <jakobmeng@web.de>
+# vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
+# kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
+
+ansible_host: 192.168.158.68
+
+# Enable SSH agent forwarding for accessing the nested bootstrap virtual machine which is created by OpenShift
+# Installer-provisioned installation (IPI)
+ansible_ssh_common_args: '-A'
+
+# The bootstrap VM, created by OpenShift Installer-provisioned installation (IPI), is blocked by AppArmor from accessing
+# its libvirt storage volume in /var/lib/libvirt/openshift-images/.
+apparmor_config:
+- ansible.builtin.file:
+    group: root
+    mode: u=rwx,g=rx,o=rx
+    owner: root
+    path: /etc/apparmor.d/local/abstractions
+    state: directory
+- ansible.builtin.copy:
+    content: |
+      # Grant bootstrap VM from OpenShift Installer-provisioned installation (IPI)
+      # access to its libvirt storage volume in /var/lib/libvirt/openshift-images/.
+        /var/lib/libvirt/openshift-images/** rwk,
+    dest: /etc/apparmor.d/local/abstractions/libvirt-qemu
+    mode: u=rw,g=r,o=r
+    group: root
+    owner: root
+
+# Debian 11 (Bullseye) does not support the baremetal bridge in libvirt_netplan out of the box
+distribution_id:
+- 'Ubuntu'
+- '22.04'
+
+groups_config:
+- name: libvirt
+  state: present
+  system: true
+
+kubernetes_resources_config:
+- # Configure OpenShift's image registry which is removed during installation
+  # Ref.: https://docs.openshift.com/container-platform/4.13/registry/configuring-registry-operator.html
+  become: false
+  kubernetes.core.k8s:
+    api_version: imageregistry.operator.openshift.io/v1
+    definition:
+      spec:
+        managementState: Managed
+        # NOTE: Option emptyDir is for non-production clusters only
+        # Ref.:
+        # https://docs.openshift.com/container-platform/4.13/registry/configuring_registry_storage/configuring-registry-storage-vsphere.html
+        # https://kubernetes.io/docs/concepts/storage/volumes/
+        storage:
+          emptyDir: {}
+    kind: Config
+    kubeconfig: '/home/{{ ansible_user }}/clusterconfigs/auth/kubeconfig'
+    name: cluster
+    state: patched
+    wait: true
+
+libvirt_domain_autostart: false
+
+libvirt_hardware:
+- cpu: 'host-passthrough,cache.mode=passthrough'
+- vcpus: '2'
+- memory: '12288'
+- virt_type: 'kvm'
+- graphics: 'vnc,listen=socket'
+- network: 'network=route-1-no-dhcp,model=virtio,mac=52:54:00:aa:bb:20'
+- network: 'network=isolated-0-no-ip,model=virtio'
+- disk: "vol='{{ libvirt_pool }}/{{ libvirt_volumes[0]['name'] }}',device=disk,bus=virtio"
+- disk: "vol='{{ libvirt_pool }}/{{ libvirt_configdrive }}',device=disk,bus=virtio,serial='cidata'"
+- os_variant: 'ubuntu18.04'
+
+libvirt_host_become: false
+
+libvirt_images: []
+
+libvirt_netplan:
+  ethernets:
+    eth0:
+      dhcp4: false
+      dhcp6: false
+      accept-ra: false
+    eth1:
+      dhcp4: false
+      dhcp6: false
+      accept-ra: false
+  bridges:
+    baremetal:
+      interfaces:
+      - eth0
+
+      dhcp4: false
+      dhcp6: false
+      accept-ra: false
+
+      addresses:
+      - 192.168.158.68/24
+
+      nameservers:
+        search: [okd-ipi.home.arpa, home.arpa]
+        addresses:
+        - 192.168.158.66
+      routes:
+      - to: 0.0.0.0/0
+        via: 192.168.158.1
+    provisioning:
+      interfaces:
+      - eth1
+
+      dhcp4: false
+      dhcp6: false
+      accept-ra: false
+
+      addresses:
+      - 172.22.0.254/24
+
+libvirt_pool: 'default'
+
+libvirt_uri: 'qemu:///session'
+
+libvirt_volumes:
+- backing_vol: 'ubuntu-22.04-server-cloudimg-amd64.img'
+  backing_vol_format: 'qcow2'
+  capacity: 64G
+  format: 'qcow2'
+  linked: false
+  name: '{{ fqdn }}.qcow2'
+  pool: '{{ libvirt_pool }}'
+  prealloc_metadata: false
+  state: present
+
+openshift_client_checksum: 'sha256:59cfdc9161c4d86ad1d0fe8789ae4c28aba64f2bbdf1cf748747694b54ff005b'
+
+openshift_client_url: 'https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.13.7/openshift-client-linux-4.13.7.tar.gz'
+
+openshift_ipi_config:
+- # Create install-config.yaml for openshift-baremetal-install
+  ansible.builtin.copy:
+    content: |
+      apiVersion: v1
+      baseDomain: home.arpa
+      metadata:
+        name: okd-ipi
+      networking:
+        machineNetwork:
+        - cidr: 192.168.158.0/24
+        networkType: OVNKubernetes
+      compute:
+      - name: worker
+        replicas: 2
+      controlPlane:
+        name: master
+        replicas: 3
+        platform:
+          baremetal: {}
+      platform:
+        baremetal:
+          # apiVIP was deprecated in 4.12 and replaced with apiVIPs
+          apiVIP: 192.168.158.75
+          apiVIPs:
+            - 192.168.158.75
+          # ingressVIP was deprecated in 4.12 and replaced with ingressVIPs
+          ingressVIP: 192.168.158.76
+          ingressVIPs:
+            - 192.168.158.76
+          # Prior to 4.9 option provisioningNetworkInterface is required and it points to the network interface on a
+          # control plane baremetal host that is connected to the provisioning network. Since 4.9 option bootMACAddress
+          # is used to enable Ironic to identify the IP address of the NIC instead of using the
+          # provisioningNetworkInterface configuration setting to identify the name of the NIC.
+          provisioningNetworkInterface: enp1s0
+          # Option bootstrapExternalStaticIP is supported since 4.11 only
+          bootstrapExternalStaticIP: 192.168.158.98
+          # Prior to 4.11 the bootstrap VM always retrieves its ip address on the baremetal network with DHCP
+          externalMACAddress: '52:54:00:aa:bb:21'
+          # Until 4.13 option bootstrapExternalStaticGateway will be used to define the DNS nameserver of the bootstrap VM
+          bootstrapExternalStaticGateway: 192.168.158.66
+          # Since 4.14 a dedicated option bootstrapExternalStaticDNS has been introduced to define the DNS nameserver of the
+          # bootstrap VM and it has to be specified when bootstrapExternalStaticGateway is set.
+          #bootstrapExternalStaticDNS: 192.168.158.66
+          hosts:
+            - name: cp0
+              role: master
+              bmc:
+                address: 'ipmi://192.168.158.67:623'
+                username: admin
+                password: password
+                disableCertificateVerification: True
+              bootMACAddress: 52:54:00:aa:bb:22
+              rootDeviceHints:
+                deviceName: "/dev/vda"
+            - name: cp1
+              role: master
+              bmc:
+                address: 'ipmi://192.168.158.67:624'
+                username: admin
+                password: password
+                disableCertificateVerification: True
+              bootMACAddress: 52:54:00:aa:bb:23
+              rootDeviceHints:
+                deviceName: "/dev/vda"
+            - name: cp2
+              role: master
+              bmc:
+                address: 'ipmi://192.168.158.67:625'
+                username: admin
+                password: password
+                disableCertificateVerification: True
+              bootMACAddress: 52:54:00:aa:bb:24
+              rootDeviceHints:
+                deviceName: "/dev/vda"
+            - name: w0
+              role: worker
+              bmc:
+                address: 'ipmi://192.168.158.67:626'
+                username: admin
+                password: password
+                disableCertificateVerification: True
+              bootMACAddress: 52:54:00:aa:bb:25
+              rootDeviceHints:
+                deviceName: "/dev/vda"
+            - name: w1
+              role: worker
+              bmc:
+                address: 'ipmi://192.168.158.67:627'
+                username: admin
+                password: password
+                disableCertificateVerification: True
+              bootMACAddress: 52:54:00:aa:bb:26
+              rootDeviceHints:
+                deviceName: "/dev/vda"
+      pullSecret: '{{ openshift_ipi_pullsecret | default(openshift_ipi_pullsecret_default | from_json) | to_json }}'
+      sshKey: '{{ ssh_authorized_keys
+                  | selectattr('user', 'equalto', ansible_user)
+                  | selectattr('state', 'equalto', 'present')
+                  | map(attribute='key')
+                  | list | join('\n') }}'
+    dest: '{{ openshift_ipi_config_dir }}/install-config.yaml'
+    group: '{{ ansible_user }}'
+    mode: u=rw,g=r,o=
+    owner: '{{ ansible_user }}'
+
+openshift_ipi_pullsecret_default: '{"auths":{"xxxxxxx": {"auth": "xxxxxx","email": "xxxxxx"}}}'
+
+openshift_ipi_release_image: 'quay.io/okd/scos-release:4.13.0-0.okd-scos-2023-07-20-165025'
+
+openshift_tests_kubeconfig_file: '{{ openshift_ipi_config_dir }}/auth/kubeconfig'
+
+openshift_tests_pullsecret: '{{ openshift_ipi_pullsecret | default(None) }}'
+
+openshift_tests_release_image: '{{ openshift_ipi_release_image }}'
+
+packages:
+- name:
+  # Python modules jsonpatch, kubernetes and PyYAML are required by Ansible collection kubernetes.core
+  # Ref.: https://github.com/ansible-collections/kubernetes.core/blob/main/requirements.txt
+  - python3-jsonpatch
+  - python3-kubernetes
+  - python3-yaml
+  state: present
+
+# NOTE: Keep in sync with variable users_config from group_vars/all.yml
+users_config:
+- name: root
+  #password: '*'
+  password_lock: true
+  shell: '/bin/bash'
+- name: '{{ ansible_user }}'
+  groups:
+  - kvm
+  - libvirt
+  #password: '*'
+  password_lock: true
+  shell: '/bin/bash'
