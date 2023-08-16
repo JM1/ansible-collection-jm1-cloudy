@@ -159,8 +159,3 @@
       sudo -u '{{ ansible_user }}' --preserve-env=SSH_AUTH_SOCK \
         openshift-baremetal-install --dir '{{ openshift_ipi_config_dir }}' --log-level debug create cluster
     creates: '{{ openshift_ipi_config_dir }}/auth/kubeconfig'
-  register: openshift_ipi_cluster_creation
-
-- name: Print results of OpenShift Installer-provisioned installation (IPI)
-  ansible.builtin.debug:
-    var: openshift_ipi_cluster_creation.stdout_lines
