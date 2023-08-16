@@ -94,6 +94,121 @@ Goals for this collection are:
 
 [leaky-abstraction]: https://en.wikipedia.org/wiki/Leaky_abstraction
 
+## Quickstart
+
+**NOTE:** This section lists a minimal set of commands to spin up the Ansible hosts, i.e. virtual machines, from the
+[example inventory][inventory-example]. For a complete guide on how to use this collection and how to build your own
+cloud infrastructure based on this collection, read the following sections.
+
+Install `git` and [Podman](#installing-podman) on a bare-metal system with Debian 11 (Bullseye), CentOS 8 (Stream),
+Ubuntu 22.04 LTS (Jammy Jellyfish) or newer. Ensure the system [has KVM nested virtualization enabled](
+#enable-kvm-nested-virtualization), has enough storage to store disk images for the virtual machines and is **not**
+connected to ip networks `192.168.157.0/24` and `192.168.158.0/24`. Then run:
+
+```sh
+git clone https://github.com/JM1/ansible-collection-jm1-cloudy.git
+cd ansible-collection-jm1-cloudy/
+cp -i ansible.cfg.example ansible.cfg
+
+cd containers/
+sudo DEBUG=yes DEBUG_SHELL=yes podman-compose.sh up
+```
+
+The last command will create various Podman networks, volumes and containers, and attach to a container named `cloudy`.
+Inside this container a Bash shell will be spawned for user `cloudy`. This user `cloudy` will be executing the libvirt
+domains (QEMU/KVM based virtual machines) from the [example inventory][inventory-example]. For example, to launch a
+virtual machine with Debian 12 (Bookworm) run the following commands from `cloudy`'s Bash shell:
+
+```sh
+ansible-playbook playbooks/site.yml --limit lvrt-lcl-session-srv-022-debian12
+```
+
+Once Ansible is done, launch another shell at the container host (the bare-metal system) and connect to the virtual
+machine with:
+
+```sh
+sudo podman exec -ti -u cloudy cloudy ssh ansible@192.168.158.21
+```
+
+The ip address `192.168.158.21` is assigned to network interface `eth0` from the virtual machine
+`lvrt-lcl-session-srv-022-debian12.home.arpa` and can be retrieved from the Ansible inventory, i.e. from file
+[inventory/host_vars/lvrt-lcl-session-srv-022-debian12.yml](
+inventory/host_vars/lvrt-lcl-session-srv-022-debian12.yml).
+
+Back at `cloudy`'s Bash shell inside the container, remove the virtual machine for Ansible host
+`lvrt-lcl-session-srv-022-debian12` with:
+
+```sh
+# Note the .home.arpa suffix
+virsh destroy lvrt-lcl-session-srv-022-debian12.home.arpa
+virsh undefine --remove-all-storage --nvram lvrt-lcl-session-srv-022-debian12.home.arpa
+```
+
+A few Ansible hosts from the [example inventory][inventory-example] have to be launched in a given order. These
+dependencies are codified with Ansible groups in [inventory/hosts.yml](inventory/hosts.yml), in particular
+`build_level0`, `build_level1` and `build_level2`. Each Ansible host is member of exactly one `build_level*` group. For
+example, when deploying a [installer-provisioned][okd-ipi] [OKD cluster][okd], the Ansible host
+`lvrt-lcl-session-srv-430-okd-ipi-provisioner` has to be provisioned after all other `lvrt-lcl-session-srv-4*` hosts
+have been installed successfully:
+
+:warning: **WARNING:** Beware of high resource utilization, e.g. this cluster requires >96GB of RAM. :warning:
+
+```sh
+ansible-playbook playbooks/site.yml --limit \
+lvrt-lcl-session-srv-400-okd-ipi-router,\
+lvrt-lcl-session-srv-401-okd-ipi-bmc,\
+lvrt-lcl-session-srv-410-okd-ipi-cp0,\
+lvrt-lcl-session-srv-411-okd-ipi-cp1,\
+lvrt-lcl-session-srv-412-okd-ipi-cp2,\
+lvrt-lcl-session-srv-420-okd-ipi-w0,\
+lvrt-lcl-session-srv-421-okd-ipi-w1
+
+ansible-playbook playbooks/site.yml --limit lvrt-lcl-session-srv-430-okd-ipi-provisioner
+```
+
+Removal does not impose any order:
+
+```sh
+for vm in \
+  lvrt-lcl-session-srv-400-okd-ipi-router.home.arpa \
+  lvrt-lcl-session-srv-401-okd-ipi-bmc.home.arpa \
+  lvrt-lcl-session-srv-410-okd-ipi-cp0.home.arpa \
+  lvrt-lcl-session-srv-411-okd-ipi-cp1.home.arpa \
+  lvrt-lcl-session-srv-412-okd-ipi-cp2.home.arpa \
+  lvrt-lcl-session-srv-420-okd-ipi-w0.home.arpa \
+  lvrt-lcl-session-srv-421-okd-ipi-w1.home.arpa \
+  lvrt-lcl-session-srv-430-okd-ipi-provisioner.home.arpa
+do
+    virsh destroy "$vm"
+    virsh undefine --remove-all-storage --nvram "$vm"
+done
+```
+
+Some setups such as the [OKD clusters][okd] build with Ansible hosts `lvrt-lcl-session-srv-{4,5,6}*` use internal DHCP
+and DNS services which are not accessible from the container host. For example, to access the [OKD clusters][okd]
+connect from `cloudy`'s Bash shell to the virtual machines which initiate the cluster installation, i.e. Ansible host
+`lvrt-lcl-session-srv-430-okd-ipi-provisioner`:
+
+```sh
+ssh ansible@192.168.158.28
+```
+
+From `ansible`'s Bash shell the [OKD cluster][okd] can be accessed with:
+
+```sh
+export KUBECONFIG=/home/ansible/clusterconfigs/auth/kubeconfig
+oc get nodes
+oc debug node/cp0
+```
+
+Exit `cloudy`'s Bash shell to stop the container. If any virtual machines are still running the `libvirtd` process
+inside the container has to be killed, e.g. with `CTRL+C`. Finally, remove all Podman containers, networks and volumes
+related to this collection with:
+
+```sh
+sudo DEBUG=yes podman-compose.sh down
+```
+
 ## Included content
 
 Click on the name of an inventory, module, playbook or role to view that content's documentation:
