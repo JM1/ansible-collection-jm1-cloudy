@@ -74,12 +74,28 @@
 - name: Check if OpenShift Installer-provisioned installation (IPI) has been started, failed or finished
   ansible.builtin.stat:
     path: '{{ openshift_ipi_config_dir }}/auth/kubeconfig'
+  register: openshift_ipi_path_init_marker
+
+- name: Check if cluster has been bootstrapped
+  ansible.builtin.stat:
+    path: '{{ openshift_ipi_config_dir }}/.ipi-bootstrap-complete'
+  register: openshift_ipi_path_bootstrap_marker
+
+- name: Check if cluster has been installed
+  ansible.builtin.stat:
+    path: '{{ openshift_ipi_config_dir }}/.ipi-install-complete'
   register: openshift_ipi_path_install_marker
+
+- name: Ensure markers are consistent
+  ansible.builtin.assert:
+    that:
+      - openshift_ipi_path_init_marker.stat.exists or not openshift_ipi_path_bootstrap_marker.stat.exists
+      - openshift_ipi_path_bootstrap_marker.stat.exists or not openshift_ipi_path_install_marker.stat.exists
 
 - name: Create install-config.yaml and other manifests for openshift-baremetal-install
   # openshift-baremetal-install will delete install-config.yaml when generating manifests
   # openshift-baremetal-install will delete manifests when cluster has been created
-  when: not openshift_ipi_path_manifests_marker.stat.exists and not openshift_ipi_path_install_marker.stat.exists
+  when: not openshift_ipi_path_manifests_marker.stat.exists and not openshift_ipi_path_init_marker.stat.exists
   # Values for 'become' and related keywords will not be inherited from the role's caller when using 'omit' as
   # default.
   become: "{{ item['become'] | default(omit) }}"
@@ -135,7 +151,7 @@
 
 - name: Generate manifests for OpenShift Installer-provisioned installation (IPI)
   # openshift-baremetal-install will delete manifests when cluster has been created
-  when: not openshift_ipi_path_install_marker.stat.exists
+  when: not openshift_ipi_path_init_marker.stat.exists
   # Own manifests by Ansible user
   become: true
   become_flags: '--preserve-env=PATH'
@@ -146,6 +162,7 @@
     creates: '{{ openshift_ipi_config_dir }}/manifests'
 
 - name: Run OpenShift Installer-provisioned installation (IPI)
+  when: not openshift_ipi_path_bootstrap_marker.stat.exists
   # Run command as Ansible user and preserve environment variable SSH_AUTH_SOCK
   # which is required for SSH agent forwarding to the bootstrap virtual machine
   become: true
@@ -159,3 +176,39 @@
       sudo -u '{{ ansible_user }}' --preserve-env=SSH_AUTH_SOCK \
         openshift-baremetal-install --dir '{{ openshift_ipi_config_dir }}' --log-level debug create cluster
     creates: '{{ openshift_ipi_config_dir }}/auth/kubeconfig'
+
+- name: Wait until cluster has been bootstrapped
+  when: not openshift_ipi_path_bootstrap_marker.stat.exists
+  become: false
+  changed_when: false
+  ansible.builtin.command:
+    chdir: '{{ openshift_ipi_home_dir }}'
+    cmd: openshift-baremetal-install --dir '{{ openshift_ipi_config_dir }}' --log-level debug wait-for bootstrap-complete
+
+- name: Create a marker file to signal successful bootstrapping of the cluster
+  ansible.builtin.copy:
+    content: |
+      # 2023 Jakob Meng, <jakobmeng@web.de>
+      # Cluster has been bootstrapped successfully with OpenShift Installer-provisioned installation (IPI)
+    dest: '{{ openshift_ipi_config_dir }}/.ipi-bootstrap-complete'
+    mode: u=rw,g=r,o=r
+    group: '{{ ansible_user }}'
+    owner: '{{ ansible_user }}'
+
+- name: Wait for cluster installation to complete
+  when: not openshift_ipi_path_install_marker.stat.exists
+  become: false
+  changed_when: false
+  ansible.builtin.command:
+    chdir: '{{ openshift_ipi_home_dir }}'
+    cmd: openshift-baremetal-install --dir '{{ openshift_ipi_config_dir }}' --log-level debug wait-for install-complete
+
+- name: Create a marker file to signal successful completion of OpenShift Installer-provisioned installation (IPI)
+  ansible.builtin.copy:
+    content: |
+      # 2023 Jakob Meng, <jakobmeng@web.de>
+      # Cluster has been installed sucessfully with OpenShift Installer-provisioned installation (IPI).
+    dest: '{{ openshift_ipi_config_dir }}/.ipi-install-complete'
+    mode: u=rw,g=r,o=r
+    group: '{{ ansible_user }}'
+    owner: '{{ ansible_user }}'

@@ -14,10 +14,12 @@ written to file `openshift_ipi_pullsecret_file`.
 
 Next, the `openshift-baremetal-install` binary will be extracted from container image defined in
 `openshift_ipi_release_image` to directory `openshift_ipi_install_dir` which defaults to `/usr/local/bin`. To aid
-debugging, the version of `openshift-baremetal-install` will be printed afterwards.
+debugging, the version of `openshift-baremetal-install` will be printed. Afterwards `openshift-baremetal-install` will
+generate the manifests for OpenShift Installer-provisioned installation (IPI) from `install-config.yaml` and other
+manifests and then create the cluster.
 
-Finally, `openshift-baremetal-install` will generate the manifests for OpenShift Installer-provisioned installation
-(IPI) from `install-config.yaml` and other manifests and then create the cluster.
+Finally the role will wait, first, until the cluster has been bootstrapped successfully and then, second, until the
+cluster installation has been completed.
 
 [ocp]: https://openshift.com/
 [ocp-ipi]: https://docs.openshift.com/container-platform/4.13/installing/installing_bare_metal_ipi/ipi-install-overview.html
