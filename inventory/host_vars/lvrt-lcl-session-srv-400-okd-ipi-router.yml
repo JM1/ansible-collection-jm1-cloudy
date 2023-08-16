@@ -19,6 +19,8 @@ dnsmasq_config:
       dhcp-host=52:54:00:aa:bb:10,192.168.158.32,w0.okd-ipi.home.arpa,infinite
       dhcp-host=52:54:00:aa:bb:11,192.168.158.33,w1.okd-ipi.home.arpa,infinite
       dhcp-host=52:54:00:aa:bb:13,192.168.158.28,provisioner.okd-ipi.home.arpa,infinite
+      # Prior to OCP/OKD 4.11 the bootstrap VM always retrieves its ip address on the baremetal network with DHCP
+      dhcp-host=52:54:00:aa:bb:1a,192.168.158.99,bootstrap.okd-ipi.home.arpa,infinite
       dhcp-ignore=tag:!known
       dhcp-no-override
       dhcp-option=option:dns-server,192.168.158.26
@@ -30,6 +32,7 @@ dnsmasq_config:
       domain=okd-ipi.home.arpa,192.168.158.31/32
       domain=okd-ipi.home.arpa,192.168.158.32/32
       domain=okd-ipi.home.arpa,192.168.158.33/32
+      domain=okd-ipi.home.arpa,192.168.158.99/32
       host-record=api.okd-ipi.home.arpa,192.168.158.35
       host-record=cp0.okd-ipi.home.arpa,192.168.158.29
       host-record=cp1.okd-ipi.home.arpa,192.168.158.30
@@ -37,6 +40,7 @@ dnsmasq_config:
       host-record=provisioner.okd-ipi.home.arpa,192.168.158.28
       host-record=w0.okd-ipi.home.arpa,192.168.158.32
       host-record=w1.okd-ipi.home.arpa,192.168.158.33
+      host-record=bootstrap.okd-ipi.home.arpa,192.168.158.99
       listen-address=192.168.158.26,127.0.0.1
       no-resolv
       server=192.168.158.1

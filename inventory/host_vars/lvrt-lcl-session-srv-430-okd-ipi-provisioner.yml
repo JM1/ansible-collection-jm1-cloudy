@@ -148,7 +148,10 @@ openshift_ipi_config:
           ingressVIPs:
             - 192.168.158.36
           provisioningNetwork: "Disabled"
+          # Option bootstrapExternalStaticIP is supported since 4.11 only
           bootstrapExternalStaticIP: 192.168.158.99
+          # Prior to 4.11 the bootstrap VM always retrieves its ip address on the baremetal network with DHCP
+          externalMACAddress: '52:54:00:aa:bb:1a'
           # Until 4.13 option bootstrapExternalStaticGateway will be used to define the DNS nameserver of the bootstrap VM
           bootstrapExternalStaticGateway: 192.168.158.26
           # Since 4.14 a dedicated option bootstrapExternalStaticDNS has been introduced to define the DNS nameserver of the
