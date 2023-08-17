@@ -143,8 +143,12 @@ openshift_ipi_config:
           baremetal: {}
       platform:
         baremetal:
+          # apiVIP was deprecated in 4.12 and replaced with apiVIPs
+          apiVIP: 192.168.158.35
           apiVIPs:
             - 192.168.158.35
+          # ingressVIP was deprecated in 4.12 and replaced with ingressVIPs
+          ingressVIP: 192.168.158.36
           ingressVIPs:
             - 192.168.158.36
           provisioningNetwork: "Disabled"
