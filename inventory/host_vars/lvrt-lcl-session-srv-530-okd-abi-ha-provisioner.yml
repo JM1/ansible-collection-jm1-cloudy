@@ -78,8 +78,6 @@ libvirt_hardware:
 
 libvirt_host_become: false
 
-libvirt_images: []
-
 libvirt_netplan:
   ethernets:
     eth0:
