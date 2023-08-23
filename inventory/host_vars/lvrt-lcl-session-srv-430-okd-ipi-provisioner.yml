@@ -64,7 +64,7 @@ libvirt_domain_autostart: false
 libvirt_hardware:
 - cpu: 'host-passthrough,cache.mode=passthrough'
 - vcpus: '2'
-- memory: '12288'
+- memory: '12288' # OpenShift's conformance test suite requires 8GB RAM
 - virt_type: 'kvm'
 - graphics: 'vnc,listen=socket'
 - network: 'network=route-1-no-dhcp,model=virtio,mac=52:54:00:aa:bb:13'
