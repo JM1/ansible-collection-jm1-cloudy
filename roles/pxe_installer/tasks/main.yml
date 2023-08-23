@@ -39,7 +39,7 @@
 - name: Satisfy requirements on CentOS and Red Hat Enterprise Linux
   when: distribution_id | first in ['CentOS', 'Red Hat Enterprise Linux']
   jm1.pkg.meta_pkg:
-    name: "jm1-svc-pxe-installer"
+    name: "jm1-cloudy-pxe-installer"
     version: "2"
     depends:
     - cpio
@@ -51,7 +51,7 @@
 - name: Satisfy requirements on Debian and Ubuntu
   when: distribution_id | first in ['Debian', 'Ubuntu']
   jm1.pkg.meta_pkg:
-    name: "jm1-svc-pxe-installer"
+    name: "jm1-cloudy-pxe-installer"
     version: "2"
     depends:
     - cpio

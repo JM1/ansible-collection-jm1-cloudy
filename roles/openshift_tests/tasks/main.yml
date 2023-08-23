@@ -8,9 +8,9 @@
     name: jm1.pkg.setup # If Ansible raises "ERROR! the role 'jm1.pkg.setup' was not found" then you might use the
                         # ansible-galaxy and the provided requirements.yml to install all missing role dependencies.
 
-- name: Install necessary tools
+- name: Satisfy requirements
   jm1.pkg.meta_pkg:
-    name: "jm1-svc-openshift-tests"
+    name: "jm1-cloudy-openshift-tests"
     version: "1"
     depends:
     # setfacl tool is used to set permissions on temporary files when becoming an unprivileged user

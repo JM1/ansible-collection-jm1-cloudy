@@ -15,10 +15,10 @@
     mode: u=rw,g=r,o=r
   register: get_tripleo_repo
 
-- name: Install necessary tools
+- name: Satisfy requirements
   become: true
   jm1.pkg.meta_pkg:
-    name: "jm1-svc-tripleo-standalone"
+    name: "jm1-cloudy-tripleo-standalone"
     version: "1"
     depends:
     # setfacl tool is used to set permissions on temporary files when becoming an unprivileged user
