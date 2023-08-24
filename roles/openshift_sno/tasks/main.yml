@@ -1,0 +1,333 @@
+---
+# Copyright (c) 2023 Jakob Meng, <jakobmeng@web.de>
+# vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
+# kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
+
+- name: Assert task definitions exist for booting cluster nodes with agent image
+  when: openshift_sno_boot_code | mandatory | length == 0
+  ansible.builtin.fail:
+    msg: "Variable 'openshift_sno_boot_code' must define tasks which boot cluster nodes with the agent image."
+
+- name: Assert task definitions exist for removing agent image from cluster nodes
+  when: openshift_sno_cleanup_code | mandatory | length == 0
+  ansible.builtin.fail:
+    msg: "Variable 'openshift_sno_cleanup_code' must define tasks which removes the agent image from cluster nodes"
+
+- name: Assert task definitions exist for creating install-config.yaml and other manifests
+  when: openshift_sno_config | mandatory | length == 0
+  ansible.builtin.fail:
+    msg: >-
+      Variable 'openshift_sno_config' must define tasks which creating install-config.yaml and other manifests for
+      openshift-install.
+
+- name: Verify task definitions which boot cluster nodes with agent image
+  when: item is not mapping
+        or (item.keys() | difference(['become', 'become_exe', 'become_flags', 'become_method', 'become_user',
+                                      'environment', 'when'])) | list | length != 1
+  ansible.builtin.fail:
+    msg: >-
+      Unsupported keyword or multiple module definitions found:
+      {{ (item.keys() | difference(['become', 'become_exe', 'become_flags', 'become_method', 'become_user',
+                                    'environment', 'when'])) | join(', ') }}.
+  # Ansible will evaluate 'loop' when handling conditionals aka 'when'. When openshift_sno_boot_code is not defined
+  # Ansible's mandatory filter will raise an exception while evaluating 'when' and thus 'loop'. For hosts which are
+  # supposed to skip this role, e.g. because they are not in group svc_openshift_sno, this is undesired, so the
+  # mandatory filter cannot be used here. Handling undefined variables is done in a separate task before.
+  loop: '{{ openshift_sno_boot_code | default([]) }}'
+
+- name: Verify task definitions which removes agent image from cluster nodes
+  when: item is not mapping
+        or (item.keys() | difference(['become', 'become_exe', 'become_flags', 'become_method', 'become_user',
+                                      'environment', 'when'])) | list | length != 1
+  ansible.builtin.fail:
+    msg: >-
+      Unsupported keyword or multiple module definitions found:
+      {{ (item.keys() | difference(['become', 'become_exe', 'become_flags', 'become_method', 'become_user',
+                                    'environment', 'when'])) | join(', ') }}.
+  # Ansible will evaluate 'loop' when handling conditionals aka 'when'. When openshift_sno_cleanup_code is not defined
+  # Ansible's mandatory filter will raise an exception while evaluating 'when' and thus 'loop'. For hosts which are
+  # supposed to skip this role, e.g. because they are not in group svc_openshift_sno, this is undesired, so the
+  # mandatory filter cannot be used here. Handling undefined variables is done in a separate task before.
+  loop: '{{ openshift_sno_cleanup_code | default([]) }}'
+
+- name: Verify task definitions which create install-config.yaml and other manifests
+  when: item is not mapping
+        or (item.keys() | difference(['become', 'become_exe', 'become_flags', 'become_method', 'become_user',
+                                      'environment', 'when'])) | list | length != 1
+  ansible.builtin.fail:
+    msg: >-
+      Unsupported keyword or multiple module definitions found:
+      {{ (item.keys() | difference(['become', 'become_exe', 'become_flags', 'become_method', 'become_user',
+                                    'environment', 'when'])) | join(', ') }}.
+  # Ansible will evaluate 'loop' when handling conditionals aka 'when'. When openshift_sno_config is not defined
+  # Ansible's mandatory filter will raise an exception while evaluating 'when' and thus 'loop'. For hosts which are
+  # supposed to skip this role, e.g. because they are not in group svc_openshift_sno, this is undesired, so the
+  # mandatory filter cannot be used here. Handling undefined variables is done in a separate task before.
+  loop: '{{ openshift_sno_config | default([]) }}'
+
+- name: Install dependencies of collection jm1.pkg
+  ansible.builtin.import_role:
+    name: jm1.pkg.setup # If Ansible raises "ERROR! the role 'jm1.pkg.setup' was not found" then you might use the
+                        # ansible-galaxy and the provided requirements.yml to install all missing role dependencies.
+
+- name: Satisfy requirements on CentOS and Red Hat Enterprise Linux
+  when: distribution_id | first in ['CentOS', 'Red Hat Enterprise Linux']
+  jm1.pkg.meta_pkg:
+    name: "jm1-cloudy-openshift-sno"
+    version: "1"
+    depends:
+    # setfacl tool is used to set permissions on temporary files when becoming an unprivileged user
+    # Ref.: https://stackoverflow.com/questions/46352173/ansible-failed-to-set-permissions-on-the-temporary#comment116424403_56379678
+    - acl
+    - curl
+    - jq
+    - podman
+    - python3
+    - python3-pyyaml
+
+- name: Satisfy requirements on Debian and Ubuntu
+  when: distribution_id | first in ['Debian', 'Ubuntu']
+  jm1.pkg.meta_pkg:
+    name: "jm1-cloudy-openshift-sno"
+    version: "1"
+    depends:
+    # setfacl tool is used to set permissions on temporary files when becoming an unprivileged user
+    # Ref.: https://stackoverflow.com/questions/46352173/ansible-failed-to-set-permissions-on-the-temporary#comment116424403_56379678
+    - acl
+    - curl
+    - jq
+    - podman
+    - python3
+    - python3-yaml
+
+- name: Expand paths for Ansible user
+  become: false
+  ansible.builtin.stat:
+    path: '{{ item }}'
+  loop:
+  - '~'
+  - '{{ openshift_sno_config_dir }}'
+  - '{{ openshift_sno_install_dir }}'
+  - '{{ openshift_sno_pullsecret_file }}'
+  register: openshift_sno_paths
+
+- name: Extract paths for Ansible user
+  ansible.builtin.set_fact:
+    # openshift_sno_paths.results.*.stat.path is returned for existing paths only
+    openshift_sno_home_dir: '{{ openshift_sno_paths.results.0.invocation.module_args.path }}'
+    openshift_sno_config_dir: '{{ openshift_sno_paths.results.1.invocation.module_args.path }}'
+    openshift_sno_install_dir: '{{ openshift_sno_paths.results.2.invocation.module_args.path }}'
+    openshift_sno_pullsecret_file: '{{ openshift_sno_paths.results.3.invocation.module_args.path }}'
+
+- name: Create config directory for openshift-install
+  ansible.builtin.file:
+    group: '{{ ansible_user }}'
+    mode: u=rwx,g=rx,o=
+    owner: '{{ ansible_user }}'
+    path: '{{ openshift_sno_config_dir }}'
+    state: directory
+
+- name: Check if single-node Ignition config has been generated
+  ansible.builtin.stat:
+    path: '{{ openshift_sno_config_dir }}/bootstrap-in-place-for-live-iso.ign'
+    # Or:
+    #path: '{{ openshift_sno_config_dir }}/auth/kubeconfig'
+  register: openshift_sno_path_ignition_marker
+
+- name: Check if live image has been downloaded and prepared
+  ansible.builtin.stat:
+    path: '{{ openshift_sno_config_dir }}/coreos-live-sno-installer.iso'
+  register: openshift_sno_path_live_image_marker
+
+- name: Check if installation of single-node OpenShift has been started
+  ansible.builtin.stat:
+    path: '{{ openshift_sno_config_dir }}/.sno-boot-initiated'
+  register: openshift_sno_path_boot_marker
+
+- name: Check if single-node OpenShift has been installed successfully
+  ansible.builtin.stat:
+    path: '{{ openshift_sno_config_dir }}/.sno-install-complete'
+  register: openshift_sno_path_install_marker
+
+- name: Ensure markers are consistent
+  ansible.builtin.assert:
+    that:
+      - openshift_sno_path_live_image_marker.stat.exists or not openshift_sno_path_boot_marker.stat.exists
+      - openshift_sno_path_boot_marker.stat.exists or not openshift_sno_path_install_marker.stat.exists
+
+- name: Create install-config.yaml and other manifests for openshift-install
+  # openshift-install will delete install-config.yaml when generating single-node Ignition config
+  # install-config.yaml is required to identify and fetch live image for single-node OpenShift
+  when: not openshift_sno_path_ignition_marker.stat.exists or not openshift_sno_path_live_image_marker.stat.exists
+  # Values for 'become' and related keywords will not be inherited from the role's caller when using 'omit' as
+  # default.
+  become: "{{ item['become'] | default(omit) }}"
+  become_exe: "{{ item['become_exe'] | default(omit) }}"
+  become_flags: "{{ item['become_flags'] | default(omit) }}"
+  become_method: "{{ item['become_method'] | default(omit) }}"
+  become_user: "{{ item['become_user'] | default(omit) }}"
+  jm1.ansible.execute_module:
+    name: "{{ (item.keys() | difference(['become', 'become_exe', 'become_flags', 'become_method', 'become_user',
+                                          'environment', 'when'])) | first }}"
+    args: "{{ item[(item.keys() | difference(['become', 'become_exe', 'become_flags', 'become_method', 'become_user',
+                                              'environment', 'when'])) | first] }}"
+    when: "{{ item['when'] | default(omit) }}"
+  environment: "{{ item['environment'] | default(omit) }}"
+  loop: "{{ openshift_sno_config | default([]) }}"
+
+- name: Create pull secret for openshift-install
+  when: openshift_sno_pullsecret | default(None) != None
+  ansible.builtin.template:
+    dest: '{{ openshift_sno_pullsecret_file }}'
+    group: '{{ ansible_user }}'
+    mode: u=rw,g=r,o=
+    owner: '{{ ansible_user }}'
+    src: pull-secret.txt.j2
+
+- name: Extract openshift-install
+  become: true
+  become_flags: '--preserve-env=PATH'
+  ansible.builtin.shell: # noqa risky-shell-pipe
+    chdir: '{{ openshift_sno_home_dir }}'
+    cmd: |
+      oc adm release extract \
+        {{ ('--registry-config ' + openshift_sno_pullsecret_file)
+           if openshift_sno_pullsecret | default(None) != None
+           else ''
+        }} \
+        --command=openshift-install \
+        --to '{{ openshift_sno_install_dir }}/' \
+        '{{ openshift_sno_release_image | mandatory }}'
+    creates: '{{ openshift_sno_install_dir }}/openshift-install'
+
+- name: Get openshift-install version
+  become: false
+  changed_when: false
+  ansible.builtin.command:
+    chdir: '{{ openshift_sno_home_dir }}'
+    cmd: openshift-install version
+  register: openshift_sno_openshift_install_version
+
+- name: Print openshift-install version
+  ansible.builtin.debug:
+    msg: '{{ openshift_sno_openshift_install_version.stdout_lines }}'
+
+- name: Fetch live image for single-node OpenShift
+  when: not openshift_sno_path_live_image_marker.stat.exists
+  become: false
+  ansible.builtin.shell:
+    chdir: '{{ openshift_sno_home_dir }}'
+    cmd: |
+      set -euxo pipefail
+
+      [ -e '{{ openshift_sno_config_dir }}/install-config.yaml' ] # assert
+
+      json=$(python3 -c 'import sys, yaml, json; y=yaml.safe_load(sys.stdin.read()); print(json.dumps(y))' \
+             < '{{ openshift_sno_config_dir }}/install-config.yaml')
+
+      arch=$(echo "$json" | jq -e -r '.controlPlane.architecture // "amd64"')
+
+      case "$arch" in
+          "amd64")
+              isa="x86_64"
+              ;;
+          *)
+              echo "Architecture '$arch' is not supported for control plane nodes" >&2
+              exit 1
+              ;;
+      esac
+      [ -n "$isa" ] # assert
+
+      iso_url=$(openshift-install coreos print-stream-json \
+                | jq -r ".architectures.${isa}.artifacts.metal.formats.iso.disk.location")
+
+      if ! curl --location "$iso_url" --output '{{ openshift_sno_config_dir }}/coreos-live.iso'; then
+          rm -f '{{ openshift_sno_config_dir }}/coreos-live.iso'
+          exit 2
+      fi
+    executable: '/bin/bash'
+    creates: '{{ openshift_sno_config_dir }}/coreos-live.iso'
+
+- name: Create single-node Ignition config
+  # openshift-install will delete install-config.yaml and other manifests when Ignition config has been created
+  when: not openshift_sno_path_live_image_marker.stat.exists
+  become: false
+  ansible.builtin.command:
+    chdir: '{{ openshift_sno_home_dir }}'
+    cmd: openshift-install --dir '{{ openshift_sno_config_dir }}' --log-level debug create single-node-ignition-config
+    creates: '{{ openshift_sno_config_dir }}/bootstrap-in-place-for-live-iso.ign'
+
+- name: Create live image for single-node OpenShift
+  become: false
+  ansible.builtin.shell:
+    chdir: '{{ openshift_sno_home_dir }}'
+    cmd: |
+      podman run --privileged --pull always --rm \
+        -v /dev:/dev -v /run/udev:/run/udev -v '{{ openshift_sno_config_dir }}:/data' \
+        -w /data quay.io/coreos/coreos-installer:release \
+        iso ignition embed -f -i bootstrap-in-place-for-live-iso.ign coreos-live.iso -o coreos-live-sno-installer.iso
+    creates: '{{ openshift_sno_config_dir }}/coreos-live-sno-installer.iso'
+
+- name: Boot single-node OpenShift live image
+  when: not openshift_sno_path_boot_marker.stat.exists
+  # Values for 'become' and related keywords will not be inherited from the role's caller when using 'omit' as
+  # default.
+  become: "{{ item['become'] | default(omit) }}"
+  become_exe: "{{ item['become_exe'] | default(omit) }}"
+  become_flags: "{{ item['become_flags'] | default(omit) }}"
+  become_method: "{{ item['become_method'] | default(omit) }}"
+  become_user: "{{ item['become_user'] | default(omit) }}"
+  jm1.ansible.execute_module:
+    name: "{{ (item.keys() | difference(['become', 'become_exe', 'become_flags', 'become_method', 'become_user',
+                                          'environment', 'when'])) | first }}"
+    args: "{{ item[(item.keys() | difference(['become', 'become_exe', 'become_flags', 'become_method', 'become_user',
+                                              'environment', 'when'])) | first] }}"
+    when: "{{ item['when'] | default(omit) }}"
+  environment: "{{ item['environment'] | default(omit) }}"
+  loop: "{{ openshift_sno_boot_code | default([]) }}"
+
+- name: Create a marker file to signal booting of single-node OpenShift live image
+  ansible.builtin.copy:
+    content: |
+      # 2023 Jakob Meng, <jakobmeng@web.de>
+      # Live image boot for single-node OpenShift has been initiated.
+    dest: '{{ openshift_sno_config_dir }}/.sno-boot-initiated'
+    mode: u=rw,g=r,o=r
+    group: '{{ ansible_user }}'
+    owner: '{{ ansible_user }}'
+
+- name: Wait for single-node OpenShift installation to complete
+  when: not openshift_sno_path_install_marker.stat.exists
+  become: false
+  changed_when: false
+  ansible.builtin.command:
+    chdir: '{{ openshift_sno_home_dir }}'
+    cmd: openshift-install --dir '{{ openshift_sno_config_dir }}' --log-level debug wait-for install-complete
+
+- name: Create a marker file to signal successful installation of single-node OpenShift
+  ansible.builtin.copy:
+    content: |
+      # 2023 Jakob Meng, <jakobmeng@web.de>
+      # Single-node OpenShift has been installed successfully.
+    dest: '{{ openshift_sno_config_dir }}/.sno-install-complete'
+    mode: u=rw,g=r,o=r
+    group: '{{ ansible_user }}'
+    owner: '{{ ansible_user }}'
+
+- name: Remove single-node OpenShift live image
+  when: not openshift_sno_path_install_marker.stat.exists
+  # Values for 'become' and related keywords will not be inherited from the role's caller when using 'omit' as
+  # default.
+  become: "{{ item['become'] | default(omit) }}"
+  become_exe: "{{ item['become_exe'] | default(omit) }}"
+  become_flags: "{{ item['become_flags'] | default(omit) }}"
+  become_method: "{{ item['become_method'] | default(omit) }}"
+  become_user: "{{ item['become_user'] | default(omit) }}"
+  jm1.ansible.execute_module:
+    name: "{{ (item.keys() | difference(['become', 'become_exe', 'become_flags', 'become_method', 'become_user',
+                                          'environment', 'when'])) | first }}"
+    args: "{{ item[(item.keys() | difference(['become', 'become_exe', 'become_flags', 'become_method', 'become_user',
+                                              'environment', 'when'])) | first] }}"
+    when: "{{ item['when'] | default(omit) }}"
+  environment: "{{ item['environment'] | default(omit) }}"
+  loop: "{{ openshift_sno_cleanup_code | default([]) }}"

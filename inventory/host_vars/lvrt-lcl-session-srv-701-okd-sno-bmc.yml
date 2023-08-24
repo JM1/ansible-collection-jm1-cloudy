@@ -1,0 +1,192 @@
+---
+# Copyright (c) 2023 Jakob Meng, <jakobmeng@web.de>
+# vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
+# kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
+
+distribution_id:
+- 'Debian'
+- '11'
+
+# Ansible module community.general.redfish_command [0] enforces https connections,
+# so use Apache HTTP server as an reverse proxy for sushy-emulator.
+# [0] https://docs.ansible.com/ansible/latest/collections/community/general/redfish_command_module.html
+httpd_config:
+- ansible.builtin.file:
+    path: /var/www/html
+    state: absent
+- ansible.builtin.file:
+    path: /etc/apache2/sites-enabled/000-default.conf
+    state: absent
+- community.general.apache2_module:
+    state: present
+    name: proxy
+- community.general.apache2_module:
+    state: present
+    name: proxy_http
+- community.general.apache2_module:
+    state: present
+    name: proxy_http2
+- community.general.apache2_module:
+    state: present
+    name: proxy_connect
+- community.general.apache2_module:
+    state: present
+    name: cache
+- community.general.apache2_module:
+    state: present
+    name: cache_disk
+- community.general.apache2_module:
+    state: present
+    name: expires
+- community.general.apache2_module:
+    state: present
+    name: headers
+- community.general.apache2_module:
+    state: present
+    name: ssl
+- ansible.builtin.copy:
+    content: |
+      # 2023 Jakob Meng, <jakobmeng@web.de>
+
+      <VirtualHost *:80>
+        <Proxy "*">
+          Require ip 192.168.158.76
+          Require ip 127.
+          Require ip ::1
+        </Proxy>
+
+        ProxyRequests Off
+        SSLProxyEngine off
+        ProxyPass         "/"     "http://127.0.0.1:8000/"
+        ProxyPassReverse  "/"     "http://127.0.0.1:8000/"
+        ErrorLog ${APACHE_LOG_DIR}/error_reverse_proxy.log
+        CustomLog ${APACHE_LOG_DIR}/access_reverse_proxy.log combined
+      </VirtualHost>
+
+      <VirtualHost *:443>
+        <Proxy "*">
+          Require ip 192.168.158.76
+          Require ip 127.
+          Require ip ::1
+        </Proxy>
+
+        SSLEngine on
+        SSLCertificateFile      /etc/ssl/certs/ssl-cert-snakeoil.pem
+        SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
+
+        ProxyRequests Off
+        SSLProxyEngine off
+        ProxyPass         "/" "http://127.0.0.1:8000/"
+        ProxyPassReverse  "/" "http://127.0.0.1:8000/"
+        ErrorLog ${APACHE_LOG_DIR}/error_reverse_proxy.log
+        CustomLog ${APACHE_LOG_DIR}/access_reverse_proxy.log combined
+      </VirtualHost>
+    dest: /etc/apache2/sites-available/reverse-proxy.conf
+- ansible.builtin.file:
+    src: /etc/apache2/sites-available/reverse-proxy.conf
+    dest: /etc/apache2/sites-enabled/reverse-proxy.conf
+    state: link
+
+libvirt_domain_autostart: false
+
+libvirt_hardware:
+- cpu: 'host'
+- vcpus: '2'
+- memory: '1024'
+- virt_type: 'kvm'
+- graphics: 'vnc,listen=socket'
+- network: 'network=route-1-no-dhcp,model=virtio'
+- network: 'network=isolated-2-no-dhcp,model=virtio'
+- disk: "vol='{{ libvirt_pool }}/{{ libvirt_volumes[0]['name'] }}',device=disk,bus=virtio"
+- disk: "vol='{{ libvirt_pool }}/{{ libvirt_configdrive }}',device=disk,bus=virtio,serial='cidata'"
+- os_variant: 'ubuntu18.04'
+
+libvirt_host_become: false
+
+libvirt_netplan:
+  ethernets:
+    eth0:
+      dhcp4: false
+      dhcp6: false
+      accept-ra: false
+
+      addresses:
+      - 192.168.158.75/24
+
+      nameservers:
+        addresses:
+        - 192.168.158.1
+      routes:
+      - to: 0.0.0.0/0
+        via: 192.168.158.1
+    eth1:
+      dhcp4: false
+      dhcp6: false
+      accept-ra: false
+
+      addresses:
+      - 192.168.153.47/24
+
+libvirt_pool: 'default'
+
+libvirt_uri: 'qemu:///session'
+
+libvirt_volumes:
+- backing_vol: 'debian-11-genericcloud-amd64.qcow2'
+  backing_vol_format: 'qcow2'
+  capacity: 20G
+  format: 'qcow2'
+  linked: false
+  name: '{{ fqdn }}.qcow2'
+  pool: '{{ libvirt_pool }}'
+  prealloc_metadata: false
+  state: present
+
+podman_config:
+- # Create systemd service unit for running sushy-emulator in a Podman container
+  become: true
+  ansible.builtin.copy:
+    content: |
+      [Unit]
+      Description=Virtual Redfish BMC aka sushy-emulator in a Podman container
+      Wants=network.target
+      After=network-online.target
+
+      [Service]
+      Environment=PODMAN_SYSTEMD_UNIT=%n
+      Restart=on-failure
+      TimeoutStartSec=600
+      TimeoutStopSec=120
+      ExecStartPre=/bin/rm -f %t/podman-sushy-emulator.pid %t/podman-sushy-emulator.ctr-id
+      ExecStart=/usr/bin/podman run \
+        --conmon-pidfile %t/podman-sushy-emulator.pid \
+        --cidfile %t/podman-sushy-emulator.ctr-id \
+        --cgroups=no-conmon \
+        --replace \
+        --detach --tty \
+        --publish 127.0.0.1:8000:8000/tcp \
+        --name sushy-emulator \
+        quay.io/metal3-io/sushy-tools \
+        sushy-emulator --libvirt-uri 'qemu+tcp://192.168.153.1:16509/session' --interface '0.0.0.0' --debug
+      ExecStop=/usr/bin/podman stop --ignore --cidfile %t/podman-sushy-emulator.ctr-id -t 10
+      ExecStopPost=/usr/bin/podman rm --ignore -f --cidfile %t/podman-sushy-emulator.ctr-id
+      PIDFile=%t/podman-sushy-emulator.pid
+      Type=forking
+
+      [Install]
+      WantedBy=multi-user.target default.target
+    dest: /etc/systemd/system/podman-sushy-emulator.service
+  handlers:
+  - # On changes reload systemd daemon and restart Podman container of sushy-emulator
+    become: true
+    ansible.builtin.service:
+      daemon_reload: true
+      name: podman-sushy-emulator.service
+      state: restarted
+- # Ensure systemd service of sushy-emulator is enabled
+  become: true
+  ansible.builtin.service:
+    enabled: true
+    name: podman-sushy-emulator.service
+- # Force changes to be applied now
+  ansible.builtin.meta: flush_handlers

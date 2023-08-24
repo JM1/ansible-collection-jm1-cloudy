@@ -618,6 +618,11 @@
     tags: ["jm1.cloudy.openshift_ipi"]
     when: inventory_hostname in groups.svc_openshift_ipi
 
+  - name: Create a single-node OpenShift cluster
+    role: jm1.cloudy.openshift_sno
+    tags: ["jm1.cloudy.openshift_sno"]
+    when: inventory_hostname in groups.svc_openshift_sno
+
   - name: Manage Kubernetes resources
     role: jm1.cloudy.kubernetes_resources
     tags: ["jm1.cloudy.kubernetes_resources"]
