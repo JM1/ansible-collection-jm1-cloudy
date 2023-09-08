@@ -72,7 +72,7 @@
     executable: '/bin/bash'
   environment:
     KUBECONFIG: '{{ openshift_tests_kubeconfig_file | mandatory }}'
-  retries: 20
+  retries: 60
   delay: 30
 
 - name: Wait for nodes to be ready
@@ -82,7 +82,7 @@
   changed_when: false
   ansible.builtin.command:
     chdir: '{{ openshift_tests_home_dir }}'
-    cmd: oc wait nodes --all --for=condition=Ready=true --timeout=10m
+    cmd: oc wait nodes --all --for=condition=Ready=true --timeout=30m
   environment:
     KUBECONFIG: '{{ openshift_tests_kubeconfig_file | mandatory }}'
 
@@ -93,7 +93,7 @@
   changed_when: false
   ansible.builtin.command:
     chdir: '{{ openshift_tests_home_dir }}'
-    cmd: oc wait clusteroperators --all --for=condition=Progressing=false --timeout=10m
+    cmd: oc wait clusteroperators --all --for=condition=Progressing=false --timeout=30m
   environment:
     KUBECONFIG: '{{ openshift_tests_kubeconfig_file | mandatory }}'
 
