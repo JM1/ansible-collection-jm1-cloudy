@@ -490,6 +490,11 @@
     tags: ["jm1.cloudy.apparmor"]
     when: inventory_hostname in groups.svc_apparmor
 
+  - name: Manage chrony service
+    role: jm1.cloudy.chrony
+    tags: ["jm1.cloudy.chrony"]
+    when: inventory_hostname in groups.svc_chrony
+
   - name: Manage dhcpd service
     role: jm1.cloudy.dhcpd
     tags: ["jm1.cloudy.dhcpd"]

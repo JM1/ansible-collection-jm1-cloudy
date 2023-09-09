@@ -1,0 +1,33 @@
+galaxy_info:
+  role_name: chrony
+  author: Jakob Meng
+  description: Manage chrony service
+  license: license (GPLv3)
+
+  min_ansible_version: '2.9'
+
+  platforms:
+  # Ref.: https://galaxy.ansible.com/api/v1/platforms/
+  - name: Debian
+    versions:
+    - buster
+    - bullseye
+    - bookworm
+
+  - name: EL
+    versions:
+    - '7'
+    - '8'
+    - '9'
+
+  - name: Ubuntu
+    versions:
+    - bionic
+    - focal
+    - jammy
+
+  galaxy_tags:
+  - development
+  - system
+
+dependencies: []
