@@ -222,6 +222,113 @@ openshift_ipi_config:
     group: '{{ ansible_user }}'
     mode: u=rw,g=r,o=
     owner: '{{ ansible_user }}'
+- # Create directory for OpenShift manifests
+  ansible.builtin.file:
+    path: '{{ openshift_ipi_config_dir }}/openshift'
+    group: '{{ ansible_user }}'
+    mode: u=rwx,g=rx,o=rx
+    owner: '{{ ansible_user }}'
+    state: directory
+- # Change chrony's NTP pool at master nodes to NTP server running at the local router (optional)
+  ansible.builtin.copy:
+    content: |
+      apiVersion: machineconfiguration.openshift.io/v1
+      kind: MachineConfig
+      metadata:
+        labels:
+          machineconfiguration.openshift.io/role: master
+        name: update-chrony-conf-master
+      spec:
+        config:
+          ignition:
+            version: 3.2.0
+          storage:
+            files:
+              - path: /usr/local/bin/update-chrony-conf.sh
+                mode: 0755
+                overwrite: true
+                contents:
+                  source: data:text/plain;charset=utf-8;base64,IyEvYmluL2Jhc2gKIyAyMDIzIEpha29iIE1lbmcsIDxqYWtvYm1lbmdAd2ViLmRlPgpncmVwIC1xIC1lICdec2VydmVyIDE5MlwuMTY4XC4xNThcLjI2IGlidXJzdCQnIC9ldGMvY2hyb255LmNvbmYgXAogIHx8IHNlZCAtaSAtZSAncy9ecG9vbCAuKiQvc2VydmVyIDE5Mi4xNjguMTU4LjI2IGlidXJzdC9nJyAvZXRjL2Nocm9ueS5jb25mCg==
+                  # Until MCO does not support Butane's inline attribute, contents has to be given as a base64-encoded
+                  # string using attribute source.
+                  # Ref.: https://github.com/openshift/machine-config-operator/issues/283
+                  #inline: |
+                  #  #!/bin/bash
+                  #  # 2023 Jakob Meng, <jakobmeng@web.de>
+                  #  grep -q -e '^server 192\.168\.158\.26 iburst$' /etc/chrony.conf \
+                  #    || sed -i -e 's/^pool .*$/server 192.168.158.26 iburst/g' /etc/chrony.conf
+          systemd:
+            units:
+              - name: update-chrony-conf.service
+                enabled: true
+                contents: |
+                  # 2023 Jakob Meng, <jakobmeng@web.de>
+                  [Unit]
+                  Before=chronyd.service
+                  Wants=local-fs.target
+                  After=local-fs.target
+
+                  [Service]
+                  Type=oneshot
+                  ExecStart=/usr/local/bin/update-chrony-conf.sh
+                  RemainAfterExit=yes
+
+                  [Install]
+                  WantedBy=multi-user.target
+    dest: '{{ openshift_ipi_config_dir }}/openshift/99-update-chrony-conf-master.yaml'
+    group: '{{ ansible_user }}'
+    mode: u=rw,g=r,o=
+    owner: '{{ ansible_user }}'
+- # Change chrony's NTP pool at worker nodes to NTP server running at the local router (optional)
+  ansible.builtin.copy:
+    content: |
+      apiVersion: machineconfiguration.openshift.io/v1
+      kind: MachineConfig
+      metadata:
+        labels:
+          machineconfiguration.openshift.io/role: worker
+        name: update-chrony-conf-worker
+      spec:
+        config:
+          ignition:
+            version: 3.2.0
+          storage:
+            files:
+              - path: /usr/local/bin/update-chrony-conf.sh
+                mode: 0755
+                overwrite: true
+                contents:
+                  source: data:text/plain;charset=utf-8;base64,IyEvYmluL2Jhc2gKIyAyMDIzIEpha29iIE1lbmcsIDxqYWtvYm1lbmdAd2ViLmRlPgpncmVwIC1xIC1lICdec2VydmVyIDE5MlwuMTY4XC4xNThcLjI2IGlidXJzdCQnIC9ldGMvY2hyb255LmNvbmYgXAogIHx8IHNlZCAtaSAtZSAncy9ecG9vbCAuKiQvc2VydmVyIDE5Mi4xNjguMTU4LjI2IGlidXJzdC9nJyAvZXRjL2Nocm9ueS5jb25mCg==
+                  # Until MCO does not support Butane's inline attribute, contents has to be given as a base64-encoded
+                  # string using attribute source.
+                  # Ref.: https://github.com/openshift/machine-config-operator/issues/283
+                  #inline: |
+                  #  #!/bin/bash
+                  #  # 2023 Jakob Meng, <jakobmeng@web.de>
+                  #  grep -q -e '^server 192\.168\.158\.26 iburst$' /etc/chrony.conf \
+                  #    || sed -i -e 's/^pool .*$/server 192.168.158.26 iburst/g' /etc/chrony.conf
+          systemd:
+            units:
+              - name: update-chrony-conf.service
+                enabled: true
+                contents: |
+                  # 2023 Jakob Meng, <jakobmeng@web.de>
+                  [Unit]
+                  Before=chronyd.service
+                  Wants=local-fs.target
+                  After=local-fs.target
+
+                  [Service]
+                  Type=oneshot
+                  ExecStart=/usr/local/bin/update-chrony-conf.sh
+                  RemainAfterExit=yes
+
+                  [Install]
+                  WantedBy=multi-user.target
+    dest: '{{ openshift_ipi_config_dir }}/openshift/99-update-chrony-conf-worker.yaml'
+    group: '{{ ansible_user }}'
+    mode: u=rw,g=r,o=
+    owner: '{{ ansible_user }}'
 
 openshift_ipi_pullsecret_default: '{"auths":{"xxxxxxx": {"auth": "xxxxxx","email": "xxxxxx"}}}'
 
