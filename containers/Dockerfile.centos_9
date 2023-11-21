@@ -19,6 +19,7 @@ FROM quay.io/centos/centos:stream9
 RUN dnf install -y dnf-plugins-core && \
   dnf config-manager --set-enabled crb && \
   dnf install -y epel-release epel-next-release && \
+  dnf install -y --allowerasing curl && \
   dnf install -y \
     curl iputils man-db psmisc tcpdump tmux vim && \
   dnf install -y \
