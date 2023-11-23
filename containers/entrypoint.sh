@@ -221,8 +221,11 @@ ____EOF
     else
         sudo -u cloudy --set-home --preserve-env=SSH_AUTH_SOCK env -- "$@"
 
-        # wait for libvirtd daemon
-        tail "--pid=$(cat /var/run/libvirtd.pid)" -f /dev/null
+        # Wait until libvirt domains have been shutdown
+        while [ -n "$(sudo -u cloudy --set-home virsh list --id)" ]; do
+            warn "Waiting for libvirt domains $(sudo -u cloudy --set-home virsh list --name | xargs echo) to stop."
+            sleep 60
+        done
     fi
 )
 # shellcheck disable=SC2181
