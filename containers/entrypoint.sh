@@ -153,7 +153,7 @@ trap "trap - TERM && kill -- -$$" INT TERM EXIT
         set -eu
 
         # Exit subshell if libvirtd is already running
-        { pgrep --uid "$(id -u)" libvirtd && exit; } || true
+        { pgrep --uid "$(id -u)" --exact libvirtd && exit; } || true
 
         # Ref.: /lib/systemd/system/libvirtd.service
 
@@ -208,8 +208,7 @@ ____EOF
     fi
 
     # Start libvirt session daemon
-    sudo -u cloudy --set-home \
-        sh -c 'pgrep --uid "$(id -u)" libvirtd || /usr/sbin/libvirtd --daemon --listen'
+    pgrep --uid "$(id -u cloudy)" --exact libvirtd || sudo -u cloudy --set-home /usr/sbin/libvirtd --daemon --listen
 
     sudo -u cloudy --set-home \
         ansible-playbook "$playbook_site" \
