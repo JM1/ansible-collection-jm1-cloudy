@@ -105,6 +105,27 @@ trap "trap - TERM && kill -- -$$" INT TERM EXIT
         exit 120
     fi
 
+    if ! python3 -c \
+         "import ansible; import sys; from packaging import version;"\
+         "sys.exit(0 if version.parse(ansible.release.__version__) >= version.parse('2.9') else 1);"
+    then
+        error "Ansible 2.9 or newer is required"
+        exit 119
+    fi
+
+    # Use older Ansible collections for compatibility with older Ansible releases
+    if python3 -c \
+         "import ansible; import sys; from packaging import version;"\
+         "sys.exit(0 if version.parse(ansible.release.__version__) < version.parse('2.11') else 1);"
+    then
+        sudo -u cloudy ansible-galaxy collection install 'community.general:<5.0.0'
+    elif python3 -c \
+         "import ansible; import sys; from packaging import version;"\
+         "sys.exit(0 if version.parse(ansible.release.__version__) < version.parse('2.13') else 1);"
+    then
+        sudo -u cloudy ansible-galaxy collection install 'community.general:<8.0.0'
+    fi
+
     sudo -u cloudy ansible-galaxy collection install --requirements-file "$requirements"
     sudo -u cloudy ansible-galaxy role install --role-file "$requirements"
 
@@ -162,7 +183,7 @@ trap "trap - TERM && kill -- -$$" INT TERM EXIT
     sudo -u cloudy --set-home \
         ansible-playbook "$playbook_site" \
             --limit lvrt-lcl-system \
-            --skip-tags "jm1.kvm_nested_virtualization" \
+            --skip-tags "jm1.kvm_nested_virtualization"
 
     # Enable masquerading for internet connectivity from libvirt domains on networks route-0-dhcp and route-1-no-dhcp
     nft --file - << '____EOF'
