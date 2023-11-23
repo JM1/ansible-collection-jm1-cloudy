@@ -17,18 +17,33 @@ FROM quay.io/centos/centos:stream8
 
 ARG DEBIAN_FRONTEND=noninteractive
 
+# By default, CentOS Stream 8 uses Python 3.6. Package ansible-core from CentOS Stream 8 repositories pulls in a newer
+# Python interpreter >3.6 and thus cannot consume Python 3.6 packages such as python3-jinja2 and python3-libvirt which
+# are installed via dnf. CentOS Stream 8 does not provide updated versions of those python3-* packages for its newer
+# Python interpreter. In addition, not all missing Python modules can be installed from PyPI, e.g. python3-dnf,
+# python3-libdnf and python3-rpm must be installed from dnf.
+# On the other hand, ansible-core 2.11, the latest release from pip which is still compatible to Python 3.6, is not 
+# compatible with Ansible's Galaxy-NG.
+# To workaround these incompatibilities, the latest ansible-core package from CentOS Stream 8 repositories will be
+# installed to get an updated version of ansible-galaxy. Then ansible-core 2.11 will be installed with pip to keep
+# compatibility with the system interpreter Python 3.6. However, the ansible-galaxy it provides will be removed, causing
+# calls to ansible-galaxy to always refer to the upgraded version which got installed via dnf.
+
 # Satisfy Ansible requirements
 RUN dnf install -y \
     curl iputils man-db psmisc tcpdump tmux vim && \
   dnf install -y \
-    iproute make nftables openssh-clients procps python3 python3-jinja2 python3-pip python3-pyyaml sudo && \
+    ansible-core iproute make nftables openssh-clients procps python3 python3-jinja2 python3-pip python3-pyyaml sudo && \
   dnf install -y \
     acl hostname python3-libvirt python3-lxml python3-netaddr python3-pip python3-pyghmi && \
   dnf clean all
 
-# Ansible in EPEL (Next) is using Python 3.9 and thus cannot consume Python 3.6 packages installed via dnf above
+# ansible-core 2.12 dropped compatibility with Python < 3.8
 # ansible-core 2.14 dropped compatibility with Python < 3.9
-RUN pip3 install 'ansible-core<2.14'
+RUN pip3 install 'ansible-core<2.12'
+
+# Drop outdated ansible-galaxy which is incompatible with Galaxy-NG
+RUN rm /usr/local/bin/ansible-galaxy
 
 # sudo in CentOS 8 does not add /usr/local/bin to PATH
 RUN sed -i -e 's|secure_path = /|secure_path = /usr/local/bin/:/|g' /etc/sudoers
