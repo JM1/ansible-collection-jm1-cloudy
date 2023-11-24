@@ -105,7 +105,13 @@ trap "trap - INT TERM && kill -- -$$" INT TERM
         exit 120
     fi
 
-    if ! python3 -c \
+    if ! python3 -c "import ansible"; then
+        py=python2
+    else
+        py=python3
+    fi
+
+    if ! "$py" -c \
          "import ansible; import sys; from packaging import version;"\
          "sys.exit(0 if version.parse(ansible.release.__version__) >= version.parse('2.9') else 1);"
     then
@@ -114,20 +120,20 @@ trap "trap - INT TERM && kill -- -$$" INT TERM
     fi
 
     # Use older Ansible collections for compatibility with older Ansible releases
-    if python3 -c \
+    if "$py" -c \
          "import ansible; import sys; from packaging import version;"\
          "sys.exit(0 if version.parse(ansible.release.__version__) < version.parse('2.11') else 1);"
     then
-        sudo -u cloudy ansible-galaxy collection install 'community.general:<5.0.0'
-    elif python3 -c \
+        sudo -u cloudy --set-home ansible-galaxy collection install 'community.general:<5.0.0'
+    elif "$py" -c \
          "import ansible; import sys; from packaging import version;"\
          "sys.exit(0 if version.parse(ansible.release.__version__) < version.parse('2.13') else 1);"
     then
-        sudo -u cloudy ansible-galaxy collection install 'community.general:<8.0.0'
+        sudo -u cloudy --set-home ansible-galaxy collection install 'community.general:<8.0.0'
     fi
 
-    sudo -u cloudy ansible-galaxy collection install --requirements-file "$requirements"
-    sudo -u cloudy ansible-galaxy role install --role-file "$requirements"
+    sudo -u cloudy --set-home ansible-galaxy collection install --requirements-file "$requirements"
+    sudo -u cloudy --set-home ansible-galaxy role install --role-file "$requirements"
 
     sudo -u cloudy --set-home \
         ansible-playbook "$playbook_setup" \
@@ -177,6 +183,7 @@ trap "trap - INT TERM && kill -- -$$" INT TERM
             -e 's/^[#]*listen_tcp = .*/listen_tcp = 1/g' \
             -e 's/^[#]*listen_addr = .*/listen_addr = "0.0.0.0"/g' \
             -e 's/^[#]*auth_tcp = .*/auth_tcp = "none"/g' \
+            -e 's/^unix_sock_/#unix_sock_/g' \
             /home/cloudy/.config/libvirt/libvirtd.conf
     fi
 
@@ -237,7 +244,7 @@ ________EOF
         sudo -u cloudy --set-home --preserve-env=SSH_AUTH_SOCK env -- "$@"
 
         # Wait until libvirt domains have been shutdown
-        while [ -n "$(sudo -u cloudy --set-home virsh list --id)" ]; do
+        while [ -n "$(sudo -u cloudy --set-home virsh list --name)" ]; do
             warn "Waiting for libvirt domains $(sudo -u cloudy --set-home virsh list --name | xargs echo) to stop."
             sleep 60
         done
