@@ -44,9 +44,9 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 125
 fi
 
-# kill process group including child processes such as libvirtd
+# Kill process group including child processes such as libvirtd
 # shellcheck disable=SC2064
-trap "trap - TERM && kill -- -$$" INT TERM EXIT
+trap "trap - INT TERM && kill -- -$$" INT TERM
 
 (
     set -eu
@@ -226,6 +226,9 @@ ____EOF
             sleep 60
         done
     fi
+
+    # Stop libvirt daemons
+    killall libvirtd
 )
 # shellcheck disable=SC2181
 # else 'set -e' in subshell is ignored
