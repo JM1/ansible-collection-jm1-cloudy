@@ -60,7 +60,7 @@
     - xz-utils
     - zstd
 
-- name: Prepare server installer for CentOS 7, CentOS 8 and CentOS 9
+- name: Prepare server installer for CentOS Linux 7, CentOS Stream 8 and CentOS Stream 9
   block:
   - name: Create tftpd subdirectories
     ansible.builtin.file:
@@ -147,7 +147,7 @@
     - ['CentOS', '8', 'amd64']
     - ['CentOS', '9', 'amd64']
 
-  - name: Patch CentOS 7 installer path in grubx64.efi
+  - name: Patch CentOS Linux 7 installer path in grubx64.efi
     ansible.builtin.shell: # noqa command-instead-of-module
       chdir: '{{ pxe_installer_tftpd_root }}/CentOS_7/amd64'
       # /EFI/BOOT => /CentOS_7/amd64/grub
@@ -157,7 +157,7 @@
         '/g' 'grubx64.efi.orig' > 'grubx64.efi'
       creates: '{{ pxe_installer_tftpd_root }}/CentOS_7/amd64/grubx64.efi'
 
-  - name: Patch CentOS 8 installer path in grubx64.efi
+  - name: Patch CentOS Stream 8 installer path in grubx64.efi
     ansible.builtin.shell: # noqa command-instead-of-module
       chdir: '{{ pxe_installer_tftpd_root }}/CentOS_8/amd64'
       # /EFI/BOOT => /CentOS_8/amd64/grub
@@ -167,7 +167,7 @@
         '/g' 'grubx64.efi.orig' > 'grubx64.efi'
       creates: '{{ pxe_installer_tftpd_root }}/CentOS_8/amd64/grubx64.efi'
 
-  - name: Patch CentOS 9 installer path in grubx64.efi
+  - name: Patch CentOS Stream 9 installer path in grubx64.efi
     ansible.builtin.shell: # noqa command-instead-of-module
       chdir: '{{ pxe_installer_tftpd_root }}/CentOS_9/amd64'
       # /EFI/BOOT => /CentOS_9/amd64/grub
@@ -241,7 +241,7 @@
     - ['CentOS', '8', 'amd64']
     - ['CentOS', '9', 'amd64']
 
-  - name: Create host-specific pxelinux config for CentOS 7, CentOS 8 and CentOS 9
+  - name: Create host-specific pxelinux config for CentOS Linux 7, CentOS Stream 8 and CentOS Stream 9
     when: hostvars[item]['distribution_id'] in [['CentOS', '7'], ['CentOS', '8'], ['CentOS', '9']]
           and hostvars[item]['os_architecture'] == 'x86_64'
     ansible.builtin.copy: # noqa template-instead-of-copy
@@ -261,7 +261,7 @@
       group: root
     loop: '{{ pxe_installer_clients }}'
 
-  - name: Create host-specific grub config for CentOS 7, CentOS 8 and CentOS 9
+  - name: Create host-specific grub config for CentOS Linux 7, CentOS Stream 8 and CentOS Stream 9
     when: hostvars[item]['distribution_id'] in [['CentOS', '7'], ['CentOS', '8'], ['CentOS', '9']]
           and hostvars[item]['os_architecture'] == 'x86_64'
     ansible.builtin.copy: # noqa template-instead-of-copy
