@@ -72,7 +72,7 @@ OPTIONS:
     --infra-image IMAGE           Container image that will be used for the infra container.
                                   Defaults to '$infra_image_default'.
     --project DIR                 Directory where Ansible playbooks and the inventory are stored.
-                                  Defaults to the directory that contains this script.
+                                  Defaults to the parent directory of the directory that contains this script.
     --project-name NAME           Name to label and find containers, images and volumes with.
                                   Defaults to '$project_name_default'.
     -h, --help                    Print usage.
