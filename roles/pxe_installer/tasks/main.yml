@@ -602,9 +602,9 @@
     - ['Ubuntu', '22.04', 'amd64']
 
   - name: Extract files from iso
-    ansible.builtin.command:
+    ansible.builtin.shell:
       chdir: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/'
-      cmd: 7z x -aoa ubuntu.iso 'boot/grub/font*' casper/initrd casper/vmlinuz
+      cmd: 7z x -aoa ubuntu.iso 'boot/grub/font*' casper/initrd casper/vmlinuz || { rm -f casper/initrd; exit 1; }
       creates: '{{ pxe_installer_tftpd_root }}/{{ item.0 }}_{{ item.1 }}/{{ item.2 }}/casper/initrd'
     loop:
     - ['Ubuntu', '18.04', 'amd64']
