@@ -339,12 +339,12 @@ pxe_installer_files_ubuntu_1804_amd64:
 
 pxe_installer_files_ubuntu_2004_amd64:
   efi: 'http://archive.ubuntu.com/ubuntu/dists/focal/main/uefi/grub2-amd64/current/grubnetx64.efi.signed'
-  iso: 'http://releases.ubuntu.com/focal/ubuntu-20.04.5-live-server-amd64.iso'
+  iso: 'http://releases.ubuntu.com/focal/ubuntu-20.04.6-live-server-amd64.iso'
   pxe: 'http://archive.ubuntu.com/ubuntu/dists/focal/main/installer-amd64/current/legacy-images/netboot/netboot.tar.gz'
 
 pxe_installer_files_ubuntu_2204_amd64:
   efi: 'http://archive.ubuntu.com/ubuntu/dists/jammy/main/uefi/grub2-amd64/current/grubnetx64.efi.signed'
-  iso: 'http://releases.ubuntu.com/jammy/ubuntu-22.04.1-live-server-amd64.iso'
+  iso: 'http://releases.ubuntu.com/jammy/ubuntu-22.04.3-live-server-amd64.iso'
   pxe: 'http://archive.ubuntu.com/ubuntu/dists/focal/main/installer-amd64/current/legacy-images/netboot/netboot.tar.gz'
 
 sysctl_config:
