@@ -524,6 +524,20 @@
     tags: ["jm1.cloudy.podman"]
     when: inventory_hostname in groups.svc_podman
 
+  # NOTE: Keep role jm1.cloudy.pxe_hwfp as an early service in order to allow
+  #       reusing role default variables in inventory for other early services.
+  - name: Prepare hardware fingerprinting using PXE network boot
+    role: jm1.cloudy.pxe_hwfp
+    tags: ["jm1.cloudy.pxe_hwfp"]
+    when: inventory_hostname in groups.svc_pxe_hwfp
+
+  # NOTE: Keep role jm1.cloudy.pxe_installer as an early service in order to allow
+  #       reusing role default variables in inventory for other early services.
+  - name: Prepare server installation using PXE network boot
+    role: jm1.cloudy.pxe_installer
+    tags: ["jm1.cloudy.pxe_installer"]
+    when: inventory_hostname in groups.svc_pxe_installer
+
 - name: Prepare libvirt hosts
   hosts:
   # TODO: Why is svc_libvirt not excluded with ':&svc_libvirt'?
@@ -597,16 +611,6 @@
     role: jm1.cloudy.devstack
     tags: ["jm1.cloudy.devstack"]
     when: inventory_hostname in groups.svc_devstack
-
-  - name: Prepare hardware fingerprinting using PXE network boot
-    role: jm1.cloudy.pxe_hwfp
-    tags: ["jm1.cloudy.pxe_hwfp"]
-    when: inventory_hostname in groups.svc_pxe_hwfp
-
-  - name: Prepare server installation using PXE network boot
-    role: jm1.cloudy.pxe_installer
-    tags: ["jm1.cloudy.pxe_installer"]
-    when: inventory_hostname in groups.svc_pxe_installer
 
   - name: Deploy TripleO standalone
     role: jm1.cloudy.tripleo_standalone
