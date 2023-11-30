@@ -79,7 +79,7 @@ libvirt_domain_autostart: false
 libvirt_hardware:
 - cpu: 'host-passthrough,cache.mode=passthrough'
 - vcpus: '2'
-- memory: '2048'
+- memory: '4096'
 - virt_type: 'kvm'
 - graphics: 'vnc,listen=socket'
 - network: 'network=isolated-2-no-dhcp,model=virtio,mac=52:54:00:aa:bb:05'
