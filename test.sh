@@ -191,6 +191,7 @@ OPTIONS:
     --hosts HOSTS         Run tests for a comma-separated list of hosts only
     --keep-containers     Do not purge Podman containers before and after tests
     --keep-domains        Do not purge libvirt domains before and after tests
+    --keep-known-hosts    Do not purge SSH known_hosts file before tests
     --playbook PLAY       Playbook which will be run to test the hosts.
                           Defaults to '$playbook_default'.
     --project DIR         Directory where Ansible playbooks and the inventory are stored.
@@ -207,6 +208,7 @@ ________EOF
     hosts=""
     keep_containers="no"
     keep_domains="no"
+    keep_known_hosts="no"
     playbook=""
     playbook_default="playbooks/site.yml"
     project=""
@@ -238,6 +240,9 @@ ________EOF
                 ;;
             "--keep-domains")
                 keep_domains="yes"
+                ;;
+            "--keep-known-hosts")
+                keep_known_hosts="yes"
                 ;;
             "--playbook")
                 if [ -z "$2" ]; then
@@ -391,6 +396,10 @@ ________EOF
             ansible_hosts_args+=(--keep-domains)
         fi
 
+        if [ "$keep_known_hosts" = "yes" ]; then
+            ansible_hosts_args+=(--keep-known-hosts)
+        fi
+
         if [ -n "$hosts" ]; then
             ansible_hosts_args+=(--hosts "$hosts")
         fi
@@ -503,6 +512,20 @@ ________EOF
                     virsh destroy "$domain" || true
                     virsh undefine --remove-all-storage --nvram "$domain" || true
                 done
+            fi
+
+            if [ "$keep_known_hosts" != "yes" ]; then
+                # Discover which SSH known_hosts file is being used by Ansible
+                ansible_ssh_config=$(ansible-config dump --only-changed | grep SSH | sed 's/^[^=]*\= //')
+
+                if ! known_hosts=$(echo "$ansible_ssh_config" | grep -Po 'UserKnownHostsFile=\K[^ ]*'); then
+                    known_hosts="$HOME/.ssh/known_hosts"
+                fi
+
+                if [ -e "$known_hosts" ]; then
+                    echo "Removing SSH known_hosts file $known_hosts before running test set $test_set"
+                    rm "$known_hosts"
+                fi
             fi
 
             for build_level in $build_levels; do
