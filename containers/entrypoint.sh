@@ -130,6 +130,11 @@ trap "trap - INT TERM && kill -- -$$" INT TERM
          "sys.exit(0 if version.parse(ansible.release.__version__) < version.parse('2.13') else 1);"
     then
         sudo -u cloudy --set-home ansible-galaxy collection install 'community.general:<8.0.0'
+    elif "$py" -c \
+         "import ansible; import sys; from packaging import version;"\
+         "sys.exit(0 if version.parse(ansible.release.__version__) < version.parse('2.14') else 1);"
+    then
+        sudo -u cloudy --set-home ansible-galaxy collection install 'ansible.utils:<3.0.0'
     fi
 
     sudo -u cloudy --set-home ansible-galaxy collection install --requirements-file "$requirements"
