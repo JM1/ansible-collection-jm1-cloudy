@@ -14,7 +14,7 @@ dhcpd_config:
 
       # option definitions common to all supported networks...
       option domain-name "{{ dns_suffix }}";
-      option domain-name-servers 1.1.1.1;
+      option domain-name-servers 192.168.158.1;
       option space pxelinux;
       option pxelinux.magic code 208 = string;
       option pxelinux.configfile code 209 = text;
