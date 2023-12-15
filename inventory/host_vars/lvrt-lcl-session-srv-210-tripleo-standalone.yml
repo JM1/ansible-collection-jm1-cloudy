@@ -92,18 +92,8 @@ selinux_config:
     policy: targeted
     state: permissive
 
-# NOTE: Keep in sync with variable ssh_authorized_keys from group_vars/all.yml
-ssh_authorized_keys:
-- comment: >-
-    {{ lookup('pipe','whoami') + '@' + lookup('pipe','hostname') + ':' + lookup('env','HOME') + '/.ssh/id_rsa.pub' }}
-  key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') | mandatory }}"
-  state: present
-  user: '{{ ansible_user }}'
-- comment: >-
-    {{ lookup('pipe','whoami') + '@' + lookup('pipe','hostname') + ':' + lookup('env','HOME') + '/.ssh/id_rsa.pub' }}
-  key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') | mandatory }}"
-  state: present
-  user: '{{ tripleo_standalone_user }}'
+# Copy SSH authorized keys to ansible_user and tripleo_standalone_user
+ssh_authorized_keys: "{{ ssh_public_keys + ssh_public_keys | map('combine', { 'user': tripleo_standalone_user }) }}"
 
 # NOTE: Keep in sync with variable sudoers_config from group_vars/all.yml
 sudoers_config:

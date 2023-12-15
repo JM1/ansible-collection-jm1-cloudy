@@ -3,17 +3,24 @@
 This role helps with managing [SSH authorized keys][archlinux-wiki-ssh-keys] from Ansible variables. It allows to add,
 modify and delete SSH public keys e.g. from `~/.ssh/authorized_keys` with variable `ssh_authorized_keys`. This variable
 is defined as a list where each list item is a dictionary of parameters that will be passed to Ansible's [authorized_key
-][ansible-module-authorized-key] module. For example, to ensure that the public SSH (RSA) key of the current user who
-runs Ansible on the Ansible controller is present on an Ansible host, define variable `ssh_authorized_keys` in
+][ansible-module-authorized-key] module. For example, to ensure that public SSH keys of the current user who runs
+Ansible on the Ansible controller is present on an Ansible host, define variable `ssh_authorized_keys` in
 [`group_vars` or `host_vars`][ansible-inventory] as such:
 
 ```yml
-ssh_authorized_keys:
-- comment: >-
-    {{ lookup('pipe','whoami') + '@' + lookup('pipe','hostname') + ':' + lookup('env','HOME') + '/.ssh/id_rsa.pub' }}
-  key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') | mandatory }}"
-  state: present
-  user: '{{ ansible_user }}'
+ssh_authorized_keys_default: |
+  {% for type in ['dsa', 'ecdsa', 'ed25519', 'rsa'] %}
+  {% set path = lookup('env','HOME') + '/.ssh/id_' + type + '.pub' %}
+  {% set found = lookup('first_found', path, errors='ignore') | default('', true) | length > 0 %}
+  {% if found %}
+  - comment: "{{ lookup('pipe','whoami') + '@' + lookup('pipe','hostname') + ':' + path }}"
+    key: "{{ lookup('file', path) }}"
+    state: present
+    user: '{{ ansible_user }}'
+  {% endif %}
+  {% endfor %}
+
+ssh_authorized_keys: '{{ ssh_authorized_keys_default | from_yaml }}'
 ```
 
 When this role is executed, it will pass each item of the `ssh_authorized_keys` list one after another as parameters to
@@ -63,7 +70,7 @@ None.
     # https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html
     # https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
     ssh_authorized_keys:
-    - # Add SSH public (RSA) keys from jm1's github account
+    - # Add SSH public keys from jm1's github account
       key: https://github.com/jm1.keys
       state: present
       user: ansible

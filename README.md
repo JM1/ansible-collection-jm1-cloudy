@@ -344,9 +344,9 @@ cp -nv ansible.cfg.example ansible.cfg
 editor ansible.cfg
 ```
 
-Ensure you have valid RSA keys for SSH logins, esp. a RSA public key at `$HOME/.ssh/id_rsa.pub`. If it does not exist,
-generate a new RSA key pair with `ssh-keygen` or edit Ansible variable `ssh_authorized_keys` in
-`inventory/group_vars/all.yml` to include your SSH public key:
+Ensure you have valid SSH public keys for SSH logins, e.g. a RSA public key at `$HOME/.ssh/id_rsa.pub`. If no key exists
+at `$HOME/.ssh/id_{dsa,ecdsa,ed25519,rsa}.pub` generate a new key pair with `ssh-keygen` or edit Ansible variable
+`ssh_authorized_keys` in `inventory/group_vars/all.yml` to include your SSH public key:
 
 ```yaml
 ssh_authorized_keys:

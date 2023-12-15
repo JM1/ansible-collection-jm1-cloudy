@@ -239,12 +239,21 @@ groups_config: []
 
 hostname: '{{ inventory_hostname }}'
 
-ssh_authorized_keys:
-- comment: >-
-    {{ lookup('pipe','whoami') + '@' + lookup('pipe','hostname') + ':' + lookup('env','HOME') + '/.ssh/id_rsa.pub' }}
-  key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') | mandatory }}"
-  state: present
-  user: '{{ ansible_user }}'
+ssh_authorized_keys: '{{ ssh_public_keys }}'
+
+ssh_public_keys_default: |
+  {% for type in ['dsa', 'ecdsa', 'ed25519', 'rsa'] %}
+  {% set path = lookup('env','HOME') + '/.ssh/id_' + type + '.pub' %}
+  {% set found = lookup('first_found', path, errors='ignore') | default('', true) | length > 0 %}
+  {% if found %}
+  - comment: "{{ lookup('pipe','whoami') + '@' + lookup('pipe','hostname') + ':' + path }}"
+    key: "{{ lookup('file', path) }}"
+    state: present
+    user: '{{ ansible_user }}'
+  {% endif %}
+  {% endfor %}
+
+ssh_public_keys: '{{ ssh_public_keys_default | from_yaml }}'
 
 sshd_config: "{{
   lookup('vars', 'sshd_config_' + distribution_id | first | lower | regex_replace('[^a-z0-9_]', '_')) | default([]) }}"

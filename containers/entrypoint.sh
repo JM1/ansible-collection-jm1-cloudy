@@ -59,7 +59,10 @@ trap "trap - INT TERM && kill -- -$$" INT TERM
     chown -v cloudy.cloudy /home/cloudy/.local/share/libvirt/images/ /home/cloudy/.ssh/
 
     # Ansible requires SSH keys to be able to connect to virtual machines
-    sudo -u cloudy --set-home sh -c '[ -e ~/.ssh/id_rsa ] || ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa'
+    sudo -u cloudy --set-home sh -c '
+        for t in ecdsa ed25519 rsa; do
+            [ -e "$HOME/.ssh/id_$t" ] || ssh-keygen -t "$t" -N "" -f "$HOME/.ssh/id_$t" || exit;
+        done'
 
     # Ansible uses SSH agent forwarding for accessing nested virtual machines
     if [ -z "$SSH_AUTH_SOCK" ]; then
