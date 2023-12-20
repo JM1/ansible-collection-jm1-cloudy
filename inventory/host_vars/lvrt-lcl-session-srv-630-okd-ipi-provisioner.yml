@@ -236,7 +236,7 @@ openshift_ipi_config:
                   | selectattr('user', 'equalto', ansible_user)
                   | selectattr('state', 'equalto', 'present')
                   | map(attribute='key')
-                  | list | join('\n') }}'
+                  | list | first }}'
     dest: '{{ openshift_ipi_config_dir }}/install-config.yaml'
     group: '{{ ansible_user }}'
     mode: u=rw,g=r,o=
