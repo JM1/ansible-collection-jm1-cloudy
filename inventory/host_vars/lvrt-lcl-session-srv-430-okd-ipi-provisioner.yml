@@ -5,10 +5,6 @@
 
 ansible_host: 192.168.158.28
 
-# Enable SSH agent forwarding for accessing the nested bootstrap virtual machine which is created by OpenShift
-# Installer-provisioned installation (IPI)
-ansible_ssh_common_args: '-A'
-
 # The bootstrap VM, created by OpenShift Installer-provisioned installation (IPI), is blocked by AppArmor from accessing
 # its libvirt storage volume in /var/lib/libvirt/openshift-images/.
 apparmor_config:
