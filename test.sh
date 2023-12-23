@@ -22,6 +22,7 @@ set -euo pipefail
 
 # Environment variables
 DEBUG=${DEBUG:=no}
+SSH_AUTH_SOCK=${SSH_AUTH_SOCK:-}
 
 if [ "$DEBUG" = "yes" ] || [ "$DEBUG" = "true" ]; then
     set -x
@@ -468,6 +469,14 @@ ________EOF
             warn "No build levels for hosts found"
         fi
 
+        # Ansible uses SSH agent forwarding for accessing nested virtual machines
+        if [ -z "$SSH_AUTH_SOCK" ]; then
+            # Using SSH_AUTH_SOCK instead of SSH_AGENT_PID
+            # because ssh-agent might be running on the container host
+            eval "$(ssh-agent)"
+            ssh-add
+        fi
+
         hosts_done=()
         for test_set in $test_sets; do
             echo "Identifying hosts in test set $test_set"
@@ -582,6 +591,10 @@ ________EOF
 
             echo "Finished test set $test_set"
         done
+
+        if [ -n "${SSH_AGENT_PID-}" ]; then
+            eval "$(ssh-agent -k)"
+        fi
 
         if [ -n "$hosts" ]; then
             hosts_todo=$(echo "$hosts" | tr ',' '\n')
