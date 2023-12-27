@@ -25,4 +25,4 @@ namespace: jm1
 readme: README.md
 repository: https://github.com/jm1/ansible-collection-jm1-cloudy
 tags: null
-version: 2023.9.9
+version: 2023.12.27
