@@ -13,3 +13,8 @@
 * Drop `jm1.cloudy.openstack_server` role
 
 * Replace `changed_when: true` in role `jm1.cloudy.kolla_ansible` to identify changes from command output
+
+* Add role `jm1.cloudy.{openstack_,}tempest` to run [Tempest](https://docs.openstack.org/tempest/latest/) against
+  DevStack, TripleO and Kolla Ansible deployments
+
+* Add role `jm1.cloudy.ceph{,adm}` to deploy a Ceph cluster with [cephadm](https://docs.ceph.com/en/quincy/cephadm/)
