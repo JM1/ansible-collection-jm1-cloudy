@@ -17,3 +17,5 @@
 * Added support for Fedora
 
 * Drop `jm1.cloudy.openstack_server` role
+
+* Replace `changed_when: true` in role `jm1.cloudy.kolla_ansible` to identify changes from command output

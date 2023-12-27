@@ -1,0 +1,308 @@
+---
+# Copyright (c) 2023 Jakob Meng, <jakobmeng@web.de>
+# vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
+# kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
+
+- name: Assert task definitions exist for creating configuration files for Kolla Ansible
+  when: kolla_ansible_config | mandatory | length == 0
+  ansible.builtin.fail:
+    msg: >-
+      Variable 'kolla_ansible_config' must define tasks which create configuration files for Kolla Ansible, in
+      particular globals.yml and passwords.yml in /etc/kolla.
+
+- name: Verify task definitions which create configuration files for Kolla Ansible
+  when: item is not mapping
+        or (item.keys() | difference(['become', 'become_exe', 'become_flags', 'become_method', 'become_user',
+                                      'environment', 'when'])) | list | length != 1
+  ansible.builtin.fail:
+    msg: >-
+      Unsupported keyword or multiple module definitions found:
+      {{ (item.keys() | difference(['become', 'become_exe', 'become_flags', 'become_method', 'become_user',
+                                    'environment', 'when'])) | join(', ') }}.
+  # Ansible will evaluate 'loop' when handling conditionals aka 'when'. When kolla_ansible_config is not defined
+  # Ansible's mandatory filter will raise an exception while evaluating 'when' and thus 'loop'. For hosts which are
+  # supposed to skip this role, e.g. because they are not in group svc_kolla_ansible, this is undesired, so the
+  # mandatory filter cannot be used here. Handling undefined variables is done in a separate task before.
+  loop: '{{ kolla_ansible_config | default([]) }}'
+
+- name: Install dependencies of collection jm1.pkg
+  ansible.builtin.import_role:
+    name: jm1.pkg.setup # If Ansible raises "ERROR! the role 'jm1.pkg.setup' was not found" then you might use the
+                        # ansible-galaxy and the provided requirements.yml to install all missing role dependencies.
+
+- name: Satisfy requirements on CentOS and Red Hat Enterprise Linux
+  when: distribution_id | first in ['CentOS', 'Red Hat Enterprise Linux']
+  jm1.pkg.meta_pkg:
+    name: "jm1-cloudy-kolla-ansible"
+    version: "1"
+    depends:
+    # setfacl tool is used to set permissions on temporary files when becoming an unprivileged user
+    # Ref.: https://stackoverflow.com/questions/46352173/ansible-failed-to-set-permissions-on-the-temporary#comment116424403_56379678
+    - acl
+    - gcc
+    - git
+    - libffi-devel
+    - openssl-devel
+    - python3
+    - python3-devel
+    - python3-libselinux
+    - python3-pip
+
+- name: Satisfy requirements on Debian and Ubuntu
+  when: distribution_id | first in ['Debian', 'Ubuntu']
+  jm1.pkg.meta_pkg:
+    name: "jm1-cloudy-kolla-ansible"
+    version: "1"
+    depends:
+    # setfacl tool is used to set permissions on temporary files when becoming an unprivileged user
+    # Ref.: https://stackoverflow.com/questions/46352173/ansible-failed-to-set-permissions-on-the-temporary#comment116424403_56379678
+    - acl
+    - gcc
+    - git
+    - libffi-dev
+    - libssl-dev
+    - python3
+    - python3-dev
+    - python3-pip
+    - python3-venv
+
+- name: Expand paths for Kolla Ansible user
+  become: true
+  become_user: '{{ kolla_ansible_user }}'
+  ansible.builtin.stat:
+    path: '{{ item }}'
+  loop:
+  - '~'
+  - '{{ kolla_ansible_config_dir }}'
+  - '{{ kolla_ansible_venv_dir }}'
+  register: kolla_ansible_paths
+
+- name: Extract paths for Kolla Ansible user
+  ansible.builtin.set_fact:
+    # kolla_ansible_paths.results.*.stat.path is returned for existing paths only
+    kolla_ansible_home_dir: '{{ kolla_ansible_paths.results.0.invocation.module_args.path }}'
+    kolla_ansible_config_dir: '{{ kolla_ansible_paths.results.1.invocation.module_args.path }}'
+    kolla_ansible_venv_dir: '{{ kolla_ansible_paths.results.2.invocation.module_args.path }}'
+
+- name: Install Kolla Ansible to Python virtual environment
+  ansible.builtin.pip:
+    name:
+    - '{{ kolla_ansible_pip_spec }}'
+    virtualenv: '{{ kolla_ansible_venv_dir }}'
+    virtualenv_command: 'python3 -m venv'
+
+- name: Grep minimal supported Ansible version
+  changed_when: false
+  ansible.builtin.shell:
+    cmd: "grep -Po '^ANSIBLE_VERSION_MIN=\\K[0-9.]+$' '{{ kolla_ansible_venv_dir }}/bin/kolla-ansible'"
+  register: kolla_ansible_ansible_core_version_min
+
+- name: Grep maximal supported Ansible version
+  changed_when: false
+  ansible.builtin.shell:
+    cmd: "grep -Po '^ANSIBLE_VERSION_MAX=\\K[0-9.]+$' '{{ kolla_ansible_venv_dir }}/bin/kolla-ansible'"
+  register: kolla_ansible_ansible_core_version_max
+
+- name: Install Ansible to Python virtual environment
+  ansible.builtin.pip:
+    name:
+    - >-
+      ansible-core
+        >={{ kolla_ansible_ansible_core_version_min.stdout }}.999999999,
+        <={{ kolla_ansible_ansible_core_version_max.stdout }}.999999999
+    virtualenv: '{{ kolla_ansible_venv_dir }}'
+    virtualenv_command: 'python3 -m venv'
+
+- name: Create config directory for Kolla Ansible
+  ansible.builtin.file:
+    group: '{{ kolla_ansible_user }}'
+    mode: u=rwx,g=rx,o=
+    owner: '{{ kolla_ansible_user }}'
+    path: '{{ kolla_ansible_config_dir }}'
+    state: directory
+
+- name: Create configuration files for Kolla Ansible
+  # Values for 'become' and related keywords will not be inherited from the role's caller when using 'omit' as
+  # default.
+  become: "{{ item['become'] | default(omit) }}"
+  become_exe: "{{ item['become_exe'] | default(omit) }}"
+  become_flags: "{{ item['become_flags'] | default(omit) }}"
+  become_method: "{{ item['become_method'] | default(omit) }}"
+  become_user: "{{ item['become_user'] | default(omit) }}"
+  jm1.ansible.execute_module:
+    name: "{{ (item.keys() | difference(['become', 'become_exe', 'become_flags', 'become_method', 'become_user',
+                                          'environment', 'when'])) | first }}"
+    args: "{{ item[(item.keys() | difference(['become', 'become_exe', 'become_flags', 'become_method', 'become_user',
+                                              'environment', 'when'])) | first] }}"
+    when: "{{ item['when'] | default(omit) }}"
+  environment: "{{ item['environment'] | default(omit) }}"
+  loop: "{{ kolla_ansible_config | default([]) }}"
+
+- name: Get Kolla Ansible version
+  become: true
+  become_user: '{{ kolla_ansible_user }}'
+  changed_when: false
+  ansible.builtin.shell:
+    chdir: '{{ kolla_ansible_home_dir }}'
+    cmd: |
+      set -euxo pipefail
+      . '{{ kolla_ansible_venv_dir }}/bin/activate'
+      kolla-ansible --version
+    executable: '/bin/bash'
+  register: kolla_ansible_version
+
+- name: Print Kolla Ansible version
+  ansible.builtin.debug:
+    msg: '{{ kolla_ansible_version.stdout_lines }}'
+
+- name: Check if Ansible Galaxy dependencies for Kolla Ansible have been installed
+  ansible.builtin.stat:
+    path: '{{ kolla_ansible_config_dir }}/.jm1-cloudy-kolla-ansible-install-deps'
+  register: kolla_ansible_path_install_deps_marker
+
+- name: Install Ansible Galaxy dependencies for Kolla Ansible
+  when: not kolla_ansible_path_install_deps_marker.stat.exists
+  become: true
+  become_user: '{{ kolla_ansible_user }}'
+  changed_when: true
+  ansible.builtin.shell:
+    chdir: '{{ kolla_ansible_home_dir }}'
+    cmd: |
+      set -euxo pipefail
+      . '{{ kolla_ansible_venv_dir }}/bin/activate'
+      kolla-ansible install-deps
+    executable: '/bin/bash'
+
+- name: Create a marker file to signal that Ansible Galaxy dependencies for Kolla Ansible have been installed
+  ansible.builtin.copy:
+    content: |
+      # 2023 Jakob Meng, <jakobmeng@web.de>
+      # Ansible Galaxy dependencies for Kolla Ansible have been installed.
+    dest: '{{ kolla_ansible_config_dir }}/.jm1-cloudy-kolla-ansible-install-deps'
+    mode: u=rw,g=r,o=r
+    group: '{{ kolla_ansible_user }}'
+    owner: '{{ kolla_ansible_user }}'
+
+- name: Check if servers have been bootstrapped with Kolla deploy dependencies
+  ansible.builtin.stat:
+    path: '{{ kolla_ansible_config_dir }}/.jm1-cloudy-kolla-ansible-bootstrap-servers'
+  register: kolla_ansible_path_bootstrap_servers_marker
+
+- name: Bootstrap servers with Kolla deploy dependencies
+  when: not kolla_ansible_path_bootstrap_servers_marker.stat.exists
+  # Run command as Kolla Ansible user and preserve environment variable SSH_AUTH_SOCK
+  # which is required for SSH agent forwarding to servers
+  become: true
+  become_user: '{{ kolla_ansible_user }}'
+  become_flags: '--preserve-env=PATH,SSH_AUTH_SOCK'
+  changed_when: true
+  ansible.builtin.shell:
+    chdir: '{{ kolla_ansible_home_dir }}'
+    cmd: |
+      set -euxo pipefail
+      . '{{ kolla_ansible_venv_dir }}/bin/activate'
+      kolla-ansible {{ kolla_ansible_bootstrap_servers_args | mandatory }} bootstrap-servers
+    executable: '/bin/bash'
+
+- name: Create a marker file to signal that servers have been bootstrapped with Kolla deploy dependencies
+  ansible.builtin.copy:
+    content: |
+      # 2023 Jakob Meng, <jakobmeng@web.de>
+      # Servers have been bootstrapped with Kolla deploy dependencies.
+    dest: '{{ kolla_ansible_config_dir }}/.jm1-cloudy-kolla-ansible-bootstrap-servers'
+    mode: u=rw,g=r,o=r
+    group: '{{ kolla_ansible_user }}'
+    owner: '{{ kolla_ansible_user }}'
+
+- name: Check if Kolla Ansible's pre-deployment checks for hosts have been done
+  ansible.builtin.stat:
+    path: '{{ kolla_ansible_config_dir }}/.jm1-cloudy-kolla-ansible-prechecks'
+  register: kolla_ansible_path_prechecks_marker
+
+- name: Do Kolla Ansible's pre-deployment checks for hosts
+  when: not kolla_ansible_path_prechecks_marker.stat.exists
+  # Run command as Kolla Ansible user and preserve environment variable SSH_AUTH_SOCK
+  # which is required for SSH agent forwarding to servers
+  become: true
+  become_user: '{{ kolla_ansible_user }}'
+  become_flags: '--preserve-env=PATH,SSH_AUTH_SOCK'
+  changed_when: true
+  ansible.builtin.shell:
+    chdir: '{{ kolla_ansible_home_dir }}'
+    cmd: |
+      set -euxo pipefail
+      . '{{ kolla_ansible_venv_dir }}/bin/activate'
+      kolla-ansible {{ kolla_ansible_prechecks_args | mandatory }} prechecks
+    executable: '/bin/bash'
+
+- name: Create a marker file to signal that Kolla Ansible's pre-deployment checks for hosts have been done
+  ansible.builtin.copy:
+    content: |
+      # 2023 Jakob Meng, <jakobmeng@web.de>
+      # Kolla Ansible's pre-deployment checks for hosts have been done.
+    dest: '{{ kolla_ansible_config_dir }}/.jm1-cloudy-kolla-ansible-prechecks'
+    mode: u=rw,g=r,o=r
+    group: '{{ kolla_ansible_user }}'
+    owner: '{{ kolla_ansible_user }}'
+
+- name: Check if Kolla containers have been deployed and started
+  ansible.builtin.stat:
+    path: '{{ kolla_ansible_config_dir }}/.jm1-cloudy-kolla-ansible-deploy'
+  register: kolla_ansible_path_deploy_marker
+
+- name: Deploy and start all Kolla containers
+  when: not kolla_ansible_path_deploy_marker.stat.exists
+  # Run command as Kolla Ansible user and preserve environment variable SSH_AUTH_SOCK
+  # which is required for SSH agent forwarding to servers
+  become: true
+  become_user: '{{ kolla_ansible_user }}'
+  become_flags: '--preserve-env=PATH,SSH_AUTH_SOCK'
+  changed_when: true
+  ansible.builtin.shell:
+    chdir: '{{ kolla_ansible_home_dir }}'
+    cmd: |
+      set -euxo pipefail
+      . '{{ kolla_ansible_venv_dir }}/bin/activate'
+      kolla-ansible {{ kolla_ansible_deploy_args | mandatory }} deploy
+    executable: '/bin/bash'
+
+- name: Create a marker file to signal that Kolla containers have been deployed and started
+  ansible.builtin.copy:
+    content: |
+      # 2023 Jakob Meng, <jakobmeng@web.de>
+      # Kolla containers have been deployed and started
+    dest: '{{ kolla_ansible_config_dir }}/.jm1-cloudy-kolla-ansible-deploy'
+    mode: u=rw,g=r,o=r
+    group: '{{ kolla_ansible_user }}'
+    owner: '{{ kolla_ansible_user }}'
+
+- name: Check if Kolla Ansible's post deploy on deploy node have been done
+  ansible.builtin.stat:
+    path: '{{ kolla_ansible_config_dir }}/.jm1-cloudy-kolla-ansible-post-deploy'
+  register: kolla_ansible_path_post_deploy_marker
+
+- name: Do Kolla Ansible's post deploy on deploy node
+  when: not kolla_ansible_path_post_deploy_marker.stat.exists
+  # Run command as Kolla Ansible user and preserve environment variable SSH_AUTH_SOCK
+  # which is required for SSH agent forwarding to servers
+  become: true
+  become_user: '{{ kolla_ansible_user }}'
+  become_flags: '--preserve-env=PATH,SSH_AUTH_SOCK'
+  changed_when: true
+  ansible.builtin.shell:
+    chdir: '{{ kolla_ansible_home_dir }}'
+    cmd: |
+      set -euxo pipefail
+      . '{{ kolla_ansible_venv_dir }}/bin/activate'
+      kolla-ansible {{ kolla_ansible_post_deploy_args | mandatory }} post-deploy
+    executable: '/bin/bash'
+
+- name: Create a marker file to signal that Kolla Ansible's post deploy on deploy node have been done
+  ansible.builtin.copy:
+    content: |
+      # 2023 Jakob Meng, <jakobmeng@web.de>
+      # Kolla Ansible's post deploy on deploy node have been done.
+    dest: '{{ kolla_ansible_config_dir }}/.jm1-cloudy-kolla-ansible-post-deploy'
+    mode: u=rw,g=r,o=r
+    group: '{{ kolla_ansible_user }}'
+    owner: '{{ kolla_ansible_user }}'

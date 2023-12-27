@@ -612,6 +612,11 @@
     tags: ["jm1.cloudy.devstack"]
     when: inventory_hostname in groups.svc_devstack
 
+  - name: Deploy an OpenStack cloud using Kolla Ansible
+    role: jm1.cloudy.kolla_ansible
+    tags: ["jm1.cloudy.kolla_ansible"]
+    when: inventory_hostname in groups.svc_kolla_ansible
+
   - name: Deploy TripleO standalone
     role: jm1.cloudy.tripleo_standalone
     tags: ["jm1.cloudy.tripleo_standalone"]

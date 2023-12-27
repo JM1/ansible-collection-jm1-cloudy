@@ -1,0 +1,30 @@
+galaxy_info:
+  role_name: kolla_ansible
+  author: Jakob Meng
+  description: Deploy OpenStack using Kolla Ansible
+  license: license (GPLv3)
+
+  min_ansible_version: '2.9'
+
+  platforms:
+  # Ref.: https://galaxy.ansible.com/api/v1/platforms/
+  - name: Debian
+    versions:
+    - bullseye
+    - bookworm
+
+  - name: EL
+    versions:
+    - '8'
+    - '9'
+
+  - name: Ubuntu
+    versions:
+    - focal
+    - jammy
+
+  galaxy_tags:
+  - development
+  - system
+
+dependencies: []

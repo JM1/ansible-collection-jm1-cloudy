@@ -44,6 +44,8 @@ that demonstrates how to setup a cloud infrastructure using [libvirt][libvirt] a
   domains (QEMU/KVM based virtual machines) to simulate a bare-metal server and auxiliary resources. [sushy-emulator][
   sushy-emulator] provides a virtual Redfish BMC to power cycle the server and mount virtual media for provisioning.
   Beware that this setup requires 32GB of RAM.
+* Hosts [`lvrt-lcl-session-srv-8*`][inventory-example] showcase how to deploy an OpenStack cloud with [Kolla Ansible][
+  kolla-ansible]. Beware of high resource utilization, e.g. this cluster requires >=96GB of RAM.
 
 [cloud-init-doc]: https://cloudinit.readthedocs.io/
 [devstack]: https://docs.openstack.org/devstack/latest/
@@ -59,6 +61,7 @@ that demonstrates how to setup a cloud infrastructure using [libvirt][libvirt] a
 [ocp-tests]: https://github.com/openshift/origin
 [sushy-emulator]: https://docs.openstack.org/sushy-tools/latest/user/dynamic-emulator.html
 [virtualbmc]: https://docs.openstack.org/virtualbmc/latest/
+[kolla-ansible]: https://docs.openstack.org/kolla-ansible/latest/
 
 This collection has been developed and tested for compatibility with:
 * Debian 10 (Buster)
@@ -151,11 +154,10 @@ virsh undefine --remove-all-storage --nvram lvrt-lcl-session-srv-022-debian12.ho
 ```
 
 A few Ansible hosts from the [example inventory][inventory-example] have to be launched in a given order. These
-dependencies are codified with Ansible groups in [inventory/hosts.yml](inventory/hosts.yml), in particular
-`build_level0`, `build_level1` and `build_level2`. Each Ansible host is member of exactly one `build_level*` group. For
-example, when deploying a [installer-provisioned][okd-ipi] [OKD cluster][okd], the Ansible host
-`lvrt-lcl-session-srv-430-okd-ipi-provisioner` has to be provisioned after all other `lvrt-lcl-session-srv-4*` hosts
-have been installed successfully:
+dependencies are codified with Ansible groups `build_level0`, `build_level1` et cetera in [inventory/hosts.yml](
+inventory/hosts.yml). Each Ansible host is member of exactly one `build_level*` group. For example, when deploying a
+[installer-provisioned][okd-ipi] [OKD cluster][okd], the Ansible host `lvrt-lcl-session-srv-430-okd-ipi-provisioner` has
+to be provisioned after all other `lvrt-lcl-session-srv-4*` hosts have been installed successfully:
 
 :warning: **WARNING:** Beware of high resource utilization, e.g. this cluster requires >96GB of RAM. :warning:
 
@@ -239,6 +241,7 @@ Click on the name of an inventory, module, playbook or role to view that content
     * [initrd](roles/initrd/README.md)
     * [ipmi](roles/ipmi/README.md)
     * [iptables](roles/iptables/README.md)
+    * [kolla_ansible](roles/kolla_ansible/README.md)
     * [kubernetes_resources](roles/kubernetes_resources/README.md)
     * [libvirt_domain](roles/libvirt_domain/README.md)
     * [libvirt_domain_state](roles/libvirt_domain_state/README.md)
@@ -926,20 +929,21 @@ of that system which can be used for ssh'ing into it:
 ssh ansible@192.168.158.13
 ```
 
-Besides individual Ansible hosts, you can also use Ansible groups such as `build_level1` and `build_level2` to set up
-several systems in parallel.
+Besides individual Ansible hosts, you can also use Ansible groups such as `build_level1`, `build_level2` and et cetera
+to set up several systems in parallel.
 
 :warning: **WARNING:**
-Running playbook `playbooks/site.yml` for all hosts in `build_level1` and `build_level2` will create dozens of virtual
+Running playbook `playbooks/site.yml` for multiple hosts across many build levels at once will create dozens of virtual
 machines. Ensure that your system has enough memory to run them in parallel. To lower memory requirements, you may want
 to limit `playbooks/site.yml` to a few hosts or a single host instead. Refer to [`hosts.yml`][inventory-example] for a
-complete list of hosts in `build_level1` and `build_level2`.
+complete list of hosts and build levels.
 :warning:
 
 ```sh
 # build_level0 contains lvrt-lcl-system and lvrt-lcl-session which have been prepared in previous steps
 ansible-playbook playbooks/site.yml --limit build_level1
 ansible-playbook playbooks/site.yml --limit build_level2
+ansible-playbook playbooks/site.yml --limit build_level3
 ```
 
 ### Using content of this Collection

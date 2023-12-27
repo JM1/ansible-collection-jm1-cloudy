@@ -5,6 +5,7 @@ roles:
 collections:
 - ansible.posix
 - ansible.utils
+- community.crypto
 - community.general
 - community.libvirt
 - jm1.ansible
