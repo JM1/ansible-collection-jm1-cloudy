@@ -120,7 +120,7 @@ cd ansible-collection-jm1-cloudy/
 cp -i ansible.cfg.example ansible.cfg
 
 cd containers/
-sudo DEBUG=yes DEBUG_SHELL=yes podman-compose.sh up
+sudo DEBUG=yes DEBUG_SHELL=yes ./podman-compose.sh up
 ```
 
 The last command will create various Podman networks, volumes and containers, and attach to a container named `cloudy`.
@@ -209,12 +209,14 @@ oc get nodes
 oc debug node/cp0
 ```
 
-Exit `cloudy`'s Bash shell to stop the container. If any virtual machines are still running the `libvirtd` process
-inside the container has to be killed, e.g. with `CTRL+C`. Finally, remove all Podman containers, networks and volumes
-related to this collection with:
+Exit `cloudy`'s Bash shell to stop the container.
+
+**NOTE:** Any virtual machines still running inside the container will be killed!
+
+Finally, remove all Podman containers, networks and volumes related to this collection with:
 
 ```sh
-sudo DEBUG=yes podman-compose.sh down
+sudo DEBUG=yes ./podman-compose.sh down
 ```
 
 ## Included content
@@ -583,7 +585,7 @@ host running on `Debian 11 (Bullseye)`:
 cd containers/
 
 # Start Podman networks, volumes and containers in the background
-sudo DEBUG=yes DEBUG_SHELL=yes podman-compose.sh up --distribution debian_11 --detach
+sudo DEBUG=yes DEBUG_SHELL=yes ./podman-compose.sh up --distribution debian_11 --detach
 
 # Monitor container activity
 sudo podman logs --follow cloudy
@@ -629,7 +631,7 @@ To stop the containers, exit the container's Bash shells and run on your contain
 
 ```sh
 # Stop containers
-sudo DEBUG=yes podman-compose.sh stop
+sudo DEBUG=yes ./podman-compose.sh stop
 ```
 
 Both the SSH credentials and the libvirt storage volumes of the libvirt domains (QEMU/KVM based virtual machines) have
@@ -644,7 +646,7 @@ To remove all container(s), networks and wipe all volumes, run:
 
 ```sh
 # Stop and remove containers, volumes and networks
-sudo DEBUG=yes podman-compose.sh down
+sudo DEBUG=yes ./podman-compose.sh down
 ```
 
 ### Bare-metal setup
