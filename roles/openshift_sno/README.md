@@ -30,7 +30,14 @@ coreos-installer] which will be run inside a [Podman][podman] container. The res
 To boot and install the single-node cluster with the live image, this role relies on the tasks defined in
 `openshift_sno_boot_code`. The latter defines a list of tasks which will run by this role, similar to variable
 `openshift_sno_config`, in order to insert the live image as virtual media in the cluster node and then (re)boot the
-node with the live image. The role will then wait until the single-node OpenShift installation has been completed.
+node with the live image.
+
+Next, the role will then wait until:
+1. the single-node OpenShift installation has been completed,
+2. the number of nodes matches the number of machines,
+3. all nodes are ready, because follow-up roles might require workload capacity, and
+4. [cluster operators][ocp-cluster-operators] have finished progressing to ensure that the configuration which had been
+   specified at installation time has been achieved.
 
 Finally, this role will execute all tasks defined in variable `openshift_sno_cleanup_code` which defines a list of tasks
 to eject the live image from the single-node cluster.
@@ -40,6 +47,7 @@ to eject the live image from the single-node cluster.
 [ignition]: https://coreos.github.io/ignition/
 [jq]: https://jqlang.github.io/jq/
 [ocp]: https://openshift.com/
+[ocp-cluster-operator]: https://docs.openshift.com/container-platform/4.13/operators/operator-reference.html
 [ocp-sno]: https://docs.openshift.com/container-platform/4.13/installing/installing_sno/install-sno-preparing-to-install-sno.html
 [okd]: https://www.okd.io/
 [podman]: https://podman.io/

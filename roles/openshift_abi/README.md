@@ -22,14 +22,20 @@ on the tasks defined in `openshift_abi_boot_code`. The latter defines a list of 
 similar to variable `openshift_abi_config`, in order to insert the agent image as virtual media in each cluster node and
 then reboot the node with the agent image.
 
-The role will then wait, first, until the rendezvous host (bootstrap host) has been bootstrapped successfully and then,
-second, until the cluster installation has been completed.
+The role will then wait until:
+1. the rendezvous host (bootstrap host) has been bootstrapped,
+2. the cluster installation has been completed,
+3. the number of nodes matches the number of machines,
+4. all nodes are ready, because follow-up roles might require workload capacity, and
+5. [cluster operators][ocp-cluster-operators] have finished progressing to ensure that the configuration which had been
+   specified at installation time has been achieved.
 
 Finally, this role will execute all tasks defined in variable `openshift_abi_cleanup_code` which defines a list of tasks
 to eject the agent image from all cluster nodes.
 
 [ocp]: https://openshift.com/
 [ocp-abi]: https://docs.openshift.com/container-platform/4.13/installing/installing_with_agent_based_installer/preparing-to-install-with-agent-based-installer.html
+[ocp-cluster-operator]: https://docs.openshift.com/container-platform/4.13/operators/operator-reference.html
 [okd]: https://www.okd.io/
 
 **Tested OS images**

@@ -18,10 +18,16 @@ debugging, the version of `openshift-baremetal-install` will be printed. Afterwa
 generate the manifests for OpenShift Installer-provisioned installation (IPI) from `install-config.yaml` and other
 manifests and then create the cluster.
 
-Finally the role will wait, first, until the cluster has been bootstrapped successfully and then, second, until the
-cluster installation has been completed.
+Finally, the role will wait until:
+1. the cluster has been bootstrapped,
+2. the installation has been completed,
+3. the number of nodes matches the number of machines,
+4. all nodes are ready, because follow-up roles might require workload capacity, and
+5. [cluster operators][ocp-cluster-operators] have finished progressing to ensure that the configuration which had been
+   specified at installation time has been achieved.
 
 [ocp]: https://openshift.com/
+[ocp-cluster-operator]: https://docs.openshift.com/container-platform/4.13/operators/operator-reference.html
 [ocp-ipi]: https://docs.openshift.com/container-platform/4.13/installing/installing_bare_metal_ipi/ipi-install-overview.html
 [okd]: https://www.okd.io/
 [okd-ipi]: https://docs.okd.io/latest/installing/installing_bare_metal_ipi/ipi-install-overview.html

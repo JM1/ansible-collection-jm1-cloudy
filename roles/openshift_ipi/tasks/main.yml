@@ -86,11 +86,17 @@
     path: '{{ openshift_ipi_config_dir }}/.ipi-install-complete'
   register: openshift_ipi_path_install_marker
 
+- name: Check if cluster has been configured
+  ansible.builtin.stat:
+    path: '{{ openshift_ipi_config_dir }}/.ipi-config-complete'
+  register: openshift_ipi_path_config_marker
+
 - name: Ensure markers are consistent
   ansible.builtin.assert:
     that:
       - openshift_ipi_path_init_marker.stat.exists or not openshift_ipi_path_bootstrap_marker.stat.exists
       - openshift_ipi_path_bootstrap_marker.stat.exists or not openshift_ipi_path_install_marker.stat.exists
+      - openshift_ipi_path_install_marker.stat.exists or not openshift_ipi_path_config_marker.stat.exists
 
 - name: Create install-config.yaml and other manifests for openshift-baremetal-install
   # openshift-baremetal-install will delete install-config.yaml when generating manifests
@@ -209,6 +215,54 @@
       # 2023 Jakob Meng, <jakobmeng@web.de>
       # Cluster has been installed sucessfully with OpenShift Installer-provisioned installation (IPI).
     dest: '{{ openshift_ipi_config_dir }}/.ipi-install-complete'
+    mode: u=rw,g=r,o=r
+    group: '{{ ansible_user }}'
+    owner: '{{ ansible_user }}'
+
+- name: Wait until number of nodes matches number of machines
+  when: not openshift_ipi_path_config_marker.stat.exists
+  # Ref.: https://github.com/openshift/release/blob/master/ci-operator/step-registry/openshift/e2e/test/openshift-e2e-test-commands.sh
+  become: false
+  changed_when: false
+  ansible.builtin.shell:
+    cmd: |
+      set -euxo pipefail
+      nodes="$(oc get nodes --no-headers | wc -l)"
+      machines="$(oc get machines -A --no-headers | wc -l)"
+      [ "$machines" -le "$nodes" ]
+    executable: '/bin/bash'
+  environment:
+    KUBECONFIG: '{{ openshift_ipi_config_dir }}/auth/kubeconfig'
+  retries: 60
+  delay: 30
+
+- name: Wait for nodes to be ready
+  when: not openshift_ipi_path_config_marker.stat.exists
+  # Ref.: https://github.com/openshift/release/blob/master/ci-operator/step-registry/openshift/e2e/test/openshift-e2e-test-commands.sh
+  become: false
+  changed_when: false
+  ansible.builtin.command:
+    cmd: oc wait nodes --all --for=condition=Ready=true --timeout=30m
+  environment:
+    KUBECONFIG: '{{ openshift_ipi_config_dir }}/auth/kubeconfig'
+
+- name: Waiting for clusteroperators to finish progressing
+  when: not openshift_ipi_path_config_marker.stat.exists
+  # Ensure that configuration specified at installation time has been achieved
+  # Ref.: https://github.com/openshift/release/blob/master/ci-operator/step-registry/openshift/e2e/test/openshift-e2e-test-commands.sh
+  become: false
+  changed_when: false
+  ansible.builtin.command:
+    cmd: oc wait clusteroperators --all --for=condition=Progressing=false --timeout=30m
+  environment:
+    KUBECONFIG: '{{ openshift_ipi_config_dir }}/auth/kubeconfig'
+
+- name: Create a marker file to signal successful configuration of OpenShift Installer-provisioned installation (IPI)
+  ansible.builtin.copy:
+    content: |
+      # 2023 Jakob Meng, <jakobmeng@web.de>
+      # Cluster has been configured sucessfully with OpenShift Installer-provisioned installation (IPI).
+    dest: '{{ openshift_ipi_config_dir }}/.ipi-config-complete'
     mode: u=rw,g=r,o=r
     group: '{{ ansible_user }}'
     owner: '{{ ansible_user }}'

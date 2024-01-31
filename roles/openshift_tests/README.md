@@ -9,10 +9,10 @@ artifacts such as logs and test results. When a [pull secret][using-image-pull-s
 `openshift_tests_pullsecret`, then it will be written to file `openshift_tests_pullsecret_file`.
 
 [OpenShift Client aka `oc`][ocp-oc] will wait until:
-- the number of nodes matches the number of machines,
-- all nodes are ready, because the tests might require workload capacity, and
-- clusteroperators have finished progressing to ensure that the configuration which had been specified at installation
-  time has been achieved.
+1. the number of nodes matches the number of machines,
+2. all nodes are ready, because the tests might require workload capacity, and
+3. [cluster operators][ocp-cluster-operators] have finished progressing to ensure that any outstanding configuration
+   has been achieved.
 
 When the cluster is ready for testing, the image for OpenShift's conformance test suite will be read from the release
 image defined in `openshift_tests_release_image`. Finally, the former container image will be used to run the test suite
@@ -20,6 +20,7 @@ defined in `openshift_tests_suite` in a [Podman][podman] container. Its output w
 directory `openshift_tests_artifact_dir` and test results will be written to its subdirectory `junit`.
 
 [ocp]: https://openshift.com/
+[ocp-cluster-operator]: https://docs.openshift.com/container-platform/4.13/operators/operator-reference.html
 [ocp-tests]: https://github.com/openshift/origin
 [okd]: https://www.okd.io/
 [podman]: https://podman.io/
