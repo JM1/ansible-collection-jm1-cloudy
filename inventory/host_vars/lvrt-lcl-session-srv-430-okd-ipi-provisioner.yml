@@ -328,7 +328,7 @@ openshift_ipi_config:
 
 openshift_ipi_pullsecret_default: '{"auths":{"xxxxxxx": {"auth": "xxxxxx","email": "xxxxxx"}}}'
 
-openshift_ipi_release_image: 'quay.io/okd/scos-release:4.13.0-0.okd-scos-2023-07-20-165025'
+openshift_ipi_release_image: 'quay.io/openshift/okd:4.15.0-0.okd-2024-01-27-070424'
 
 openshift_tests_kubeconfig_file: '{{ openshift_ipi_config_dir }}/auth/kubeconfig'
 

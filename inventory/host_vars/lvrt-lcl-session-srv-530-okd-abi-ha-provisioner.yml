@@ -470,7 +470,7 @@ openshift_abi_config_dir: '/home/{{ ansible_user }}/clusterconfigs'
 # 'user:password' base64-encoded string.
 openshift_abi_pullsecret_default: '{"auths":{"xxxxxxx": {"auth": "YWRtaW46c2VjcmV0Cg=="}}}'
 
-openshift_abi_release_image: 'quay.io/okd/scos-release:4.13.0-0.okd-scos-2023-07-20-165025'
+openshift_abi_release_image: 'quay.io/openshift/okd:4.15.0-0.okd-2024-01-27-070424'
 
 openshift_tests_kubeconfig_file: '{{ openshift_abi_config_dir }}/auth/kubeconfig'
 
