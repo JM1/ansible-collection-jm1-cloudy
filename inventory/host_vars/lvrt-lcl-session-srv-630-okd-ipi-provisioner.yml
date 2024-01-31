@@ -351,8 +351,6 @@ openshift_ipi_release_image: 'quay.io/okd/scos-release:4.13.0-0.okd-scos-2023-07
 
 openshift_tests_kubeconfig_file: '{{ openshift_ipi_config_dir }}/auth/kubeconfig'
 
-openshift_tests_pullsecret: '{{ openshift_ipi_pullsecret | default(None) }}'
-
 openshift_tests_release_image: '{{ openshift_ipi_release_image }}'
 
 packages:

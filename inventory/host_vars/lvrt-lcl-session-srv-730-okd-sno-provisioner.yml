@@ -299,8 +299,6 @@ openshift_sno_release_image: 'quay.io/openshift/okd:4.13.0-0.okd-2023-08-18-1358
 
 openshift_tests_kubeconfig_file: '{{ openshift_sno_config_dir }}/auth/kubeconfig'
 
-openshift_tests_pullsecret: '{{ openshift_sno_pullsecret | default(None) }}'
-
 openshift_tests_release_image: '{{ openshift_sno_release_image }}'
 
 packages:
