@@ -99,13 +99,13 @@ ansible-builtin-meta] which is fully supported). In addition, Ansible does not s
 arbitrary modules, so for example, change from `- debug: msg=""` to `- debug: { msg: "" }`.
 
 [^supported-keywords]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
-supports keywords `become`, `become_exe`, `become_flags`, `become_method`, `become_user`, `environment`, `when` and
-special keyword `handlers` only. Task keyword `handlers` defines a list of handlers which will be notified and run when
-a task has changed anything. Handlers will also be executed with [`jm1.ansible.execute_module`][
+supports keywords `become`, `become_exe`, `become_flags`, `become_method`, `become_user`, `delay`, `environment`,
+`retries`, `when` and special keyword `handlers` only. Task keyword `handlers` defines a list of handlers which will be
+notified and run when a task has changed anything. Handlers will also be executed with [`jm1.ansible.execute_module`][
 jm1-ansible-execute-module] and thus only keywords `become`, `become_exe`, `become_flags`, `become_method`,
-`become_user`, `environment` and `when` are supported. **NOTE:** Keywords related to `become` will not inherit values
-from the role's caller. For example, when `become` is defined in a playbook it will not be passed on to a task or
-handler here.
+`become_user`, `delay`, `environment`, `retries` and `when` are supported. **NOTE:** Keywords related to `become` will
+not inherit values from the role's caller. For example, when `become` is defined in a playbook it will not be passed on
+to a task or handler here.
 
 [^example-modules]: Useful Ansible modules in this context could be [`blockinfile`][ansible-builtin-blockinfile],
 [`command`][ansible-builtin-command], [`copy`][ansible-builtin-copy], [`file`][ansible-builtin-file], [`lineinfile`][

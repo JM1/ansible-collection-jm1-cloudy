@@ -13,11 +13,16 @@
   become_user: "{{ item['become_user'] | default(omit) }}"
   jm1.ansible.execute_module:
     name: "{{ (item.keys() | difference(['become', 'become_exe', 'become_flags', 'become_method', 'become_user',
-                                         'environment', 'when'])) | first }}"
+                                         'delay', 'environment', 'retries', 'when'])) | first }}"
     args: "{{ item[(item.keys() | difference(['become', 'become_exe', 'become_flags', 'become_method', 'become_user',
-                                              'environment', 'when'])) | first] }}"
+                                              'delay', 'environment', 'retries', 'when'])) | first] }}"
     when: "{{ item['when'] | default(omit) }}"
   environment: "{{ item['environment'] | default(omit) }}"
+  retries: "{{ item['retries'] | default(omit) }}"
+  delay: "{{ item['delay'] | default(omit) }}"
+  # Retry until success when retries is larger than 0
+  until: item['retries'] | default(1) <= 0 or podman_handlers_result is succeeded
+  register: podman_handlers_result
   notify:
   - 'Reset Podman related handlers'
 
