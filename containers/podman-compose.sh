@@ -276,7 +276,6 @@ ________EOF
             --interactive \
             --tty \
             --name "${project_name}" \
-            --security-opt label=disable \
             -e "DEBUG=${DEBUG:=no}" \
             -e "DEBUG_SHELL=${DEBUG_SHELL:=no}" \
             --network "${project_name}" \
