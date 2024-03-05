@@ -129,6 +129,9 @@ cloudinit_userdata_default: |
   {% if distribution_id | first == 'Debian' and (cloudinit_networkconfig | from_yaml)['bridges'] | default(None) %}
   - bridge-utils # Required for bridge support in ifupdown
   {% endif %}
+  {% if distribution_id | first == 'Debian' and (cloudinit_networkconfig | from_yaml)['vlans'] | default(None) %}
+  - vlan # Required for vlan support in ifupdown
+  {% endif %}
   {% endif %}
 
   bootcmd:
