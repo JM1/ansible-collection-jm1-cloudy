@@ -42,23 +42,73 @@ httpd_config:
     owner: root
 
 kubernetes_resources_config:
-- # Configure OpenShift's image registry which is removed during installation
-  # Ref.: https://docs.openshift.com/container-platform/4.13/registry/configuring-registry-operator.html
+- # Create a persistent volume for OpenShift's image registry
   become: false
   kubernetes.core.k8s:
-    api_version: imageregistry.operator.openshift.io/v1
     definition:
+      apiVersion: v1
+      kind: PersistentVolume
+      metadata:
+        name: image-registry-storage
+        namespace: openshift-image-registry
+        labels:
+          type: local
+      spec:
+        storageClassName: manual
+        capacity:
+          storage: 50Gi
+        accessModes:
+          - ReadWriteOnce
+        persistentVolumeReclaimPolicy: Retain
+        hostPath:
+          path: "/var/openshift-image-registry"
+        claimRef:
+          name: image-registry-storage
+          namespace: openshift-image-registry
+    kubeconfig: '/home/{{ ansible_user }}/clusterconfigs/auth/kubeconfig'
+    state: present
+    wait: true
+- # Create a persistent volume claim for OpenShift's image registry
+  become: false
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: image-registry-storage
+        namespace: openshift-image-registry
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 50Gi
+        #volumeMode: Filesystem
+        storageClassName: "" # Empty string must be explicitly set otherwise default StorageClass will be set
+        volumeName: image-registry-storage
+    kubeconfig: '/home/{{ ansible_user }}/clusterconfigs/auth/kubeconfig'
+    state: present
+    wait: true
+- # Configure OpenShift's image registry which is removed during installation
+  # Ref.:
+  # https://docs.openshift.com/container-platform/4.13/registry/configuring-registry-operator.html
+  # https://docs.openshift.com/container-platform/4.13/registry/configuring_registry_storage/configuring-registry-storage-baremetal.html
+  # https://kubernetes.io/docs/concepts/storage/volumes/
+  become: false
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: imageregistry.operator.openshift.io/v1
+      kind: Config
+      metadata:
+        name: cluster
       spec:
         managementState: Managed
-        # NOTE: Option emptyDir is for non-production clusters only
-        # Ref.:
-        # https://docs.openshift.com/container-platform/4.13/registry/configuring_registry_storage/configuring-registry-storage-vsphere.html
-        # https://kubernetes.io/docs/concepts/storage/volumes/
         storage:
-          emptyDir: {}
-    kind: Config
+          pvc:
+            claim: image-registry-storage
+        rolloutStrategy: Recreate # required by access mode ReadWriteOnce
+        replicas: 1
     kubeconfig: '/home/{{ ansible_user }}/clusterconfigs/auth/kubeconfig'
-    name: cluster
     state: patched
     wait: true
 - # Change chrony's NTP pool at master nodes to NTP server running at the local router (optional)
@@ -161,6 +211,521 @@ kubernetes_resources_config:
     kubeconfig: '/home/{{ ansible_user }}/clusterconfigs/auth/kubeconfig'
     state: present
     wait: true
+- # Create namespace for Kubernetes NMState Operator
+  become: false
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        labels:
+          kubernetes.io/metadata.name: openshift-nmstate
+          name: openshift-nmstate
+        name: openshift-nmstate
+      spec:
+        finalizers:
+        - kubernetes
+    kubeconfig: '/home/{{ ansible_user }}/clusterconfigs/auth/kubeconfig'
+    state: present
+    wait: true
+  retries: 10
+  delay: 60
+- # Create OperatorGroup for Kubernetes NMState Operator
+  become: false
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: operators.coreos.com/v1
+      kind: OperatorGroup
+      metadata:
+        annotations:
+          olm.providedAPIs: NMState.v1.nmstate.io
+        name: openshift-nmstate
+        namespace: openshift-nmstate
+      spec:
+        targetNamespaces:
+        - openshift-nmstate
+    kubeconfig: '/home/{{ ansible_user }}/clusterconfigs/auth/kubeconfig'
+    state: present
+    wait: true
+  retries: 10
+  delay: 60
+- # Add catalog source for OpeatorHub.io
+  become: false
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: operators.coreos.com/v1alpha1
+      kind: CatalogSource
+      metadata:
+        name: operatorhubio
+        namespace: openshift-marketplace
+      spec:
+        sourceType: grpc
+        image: quay.io/operatorhubio/catalog:latest
+    kubeconfig: '/home/{{ ansible_user }}/clusterconfigs/auth/kubeconfig'
+    state: present
+  retries: 10
+  delay: 60
+- # Subscribe to the Kubernetes NMState Operator
+  become: false
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: operators.coreos.com/v1alpha1
+      kind: Subscription
+      metadata:
+        labels:
+          operators.coreos.com/kubernetes-nmstate-operator.openshift-nmstate: ""
+        name: kubernetes-nmstate-operator
+        namespace: openshift-nmstate
+      spec:
+        channel: "{{ 'alpha' if 'okd' in openshift_sno_release_image else 'stable' }}"
+        installPlanApproval: Automatic
+        name: kubernetes-nmstate-operator
+        source: "{{ 'operatorhubio' if 'okd' in openshift_sno_release_image else 'redhat-operators' }}"
+        sourceNamespace: openshift-marketplace
+    kubeconfig: '/home/{{ ansible_user }}/clusterconfigs/auth/kubeconfig'
+    state: present
+    wait: true
+    wait_condition:
+      reason: AllCatalogSourcesHealthy
+      status: "False"
+      type: CatalogSourcesUnhealthy
+  retries: 10
+  delay: 60
+- # Create instance of the Kubernetes NMState Operator
+  become: false
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: "{{ 'nmstate.io/v1beta1' if 'okd' in openshift_sno_release_image else 'nmstate.io/v1' }}"
+      kind: NMState
+      metadata:
+        name: nmstate
+    kubeconfig: '/home/{{ ansible_user }}/clusterconfigs/auth/kubeconfig'
+    state: present
+    wait: true
+  retries: 10
+  delay: 60
+- # Wait until Kubernetes NMState Operator has been deployed
+  become: false
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Pod
+    namespace: openshift-nmstate
+    label_selectors:
+    - app = kubernetes-nmstate-operator
+    - name = kubernetes-nmstate-operator
+    kubeconfig: '/home/{{ ansible_user }}/clusterconfigs/auth/kubeconfig'
+    wait: true
+  retries: 10
+  delay: 60
+- # Create NMState configuration for both network interfaces used in the bond
+  become: false
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: "{{ 'nmstate.io/v1beta1' if 'okd' in openshift_sno_release_image else 'nmstate.io/v1' }}"
+      kind: NodeNetworkConfigurationPolicy
+      metadata:
+        name: eth
+      spec:
+        nodeSelector:
+          kubernetes.io/hostname: cp0
+        desiredState:
+          interfaces:
+          - description: primary
+            ipv4:
+              dhcp: false
+              enabled: false
+            ipv6:
+              dhcp: false
+              enabled: false
+            lldp:
+              enabled: false
+            mac-address: 52:54:00:FF:FF:01
+            name: enp2s0
+            state: up
+          - description: secondary
+            ipv4:
+              dhcp: false
+              enabled: false
+            ipv6:
+              dhcp: false
+              enabled: false
+            lldp:
+              enabled: false
+            mac-address: 52:54:00:FF:FF:02
+            name: enp3s0
+            state: up
+    kubeconfig: '/home/{{ ansible_user }}/clusterconfigs/auth/kubeconfig'
+    state: present
+    wait: true
+  retries: 10
+  delay: 60
+- # Create NMState configuration with Open vSwitch bridge and interface
+  become: false
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: "{{ 'nmstate.io/v1beta1' if 'okd' in openshift_sno_release_image else 'nmstate.io/v1' }}"
+      kind: NodeNetworkConfigurationPolicy
+      metadata:
+        name: bond
+      spec:
+        nodeSelector:
+          kubernetes.io/hostname: cp0
+        capture:
+          primary-nic: interfaces.description == "primary"
+          secondary-nic: interfaces.description == "secondary"
+        desiredState:
+          interfaces:
+          - ipv4:
+              dhcp: true
+              enabled: true
+            # Mark as !unsafe to prevent Ansible from evaluating Jinja2 templates
+            mac-address: !unsafe '{{ capture.primary-nic.interfaces.0.mac-address }}'
+            name: brcnv-if
+            state: up
+            type: ovs-interface
+          - bridge:
+              options:
+                mcast-snooping-enable: false
+                rstp: false
+                stp: false
+              port:
+              - link-aggregation:
+                  mode: balance-slb
+                  port:
+                  # Mark as !unsafe to prevent Ansible from evaluating Jinja2 templates
+                  - name: !unsafe '{{ capture.primary-nic.interfaces.0.name }}'
+                  # Mark as !unsafe to prevent Ansible from evaluating Jinja2 templates
+                  - name: !unsafe '{{ capture.secondary-nic.interfaces.0.name }}'
+                name: bond0
+              - name: brcnv-if
+            name: brcnv
+            state: up
+            type: ovs-bridge
+    kubeconfig: '/home/{{ ansible_user }}/clusterconfigs/auth/kubeconfig'
+    state: present
+    wait: true
+  retries: 10
+  delay: 60
+- # Create namespace for OpenShift Virtualization
+  # Ref.: https://docs.openshift.com/container-platform/4.14/virt/install/installing-virt.html
+  become: false
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ 'kubevirt-hyperconverged' if 'okd' in openshift_sno_release_image else 'openshift-cnv' }}"
+    kubeconfig: '/home/{{ ansible_user }}/clusterconfigs/auth/kubeconfig'
+    state: present
+    wait: true
+  retries: 10
+  delay: 60
+- # Create OperatorGroup for OpenShift Virtualization
+  # Ref.: https://docs.openshift.com/container-platform/4.14/virt/install/installing-virt.html
+  become: false
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: operators.coreos.com/v1
+      kind: OperatorGroup
+      metadata:
+        name: kubevirt-hyperconverged-group
+        namespace: "{{ 'kubevirt-hyperconverged' if 'okd' in openshift_sno_release_image else 'openshift-cnv' }}"
+      spec: "{{ {} if 'okd' in openshift_sno_release_image else {'targetNamespaces': ['openshift-cnv']} }}"
+    kubeconfig: '/home/{{ ansible_user }}/clusterconfigs/auth/kubeconfig'
+    state: present
+    wait: true
+  retries: 10
+  delay: 60
+- # Subscribe to the OpenShift Virtualization catalog
+  # Ref.: https://docs.openshift.com/container-platform/4.14/virt/install/installing-virt.html
+  become: false
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: operators.coreos.com/v1alpha1
+      kind: Subscription
+      metadata:
+        name: hco-operatorhub
+        namespace: "{{ 'kubevirt-hyperconverged' if 'okd' in openshift_sno_release_image else 'openshift-cnv' }}"
+      spec:
+        source: "{{ 'community-operators' if 'okd' in openshift_sno_release_image else 'redhat-operators' }}"
+        sourceNamespace: openshift-marketplace
+        name: "{{ 'community-kubevirt-hyperconverged' if 'okd' in openshift_sno_release_image else 'kubevirt-hyperconverged' }}"
+        config:
+          nodeSelector:
+            kubernetes.io/hostname: cp0
+    kubeconfig: '/home/{{ ansible_user }}/clusterconfigs/auth/kubeconfig'
+    state: present
+    wait: true
+    wait_condition:
+      reason: AllCatalogSourcesHealthy
+      status: "False"
+      type: CatalogSourcesUnhealthy
+  retries: 10
+  delay: 60
+- # Create instance of the OpenShift Virtualization Operator
+  # Ref.: https://docs.openshift.com/container-platform/4.14/virt/install/installing-virt.html
+  become: false
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: hco.kubevirt.io/v1beta1
+      kind: HyperConverged
+      metadata:
+        annotations:
+          # Enable OVS CNI
+          # Ref.: https://github.com/kubevirt/hyperconverged-cluster-operator/blob/main/docs/cluster-configuration.md
+          deployOVS: "true"
+        name: kubevirt-hyperconverged
+        namespace: "{{ 'kubevirt-hyperconverged' if 'okd' in openshift_sno_release_image else 'openshift-cnv' }}"
+      spec:
+        infra:
+          nodePlacement:
+            nodeSelector:
+              kubernetes.io/hostname: cp0
+        workloads:
+          nodePlacement:
+            nodeSelector:
+              kubernetes.io/hostname: cp0
+    kubeconfig: '/home/{{ ansible_user }}/clusterconfigs/auth/kubeconfig'
+    state: present
+    wait: true
+  retries: 10
+  delay: 60
+- # Wait until pod hyperconverged-cluster-operator has been deployed by OpenShift Virtualization Operator
+  become: false
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Pod
+    namespace: "{{ 'kubevirt-hyperconverged' if 'okd' in openshift_sno_release_image else 'openshift-cnv' }}"
+    label_selectors:
+    - name = hyperconverged-cluster-operator
+    kubeconfig: '/home/{{ ansible_user }}/clusterconfigs/auth/kubeconfig'
+    wait: true
+  retries: 10
+  delay: 60
+- # Wait until pod virt-operator has been deployed by OpenShift Virtualization Operator
+  become: false
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Pod
+    namespace: "{{ 'kubevirt-hyperconverged' if 'okd' in openshift_sno_release_image else 'openshift-cnv' }}"
+    label_selectors:
+    - name = virt-operator
+    kubeconfig: '/home/{{ ansible_user }}/clusterconfigs/auth/kubeconfig'
+    wait: true
+  retries: 10
+  delay: 60
+- # Create a hostpath provisioner with a basic storage pool for OpenShift Virtualization
+  # Ref.: https://docs.openshift.com/container-platform/4.12/virt/virtual_machines/virtual_disks/virt-configuring-local-storage-for-vms.html
+  become: false
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: hostpathprovisioner.kubevirt.io/v1beta1
+      kind: HostPathProvisioner
+      metadata:
+        name: hostpath-provisioner
+      spec:
+        imagePullPolicy: IfNotPresent
+        storagePools:
+        - name: openshift-cnv-pool
+          path: "/var/openshift-cnv-pool"
+      workload:
+        nodeSelector:
+          kubernetes.io/os: linux
+    kubeconfig: '/home/{{ ansible_user }}/clusterconfigs/auth/kubeconfig'
+    state: present
+    wait: true
+  retries: 10
+  delay: 60
+- # Create a storage class for the CSI driver with the storagePools stanza for OpenShift Virtualization
+  # Ref.: https://docs.openshift.com/container-platform/4.12/virt/virtual_machines/virtual_disks/virt-configuring-local-storage-for-vms.html
+  become: false
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: storage.k8s.io/v1
+      kind: StorageClass
+      metadata:
+        name: openshift-cnv-hostpath-provisioner
+        annotations:
+          # Provide a default storage class for CDI's DataImportCron(s)
+          # Ref.: https://docs.openshift.com/container-platform/4.14/virt/monitoring/virt-runbooks.html#virt-runbook-CDIDataImportCronOutdated
+          storageclass.kubernetes.io/is-default-class: 'true'
+      provisioner: kubevirt.io.hostpath-provisioner
+      reclaimPolicy: Delete
+      volumeBindingMode: WaitForFirstConsumer
+      parameters:
+        storagePool: openshift-cnv-pool
+    kubeconfig: '/home/{{ ansible_user }}/clusterconfigs/auth/kubeconfig'
+    state: present
+    wait: true
+  retries: 10
+  delay: 60
+- # Prepare CDI scratch space for OpenShift Virtualization
+  # Ref.: https://docs.openshift.com/container-platform/4.12/virt/virtual_machines/virtual_disks/virt-preparing-cdi-scratch-space.html
+  become: false
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: hco.kubevirt.io/v1beta1
+      kind: HyperConverged
+      metadata:
+        name: kubevirt-hyperconverged
+        namespace: "{{ 'kubevirt-hyperconverged' if 'okd' in openshift_sno_release_image else 'openshift-cnv' }}"
+      spec:
+        scratchSpaceStorageClass: openshift-cnv-hostpath-provisioner
+    kubeconfig: '/home/{{ ansible_user }}/clusterconfigs/auth/kubeconfig'
+    state: patched
+    wait: true
+  retries: 10
+  delay: 60
+- # Wait until golden images have been loaded
+  become: false
+  kubernetes.core.k8s_info:
+    api_version: cdi.kubevirt.io/v1beta1
+    kind: DataSource
+    name: "{{ 'fedora' if 'okd' in openshift_sno_release_image else 'rhel9' }}"
+    namespace: "{{ 'kubevirt-os-images' if 'okd' in openshift_sno_release_image else 'openshift-virtualization-os-images' }}"
+    kubeconfig: '/home/{{ ansible_user }}/clusterconfigs/auth/kubeconfig'
+    wait: true
+    wait_condition:
+      reason: Ready
+      status: "True"
+      type: Ready
+  retries: 10
+  delay: 60
+- # Create secondary network for Multus
+  # Ref.: https://github.com/k8snetworkplumbingwg/ovs-cni/blob/main/docs/demo.md
+  become: false
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: k8s.cni.cncf.io/v1
+      kind: NetworkAttachmentDefinition
+      metadata:
+        name: brcnv-vlan1000
+        namespace: "{{ 'kubevirt-hyperconverged' if 'okd' in openshift_sno_release_image else 'openshift-cnv' }}"
+        annotations:
+          k8s.v1.cni.cncf.io/resourceName: ovs-cni.network.kubevirt.io/brcnv
+      spec:
+        config: '{
+            "cniVersion": "0.4.0",
+            "type": "ovs",
+            "bridge": "brcnv",
+            "vlan": 1000
+          }'
+    kubeconfig: '/home/{{ ansible_user }}/clusterconfigs/auth/kubeconfig'
+    state: present
+    wait: true
+  retries: 10
+  delay: 60
+- # Create a virtual machine
+  # Ref.: https://docs.openshift.com/container-platform/4.14/virt/virtual_machines/creating_vms_rh/virt-creating-vms-from-cli.html
+  become: false
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: kubevirt.io/v1
+      kind: VirtualMachine
+      metadata:
+        labels:
+          app: testvm
+        name: testvm
+        namespace: "{{ 'kubevirt-hyperconverged' if 'okd' in openshift_sno_release_image else 'openshift-cnv' }}"
+      spec:
+        runStrategy: Always
+        dataVolumeTemplates:
+        - apiVersion: cdi.kubevirt.io/v1beta1
+          kind: DataVolume
+          metadata:
+            name: testvm
+          spec:
+            sourceRef:
+              kind: DataSource
+              name: "{{ 'fedora' if 'okd' in openshift_sno_release_image else 'rhel9' }}"
+              namespace: "{{ 'kubevirt-os-images' if 'okd' in openshift_sno_release_image else 'openshift-virtualization-os-images' }}"
+            storage:
+              accessModes:
+              - ReadWriteOnce
+              resources:
+                requests:
+                  storage: 30Gi
+              storageClassName: openshift-cnv-hostpath-provisioner
+        template:
+          metadata:
+            labels:
+              kubevirt.io/domain: testvm
+          spec:
+            domain:
+              cpu:
+                cores: 1
+                model: host-passthrough
+                sockets: 2
+                threads: 1
+              devices:
+                disks:
+                - disk:
+                    bus: virtio
+                  name: rootdisk
+                - disk:
+                    bus: virtio
+                  name: cloudinitdisk
+                interfaces:
+                - masquerade: {}
+                  name: default
+                - bootOrder: 1
+                  bridge: {}
+                  macAddress: 52:54:00:ee:ee:01
+                  name: vnic0
+                networkInterfaceMultiqueue: true
+                rng: {}
+              features:
+                acpi:
+                  enabled: true
+                smm:
+                  enabled: true
+              # NOTE: Delete spec.firmware.bootloader to use BIOS boot instead of UEFI boot
+              firmware:
+                bootloader:
+                  efi:
+                    secureBoot: false
+              machine:
+                type: pc-q35-rhel8.6.0
+              resources:
+                requests:
+                  memory: 8Gi
+            evictionStrategy: LiveMigrate
+            networks:
+            - name: default
+              pod: {}
+            - multus:
+                networkName: brcnv-vlan1000
+              name: vnic0
+            volumes:
+            - dataVolume:
+                name: testvm
+              name: rootdisk
+            - cloudInitNoCloud:
+                userData: |-
+                  #cloud-config
+                  user: admin
+                  password: 'secret'
+                  chpasswd: { expire: False }
+              name: cloudinitdisk
+    kubeconfig: '/home/{{ ansible_user }}/clusterconfigs/auth/kubeconfig'
+    state: present
+    wait: true
+  retries: 10
+  delay: 60
+- # Wait until virtual machine has been launched
+  become: false
+  kubernetes.core.k8s_info:
+    api_version: kubevirt.io/v1
+    kind: VirtualMachineInstance
+    name: testvm
+    namespace: "{{ 'kubevirt-hyperconverged' if 'okd' in openshift_sno_release_image else 'openshift-cnv' }}"
+    kubeconfig: '/home/{{ ansible_user }}/clusterconfigs/auth/kubeconfig'
+    wait: true
+    wait_condition:
+      status: "True"
+      type: Ready
+  retries: 10
+  delay: 60
 
 libvirt_domain_autostart: false
 

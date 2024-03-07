@@ -17,11 +17,13 @@ libvirt_domain_state: shutoff
 libvirt_hardware:
 - metadata: 'uuid=deadbeef-1337-1337-1337-000000000001'
 - cpu: 'host'
-- vcpus: '4'
-- memory: '16384'
+- vcpus: '12' # 4 cores is not enough for OpenShift Virtualization
+- memory: '32768' # 16384 is not enough for hosting virtual machines with OpenShift Virtualization
 - virt_type: 'kvm'
 - graphics: 'vnc,listen=socket'
 - network: 'network=route-1-no-dhcp,model=virtio,mac=52:54:00:aa:bb:27'
+- network: 'network=isolated-2-no-dhcp,model=virtio,mac=52:54:00:ff:ff:01'
+- network: 'network=isolated-3-no-dhcp,model=virtio,mac=52:54:00:ff:ff:02'
 - disk: "vol='{{ libvirt_pool }}/{{ libvirt_volumes[0]['name'] }}',device=disk,bus=virtio"
 - machine: 'q35'
 - boot: 'hd,cdrom,loader=/usr/share/OVMF/OVMF_CODE.fd'

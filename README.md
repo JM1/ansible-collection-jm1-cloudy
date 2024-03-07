@@ -40,10 +40,10 @@ that demonstrates how to setup a cloud infrastructure using [libvirt][libvirt] a
   to PXE boot servers and [VirtualBMC][virtualbmc], a virtual IPMI BMC, to power cycle servers. Beware of high resource
   utilization, e.g. this cluster requires >96GB of RAM.
 * Hosts [`lvrt-lcl-session-srv-7*`][inventory-example] showcase how to deploy a [single-node][ocp-sno] [OKD][okd] (SNO)
-  cluster on a bare-metal server and run [OpenShift's conformance test suite][ocp-tests]. This setup uses libvirt
-  domains (QEMU/KVM based virtual machines) to simulate a bare-metal server and auxiliary resources. [sushy-emulator][
-  sushy-emulator] provides a virtual Redfish BMC to power cycle the server and mount virtual media for provisioning.
-  Beware that this setup requires 32GB of RAM.
+  cluster on a bare-metal server with [Virtualization][ocp-virt] ([KubeVirt][kubevirt]), [Kubernetes NMState][
+  kubernetes-nmstate] and [Open vSwitch CNI][ovs-cni]. This setup uses libvirt domains (QEMU/KVM based virtual machines)
+  to simulate a bare-metal server and auxiliary resources. [sushy-emulator][sushy-emulator] provides a virtual Redfish
+  BMC to power cycle the server and mount virtual media for provisioning. Beware that this setup requires 64GB of RAM.
 * Hosts [`lvrt-lcl-session-srv-8*`][inventory-example] showcase how to deploy an OpenStack cloud with [Kolla Ansible][
   kolla-ansible]. Beware of high resource utilization, e.g. this cluster requires >=96GB of RAM.
 
@@ -59,6 +59,10 @@ that demonstrates how to setup a cloud infrastructure using [libvirt][libvirt] a
 [ocp-ipi]: https://docs.openshift.com/container-platform/4.13/installing/installing_bare_metal_ipi/ipi-install-overview.html
 [ocp-sno]: https://docs.openshift.com/container-platform/4.13/installing/installing_sno/install-sno-preparing-to-install-sno.html
 [ocp-tests]: https://github.com/openshift/origin
+[kubevirt]: https://kubevirt.io/
+[kubernetes-nmstate]: https://github.com/nmstate/kubernetes-nmstate
+[ocp-virt]: https://docs.openshift.com/container-platform/4.14/virt/about_virt/about-virt.html
+[ovs-cni]: https://github.com/k8snetworkplumbingwg/ovs-cni
 [sushy-emulator]: https://docs.openstack.org/sushy-tools/latest/user/dynamic-emulator.html
 [virtualbmc]: https://docs.openstack.org/virtualbmc/latest/
 [kolla-ansible]: https://docs.openstack.org/kolla-ansible/latest/

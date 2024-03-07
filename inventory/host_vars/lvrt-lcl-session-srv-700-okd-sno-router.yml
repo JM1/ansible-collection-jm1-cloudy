@@ -6,6 +6,8 @@
 chrony_config:
 - ansible.builtin.copy:
     content: |
+      allow 192.168.153.0/24
+      allow 192.168.154.0/24
       allow 192.168.158.0/24
     dest: /etc/chrony/conf.d/home.arpa.conf
     mode: u=rw,g=r,o=
@@ -23,22 +25,43 @@ dnsmasq_config:
       address=/apps.okd-sno.home.arpa/192.168.158.77
       bind-dynamic
       dhcp-authoritative
-      dhcp-host=52:54:00:aa:bb:27,192.168.158.77,cp0.okd-sno.home.arpa,infinite
-      dhcp-host=52:54:00:aa:bb:28,192.168.158.76,provisioner.okd-sno.home.arpa,infinite
+      dhcp-host=52:54:00:aa:bb:27,set:platform0,192.168.158.77,cp0.okd-sno.home.arpa,infinite
+      dhcp-host=52:54:00:aa:bb:28,set:platform0,192.168.158.76,provisioner.okd-sno.home.arpa,infinite
+      dhcp-host=52:54:00:ff:ff:01,set:platform1,192.168.153.100,cp0a.okd-sno.home.arpa,infinite
+      dhcp-host=52:54:00:ff:ff:02,set:platform1,192.168.153.101,cp0b.okd-sno.home.arpa,infinite
+      dhcp-host=52:54:00:ee:ee:01,set:workload0,192.168.154.100,cp0vm0.okd-sno.home.arpa,infinite
       dhcp-ignore=tag:!known
       dhcp-no-override
-      dhcp-option=option:dns-server,192.168.158.74
-      dhcp-option=option:ntp-server,192.168.158.74
-      dhcp-option=option:router,192.168.158.74
-      dhcp-range=192.168.158.100,192.168.158.254,255.255.255.0
+      dhcp-option=platform0,option:dns-server,192.168.158.74
+      dhcp-option=platform0,option:ntp-server,192.168.158.74
+      dhcp-option=platform0,option:router,192.168.158.74
+      # Do not assign router (default gateway) to platform1 otherwise
+      # OpenShift might assign the wrong device to the default OVS bridge.
+      dhcp-option=platform1,option:dns-server
+      dhcp-option=platform1,option:ntp-server
+      dhcp-option=platform1,option:router
+      dhcp-option=workload0,option:dns-server,192.168.154.74
+      dhcp-option=workload0,option:ntp-server,192.168.154.74
+      dhcp-option=workload0,option:router,192.168.154.74
+      dhcp-range=eth0,192.168.158.100,192.168.158.254,255.255.255.0
+      dhcp-range=platform1,192.168.153.100,192.168.153.254,255.255.255.0
+      dhcp-range=workload0,192.168.154.100,192.168.154.254,255.255.255.0
+      dhcp-option=workload0,option:bootfile-name,http://192.168.158.77/non-existing-example-ipxe.efi
+      dhcp-option=workload0,option:vendor-class,HTTPClient
       domain=okd-sno.home.arpa,192.168.158.76/32
       domain=okd-sno.home.arpa,192.168.158.77/32
+      domain=okd-sno.home.arpa,192.168.153.100/32
+      domain=okd-sno.home.arpa,192.168.153.101/32
+      domain=okd-sno.home.arpa,192.168.154.100/32
       # api{,-int}.okd-sno.home.arpa is same as cp0.okd-sno.home.arpa because single-node setup lacks high availability
       host-record=api.okd-sno.home.arpa,192.168.158.77
       host-record=api-int.okd-sno.home.arpa,192.168.158.77
       host-record=cp0.okd-sno.home.arpa,192.168.158.77
+      host-record=cp0a.okd-sno.home.arpa,192.168.153.100
+      host-record=cp0b.okd-sno.home.arpa,192.168.153.101
+      host-record=cp0vm0.okd-sno.home.arpa,192.168.154.100
       host-record=provisioner.okd-sno.home.arpa,192.168.158.76
-      listen-address=192.168.158.74,127.0.0.1
+      listen-address=192.168.153.74,192.168.154.74,192.168.158.74,127.0.0.1
       no-resolv
       server=192.168.158.1
       strict-order
@@ -67,6 +90,24 @@ iptables_config:
     source: 192.168.158.0/24
     table: nat
     to_source: 192.168.158.74
+- # do SNAT for all packets coming from baremetal network
+  ansible.builtin.iptables:
+    chain: POSTROUTING
+    destination: 0.0.0.0/0
+    jump: SNAT
+    out_interface: 'eth0'
+    source: 192.168.153.0/24
+    table: nat
+    to_source: 192.168.158.74
+- # do SNAT for all packets coming from baremetal network
+  ansible.builtin.iptables:
+    chain: POSTROUTING
+    destination: 0.0.0.0/0
+    jump: SNAT
+    out_interface: 'eth0'
+    source: 192.168.154.0/24
+    table: nat
+    to_source: 192.168.158.74
 
 iptables_persistence: true
 
@@ -79,6 +120,8 @@ libvirt_hardware:
 - virt_type: 'kvm'
 - graphics: 'vnc,listen=socket'
 - network: 'network=route-1-no-dhcp,model=virtio'
+- network: 'network=isolated-2-no-dhcp,model=virtio,mac=52:54:00:ff:00:01'
+- network: 'network=isolated-3-no-dhcp,model=virtio,mac=52:54:00:ff:00:02'
 - disk: "vol='{{ libvirt_pool }}/{{ libvirt_volumes[0]['name'] }}',device=disk,bus=virtio"
 - disk: "vol='{{ libvirt_pool }}/{{ libvirt_configdrive }}',device=disk,bus=virtio,serial='cidata'"
 - os_variant: 'ubuntu18.04'
@@ -101,6 +144,33 @@ libvirt_netplan:
       routes:
       - to: 0.0.0.0/0
         via: 192.168.158.1
+    eth1:
+      dhcp4: false
+      dhcp6: false
+      accept-ra: false
+    eth2:
+      dhcp4: false
+      dhcp6: false
+      accept-ra: false
+  bridges:
+    br0:
+      interfaces:
+      - eth1
+      - eth2
+      dhcp4: false
+      dhcp6: false
+      accept-ra: false
+      addresses:
+      - 192.168.153.74/24
+  vlans:
+    br0.1000:
+      id: 1000
+      link: br0
+      dhcp4: false
+      dhcp6: false
+      accept-ra: false
+      addresses:
+      - 192.168.154.74/24
 
 libvirt_pool: 'default'
 
@@ -129,6 +199,7 @@ sysctl_config:
       # 2023 Jakob Meng, <jakobmeng@web.de>
       net.ipv4.ip_forward = 0
       net.ipv4.conf.eth0.forwarding = 1
+      net.ipv4.conf.br0/1000.forwarding = 1
     dest: /etc/sysctl.d/10-ip-forward.conf
 # Apply changes using Ansible's sysctl module
 - ansible.posix.sysctl:
@@ -139,6 +210,12 @@ sysctl_config:
     sysctl_set: true
 - ansible.posix.sysctl:
     name: net.ipv4.conf.eth0.forwarding
+    value: '1'
+    state: present
+    sysctl_file: /etc/sysctl.d/10-ip-forward.conf
+    sysctl_set: true
+- ansible.posix.sysctl:
+    name: net.ipv4.conf.br0/1000.forwarding
     value: '1'
     state: present
     sysctl_file: /etc/sysctl.d/10-ip-forward.conf
