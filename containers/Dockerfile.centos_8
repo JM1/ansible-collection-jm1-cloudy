@@ -15,8 +15,6 @@
 
 FROM quay.io/centos/centos:stream8
 
-ARG DEBIAN_FRONTEND=noninteractive
-
 # By default, CentOS Stream 8 uses Python 3.6. Package ansible-core from CentOS Stream 8 repositories pulls in a newer
 # Python interpreter >3.6 and thus cannot consume Python 3.6 packages such as python3-jinja2 and python3-libvirt which
 # are installed via dnf. CentOS Stream 8 does not provide updated versions of those python3-* packages for its newer
@@ -52,21 +50,25 @@ RUN useradd --create-home --shell /bin/bash cloudy && \
   echo 'cloudy ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/cloudy && \
   chmod u=r,g=r,o= /etc/sudoers.d/cloudy
 
-RUN sudo -u cloudy mkdir -p /home/cloudy/.ssh/ && \
+USER cloudy
+
+RUN mkdir -p /home/cloudy/.ssh/ && \
   chmod u=rwx,g=,o= /home/cloudy/.ssh/
 
 # Persist SSH credentials and configuration for accessing virtual machines
 VOLUME /home/cloudy/.ssh/
 
-RUN sudo -u cloudy mkdir -p /home/cloudy/.local/share/libvirt/images/
+RUN mkdir -p /home/cloudy/.local/share/libvirt/images/
 
 # Persist storage volumes of libvirt domains
 VOLUME /home/cloudy/.local/share/libvirt/images/
 
-RUN sudo -u cloudy mkdir -p /home/cloudy/project/
+RUN mkdir -p /home/cloudy/project/
 
 # Persist user's Ansible inventories, playbooks, configuration..
 VOLUME /home/cloudy/project/
+
+USER root
 
 COPY entrypoint.sh /usr/local/bin/
 
