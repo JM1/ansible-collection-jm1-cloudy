@@ -105,9 +105,7 @@ cloudinit_userdata_default: |
   {% endif %}
   {% endif %}
 
-  {% if distribution_id | first == 'Debian' or
-        distribution_id | first == 'Ubuntu' or
-        distribution_id | first == 'CentOS' %}
+  {% if distribution_id | first in ['CentOS', 'Debian', 'Fedora', 'Ubuntu'] %}
   # Update cache to prevent download errors during package install
   package_update: true
 
@@ -220,7 +218,7 @@ files_config_early:
     owner: root
     group: root
     mode: '0644'
-  when: distribution_id | first in ['CentOS', 'Red Hat Enterprise Linux']
+  when: distribution_id | first in ['CentOS', 'Fedora', 'Red Hat Enterprise Linux']
         or distribution_id in [['Debian', '10']]
 - ansible.builtin.lineinfile:
     path: /etc/hosts
@@ -229,7 +227,7 @@ files_config_early:
     owner: root
     group: root
     mode: '0644'
-  when: distribution_id | first not in ['CentOS', 'Red Hat Enterprise Linux']
+  when: distribution_id | first not in ['CentOS', 'Fedora', 'Red Hat Enterprise Linux']
         and distribution_id not in [['Debian', '10']]
 - ansible.builtin.lineinfile:
     path: /etc/hosts
