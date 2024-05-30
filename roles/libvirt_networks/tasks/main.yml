@@ -53,8 +53,10 @@
   block:
   - name: Add capability to create TUN/TAP devices to qemu-bridge-helper
     when: distribution_id | first in ['Debian', 'Ubuntu']
-    # CentOS and Red Hat Enterprise Linux set setgid flag for file /usr/libexec/qemu-bridge-helper already
-    # Ref.: https://git.centos.org/rpms/qemu-kvm
+    # CentOS, Fedora and Red Hat Enterprise Linux set setgid flag for file /usr/libexec/qemu-bridge-helper already
+    # Ref.:
+    # https://git.centos.org/rpms/qemu-kvm
+    # https://src.fedoraproject.org/rpms/qemu
     community.general.capabilities:
       path: /usr/lib/qemu/qemu-bridge-helper
       capability: cap_net_admin+ep
@@ -79,7 +81,7 @@
     mode: u=rw,g=r,o=r
     owner: root
     path: "{{ '/etc/qemu/bridge.conf'
-              if distribution_id | first in ['Debian', 'Ubuntu'] else '/etc/qemu-kvm/bridge.conf' }}"
+              if distribution_id | first in ['Debian', 'Fedora', 'Ubuntu'] else '/etc/qemu-kvm/bridge.conf' }}"
     regexp: '\\ {{ item.bridge.name }}$'
     state: present
 
@@ -88,7 +90,7 @@
   when:  item.state | default('present') == 'absent' and 'acl' in item
   ansible.builtin.lineinfile:
     path: "{{ '/etc/qemu/bridge.conf'
-              if distribution_id | first in ['Debian', 'Ubuntu'] else '/etc/qemu-kvm/bridge.conf' }}"
+              if distribution_id | first in ['Debian', 'Fedora', 'Ubuntu'] else '/etc/qemu-kvm/bridge.conf' }}"
     regexp: '\\ {{ item.bridge.name }}$'
     state: absent
 

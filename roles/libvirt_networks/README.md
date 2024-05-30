@@ -38,9 +38,9 @@ community-libvirt-virt-net] from collection [`community.libvirt`][galaxy-communi
 network to be started automatically when the libvirt daemon starts.
 
 If a list item contains key `acl` then [the capability to create TUN/TAP devices aka `cap_net_admin+ep` will be added to
-`qemu-bridge-helper`][qemu-bridge-helper] and [QEMU's config file `/etc/qemu/bridge.conf` (on Debian based
-distributions) or `/etc/qemu-kvm/bridge.conf` (on RHEL based distributions) will be edited to allow or deny access to
-bridges (created by `qemu-bridge-helper` and implicitly invoked from libvirt daemon) for unprivileged users][qemu-acl]
+`qemu-bridge-helper`][qemu-bridge-helper] and [QEMU's config file `/etc/qemu/bridge.conf` (on Debian, Fedora and Ubuntu)
+or `/etc/qemu-kvm/bridge.conf` (on CentOS or Red Hat Enterprise Linux) will be edited to allow or deny access to bridges
+(created by `qemu-bridge-helper` and implicitly invoked from libvirt daemon) for unprivileged users][qemu-acl]
 [^libvirt-networks-parameter-acl].
 
 [qemu-bridge-helper]: https://salsa.debian.org/libvirt-team/libvirt/-/blob/debian/latest/debian/libvirt-daemon.README.Debian#L45
@@ -64,15 +64,18 @@ network will be removed to revoke access to bridges for unprivileged users [^lib
 [galaxy-jm1-libvirt]: https://galaxy.ansible.com/jm1/libvirt
 
 **Tested OS images**
-- Cloud image of [`Debian 10 (Buster)` \[`amd64`\]](https://cdimage.debian.org/cdimage/openstack/current/)
-- Cloud image of [`Debian 11 (Bullseye)` \[`amd64`\]](https://cdimage.debian.org/images/cloud/bullseye/latest/)
-- Cloud image of [`Debian 12 (Bookworm)` \[`amd64`\]](https://cdimage.debian.org/images/cloud/bookworm/)
-- Generic cloud image of [`CentOS Linux 7` \[`amd64`\]](https://cloud.centos.org/centos/7/images/)
-- Generic cloud image of [`CentOS Stream 8` \[`amd64`\]](https://cloud.centos.org/centos/8-stream/x86_64/images/)
-- Generic cloud image of [`CentOS Stream 9` \[`amd64`\]](https://cloud.centos.org/centos/9-stream/x86_64/images/)
-- Ubuntu cloud image of [`Ubuntu 18.04 LTS (Bionic Beaver)` \[`amd64`\]](https://cloud-images.ubuntu.com/bionic/current/)
-- Ubuntu cloud image of [`Ubuntu 20.04 LTS (Focal Fossa)` \[`amd64`\]](https://cloud-images.ubuntu.com/focal/)
-- Ubuntu cloud image of [`Ubuntu 22.04 LTS (Jammy Jellyfish)` \[`amd64`\]](https://cloud-images.ubuntu.com/jammy/)
+- [Cloud image (`amd64`)](https://cdimage.debian.org/images/cloud/buster/daily/) of Debian 10 (Buster)
+- [Cloud image (`amd64`)](https://cdimage.debian.org/images/cloud/bullseye/daily/) of Debian 11 (Bullseye)
+- [Cloud image (`amd64`)](https://cdimage.debian.org/images/cloud/bookworm/daily/) of Debian 12 (Bookworm)
+- [Cloud image (`amd64`)](https://cdimage.debian.org/images/cloud/trixie/daily/) of Debian 13 (Trixie)
+- [Cloud image (`amd64`)](https://cloud.centos.org/centos/7/images/) of CentOS 7 (Core)
+- [Cloud image (`amd64`)](https://cloud.centos.org/centos/8-stream/x86_64/images/) of CentOS 8 (Stream)
+- [Cloud image (`amd64`)](https://cloud.centos.org/centos/9-stream/x86_64/images/) of CentOS 9 (Stream)
+- [Cloud image (`amd64`)](https://download.fedoraproject.org/pub/fedora/linux/releases/40/Cloud/x86_64/images/) of Fedora Cloud Base 40
+- [Cloud image (`amd64`)](https://cloud-images.ubuntu.com/bionic/current/) of Ubuntu 18.04 LTS (Bionic Beaver)
+- [Cloud image (`amd64`)](https://cloud-images.ubuntu.com/focal/) of Ubuntu 20.04 LTS (Focal Fossa)
+- [Cloud image (`amd64`)](https://cloud-images.ubuntu.com/jammy/) of Ubuntu 22.04 LTS (Jammy Jellyfish)
+- [Cloud image (`amd64`)](https://cloud-images.ubuntu.com/noble/) of Ubuntu 24.04 LTS (Noble Numbat)
 
 Available on Ansible Galaxy in Collection [jm1.cloudy](https://galaxy.ansible.com/jm1/cloudy).
 

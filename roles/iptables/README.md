@@ -25,7 +25,8 @@ iptables_persistence: true
 First, if `iptables_persistence` evaluates to `true`, then this role will install packages (matching the distribution
 specified in `distribution_id`) to persist iptables rules across reboots. Next, it will run all tasks listed in
 `iptables_config`. Once all tasks have finished, if anything has changed and `iptables_persistence` evaluates to `true`
-(and if `iptables_service_state` is not set to `stopped`), then all iptables rules are stored to survive reboots.
+(and if `iptables_service_state` or `ip6tables_service_state` are not set to `stopped`), then all iptables rules are
+stored to survive reboots.
 
 [ansible-inventory]: https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
 [iptables]: https://wiki.archlinux.org/title/Iptables
@@ -33,15 +34,18 @@ specified in `distribution_id`) to persist iptables rules across reboots. Next, 
 [snat-wiki]: https://en.wikipedia.org/wiki/SNAT
 
 **Tested OS images**
-- Cloud image of [`Debian 10 (Buster)` \[`amd64`\]](https://cdimage.debian.org/cdimage/openstack/current/)
-- Cloud image of [`Debian 11 (Bullseye)` \[`amd64`\]](https://cdimage.debian.org/images/cloud/bullseye/latest/)
-- Cloud image of [`Debian 12 (Bookworm)` \[`amd64`\]](https://cdimage.debian.org/images/cloud/bookworm/)
-- Generic cloud image of [`CentOS Linux 7` \[`amd64`\]](https://cloud.centos.org/centos/7/images/)
-- Generic cloud image of [`CentOS Stream 8` \[`amd64`\]](https://cloud.centos.org/centos/8-stream/x86_64/images/)
-- Generic cloud image of [`CentOS Stream 9` \[`amd64`\]](https://cloud.centos.org/centos/9-stream/x86_64/images/)
-- Ubuntu cloud image of [`Ubuntu 18.04 LTS (Bionic Beaver)` \[`amd64`\]](https://cloud-images.ubuntu.com/bionic/current/)
-- Ubuntu cloud image of [`Ubuntu 20.04 LTS (Focal Fossa)` \[`amd64`\]](https://cloud-images.ubuntu.com/focal/)
-- Ubuntu cloud image of [`Ubuntu 22.04 LTS (Jammy Jellyfish)` \[`amd64`\]](https://cloud-images.ubuntu.com/jammy/)
+- [Cloud image (`amd64`)](https://cdimage.debian.org/images/cloud/buster/daily/) of Debian 10 (Buster)
+- [Cloud image (`amd64`)](https://cdimage.debian.org/images/cloud/bullseye/daily/) of Debian 11 (Bullseye)
+- [Cloud image (`amd64`)](https://cdimage.debian.org/images/cloud/bookworm/daily/) of Debian 12 (Bookworm)
+- [Cloud image (`amd64`)](https://cdimage.debian.org/images/cloud/trixie/daily/) of Debian 13 (Trixie)
+- [Cloud image (`amd64`)](https://cloud.centos.org/centos/7/images/) of CentOS 7 (Core)
+- [Cloud image (`amd64`)](https://cloud.centos.org/centos/8-stream/x86_64/images/) of CentOS 8 (Stream)
+- [Cloud image (`amd64`)](https://cloud.centos.org/centos/9-stream/x86_64/images/) of CentOS 9 (Stream)
+- [Cloud image (`amd64`)](https://download.fedoraproject.org/pub/fedora/linux/releases/40/Cloud/x86_64/images/) of Fedora Cloud Base 40
+- [Cloud image (`amd64`)](https://cloud-images.ubuntu.com/bionic/current/) of Ubuntu 18.04 LTS (Bionic Beaver)
+- [Cloud image (`amd64`)](https://cloud-images.ubuntu.com/focal/) of Ubuntu 20.04 LTS (Focal Fossa)
+- [Cloud image (`amd64`)](https://cloud-images.ubuntu.com/jammy/) of Ubuntu 22.04 LTS (Jammy Jellyfish)
+- [Cloud image (`amd64`)](https://cloud-images.ubuntu.com/noble/) of Ubuntu 24.04 LTS (Noble Numbat)
 
 Available on Ansible Galaxy in Collection [jm1.cloudy](https://galaxy.ansible.com/jm1/cloudy).
 
@@ -58,14 +62,17 @@ To install these collections you may follow the steps described in [`README.md`]
 
 ## Variables
 
-| Name                       | Default value                  | Required | Description |
-| -------------------------- | ------------------------------ | -------- | ----------- |
-| `distribution_id`          | *depends on operating system*  | false    | List which uniquely identifies a distribution release, e.g. `[ 'Debian', '10' ]` for `Debian 10 (Buster)` |
-| `iptables_config`          | `[]`                           | false    | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to modify iptables rules |
-| `iptables_persistence`     | `false`                        | false    | Whether iptables rules should persist across reboots |
-| `iptables_service_enabled` | `true`                         | false    | Whether the iptables service should start on boot (only used on CentOS and Red Hat Enterprise Linux) |
-| `iptables_service_name`    | `iptables`                     | false    | Name of the iptables service (only used on CentOS and Red Hat Enterprise Linux) |
-| `iptables_service_state`   | `started`                      | false    | State of the iptables service (only used on CentOS and Red Hat Enterprise Linux) |
+| Name                        | Default value                  | Required | Description |
+| --------------------------- | ------------------------------ | -------- | ----------- |
+| `distribution_id`           | *depends on operating system*  | false    | List which uniquely identifies a distribution release, e.g. `[ 'Debian', '10' ]` for `Debian 10 (Buster)` |
+| `iptables_config`           | `[]`                           | false    | List of tasks to run [^example-modules] [^supported-keywords] [^supported-modules], e.g. to modify iptables rules |
+| `iptables_persistence`      | `false`                        | false    | Whether iptables rules should persist across reboots |
+| `iptables_service_enabled`  | `true`                         | false    | Whether the iptables service should start on boot (only used on CentOS, Fedora and Red Hat Enterprise Linux) |
+| `iptables_service_name`     | `iptables`                     | false    | Name of the iptables service (only used on CentOS, Fedora and Red Hat Enterprise Linux) |
+| `iptables_service_state`    | `started`                      | false    | State of the iptables service (only used on CentOS, Fedora and Red Hat Enterprise Linux) |
+| `ip6tables_service_enabled` | `true`                         | false    | Whether the ip6tables service should start on boot (only used on CentOS, Fedora and Red Hat Enterprise Linux) |
+| `ip6tables_service_name`    | `ip6tables`                    | false    | Name of the ip6tables service (only used on CentOS, Fedora and Red Hat Enterprise Linux) |
+| `ip6tables_service_state`   | `started`                      | false    | State of the ip6tables service (only used on CentOS, Fedora and Red Hat Enterprise Linux) |
 
 [^supported-modules]: Tasks will be executed with [`jm1.ansible.execute_module`][jm1-ansible-execute-module] which
 supports modules and action plugins only. Some Ansible modules such as [`ansible.builtin.meta`][ansible-builtin-meta]

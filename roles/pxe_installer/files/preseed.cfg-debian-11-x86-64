@@ -37,6 +37,7 @@ d-i netcfg/choose_interface select auto
 #d-i netcfg/dhcp_timeout string 60
 #d-i netcfg/dhcpv6_timeout string 60
 
+# Automatic network configuration is the default.
 # If you prefer to configure the network manually, uncomment this line and
 # the static network configuration below.
 #d-i netcfg/disable_autoconfig boolean true
@@ -94,7 +95,9 @@ d-i netcfg/wireless_wep string
 #d-i network-console/password-again password r00tme
 
 ### Mirror settings
+# Mirror protocol:
 # If you select ftp, the mirror/country string does not need to be set.
+# Default value for the mirror protocol: http.
 #d-i mirror/protocol string ftp
 d-i mirror/country string manual
 d-i mirror/http/hostname string http.us.debian.org
@@ -242,7 +245,7 @@ d-i partman/confirm_nooverwrite boolean true
 # Force UEFI booting ('BIOS compatibility' will be lost). Default: false.
 #d-i partman-efi/non_efi_system boolean true
 # Ensure the partition table is GPT - this is required for EFI
-#d-i partman-partitioning/choose_label string gpt
+#d-i partman-partitioning/choose_label select gpt
 #d-i partman-partitioning/default_label string gpt
 
 # When disk encryption is enabled, skip wiping the partitions beforehand.
@@ -315,9 +318,17 @@ d-i partman/confirm_nooverwrite boolean true
 #d-i base-installer/kernel/image string linux-image-686
 
 ### Apt setup
+# Choose, if you want to scan additional installation media
+# (default: false).
+d-i apt-setup/cdrom/set-first boolean false
 # You can choose to install non-free and contrib software.
 #d-i apt-setup/non-free boolean true
 #d-i apt-setup/contrib boolean true
+# Uncomment the following line, if you don't want to have the sources.list
+# entry for a DVD/BD installation image active in the installed system
+# (entries for netinst or CD images will be disabled anyway, regardless of
+# this setting).
+#d-i apt-setup/disable-cdrom-entries boolean true
 # Uncomment this if you don't want to use a network mirror.
 #d-i apt-setup/use_mirror boolean false
 # Select which update services to use; define the mirrors to be used.
@@ -352,13 +363,17 @@ d-i partman/confirm_nooverwrite boolean true
 ### Package selection
 #tasksel tasksel/first multiselect standard, web-server, kde-desktop
 
+# Or choose to not get the tasksel dialog displayed at all (and don't install
+# any packages):
+#d-i pkgsel/run_tasksel boolean false
+
 # Individual additional packages to install
 #d-i pkgsel/include string openssh-server build-essential
 # Whether to upgrade packages after debootstrap.
 # Allowed values: none, safe-upgrade, full-upgrade
 #d-i pkgsel/upgrade select none
 
-# Some versions of the installer can report back on what software you have
+# You can choose, if your system will report back on what software you have
 # installed, and what software you use. The default is not to report back,
 # but sending reports helps the project determine what software is most
 # popular and should be included on the first CD/DVD.

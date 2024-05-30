@@ -7,7 +7,7 @@ cloudinit_metadata: '{{ omit }}'
 
 cloudinit_networkconfig: '{{ omit }}'
 
-#cloudinit_userdata is set in host_vars
+# cloudinit_userdata is set in host_vars
 
 libvirt_configdrive: '{{ inventory_hostname }}_cidata.{{ libvirt_configdrive_format }}'
 

@@ -13,6 +13,8 @@ galaxy_info:
     - buster
     - bullseye
     - bookworm
+    - trixie
+    - sid
 
   - name: EL
     versions:
@@ -20,11 +22,14 @@ galaxy_info:
     - '8'
     - '9'
 
+  - name: Fedora
+
   - name: Ubuntu
     versions:
     - bionic
     - focal
     - jammy
+    - noble
 
   galaxy_tags:
   - development

@@ -49,6 +49,7 @@ libvirt_volumes:
 
 os_architecture: x86_64
 
+# Ref.: https://www.debian.org/releases/bullseye/example-preseed.txt
 preseed_config: |
   #_preseed_V1
 

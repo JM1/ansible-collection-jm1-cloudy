@@ -6,9 +6,10 @@ automatically. Both BIOS based systems and UEFI based systems are supported, [PX
 former, [GRUB2][grub] on the latter.
 
 Operating systems currently supported are:
-* CentOS Linux 7 / CentOS Stream 8 / CentOS Stream 9 with [Kickstart][kickstart]
-* Debian 10 (Buster), Debian 11 (Bullseye) and Ubuntu 18.04 LTS (Bionic Beaver) with [Preseed][preseed]
-* Ubuntu 20.04 LTS (Focal Fossa) with [Autoinstall][autoinstall]
+* CentOS Linux 7 / CentOS Stream 8 / 9 with [Kickstart][kickstart]
+* Debian 10 (Buster), 11 (Bullseye), 12 (Bullseye), 13 (Trixie) and Ubuntu 18.04 LTS (Bionic Beaver) with
+  [Preseed][preseed]
+* Ubuntu 20.04 LTS (Focal Fossa), 22.04 LTS (Jammy Jellyfish), 24.04 LTS (Noble Numbat) with [Autoinstall][autoinstall]
 
 It is possible to provide client-specific Kickstart, Preseed and Autoinstall (e.g. [cloud-init][cloud-init-doc] user
 data) files to customize the installation process per host.
@@ -92,18 +93,21 @@ finally will be provisioned with Ansible.
 [jm1-cloudy-tftpd]: ../tftpd/
 
 **Tested OS images**
-- Network boot image of [`Debian 10 (Buster)` \[`amd64`\]](
-    https://deb.debian.org/debian/dists/buster/main/installer-amd64/current/images/netboot/)
-- Network boot image of [`Debian 11 (Bullseye)` \[`amd64`\]](
-    https://deb.debian.org/debian/dists/bullseye/main/installer-amd64/current/images/netboot/)
-- Network boot image of [`Debian 12 (Bookworm)` \[`amd64`\]](
-    https://deb.debian.org/debian/dists/bookworm/main/installer-amd64/current/images/netboot/)
-- ISO image of [`CentOS Linux 7` \[`amd64`\]](http://isoredirect.centos.org/centos/7/isos/x86_64/)
-- ISO image of [`CentOS Stream 8` \[`amd64`\]](https://www.centos.org/download/)
-- ISO image of [`CentOS Stream 9` \[`amd64`\]](https://www.centos.org/download/)
-- Ubuntu Server install image of [`Ubuntu 18.04 LTS (Bionic Beaver)` \[`amd64`\]](https://releases.ubuntu.com/bionic/)
-- Ubuntu Server install image of [`Ubuntu 20.04 LTS (Focal Fossa)` \[`amd64`\]](https://releases.ubuntu.com/focal/)
-- Ubuntu Server install image of [`Ubuntu 22.04 LTS (Jammy Jellyfish)` \[`amd64`\]](https://releases.ubuntu.com/jammy/)
+- [Network boot image (`amd64`)](
+  https://deb.debian.org/debian/dists/buster/main/installer-amd64/current/images/netboot/) of Debian 10 (Buster)
+- [Network boot image (`amd64`)](
+  https://deb.debian.org/debian/dists/bullseye/main/installer-amd64/current/images/netboot/) of Debian 11 (Bullseye)
+- [Network boot image (`amd64`)](
+  https://deb.debian.org/debian/dists/bookworm/main/installer-amd64/current/images/netboot/) of Debian 12 (Bookworm)
+- [Network boot image (`amd64`)](
+  https://deb.debian.org/debian/dists/trixie/main/installer-amd64/current/images/netboot/) of Debian 13 (Trixie)
+- [ISO image (`amd64`)](http://isoredirect.centos.org/centos/7/isos/x86_64/) of CentOS Linux 7
+- [ISO image (`amd64`)](https://www.centos.org/download/) of CentOS Stream 8
+- [ISO image (`amd64`)](https://www.centos.org/download/) of CentOS Stream 9
+- [Ubuntu Server install image (`amd64`)](https://releases.ubuntu.com/bionic/) of Ubuntu 18.04 LTS (Bionic Beaver)
+- [Ubuntu Server install image (`amd64`)](https://releases.ubuntu.com/focal/) of Ubuntu 20.04 LTS (Focal Fossa)
+- [Ubuntu Server install image (`amd64`)](https://releases.ubuntu.com/jammy/) of Ubuntu 22.04 LTS (Jammy Jellyfish)
+- [Ubuntu Server install image (`amd64`)](https://releases.ubuntu.com/noble/) of Ubuntu 24.04 LTS (Noble Numbat)
 
 Available on Ansible Galaxy in Collection [jm1.cloudy](https://galaxy.ansible.com/jm1/cloudy).
 
@@ -129,8 +133,12 @@ steps described in [`README.md`][jm1-cloudy-readme] using the provided [`require
 | `pxe_installer_files_centos_9_amd64`                | *refer to [`roles/pxe_installer/defaults/main.yml`](defaults/main.yml)* | false | Where to download CentOS's iso which will be used to pxe-boot and kickstart `CentOS 9 [amd64]`. A CentOS full iso is required because its rpm's will be extracted. |
 | `pxe_installer_files_debian_10_amd64`               | *refer to [`roles/pxe_installer/defaults/main.yml`](defaults/main.yml)* | false | Where to download Debian's netboot files which will be used to pxe-boot and preseed `Debian 10 (Buster) [amd64]` |
 | `pxe_installer_files_debian_11_amd64`               | *refer to [`roles/pxe_installer/defaults/main.yml`](defaults/main.yml)* | false | Where to download Debian's netboot files which will be used to pxe-boot and preseed `Debian 11 (Bullseye) [amd64]` |
+| `pxe_installer_files_debian_12_amd64`               | *refer to [`roles/pxe_installer/defaults/main.yml`](defaults/main.yml)* | false | Where to download Debian's netboot files which will be used to pxe-boot and preseed `Debian 12 (Bookworm) [amd64]` |
+| `pxe_installer_files_debian_13_amd64`               | *refer to [`roles/pxe_installer/defaults/main.yml`](defaults/main.yml)* | false | Where to download Debian's netboot files which will be used to pxe-boot and preseed `Debian 13 (Trixie) [amd64]` |
 | `pxe_installer_files_ubuntu_1804_amd64`             | *refer to [`roles/pxe_installer/defaults/main.yml`](defaults/main.yml)* | false | Where to download Ubuntu's netbootable GRUB2 UEFI executable, its live server iso and netboot files which will be used to pxe-boot and preseed `Ubuntu 18.04 LTS (Bionic Beaver) [amd64]` [^iso-parameter] |
 | `pxe_installer_files_ubuntu_2004_amd64`             | *refer to [`roles/pxe_installer/defaults/main.yml`](defaults/main.yml)* | false | Where to download Ubuntu's netbootable GRUB2 UEFI executable, its live server iso and netboot files which will be used to pxe-boot and autoinstall `Ubuntu 20.04 LTS (Focal Fossa) [amd64]` [^iso-parameter] |
+| `pxe_installer_files_ubuntu_2204_amd64`             | *refer to [`roles/pxe_installer/defaults/main.yml`](defaults/main.yml)* | false | Where to download Ubuntu's netbootable GRUB2 UEFI executable, its live server iso and netboot files which will be used to pxe-boot and autoinstall `Ubuntu 22.04 LTS (Jammy Jellyfish) [amd64]` [^iso-parameter] |
+| `pxe_installer_files_ubuntu_2404_amd64`             | *refer to [`roles/pxe_installer/defaults/main.yml`](defaults/main.yml)* | false | Where to download Ubuntu's netbootable GRUB2 UEFI executable, its live server iso and netboot files which will be used to pxe-boot and autoinstall `Ubuntu 24.04 LTS (Noble Numbat) [amd64]` [^iso-parameter] |
 | `pxe_installer_host_address`                        | *undefined*                                            | true     | IP address on which the `httpd` and `tftpd` services will listen. It is sourced from `pxe_installer_*_url` variables. |
 | `pxe_installer_httpd_root`                          | *depends on `distribution_id`*                         | false    | Base path which is served by a `httpd` site [^root-parameter], e.g. `/var/www` on Debian and `/var/lib/httpd` on Red Hat Enterprise Linux |
 | `pxe_installer_kernel_parameters`                   | `''`                                                   | false    | Convenience variable which is sourced from `pxe_installer_kernel_parameters_*` variables to set additional kernel parameters for all distributions and architectures |
@@ -141,6 +149,8 @@ steps described in [`README.md`][jm1-cloudy-readme] using the provided [`require
 | `pxe_installer_kernel_parameters_debian_11_amd64`   | `{{ pxe_installer_kernel_parameters }}`                | false    | Additional kernel parameters which will be passed to the kernel when booting via PXE to preseed `Debian 11 (Bullseye) [amd64]` |
 | `pxe_installer_kernel_parameters_ubuntu_1804_amd64` | `{{ pxe_installer_kernel_parameters }}`                | false    | Additional kernel parameters which will be passed to the kernel when booting via PXE to preseed `Ubuntu 18.04 LTS (Bionic Beaver) [amd64]` |
 | `pxe_installer_kernel_parameters_ubuntu_2004_amd64` | `{{ pxe_installer_kernel_parameters }}`                | false    | Additional kernel parameters which will be passed to the kernel when booting via PXE to autoinstall `Ubuntu 20.04 LTS (Focal Fossa) [amd64]` |
+| `pxe_installer_kernel_parameters_ubuntu_2204_amd64` | `{{ pxe_installer_kernel_parameters }}`                | false    | Additional kernel parameters which will be passed to the kernel when booting via PXE to autoinstall `Ubuntu 22.04 LTS (Jammy Jellyfish) [amd64]` |
+| `pxe_installer_kernel_parameters_ubuntu_2404_amd64` | `{{ pxe_installer_kernel_parameters }}`                | false    | Additional kernel parameters which will be passed to the kernel when booting via PXE to autoinstall `Ubuntu 24.04 LTS (Noble Numbat) [amd64]` |
 | `pxe_installer_kickstart_url`                       | `http://{{ pxe_installer_host_address \| mandatory }}` | false    | Base url where CentOS's Anaconda installer will fetch the Kickstart config |
 | `pxe_installer_preseed_url`                         | `tftp://{{ pxe_installer_host_address \| mandatory }}` | false    | Base url where Debian's Installer will fetch Preseed config |
 | `pxe_installer_rpm_archive_url`                     | `http://{{ pxe_installer_host_address \| mandatory }}` | false    | Base url to installation source providing package repositories for CentOS's Anaconda installer |

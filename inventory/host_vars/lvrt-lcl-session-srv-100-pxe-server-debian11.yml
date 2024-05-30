@@ -1,5 +1,5 @@
 ---
-# Copyright (c) 2020-2022 Jakob Meng, <jakobmeng@web.de>
+# Copyright (c) 2020-2024 Jakob Meng, <jakobmeng@web.de>
 # vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
 # kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
 
@@ -51,7 +51,7 @@ dhcpd_config:
 
       subnet 192.168.153.0 netmask 255.255.255.0 {
         option routers 192.168.153.2;
-        range 192.168.153.10 192.168.153.254;
+        range 192.168.153.100 192.168.153.254;
       } # subnet 192.168.153.0 netmask 255.255.255.0
 
       {% for pxe_client in pxe_installer_clients %}
@@ -297,9 +297,9 @@ libvirt_pool: 'default'
 libvirt_uri: 'qemu:///session'
 
 libvirt_volumes:
-- backing_vol: 'debian-11-genericcloud-amd64.qcow2'
+- backing_vol: '{{ libvirt_backing_vol | mandatory }}'
   backing_vol_format: 'qcow2'
-  capacity: 64G
+  capacity: 96G
   format: 'qcow2'
   linked: false
   name: '{{ fqdn }}.qcow2'
@@ -319,10 +319,14 @@ pxe_installer_clients:
 - lvrt-lcl-session-srv-111-pxe-client-debian11-uefi
 - lvrt-lcl-session-srv-112-pxe-client-debian12-bios
 - lvrt-lcl-session-srv-113-pxe-client-debian12-uefi
+- lvrt-lcl-session-srv-114-pxe-client-debian13-bios
+- lvrt-lcl-session-srv-115-pxe-client-debian13-uefi
 - lvrt-lcl-session-srv-120-pxe-client-ubuntu2004-bios
 - lvrt-lcl-session-srv-121-pxe-client-ubuntu2004-uefi
 - lvrt-lcl-session-srv-122-pxe-client-ubuntu2204-bios
 - lvrt-lcl-session-srv-123-pxe-client-ubuntu2204-uefi
+- lvrt-lcl-session-srv-124-pxe-client-ubuntu2404-bios
+- lvrt-lcl-session-srv-125-pxe-client-ubuntu2404-uefi
 - lvrt-lcl-session-srv-130-pxe-client-centos8-bios
 - lvrt-lcl-session-srv-131-pxe-client-centos8-uefi
 - lvrt-lcl-session-srv-132-pxe-client-centos9-bios
@@ -344,8 +348,13 @@ pxe_installer_files_ubuntu_2004_amd64:
 
 pxe_installer_files_ubuntu_2204_amd64:
   efi: 'http://archive.ubuntu.com/ubuntu/dists/jammy/main/uefi/grub2-amd64/current/grubnetx64.efi.signed'
-  iso: 'http://releases.ubuntu.com/jammy/ubuntu-22.04.3-live-server-amd64.iso'
+  iso: 'http://releases.ubuntu.com/jammy/ubuntu-22.04.4-live-server-amd64.iso'
   pxe: 'http://archive.ubuntu.com/ubuntu/dists/focal/main/installer-amd64/current/legacy-images/netboot/netboot.tar.gz'
+
+pxe_installer_files_ubuntu_2404_amd64:
+  efi: 'http://releases.ubuntu.com/noble/netboot/amd64/grubx64.efi'
+  iso: 'http://releases.ubuntu.com/noble/ubuntu-24.04-live-server-amd64.iso'
+  pxe: 'http://releases.ubuntu.com/noble/ubuntu-24.04-netboot-amd64.tar.gz'
 
 sysctl_config:
 - ansible.builtin.copy:

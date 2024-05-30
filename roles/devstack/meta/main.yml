@@ -9,9 +9,28 @@ galaxy_info:
 
   platforms:
   # Ref.: https://galaxy.ansible.com/api/v1/platforms/
+  - name: Debian
+    versions:
+    - buster
+    - bullseye
+    - bookworm
+    - trixie
+    - sid
+
+  - name: EL
+    versions:
+    - '7'
+    - '8'
+    - '9'
+
+  - name: Fedora
+
   - name: Ubuntu
     versions:
     - bionic
+    - focal
+    - jammy
+    - noble
 
   galaxy_tags:
   - development

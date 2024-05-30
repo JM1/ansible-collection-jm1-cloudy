@@ -48,6 +48,7 @@ libvirt_volumes:
 
 os_architecture: x86_64
 
+# Ref.: https://www.debian.org/releases/bookworm/example-preseed.txt
 preseed_config: |
   #_preseed_V1
 
@@ -132,6 +133,10 @@ preseed_config: |
   d-i netcfg/wireless_wep string
   # The wacky dhcp hostname that some ISPs use as a password of sorts.
   #d-i netcfg/dhcp_hostname string radish
+
+  # If you want to completely disable firmware lookup (i.e. not use firmware
+  # files or packages that might be available on installation images):
+  #d-i hw-detect/firmware-lookup string never
 
   # If non-free firmware is needed for the network or other hardware, you can
   # configure the installer to always try to load it, without prompting. Or
@@ -377,6 +382,8 @@ preseed_config: |
   # Choose, if you want to scan additional installation media
   # (default: false).
   d-i apt-setup/cdrom/set-first boolean false
+  # You can choose to install non-free firmware.
+  #d-i apt-setup/non-free-firmware boolean true
   # You can choose to install non-free and contrib software.
   #d-i apt-setup/non-free boolean true
   #d-i apt-setup/contrib boolean true
@@ -402,10 +409,12 @@ preseed_config: |
   # apt will complain about the unauthenticated repository and so the
   # sources.list line will be left commented out.
   #d-i apt-setup/local0/key string http://local.server/key
-  # If the provided key file ends in ".asc" the key file needs to be an
-  # ASCII-armoured PGP key, if it ends in ".gpg" it needs to use the
-  # "GPG key public keyring" format, the "keybox database" format is
-  # currently not supported.
+  # or one can provide it in-line by base64 encoding the contents of the
+  # key file (with `base64 -w0`) and specifying it thus:
+  #d-i apt-setup/local0/key string base64://LS0tLS1CRUdJTiBQR1AgUFVCTElDIEtFWSBCTE9DSy0tLS0tCi4uLgo=
+  # The content of the key file is checked to see if it appears to be ASCII-armoured.
+  # If so it will be saved with an ".asc" extension, otherwise it gets a '.gpg' extension.
+  # "keybox database" format is currently not supported. (see generators/60local in apt-setup's source)
 
   # By default the installer requires that repositories be authenticated
   # using a known gpg key. This setting can be used to disable that

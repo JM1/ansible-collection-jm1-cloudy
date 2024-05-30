@@ -8,8 +8,6 @@
 
 * Migrate `users_config`, `ssh_authorized_keys`, `groups_config` and others to `jm1.ansible.execute_module`?
 
-* Added support for Fedora
-
 * Drop `jm1.cloudy.openstack_server` role
 
 * Replace `changed_when: true` in role `jm1.cloudy.kolla_ansible` to identify changes from command output
@@ -18,3 +16,7 @@
   DevStack, TripleO and Kolla Ansible deployments
 
 * Add role `jm1.cloudy.ceph{,adm}` to deploy a Ceph cluster with [cephadm](https://docs.ceph.com/en/quincy/cephadm/)
+
+* Added example host with Fedora to Ansible inventory
+
+* Added support for Fedora to role `jm1.cloudy.pxe_installer`

@@ -293,16 +293,6 @@
     role: jm1.pkg.setup
     tags: ["jm1.pkg.setup"]
 
-  # Remove /etc/apt/sources.list before apt repositories will be added to /etc/apt/sources.list.d/ by
-  # jm1.pkg.apt_repository, else Ansible's apt_repository module might skip repositories if they are present in
-  # /etc/apt/sources.list.
-  - name: Remove /etc/apt/sources.list
-    role: jm1.pkg.apt_sources_list_removal
-    tags: ["jm1.pkg.apt_sources_list_removal"]
-    when: distribution_id | first in ['Debian', 'Ubuntu']
-    vars:
-      force_apt_sources_list_removal: true
-
   - name: Manage apt keys and apt repositories
     role: jm1.pkg.apt_repository
     tags: ["jm1.pkg.apt_repository"]
@@ -311,7 +301,7 @@
   - name: Manage YUM repositories
     role: jm1.pkg.yum_repository
     tags: ["jm1.pkg.yum_repository"]
-    when: distribution_id | first in ['CentOS', 'Red Hat Enterprise Linux']
+    when: distribution_id | first in ['CentOS', 'Fedora', 'Red Hat Enterprise Linux']
 
   - name: Setup local groups
     role: jm1.cloudy.groups

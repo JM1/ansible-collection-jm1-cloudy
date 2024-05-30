@@ -33,8 +33,8 @@ libvirt_pool: 'default'
 libvirt_uri: 'qemu:///session'
 
 libvirt_volumes:
-- backing_vol: 'ubuntu-22.04-server-cloudimg-amd64.img'
-  backing_vol_format: 'qcow2'
+- backing_vol: '{{ libvirt_backing_vol | mandatory }}'
+  backing_vol_format: '{{ libvirt_backing_vol_format | mandatory }}'
   capacity: 5G
   format: 'qcow2'
   linked: false

@@ -1,13 +1,14 @@
 # Ansible Role `jm1.cloudy.libvirt_images`
 
 This role helps with managing cloud images in [libvirt storage pools][libvirt] from Ansible variables. For example, it
-allows to download and add cloud images of [CentOS][centos-cloud-images], [Debian][debian-cloud-images] and [Ubuntu][
-ubuntu-cloud-images] as [libvirt (block storage) volumes][libvirt] to storage pools with variable `libvirt_images`.
-This variable is defined as a list where each list item is a dictionary of parameters that will be passed to module
-[`jm1.libvirt.volume_import`][jm1-libvirt-volume-import] from collection [`jm1.libvirt`][galaxy-jm1-libvirt]
-[^libvirt-images-parameter]. For example, to fetch the latest cloud image of Debian 11 (Bullseye) and add it to the
-libvirt storage pool `default` of the local libvirt daemon (run by current Ansible user on the Ansible controller),
-define variable `libvirt_images` in [`group_vars` or `host_vars`][ansible-inventory] as such:
+allows to download and add cloud images of [CentOS][centos-cloud-images], [Debian][debian-cloud-images], [Fedora][
+fedora-cloud-images] and [Ubuntu][ubuntu-cloud-images] as [libvirt (block storage) volumes][libvirt] to storage pools
+with variable `libvirt_images`. This variable is defined as a list where each list item is a dictionary of parameters
+that will be passed to module [`jm1.libvirt.volume_import`][jm1-libvirt-volume-import] from collection [`jm1.libvirt`][
+galaxy-jm1-libvirt][^libvirt-images-parameter].
+For example, to fetch the latest cloud image of Debian 11 (Bullseye) and add it to the libvirt storage pool `default` of
+the local libvirt daemon (run by current Ansible user on the Ansible controller), define variable `libvirt_images` in
+[`group_vars` or `host_vars`][ansible-inventory] as such:
 
 ```yml
 # connect from Ansible controller to local libvirt daemon
@@ -37,6 +38,7 @@ from collection [`jm1.libvirt`][galaxy-jm1-libvirt] [^libvirt-images-parameter].
 [ansible-inventory]: https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
 [centos-cloud-images]: https://cloud.centos.org/centos/
 [debian-cloud-images]: https://cdimage.debian.org/images/cloud/
+[fedora-cloud-images]: https://fedoraproject.org/cloud/download
 [galaxy-community-libvirt]: https://galaxy.ansible.com/community/libvirt
 [galaxy-jm1-libvirt]: https://galaxy.ansible.com/jm1/libvirt
 [jm1-cloudy-libvirt-pools]: ../libvirt_pools/
@@ -45,15 +47,18 @@ from collection [`jm1.libvirt`][galaxy-jm1-libvirt] [^libvirt-images-parameter].
 [ubuntu-cloud-images]: https://cloud-images.ubuntu.com/
 
 **Tested OS images**
-- Cloud image of [`Debian 10 (Buster)` \[`amd64`\]](https://cdimage.debian.org/cdimage/openstack/current/)
-- Cloud image of [`Debian 11 (Bullseye)` \[`amd64`\]](https://cdimage.debian.org/images/cloud/bullseye/latest/)
-- Cloud image of [`Debian 12 (Bookworm)` \[`amd64`\]](https://cdimage.debian.org/images/cloud/bookworm/)
-- Generic cloud image of [`CentOS Linux 7` \[`amd64`\]](https://cloud.centos.org/centos/7/images/)
-- Generic cloud image of [`CentOS Stream 8` \[`amd64`\]](https://cloud.centos.org/centos/8-stream/x86_64/images/)
-- Generic cloud image of [`CentOS Stream 9` \[`amd64`\]](https://cloud.centos.org/centos/9-stream/x86_64/images/)
-- Ubuntu cloud image of [`Ubuntu 18.04 LTS (Bionic Beaver)` \[`amd64`\]](https://cloud-images.ubuntu.com/bionic/current/)
-- Ubuntu cloud image of [`Ubuntu 20.04 LTS (Focal Fossa)` \[`amd64`\]](https://cloud-images.ubuntu.com/focal/)
-- Ubuntu cloud image of [`Ubuntu 22.04 LTS (Jammy Jellyfish)` \[`amd64`\]](https://cloud-images.ubuntu.com/jammy/)
+- [Cloud image (`amd64`)](https://cdimage.debian.org/images/cloud/buster/daily/) of Debian 10 (Buster)
+- [Cloud image (`amd64`)](https://cdimage.debian.org/images/cloud/bullseye/daily/) of Debian 11 (Bullseye)
+- [Cloud image (`amd64`)](https://cdimage.debian.org/images/cloud/bookworm/daily/) of Debian 12 (Bookworm)
+- [Cloud image (`amd64`)](https://cdimage.debian.org/images/cloud/trixie/daily/) of Debian 13 (Trixie)
+- [Cloud image (`amd64`)](https://cloud.centos.org/centos/7/images/) of CentOS 7 (Core)
+- [Cloud image (`amd64`)](https://cloud.centos.org/centos/8-stream/x86_64/images/) of CentOS 8 (Stream)
+- [Cloud image (`amd64`)](https://cloud.centos.org/centos/9-stream/x86_64/images/) of CentOS 9 (Stream)
+- [Cloud image (`amd64`)](https://download.fedoraproject.org/pub/fedora/linux/releases/40/Cloud/x86_64/images/) of Fedora Cloud Base 40
+- [Cloud image (`amd64`)](https://cloud-images.ubuntu.com/bionic/current/) of Ubuntu 18.04 LTS (Bionic Beaver)
+- [Cloud image (`amd64`)](https://cloud-images.ubuntu.com/focal/) of Ubuntu 20.04 LTS (Focal Fossa)
+- [Cloud image (`amd64`)](https://cloud-images.ubuntu.com/jammy/) of Ubuntu 22.04 LTS (Jammy Jellyfish)
+- [Cloud image (`amd64`)](https://cloud-images.ubuntu.com/noble/) of Ubuntu 24.04 LTS (Noble Numbat)
 
 Available on Ansible Galaxy in Collection [jm1.cloudy](https://galaxy.ansible.com/jm1/cloudy).
 

@@ -5,8 +5,8 @@ This role deploys a [TripleO standalone environment][tripleo-standalone-setup].
 [tripleo-standalone-setup]: https://docs.openstack.org/project-deploy-guide/tripleo-docs/latest/deployment/standalone.html
 
 **Tested OS images**
-- Generic cloud image of [`CentOS Stream 8` \[`amd64`\]](https://cloud.centos.org/centos/8-stream/x86_64/images/)
-- Generic cloud image of [`CentOS Stream 9` \[`amd64`\]](https://cloud.centos.org/centos/9-stream/x86_64/images/)
+- [Cloud image (`amd64`)](https://cloud.centos.org/centos/8-stream/x86_64/images/) of CentOS 8 (Stream)
+- [Cloud image (`amd64`)](https://cloud.centos.org/centos/9-stream/x86_64/images/) of CentOS 9 (Stream)
 
 Available on Ansible Galaxy in Collection [jm1.cloudy](https://galaxy.ansible.com/jm1/cloudy).
 
@@ -34,7 +34,7 @@ steps described in [`README.md`][jm1-cloudy-readme] using the provided [`require
 | `tripleo_standalone_neutron_dns_domain`       | `{{ dns_suffix }}`                    | false    | ["Domain to use for building the hostnames"][tripleo-heat-templates-neutron-base] |
 | `tripleo_standalone_neutron_public_interface` | *undefined*                           | true     | ["Which interface to add to the NeutronPhysicalBridge"][tripleo-heat-templates-overcloud] |
 | `tripleo_standalone_parameters`               | *refer to [`roles/tripleo_standalone/defaults/main.yml`](defaults/main.yml)* | false | Content of TripleO standalone configuration file `{{ tripleo_standalone_home_dir }}/standalone_parameters.yaml` |
-| `tripleo_standalone_repo_uri`                 | `https://trunk.rdoproject.org/centos8-{{ tripleo_standalone_branch }}/component/tripleo/current/delorean.repo` | false | Where to download the Yum repository information file (`*.repo`) for TripleO |
+| `tripleo_standalone_repo_uri`                 | `https://trunk.rdoproject.org/centos{{ distribution_id | last }}-{{ tripleo_standalone_branch }}/component/tripleo/current/delorean.repo` | false | Where to download the Yum repository information file (`*.repo`) for TripleO |
 | `tripleo_standalone_repos`                    | `current`                             | false    | [Name of package repositories list which `tripleo-repos` will install][tripleo-repos] |
 | `tripleo_standalone_user`                     | `stack`                               | false    | UNIX user that TripleO will use for deployment aka `DeploymentUser` in ` tripleo_standalone_parameters` |
 

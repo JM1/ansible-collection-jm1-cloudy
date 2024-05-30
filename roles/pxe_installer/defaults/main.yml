@@ -1,27 +1,24 @@
 ---
-# Copyright (c) 2021-2022 Jakob Meng, <jakobmeng@web.de>
+# Copyright (c) 2021-2024 Jakob Meng, <jakobmeng@web.de>
 # vim:set fileformat=unix tabstop=2 shiftwidth=2 expandtab:
 # kate: end-of-line unix; space-indent on; indent-width 2; remove-trailing-spaces modified;
 
 # Variable distribution_id is a list which uniquely identifies a distribution release, e.g.
-#  [ 'CentOS', '8' ] for CentOS 8 (both Core and Stream)
-#  [ 'Debian', '10' ] for Debian 10 (Buster)
-#  [ 'Debian', 'Unstable' ] for Debian Unstable (Sid)
-#  [ 'Red Hat Enterprise Linux', '8' ]` for Red Hat Enterprise Linux (RHEL) 8
-#  [ 'Ubuntu', '20.04' ] for Ubuntu 20.04 LTS (Focal Fossa)
+#  ['CentOS', '8'] for CentOS 8 (both Core and Stream)
+#  ['Debian', '10'] for Debian 10 (Buster)
+#  ['Red Hat Enterprise Linux', '8' ]` for Red Hat Enterprise Linux (RHEL) 8
+#  ['Ubuntu', '20.04' ] for Ubuntu 20.04 LTS (Focal Fossa)
+#
+# NOTE: Version numbers for upcoming Debian releases are not stable. For example, when lsb_release is available, which
+# is the default, Ansible will report 'n/a' for Debian's testing and unstable (Sid) distributions. When lsb_release
+# has been uninstalled, the version string will be 'trixie/sid' or similar. In the past, 'NA' would be reported when
+# lsb_release was not available and 'testing' or 'sid' when it was installed.
 distribution_id:
 - '{{ ansible_facts.distribution }}'
 - # Use major and minor version for Ubuntu, e.g. Ubuntu 18.04 LTS (Bionic Beaver) or Ubuntu 20.04 LTS (Focal Fossa).
-  # Use major version in title case for unknown Debian releases, i.e. the major version is not a number and not 'NA',
-  # e.g. when VERSION_ID is not set in /etc/os-release and lsb_release is available on that host, then
-  # ansible_facts.distribution_major_version is defined as 'testing' which will be converted to 'Testing'.
   # Use major version for all other distributions, e.g. CentOS 7, Debian 10 (Buster) or Red Hat Enterprise Linux 8.
   "{{ ansible_facts.distribution_version if ansible_facts.distribution == 'Ubuntu' else
-      ansible_facts.distribution_major_version | title if
-        ansible_facts.distribution == 'Debian' and
-        ansible_facts.distribution_major_version is not number and
-        ansible_facts.distribution_major_version != 'NA' else
-          ansible_facts.distribution_major_version }}"
+      ansible_facts.distribution_major_version }}"
 
 # pxe_installer_clients is set in host_vars
 
@@ -52,15 +49,21 @@ pxe_installer_distribution_filename_map:
     x86_64:
       UEFI: 'Debian_12/amd64/debian-installer/amd64/bootnetx64.efi'
       BIOS: 'Debian_12/amd64/pxelinux.0'
+  Debian_13:
+    x86_64:
+      UEFI: 'Debian_13/amd64/debian-installer/amd64/bootnetx64.efi'
+      BIOS: 'Debian_13/amd64/pxelinux.0'
+  # TODO: Add support for Fedora
+  #
   # TODO: Add support for Red Hat Enterprise Linux
-  #Red_Hat_Enterprise_Linux_7:
-  #  x86_64:
-  #    UEFI: 'Red_Hat_Enterprise_Linux_7/amd64/shimx64.efi'
-  #    BIOS: 'Red_Hat_Enterprise_Linux_7/amd64/pxelinux.0'
-  #Red_Hat_Enterprise_Linux_8:
-  #  x86_64:
-  #    UEFI: 'Red_Hat_Enterprise_Linux_8/amd64/shimx64.efi'
-  #    BIOS: 'Red_Hat_Enterprise_Linux_8/amd64/pxelinux.0'
+  # Red_Hat_Enterprise_Linux_7:
+  #   x86_64:
+  #     UEFI: 'Red_Hat_Enterprise_Linux_7/amd64/shimx64.efi'
+  #     BIOS: 'Red_Hat_Enterprise_Linux_7/amd64/pxelinux.0'
+  # Red_Hat_Enterprise_Linux_8:
+  #   x86_64:
+  #     UEFI: 'Red_Hat_Enterprise_Linux_8/amd64/shimx64.efi'
+  #     BIOS: 'Red_Hat_Enterprise_Linux_8/amd64/pxelinux.0'
   Ubuntu_18_04:
     x86_64:
       UEFI: 'Ubuntu_18.04/amd64/grubnetx64.efi'
@@ -73,6 +76,10 @@ pxe_installer_distribution_filename_map:
     x86_64:
       UEFI: 'Ubuntu_22.04/amd64/grubnetx64.efi'
       BIOS: 'Ubuntu_22.04/amd64/pxelinux.0'
+  Ubuntu_24_04:
+    x86_64:
+      UEFI: 'Ubuntu_24.04/amd64/grubnetx64.efi'
+      BIOS: 'Ubuntu_24.04/amd64/pxelinux.0'
 
 # NOTE: CentOS full isos are required because we access their rpm's.
 pxe_installer_files_centos_7_amd64:
@@ -95,6 +102,9 @@ pxe_installer_files_debian_11_amd64:
 pxe_installer_files_debian_12_amd64:
   'https://deb.debian.org/debian/dists/bookworm/main/installer-amd64/current/images/netboot/netboot.tar.gz'
 
+pxe_installer_files_debian_13_amd64:
+  'https://deb.debian.org/debian/dists/trixie/main/installer-amd64/current/images/netboot/netboot.tar.gz'
+
 # NOTE: After changing iso urls make sure to delete and rebuild the whole directory tree because initrd's must match!
 pxe_installer_files_ubuntu_1804_amd64:
   efi: 'http://archive.ubuntu.com/ubuntu/dists/bionic/main/uefi/grub2-amd64/current/grubnetx64.efi.signed'
@@ -108,12 +118,17 @@ pxe_installer_files_ubuntu_2004_amd64:
   pxe: 'http://archive.ubuntu.com/ubuntu/dists/focal/main/installer-amd64/current/legacy-images/netboot/netboot.tar.gz'
 
 # NOTE: After changing iso urls make sure to delete and rebuild the whole directory tree because initrd's must match!
+# NOTE: Ubuntu 22.04 LTS (Jammy Jellyfish) does not provide netboot.tar.gz, use it from Ubuntu 20.04 LTS (Focal Fossa).
 pxe_installer_files_ubuntu_2204_amd64:
   efi: 'http://archive.ubuntu.com/ubuntu/dists/jammy/main/uefi/grub2-amd64/current/grubnetx64.efi.signed'
-  iso: 'https://releases.ubuntu.com/jammy/ubuntu-22.04.1-live-server-amd64.iso'
+  iso: 'https://releases.ubuntu.com/jammy/ubuntu-22.04.4-live-server-amd64.iso'
   pxe: 'http://archive.ubuntu.com/ubuntu/dists/focal/main/installer-amd64/current/legacy-images/netboot/netboot.tar.gz'
 
-# NOTE: For newer Ubuntu releases such as 21.04 use e.g. netboot.tar.gz from older releases
+# NOTE: After changing iso urls make sure to delete and rebuild the whole directory tree because initrd's must match!
+pxe_installer_files_ubuntu_2404_amd64:
+  efi: 'https://releases.ubuntu.com/noble/netboot/amd64/grubx64.efi'
+  iso: 'https://releases.ubuntu.com/noble/ubuntu-24.04-live-server-amd64.iso'
+  pxe: 'https://releases.ubuntu.com/noble/ubuntu-24.04-netboot-amd64.tar.gz'
 
 # pxe_installer_host_address is set in host_vars
 
@@ -121,17 +136,13 @@ pxe_installer_files_ubuntu_2204_amd64:
 pxe_installer_httpd_root: |-
   {{
     {
-      'CentOS': pxe_installer_httpd_root_centos,
-      'Debian': pxe_installer_httpd_root_debian,
-      'Red_Hat_Enterprise_Linux': pxe_installer_httpd_root_red_hat_enterprise_linux,
-      'Ubuntu': pxe_installer_httpd_root_ubuntu
+      'CentOS':                   '/var/lib/httpd',
+      'Debian':                   '/var/www',
+      'Fedora':                   '/var/lib/httpd',
+      'Red_Hat_Enterprise_Linux': '/var/lib/httpd',
+      'Ubuntu':                   '/var/www'
     }[distribution_id | first | regex_replace('[^A-Za-z0-9_]', '_')]
   }}
-
-pxe_installer_httpd_root_centos: '{{ pxe_installer_httpd_root_red_hat_enterprise_linux }}'
-pxe_installer_httpd_root_debian: '/var/www'
-pxe_installer_httpd_root_red_hat_enterprise_linux: '/var/lib/httpd'
-pxe_installer_httpd_root_ubuntu: '{{ pxe_installer_httpd_root_debian }}'
 
 pxe_installer_kernel_parameters: ''
 
@@ -141,9 +152,11 @@ pxe_installer_kernel_parameters_centos_9_amd64: '{{ pxe_installer_kernel_paramet
 pxe_installer_kernel_parameters_debian_10_amd64: '{{ pxe_installer_kernel_parameters }}'
 pxe_installer_kernel_parameters_debian_11_amd64: '{{ pxe_installer_kernel_parameters }}'
 pxe_installer_kernel_parameters_debian_12_amd64: '{{ pxe_installer_kernel_parameters }}'
+pxe_installer_kernel_parameters_debian_13_amd64: '{{ pxe_installer_kernel_parameters }}'
 pxe_installer_kernel_parameters_ubuntu_1804_amd64: '{{ pxe_installer_kernel_parameters }}'
 pxe_installer_kernel_parameters_ubuntu_2004_amd64: '{{ pxe_installer_kernel_parameters }}'
 pxe_installer_kernel_parameters_ubuntu_2204_amd64: '{{ pxe_installer_kernel_parameters }}'
+pxe_installer_kernel_parameters_ubuntu_2404_amd64: '{{ pxe_installer_kernel_parameters }}'
 
 pxe_installer_kickstart_url: 'http://{{ pxe_installer_host_address | mandatory }}'
 
@@ -155,14 +168,10 @@ pxe_installer_rpm_archive_url: 'http://{{ pxe_installer_host_address | mandatory
 pxe_installer_tftpd_root: |-
   {{
     {
-      'CentOS': pxe_installer_tftpd_root_centos,
-      'Debian': pxe_installer_tftpd_root_debian,
-      'Red_Hat_Enterprise_Linux': pxe_installer_tftpd_root_red_hat_enterprise_linux,
-      'Ubuntu': pxe_installer_tftpd_root_ubuntu
+      'CentOS':                   '/var/lib/tftpboot',
+      'Debian':                   '/srv/tftp',
+      'Fedora':                   '/var/lib/tftpboot',
+      'Red_Hat_Enterprise_Linux': '/var/lib/tftpboot',
+      'Ubuntu':                   '/srv/tftp'
     }[distribution_id | first | regex_replace('[^A-Za-z0-9_]', '_')]
   }}
-
-pxe_installer_tftpd_root_centos: '{{ pxe_installer_tftpd_root_red_hat_enterprise_linux }}'
-pxe_installer_tftpd_root_debian: '/srv/tftp'
-pxe_installer_tftpd_root_red_hat_enterprise_linux: '/var/lib/tftpboot'
-pxe_installer_tftpd_root_ubuntu: '{{ pxe_installer_tftpd_root_debian }}'

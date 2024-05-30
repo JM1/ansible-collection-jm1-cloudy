@@ -78,7 +78,8 @@ ________EOF
     }
 
     distributions=""
-    distributions_default="centos_8,centos_9,debian_10,debian_11,debian_12,ubuntu_1804,ubuntu_2004,ubuntu_2204"
+    distributions_default="centos_8,centos_9,debian_10,debian_11,debian_12,debian_13,fedora_rawhide,"\
+"ubuntu_1804,ubuntu_2004,ubuntu_2204,ubuntu_2404"
     project_name=""
     project_name_default="cloudy-test"
 

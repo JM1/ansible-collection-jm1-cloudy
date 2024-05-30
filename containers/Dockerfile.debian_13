@@ -1,0 +1,58 @@
+# Copyright (c) 2024 Jakob Meng, <jakobmeng@web.de>
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+FROM debian:trixie
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+# Satisfy Ansible requirements
+RUN apt-get update && \
+  apt-get install -y \
+    curl iputils-ping man-db psmisc tcpdump tmux vim && \
+  apt-get install -y --no-install-recommends \
+    ansible iproute2 make nftables openssh-client procps python3 python3-pip python3-yaml sudo && \
+  apt-get install -y --no-install-recommends \
+    acl hostname python3-libvirt python3-lxml python3-netaddr python3-pip python3-pyghmi python3-selinux && \
+  rm -rf /var/lib/apt/lists/*
+
+RUN useradd --create-home --shell /bin/bash cloudy && \
+  echo 'cloudy ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/cloudy && \
+  chmod u=r,g=r,o= /etc/sudoers.d/cloudy
+
+USER cloudy
+
+RUN mkdir -p /home/cloudy/.ssh/ && \
+  chmod u=rwx,g=,o= /home/cloudy/.ssh/
+
+# Persist SSH credentials and configuration for accessing virtual machines
+VOLUME /home/cloudy/.ssh/
+
+RUN mkdir -p /home/cloudy/.local/share/libvirt/images/
+
+# Persist storage volumes of libvirt domains
+VOLUME /home/cloudy/.local/share/libvirt/images/
+
+RUN mkdir -p /home/cloudy/project/
+
+# Persist user's Ansible inventories, playbooks, configuration..
+VOLUME /home/cloudy/project/
+
+USER root
+
+COPY entrypoint.sh /usr/local/bin/
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
+CMD []

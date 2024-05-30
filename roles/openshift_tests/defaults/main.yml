@@ -5,13 +5,13 @@
 
 openshift_tests_artifact_dir: '~/tests'
 
-#openshift_tests_kubeconfig_file is set in host_vars
+# openshift_tests_kubeconfig_file is set in host_vars
 
-#openshift_tests_pullsecret is set in host_vars
+# openshift_tests_pullsecret is set in host_vars
 
 openshift_tests_pullsecret_file: '~/pull-secret.txt'
 
-#openshift_tests_release_image is set in host_vars
+# openshift_tests_release_image is set in host_vars
 
 # Use OpenShift CI's default test suite
 # Ref.: https://steps.ci.openshift.org/reference/openshift-e2e-test

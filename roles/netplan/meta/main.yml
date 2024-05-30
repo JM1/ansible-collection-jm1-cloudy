@@ -14,12 +14,15 @@ galaxy_info:
     - buster
     - bullseye
     - bookworm
+    - trixie
+    - sid
 
   - name: Ubuntu
     versions:
     - bionic
     - focal
     - jammy
+    - noble
 
   galaxy_tags:
   - development

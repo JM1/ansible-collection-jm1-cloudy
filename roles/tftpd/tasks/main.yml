@@ -16,8 +16,8 @@
     name: jm1.pkg.setup # If Ansible raises "ERROR! the role 'jm1.pkg.setup' was not found" then you might use the
                         # ansible-galaxy and the provided requirements.yml to install all missing role dependencies.
 
-- name: Satisfy requirements on CentOS and Red Hat Enterprise Linux
-  when: distribution_id | first in ['CentOS', 'Red Hat Enterprise Linux']
+- name: Satisfy requirements on CentOS, Fedora and Red Hat Enterprise Linux
+  when: distribution_id | first in ['CentOS', 'Fedora', 'Red Hat Enterprise Linux']
   jm1.pkg.meta_pkg:
     name: "jm1-cloudy-tftpd"
     version: "1"

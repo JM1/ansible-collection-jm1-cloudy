@@ -68,7 +68,8 @@ specified, then a shell is run.
 OPTIONS:
     -d, --detach                  Detached mode.
     --distribution DISTRIBUTION   Linux distribution used in containers. Options are centos_8, centos_9, debian_10,
-                                  debian_11, debian_12, ubuntu_1804, ubuntu_2004 and ubuntu_2204.
+                                  debian_11, debian_12, debian_13, fedora_rawhide, ubuntu_1804, ubuntu_2004, ubuntu_2204
+                                  and ubuntu_2404.
     --infra-image IMAGE           Container image that will be used for the infra container.
                                   Defaults to '$infra_image_default'.
     --project DIR                 Directory where Ansible playbooks and the inventory are stored.
@@ -151,7 +152,13 @@ ________EOF
     [ -n "$project_name" ] || project_name=$project_name_default
 
     case "$distribution" in
-        "centos_8"|"centos_9"|"debian_10"|"debian_11"|"debian_12"|"ubuntu_1804"|"ubuntu_2004"|"ubuntu_2204")
+        "centos_8"|"centos_9")
+            ;;
+        "debian_10"|"debian_11"|"debian_12"|"debian_13")
+            ;;
+        "fedora_rawhide")
+            ;;
+        "ubuntu_1804"|"ubuntu_2004"|"ubuntu_2204"|"ubuntu_2204")
             ;;
         *)
             error "Unsupported distribution: $distribution"

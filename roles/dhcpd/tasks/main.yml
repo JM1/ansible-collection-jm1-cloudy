@@ -41,8 +41,9 @@
     depends:
     - dhcp
 
-- name: Satisfy requirements on Red Hat Enterprise Linux 8 and 9 and CentOS 8 and 9
-  when: distribution_id | first in ['CentOS', 'Red Hat Enterprise Linux'] and distribution_id | last in ['8', '9']
+- name: Satisfy requirements on Fedora, Red Hat Enterprise Linux 8 / 9 and CentOS 8 / 9
+  when: ((distribution_id | first in ['CentOS', 'Red Hat Enterprise Linux'] and distribution_id | last in ['8', '9'])
+         or distribution_id | first == 'Fedora')
   jm1.pkg.meta_pkg:
     name: "jm1-cloudy-dhcpd"
     version: "1"
@@ -74,7 +75,7 @@
   - 'Restart DHCP IPv6 service to apply changes'
 
 # Debian provides a single service for DHCP IPv4 and DHCP IPv6 only
-# CentOS, Red Hat Enterprise Linux and Ubuntu provide different services for DHCP IPv4 and DHCP IPv6
+# Fedora, CentOS, Red Hat Enterprise Linux and Ubuntu provide different services for DHCP IPv4 and DHCP IPv6
 
 - name: Manage DHCP IPv4 (and DHCP IPv6) service
   ansible.builtin.service:

@@ -12,15 +12,20 @@ galaxy_info:
     versions:
     - bullseye
     - bookworm
+    - trixie
+    - sid
 
   - name: EL
     versions:
     - '8'
     - '9'
 
+  - name: Fedora
+
   - name: Ubuntu
     versions:
     - jammy
+    - noble
 
   galaxy_tags:
   - development
