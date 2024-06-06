@@ -37,6 +37,7 @@ to eject the agent image from all cluster nodes.
 [ocp-abi]: https://docs.openshift.com/container-platform/4.13/installing/installing_with_agent_based_installer/preparing-to-install-with-agent-based-installer.html
 [ocp-cluster-operator]: https://docs.openshift.com/container-platform/4.13/operators/operator-reference.html
 [okd]: https://www.okd.io/
+[playbooks-keywords]: https://docs.ansible.com/ansible/latest/reference_appendices/playbooks_keywords.html
 
 **Tested OS images**
 - [Cloud image (`amd64`)](https://cdimage.debian.org/images/cloud/buster/daily/) of Debian 10 (Buster)

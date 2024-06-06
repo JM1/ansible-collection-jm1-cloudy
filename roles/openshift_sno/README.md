@@ -50,6 +50,7 @@ to eject the live image from the single-node cluster.
 [ocp-cluster-operator]: https://docs.openshift.com/container-platform/4.13/operators/operator-reference.html
 [ocp-sno]: https://docs.openshift.com/container-platform/4.13/installing/installing_sno/install-sno-preparing-to-install-sno.html
 [okd]: https://www.okd.io/
+[playbooks-keywords]: https://docs.ansible.com/ansible/latest/reference_appendices/playbooks_keywords.html
 [podman]: https://podman.io/
 [pyyaml]: https://pyyaml.org/
 
