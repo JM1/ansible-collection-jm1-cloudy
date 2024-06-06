@@ -36,7 +36,7 @@ Next, the role will then wait until:
 1. the single-node OpenShift installation has been completed,
 2. the number of nodes matches the number of machines,
 3. all nodes are ready, because follow-up roles might require workload capacity, and
-4. [cluster operators][ocp-cluster-operators] have finished progressing to ensure that the configuration which had been
+4. [cluster operators][ocp-cluster-operator] have finished progressing to ensure that the configuration which had been
    specified at installation time has been achieved.
 
 Finally, this role will execute all tasks defined in variable `openshift_sno_cleanup_code` which defines a list of tasks

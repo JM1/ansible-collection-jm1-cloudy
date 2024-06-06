@@ -27,7 +27,7 @@ The role will then wait until:
 2. the cluster installation has been completed,
 3. the number of nodes matches the number of machines,
 4. all nodes are ready, because follow-up roles might require workload capacity, and
-5. [cluster operators][ocp-cluster-operators] have finished progressing to ensure that the configuration which had been
+5. [cluster operators][ocp-cluster-operator] have finished progressing to ensure that the configuration which had been
    specified at installation time has been achieved.
 
 Finally, this role will execute all tasks defined in variable `openshift_abi_cleanup_code` which defines a list of tasks

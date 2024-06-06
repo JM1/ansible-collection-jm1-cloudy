@@ -11,7 +11,7 @@ artifacts such as logs and test results. When a [pull secret][using-image-pull-s
 [OpenShift Client aka `oc`][ocp-oc] will wait until:
 1. the number of nodes matches the number of machines,
 2. all nodes are ready, because the tests might require workload capacity, and
-3. [cluster operators][ocp-cluster-operators] have finished progressing to ensure that any outstanding configuration
+3. [cluster operators][ocp-cluster-operator] have finished progressing to ensure that any outstanding configuration
    has been achieved.
 
 When the cluster is ready for testing, the image for OpenShift's conformance test suite will be read from the release

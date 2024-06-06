@@ -23,7 +23,7 @@ Finally, the role will wait until:
 2. the installation has been completed,
 3. the number of nodes matches the number of machines,
 4. all nodes are ready, because follow-up roles might require workload capacity, and
-5. [cluster operators][ocp-cluster-operators] have finished progressing to ensure that the configuration which had been
+5. [cluster operators][ocp-cluster-operator] have finished progressing to ensure that the configuration which had been
    specified at installation time has been achieved.
 
 [ocp]: https://openshift.com/
