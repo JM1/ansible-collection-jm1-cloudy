@@ -158,7 +158,7 @@ ________EOF
             ;;
         "fedora_rawhide")
             ;;
-        "ubuntu_1804"|"ubuntu_2004"|"ubuntu_2204"|"ubuntu_2204")
+        "ubuntu_1804"|"ubuntu_2004"|"ubuntu_2204"|"ubuntu_2404")
             ;;
         *)
             error "Unsupported distribution: $distribution"
