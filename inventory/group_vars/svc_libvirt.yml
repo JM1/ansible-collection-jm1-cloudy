@@ -53,6 +53,12 @@ libvirt_images:
   name: debian-13-genericcloud-amd64.qcow2
   pool: 'default'
   state: present
+- checksum: sha256:ac58f3c35b73272d5986fa6d3bc44fd246b45df4c334e99a07b3bbd00684adee
+  format: 'qcow2'
+  image: https://download.fedoraproject.org/pub/fedora/linux/releases/40/Cloud/x86_64/images/Fedora-Cloud-Base-Generic.x86_64-40-1.14.qcow2
+  name: Fedora-Cloud-Base-Generic.x86_64-40-1.14.qcow2
+  pool: 'default'
+  state: present
 - # no checksum because image is updated every week
   format: 'qcow2'
   image: https://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64.img
