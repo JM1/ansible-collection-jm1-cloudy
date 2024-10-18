@@ -191,7 +191,7 @@ trap "trap - INT TERM && kill -- -$$" INT TERM
         sed -i \
             -e 's/^[#]*listen_tls = .*/listen_tls = 0/g' \
             -e 's/^[#]*listen_tcp = .*/listen_tcp = 1/g' \
-            -e 's/^[#]*listen_addr = .*/listen_addr = "0.0.0.0"/g' \
+            -e 's/^[#]*listen_addr = .*/listen_addr = "127.0.0.1"/g' \
             -e 's/^[#]*auth_tcp = .*/auth_tcp = "none"/g' \
             -e 's/^unix_sock_/#unix_sock_/g' \
             /home/cloudy/.config/libvirt/libvirtd.conf
@@ -203,10 +203,11 @@ trap "trap - INT TERM && kill -- -$$" INT TERM
             --skip-tags "jm1.kvm_nested_virtualization"
 
     # Enable masquerading for internet connectivity from libvirt domains on networks route-0-dhcp and route-1-no-dhcp
-    if command -v nft >/dev/null; then
-        nft --file - << '________EOF'
+    if command -v nft >/dev/null ; then
+        if ! nft list chain ip nat POSTROUTING_CLOUDY >/dev/null 2>&1; then
+            nft --file - << '____________EOF'
 table ip nat {
-    chain POSTROUTING {
+    chain POSTROUTING_CLOUDY {
         type nat hook postrouting priority srcnat; policy accept;
 
         meta l4proto tcp ip saddr 192.168.157.0/24 ip daddr != 192.168.157.0/24 masquerade to :1024-65535
@@ -218,21 +219,26 @@ table ip nat {
         ip saddr 192.168.158.0/24 ip daddr != 192.168.158.0/24 masquerade
     }
 }
-________EOF
+____________EOF
+        fi
     else
-        iptables-restore  << '________EOF'
+        if ! iptables -t nat -C POSTROUTING -j POSTROUTING_CLOUDY >/dev/null 2>&1; then
+            iptables-restore  << '____________EOF'
 *nat
 
-:POSTROUTING ACCEPT [0:0]
--A POSTROUTING -s 192.168.157.0/24 ! -d 192.168.157.0/24 -p tcp -j MASQUERADE --to-ports 1024-65535
--A POSTROUTING -s 192.168.157.0/24 ! -d 192.168.157.0/24 -p udp -j MASQUERADE --to-ports 1024-65535
--A POSTROUTING -s 192.168.157.0/24 ! -d 192.168.157.0/24 -j MASQUERADE
--A POSTROUTING -s 192.168.158.0/24 ! -d 192.168.158.0/24 -p tcp -j MASQUERADE --to-ports 1024-65535
--A POSTROUTING -s 192.168.158.0/24 ! -d 192.168.158.0/24 -p udp -j MASQUERADE --to-ports 1024-65535
--A POSTROUTING -s 192.168.158.0/24 ! -d 192.168.158.0/24 -j MASQUERADE
+:POSTROUTING_CLOUDY ACCEPT [0:0]
+-A POSTROUTING_CLOUDY -s 192.168.157.0/24 ! -d 192.168.157.0/24 -p tcp -j MASQUERADE --to-ports 1024-65535
+-A POSTROUTING_CLOUDY -s 192.168.157.0/24 ! -d 192.168.157.0/24 -p udp -j MASQUERADE --to-ports 1024-65535
+-A POSTROUTING_CLOUDY -s 192.168.157.0/24 ! -d 192.168.157.0/24 -j MASQUERADE
+-A POSTROUTING_CLOUDY -s 192.168.158.0/24 ! -d 192.168.158.0/24 -p tcp -j MASQUERADE --to-ports 1024-65535
+-A POSTROUTING_CLOUDY -s 192.168.158.0/24 ! -d 192.168.158.0/24 -p udp -j MASQUERADE --to-ports 1024-65535
+-A POSTROUTING_CLOUDY -s 192.168.158.0/24 ! -d 192.168.158.0/24 -j MASQUERADE
+
+-A POSTROUTING -j POSTROUTING_CLOUDY
 
 COMMIT
-________EOF
+____________EOF
+        fi
     fi
 
     if ! groups cloudy | grep -q -w kvm; then
