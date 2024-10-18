@@ -71,8 +71,6 @@ OPTIONS:
     --distribution DISTRIBUTION   Linux distribution used in containers. Options are centos_8, centos_9, debian_10,
                                   debian_11, debian_12, debian_13, fedora_rawhide, ubuntu_1804, ubuntu_2004, ubuntu_2204
                                   and ubuntu_2404.
-    --infra-image IMAGE           Container image that will be used for the infra container.
-                                  Defaults to '$infra_image_default'.
     --project DIR                 Directory where Ansible playbooks and the inventory are stored.
                                   Defaults to the parent directory of the directory that contains this script.
     --project-name NAME           Name to label and find containers, images and volumes with.
@@ -85,8 +83,6 @@ ________EOF
     detach="no"
     distribution=""
     distribution_default="debian_11"
-    infra_image=""
-    infra_image_default="alpine:latest"
     project=""
     project_name=""
     project_name_default="cloudy"
@@ -103,15 +99,6 @@ ________EOF
                 fi
 
                 distribution="$2"
-                shift
-                ;;
-            "--infra-image")
-                if [ -z "$2" ]; then
-                    error "flag is missing arg: --infra-image"
-                    return 255
-                fi
-
-                infra_image="$2"
                 shift
                 ;;
             "-h"|"--help")
@@ -149,7 +136,6 @@ ________EOF
     done
 
     [ -n "$distribution" ] || distribution=$distribution_default
-    [ -n "$infra_image" ] || infra_image=$infra_image_default
     [ -n "$project_name" ] || project_name=$project_name_default
 
     case "$distribution" in
@@ -179,44 +165,12 @@ ________EOF
         project_dir=$(readlink -f "$cmd_dir/..")
     fi
 
-    # Podman 3.0.1 does not support podman network exists and does not support regular expressions in filters
-    if ! podman network ls -q "--filter=name=${project_name}" | grep -q -e "^${project_name}\$"; then
-        podman network create --driver=bridge \
-            --subnet=192.168.150.0/24 \
-            --ip-range=192.168.150.0/24 \
-            --gateway=192.168.150.1 \
-            "${project_name}"
-    fi
-
     for volume in "${project_name}-images" "${project_name}-ssh"; do
         # Podman 3.0.1 does not support podman volume exists and does not support regular expressions in filters
         if ! podman volume ls -q "--filter=name=$volume" | grep -q -e "^$volume\$"; then
             podman volume create "$volume"
         fi
     done
-
-    if podman container exists "${project_name}-infra"; then
-        if [ -z "$(podman container ls -a -q "--filter=name=^${project_name}-infra\$" --filter=status=running)" ]; then
-            warn "Stopped container ${project_name}-infra will be (re)started, but not rebuild."\
-                 "Remove container first to force rebuild."
-            podman start "${project_name}-infra"
-        fi
-    else
-        # Start a container to bring up Podman network
-        # Podman network has to be started for the following ip route add commands
-        podman run --detach --stop-signal SIGKILL --network "${project_name}" --name "${project_name}-infra" \
-            "$infra_image" sleep infinity
-    fi
-
-    if ! gateway=$(ip -json route get 192.168.157.0 | jq -r -e '.[0] | .prefsrc') \
-       || [ "$gateway" != "192.168.150.1" ]; then
-        ip route add 192.168.157.0/24 via 192.168.150.1
-    fi
-
-    if ! gateway=$(ip -json route get 192.168.158.0 | jq -r -e '.[0] | .prefsrc') \
-       || [ "$gateway" != "192.168.150.1" ]; then
-        ip route add 192.168.158.0/24 via 192.168.150.1
-    fi
 
     if podman container exists "${project_name}"; then
         # Container exists
@@ -242,12 +196,6 @@ ________EOF
 
         # privileged is required for libvirtd to be able to write to /proc/sys/net/ipv6/conf/*/disable_ipv6
         podman_args+=(--privileged)
-
-        # libvirt tcp transport
-        podman_args+=(--publish '127.0.0.1:16509:16509/tcp')
-
-        # VNC connections
-        podman_args+=(--publish '127.0.0.1:5900-5999:5900-5999/tcp')
 
         # Persist storage volumes of libvirt domains
         podman_args+=(-v "${project_name}-images:/home/cloudy/.local/share/libvirt/images/")
@@ -287,9 +235,8 @@ ________EOF
             -e "DEBUG=${DEBUG:=no}" \
             -e "DEBUG_SHELL=${DEBUG_SHELL:=no}" \
             -e "ANSIBLE_INVENTORY" \
-            --network "${project_name}" \
+            --network "host" \
             --device '/dev/kvm:/dev/kvm' \
-            --sysctl "net.ipv4.conf.eth0.proxy_arp=1" \
             "${podman_args[@]}" \
             "${project_name}:latest" "${cmd_args[@]}"
     fi
@@ -343,10 +290,6 @@ ________EOF
     [ -n "$project_name" ] || project_name=$project_name_default
 
     podman stop --ignore "${project_name}"
-
-    ip route del 192.168.158.0/24 via 192.168.150.1 || true
-    ip route del 192.168.157.0/24 via 192.168.150.1 || true
-    podman stop --ignore "${project_name}-infra"
 }
 
 down() {
@@ -400,15 +343,9 @@ ________EOF
     podman stop --ignore "${project_name}"
     podman rm --force --ignore "${project_name}"
 
-    ip route del 192.168.158.0/24 via 192.168.150.1 || true
-    ip route del 192.168.157.0/24 via 192.168.150.1 || true
-    podman rm --force --ignore "${project_name}-infra"
-
     podman image rm --force "${project_name}:latest" || true
     podman volume rm --force "${project_name}-images" || true
     podman volume rm --force "${project_name}-ssh" || true
-
-    podman network rm --force "${project_name}" || true
 }
 
 if [ $# -eq 0 ]; then
