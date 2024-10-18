@@ -117,7 +117,8 @@ cloud infrastructure based on this collection, read the following sections.
 Install `git` and [Podman](#installing-podman) on a bare-metal system with Debian 11 (Bullseye), CentOS Stream 8,
 Ubuntu 22.04 LTS (Jammy Jellyfish) or newer. Ensure the system [has KVM nested virtualization enabled](
 #enable-kvm-nested-virtualization), has enough storage to store disk images for the virtual machines and is **not**
-connected to ip networks `192.168.157.0/24` and `192.168.158.0/24`. Then run:
+connected to ip networks `192.168.152.0/24` up to `192.168.158.0/24` and does **not** have bridges `virbr-local-0` to
+`virbr-local-7`. Then run:
 
 ```sh
 git clone https://github.com/JM1/ansible-collection-jm1-cloudy.git
@@ -128,10 +129,10 @@ cd containers/
 sudo DEBUG=yes DEBUG_SHELL=yes ./podman-compose.sh up
 ```
 
-The last command will create various Podman networks, volumes and containers, and attach to a container named `cloudy`.
-Inside this container a Bash shell will be spawned for user `cloudy`. This user `cloudy` will be executing the libvirt
-domains (QEMU/KVM based virtual machines) from the [example inventory][inventory-example]. For example, to launch a
-virtual machine with Debian 12 (Bookworm) run the following commands from `cloudy`'s Bash shell:
+The last command will create various Podman volumes, a Podman container named `cloudy` with host networking, and attach
+to it. Inside the container a Bash shell will be spawned for user `cloudy`. This user `cloudy` will be executing the
+libvirt domains (QEMU/KVM based virtual machines) from the [example inventory][inventory-example]. For example, to
+launch a virtual machine with Debian 12 (Bookworm) run the following commands from `cloudy`'s Bash shell:
 
 ```sh
 ansible-playbook playbooks/site.yml --limit lvrt-lcl-session-srv-022-debian12
@@ -372,7 +373,6 @@ To run playbooks and roles of this collection with Docker Compose,
 
 * [Docker or Podman and Docker Compose have to be installed](#installing-docker-or-podman-and-docker-compose),
 * [KVM nested virtualization has to be enabled](#enable-kvm-nested-virtualization),
-* [a Docker bridge network has to be created](#create-docker-bridge-network) and
 * [a container has to be started with Docker Compose](#start-container-with-docker-compose).
 
 #### Installing Docker or Podman and Docker Compose
@@ -409,71 +409,23 @@ jm1-kvm-nested-virtualization-readme] manually.
 [galaxy-jm1-kvm-nested-virtualization]: https://galaxy.ansible.com/jm1/kvm_nested_virtualization
 [jm1-kvm-nested-virtualization-readme]: https://github.com/JM1/ansible-role-jm1-kvm-nested-virtualization/blob/master/README.md
 
-#### Create Docker bridge network
-
-To access libvirt domains (QEMU/KVM based virtual machines) running inside containers from the container host, a
-[Docker bridge network][docker-network-bridge] must be created and routes for the ip networks used inside containers
-must be published on the container host.
-
-[docker-network-bridge]: https://docs.docker.com/network/bridge/
-
-The network configuration is twofold. First, a network bridge with ip routes will be set up and afterwards a Docker
-bridge will be created. For example, on Debian network interfaces are configured with [`ifupdown`][ifupdown-interfaces].
-To define a network bridge `docker-cloudy` and enable connectivity with routed ip networks `192.168.157.0/24` and
-`192.168.158.0/24` used inside containers, change [`/etc/network/interfaces`][ifupdown-interfaces] to:
-
-```
-# Ref.:
-#  man interfaces
-#  man bridge-utils-interfaces
-
-auto docker-cloudy
-iface docker-cloudy inet manual
-    bridge_ports none
-    bridge_stp off
-    bridge_waitport 3
-    bridge_fd 0
-    bridge_maxwait 5
-    # publish routes of routed libvirt networks inside containers
-    post-up ip route add 192.168.157.0/24 dev docker-cloudy
-    post-up ip route add 192.168.158.0/24 dev docker-cloudy
-    pre-down ip route del 192.168.158.0/24 dev docker-cloudy || true
-    pre-down ip route del 192.168.157.0/24 dev docker-cloudy || true
-
-iface docker-cloudy inet6 manual
-```
-
-To apply these changes, run `systemctl restart networking.service` or reboot your system.
-
-This network bridge `docker-cloudy` has no physical network ports assigned to it, because connectivity is established
-with [ip routing][ip-routing].
-
-[ip-routing]: https://en.wikipedia.org/wiki/IP_routing
-[ifupdown-interfaces]: https://manpages.debian.org/unstable/ifupdown/interfaces.5.en.html
-
-On systems using `systemd-networkd` refer to [Arch's Wiki][arch-wiki-systemd-networkd] or [upstream's documentation][
-systemd-network]. For distributions using `NetworkManager`, refer to [GNOME's project page on NetworkManager][
-network-manager], esp. its `See Also` section.
-
-[arch-wiki-systemd-networkd]: https://wiki.archlinux.org/title/Systemd-networkd
-[ifupdown-interfaces]: https://manpages.debian.org/unstable/ifupdown/interfaces.5.en.html
-[network-manager]: https://wiki.gnome.org/Projects/NetworkManager
-[systemd-network]: https://www.freedesktop.org/software/systemd/man/systemd.network.html
-
-The second step is to create a Docker network `cloudy` which containers will be using to communicate with the outside:
-
-```sh
-docker network create --driver=bridge -o "com.docker.network.bridge.name=docker-cloudy" --subnet=192.168.150.0/24 --gateway=192.168.150.1 cloudy
-```
-
-If you do not intend to communicate from the container host with libvirt domains running inside containers, you can skip
-the instructions about network bridge `docker-cloudy` above and only create Docker bridge `cloudy` with:
-
-```sh
-docker network create --subnet=192.168.150.0/24 --gateway=192.168.150.1 cloudy
-```
-
 #### Start container with Docker Compose
+
+Docker Compose helps with managing Docker storage volumes, establishing network connectivity between host and container
+as well as running our Ansible code and virtual machines inside containers.
+
+**NOTE:** The Docker container shares the [host's networking namespace][docker-network-host], i.e. its network stack
+will not be isolated from the Docker host. The [example inventory][inventory-example], i.e. Ansible variable
+`libvirt_networks` in [inventory/host_vars/lvrt-lcl-system.yml](inventory/host_vars/lvrt-lcl-system.yml), defines
+several libvirt networks whose bridges `virbr-local-0` to `virbr-local-7` and ip networks `192.168.152.0/24` up to
+`192.168.158.0/24` will be created, visible and accessible on the Docker host. Ensure those bridges and ip networks are
+not present at the Docker host before running `docker-compose`.
+
+[docker-network-host]: https://docs.docker.com/network/host/
+
+**NOTE:** Bridges `virbr-local-0` to `virbr-local-7`, ip networks `192.168.152.0/24` up to `192.168.158.0/24`, and
+[iptables][iptables]/[nftables][nftables] chains `POSTROUTING` and `POSTROUTING_CLOUDY` in table `nat` will not be
+deleted from the Docker host when the Docker container exits. They have to be deleted manually.
 
 Open a `docker-compose.yml.*` in your copy of the [`containers/`][containers-example] directory which matches the
 distribution of the container host. The following example assumes that the container host is running on
@@ -509,10 +461,11 @@ docker attach cloudy
 Inside the container continue with [running playbook `playbooks/site.yml` for all remaining hosts](#usage-and-playbooks)
 from your copy of the [`inventory/`][inventory-example] directory which is available in `/home/cloudy/project`.
 
-**NOTE:** If virtual machines have no internet connectivity, check the host's [iptables][iptables]/[nftables][nftables]
-rules. The [firewalld][firewalld] service often causes this issue because its zones are not accessible from within
-containers, preventing libvirt from [adding bridge interfaces of libvirt virtual networks to firewalld zones][
-libvirt-firewall]. If it is active on the host, [disable firewalld][firewalld-service].
+
+**NOTE:** If virtual machines have no internet connectivity, check the [iptables][iptables]/[nftables][nftables] rules
+on the host. The [firewalld][firewalld] service may cause issues  if [bridge interfaces of libvirt virtual networks
+cannot be added to firewalld zones][libvirt-firewall]. If [firewalld][firewalld] is active on the host, [disable it][
+firewalld-service].
 
 [firewalld]: https://firewalld.org/
 [firewalld-service]: https://firewalld.org/documentation/howto/enable-and-disable-firewalld.html
@@ -528,8 +481,8 @@ virsh --connect 'qemu+tcp://127.0.0.1:16509/session' list
 
 The same connection URI `qemu+tcp://127.0.0.1:16509/session` can also be used with virt-manager at the container host.
 To view a virtual machine's graphical console, its Spice server or VNC server has to be changed, i.e. its listen type
-has to be changed to `address`, address has to be changed to `0.0.0.0` (aka `All interfaces`) or `192.168.150.2` and
-port has to be changed to a number between `5900-5999`. Then view its graphical console on your container host with:
+has to be changed to `address`, and port has to be changed to a number between `5900-5999`. Then view its graphical
+console on your container host with:
 
 ```sh
 # View a libvirt domain's graphical console with vnc server at port 5900 running inside the container
@@ -553,6 +506,20 @@ docker volume ls
 
 # Remove Docker volumes
 docker volume rm cloudy_images cloudy_ssh
+```
+
+To remove all bridges, networks and nftables/iptables chains, run:
+
+```sh
+# Delete bridges and ip networks
+for i in $(seq 0 7); do sudo ip link del "virbr-local-$i"; done
+
+# Delete nftables chain
+nft delete chain ip nat POSTROUTING_CLOUDY
+# Or delete iptables chain
+iptables -t nat -D POSTROUTING -j POSTROUTING_CLOUDY
+iptables -t nat -F POSTROUTING_CLOUDY
+iptables -t nat -X POSTROUTING_CLOUDY
 ```
 
 ### Containerized setup with Podman
@@ -582,22 +549,23 @@ line arguments similar to `docker-compose`, run `containers/podman-compose.sh --
 
 [podman-compose-sh]: containers/podman-compose.sh
 
-[`podman-compose.sh`][podman-compose-sh] will create a [bridged Podman network `cloudy`][podman-networking] which
-libvirt domains (QEMU/KVM based virtual machines) will use to connect to the internet. The bridge has no physical
-network ports attached, because connectivity is established with [ip routing][ip-routing]. The script will also
-configure ip routes for networks `192.168.157.0/24` and `192.168.158.0/24` at the container host which allows to access
-the libvirt domains running inside the containers from the host.
+**NOTE:** The Podman container shares the [host's networking namespace][podman-networking], i.e. its network stack
+will not be isolated from the container host. The [example inventory][inventory-example], i.e. Ansible variable
+`libvirt_networks` in [inventory/host_vars/lvrt-lcl-system.yml](inventory/host_vars/lvrt-lcl-system.yml), defines
+several libvirt networks whose bridges `virbr-local-0` to `virbr-local-7` and ip networks `192.168.152.0/24` up to
+`192.168.158.0/24` will be created, visible and accessible on the container host. Ensure those bridges and ip networks
+are not present at the container host before running [`podman-compose.sh`][podman-compose-sh].
+
+**NOTE:** Bridges `virbr-local-0` to `virbr-local-7`, ip networks `192.168.152.0/24` up to `192.168.158.0/24`, and
+[iptables][iptables]/[nftables][nftables] chains `POSTROUTING` and `POSTROUTING_CLOUDY` in table `nat` will not be
+deleted from the container host when the Podman container exits. They have to be deleted manually.
 
 [podman-networking]: https://www.redhat.com/sysadmin/container-networking-podman
 
-**NOTE:** Ensure both ip networks `192.168.157.0/24` and `192.168.158.0/24` are not present at the container host before
-executing [`podman-compose.sh`][podman-compose-sh] else the script will fail.
-
-**NOTE:** Adjust the container host's [iptables][iptables]/[nftables][nftables] rules to allow internet connectivity
-from the Podman network. The [firewalld][firewalld] service often causes connectivity issues for virtual machines
-because its zones are not accessible from within containers, preventing libvirt from
-[adding bridge interfaces of libvirt virtual networks to firewalld zones][libvirt-firewall]. If [firewalld][firewalld]
-is active on the host, [disable it][firewalld-service].
+**NOTE:** Adjust the [iptables][iptables]/[nftables][nftables] rules on the host to allow internet connectivity from
+libvirt networks. The [firewalld][firewalld] service may cause connectivity issues for virtual machines if
+[bridge interfaces of libvirt virtual networks cannot be added to firewalld zones][libvirt-firewall]. If [firewalld][
+firewalld] is active on the host, [disable it][firewalld-service].
 
 The following example shows how to use an example of how to use [`podman-compose.sh`][podman-compose-sh] at a container
 host running on `Debian 11 (Bullseye)`:
@@ -632,10 +600,10 @@ sudo podman attach cloudy
 Inside the container continue with [running playbook `playbooks/site.yml` for all remaining hosts](#usage-and-playbooks)
 from your copy of the [`inventory/`][inventory-example] directory which is available in `/home/cloudy/project`.
 
-**NOTE:** If virtual machines have no internet connectivity, check the host's [iptables][iptables]/[nftables][nftables]
-rules. The [firewalld][firewalld] service often causes this issue because its zones are not accessible from within
-containers, preventing libvirt from [adding bridge interfaces of libvirt virtual networks to firewalld zones][
-libvirt-firewall]. If [firewalld][firewalld] is active on the host, [disable it][firewalld-service].
+**NOTE:** If virtual machines have no internet connectivity, check the [iptables][iptables]/[nftables][nftables] rules
+on the host. The [firewalld][firewalld] service may cause issues  if [bridge interfaces of libvirt virtual networks
+cannot be added to firewalld zones][libvirt-firewall]. If [firewalld][firewalld] is active on the host, [disable it][
+firewalld-service].
 
 To connect to the libvirt daemon running inside the container from the container host, run the following command at your
 container host:
@@ -647,8 +615,8 @@ virsh --connect 'qemu+tcp://127.0.0.1:16509/session' list
 
 The same connection URI `qemu+tcp://127.0.0.1:16509/session` can also be used with virt-manager at the container host.
 To view a virtual machine's graphical console, its Spice server or VNC server has to be changed, i.e. its listen type
-has to be changed to `address`, address has to be changed to `0.0.0.0` (aka `All interfaces`) or `192.168.150.2` and
-port has to be changed to a number between `5900-5999`. Then view its graphical console on your container host with:
+has to be changed to `address`, and port has to be changed to a number between `5900-5999`. Then view its graphical
+console on your container host with:
 
 ```sh
 # View a libvirt domain's graphical console with vnc server at port 5900 running inside the container
@@ -670,11 +638,25 @@ been persisted in Podman volumes which will not be deleted when stopping the Pod
 sudo podman volume ls
 ```
 
-To remove all container(s), networks and wipe all volumes, run:
+To remove all containers and wipe all volumes, run:
 
 ```sh
-# Stop and remove containers, volumes and networks
+# Stop and remove containers and volumes
 sudo DEBUG=yes ./podman-compose.sh down
+```
+
+To remove all bridges, networks and nftables/iptables chains, run:
+
+```sh
+# Delete bridges and ip networks
+for i in $(seq 0 7); do sudo ip link del "virbr-local-$i"; done
+
+# Delete nftables chain
+nft delete chain ip nat POSTROUTING_CLOUDY
+# Or delete iptables chain
+iptables -t nat -D POSTROUTING -j POSTROUTING_CLOUDY
+iptables -t nat -F POSTROUTING_CLOUDY
+iptables -t nat -X POSTROUTING_CLOUDY
 ```
 
 ### Bare-metal setup
