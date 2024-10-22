@@ -498,6 +498,20 @@ docker volume ls
 docker volume rm cloudy_images cloudy_ssh
 ```
 
+To remove all bridges, networks and nftables/iptables chains, run:
+
+```sh
+# Delete bridges and ip networks
+for i in $(seq 0 7); do sudo ip link name "virbr-local-$i"; done
+
+# Delete nftables chain
+nft delete chain ip nat POSTROUTING_CLOUDY
+# Or delete iptables chain
+iptables -t nat -D POSTROUTING -j POSTROUTING_CLOUDY
+iptables -t nat -F POSTROUTING_CLOUDY
+iptables -t nat -X POSTROUTING_CLOUDY
+```
+
 ### Containerized setup with Podman
 
 To run playbooks and roles of this collection with Podman,
@@ -604,11 +618,25 @@ been persisted in Podman volumes which will not be deleted when stopping the Pod
 sudo podman volume ls
 ```
 
-To remove all container(s), networks and wipe all volumes, run:
+To remove all containers and wipe all volumes, run:
 
 ```sh
-# Stop and remove containers, volumes and networks
+# Stop and remove containers and volumes
 sudo DEBUG=yes ./podman-compose.sh down
+```
+
+To remove all bridges, networks and nftables/iptables chains, run:
+
+```sh
+# Delete bridges and ip networks
+for i in $(seq 0 7); do sudo ip link name "virbr-local-$i"; done
+
+# Delete nftables chain
+nft delete chain ip nat POSTROUTING_CLOUDY
+# Or delete iptables chain
+iptables -t nat -D POSTROUTING -j POSTROUTING_CLOUDY
+iptables -t nat -F POSTROUTING_CLOUDY
+iptables -t nat -X POSTROUTING_CLOUDY
 ```
 
 ### Bare-metal setup
