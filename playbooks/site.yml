@@ -227,6 +227,7 @@
 
 - name: Perform basic configuration of operating system
   hosts:
+  - lvrt-lcl-system
   - bmtl_present_on:!bootstrap_only
   - lvrt_present_running:!bootstrap_only
   - ostk_present_active:!bootstrap_only
@@ -333,6 +334,7 @@
 
 - name: Perform advanced configuration of operating system
   hosts:
+  - lvrt-lcl-system
   - bmtl_present_on:!bootstrap_only
   - lvrt_present_running:!bootstrap_only
   - ostk_present_active:!bootstrap_only
@@ -358,10 +360,6 @@
   - name: Manage iptables rules
     role: jm1.cloudy.iptables
     tags: ["jm1.cloudy.iptables"]
-
-  - name: Manage sshd service
-    role: jm1.cloudy.sshd
-    tags: ["jm1.cloudy.sshd"]
 
   - name: Manage files, directories, links and more
     role: jm1.cloudy.files
@@ -475,6 +473,10 @@
   gather_facts: true # required when using e.g. ansible_env in inventory
 
   roles:
+  - name: Manage sshd service
+    role: jm1.cloudy.sshd
+    tags: ["jm1.cloudy.sshd"]
+
   - name: Manage AppArmor service
     role: jm1.cloudy.apparmor
     tags: ["jm1.cloudy.apparmor"]
