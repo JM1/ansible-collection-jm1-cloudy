@@ -808,53 +808,6 @@ network interfaces.
 Both ip subnets `192.168.157.0/24` and `192.168.158.0/24` have either to be published to your router(s), probably your
 standard gateway only, or your bare-metal system has to do masquerading.
 
-To enable masquerading with [nftables][nftables] on your bare-metal system for both ip subnets `192.168.157.0/24` and
-`192.168.158.0/24` run:
-
-[nftables]: https://wiki.archlinux.org/title/Nftables
-
-```sh
-# Enable masquerading on systems using nftables
-nft --file - << 'EOF'
-table ip nat {
-    chain POSTROUTING {
-        type nat hook postrouting priority srcnat
-
-        meta l4proto tcp ip saddr 192.168.157.0/24 ip daddr != 192.168.157.0/24 masquerade to :1024-65535
-        meta l4proto udp ip saddr 192.168.157.0/24 ip daddr != 192.168.157.0/24 masquerade to :1024-65535
-        ip saddr 192.168.157.0/24 ip daddr != 192.168.157.0/24 masquerade
-
-        meta l4proto tcp ip saddr 192.168.158.0/24 ip daddr != 192.168.158.0/24 masquerade to :1024-65535
-        meta l4proto udp ip saddr 192.168.158.0/24 ip daddr != 192.168.158.0/24 masquerade to :1024-65535
-        ip saddr 192.168.158.0/24 ip daddr != 192.168.158.0/24 masquerade
-    }
-}
-EOF
-```
-
-When using [iptables][iptables] instead of [nftables][nftables], run:
-
-[iptables]: https://wiki.archlinux.org/title/Iptables
-
-```sh
-# Enable masquerading on systems using iptables
-iptables-restore << 'EOF'
-*nat
-:POSTROUTING - [0:0]
--A POSTROUTING -s 192.168.157.0/24 ! -d 192.168.157.0/24 -p tcp -j MASQUERADE --to-ports 1024-65535
--A POSTROUTING -s 192.168.157.0/24 ! -d 192.168.157.0/24 -p udp -j MASQUERADE --to-ports 1024-65535
--A POSTROUTING -s 192.168.157.0/24 ! -d 192.168.157.0/24 -j MASQUERADE
-
--A POSTROUTING -s 192.168.158.0/24 ! -d 192.168.158.0/24 -p tcp -j MASQUERADE --to-ports 1024-65535
--A POSTROUTING -s 192.168.158.0/24 ! -d 192.168.158.0/24 -p udp -j MASQUERADE --to-ports 1024-65535
--A POSTROUTING -s 192.168.158.0/24 ! -d 192.168.158.0/24 -j MASQUERADE
-COMMIT
-EOF
-```
-
-Changes applied by both commands will not be persistant and will not survive reboots. Please refer to your operating
-system's documentation on how to store [nftables][nftables] or [iptables][iptables] rules persistently.
-
 Once ip subnets have been set up properly, the libvirtd configuration for your local user (not root) has to be changed
 to allow tcp connections from libvirt isolated network `192.168.153.0/24` which is used for virtual BMCs:
 
@@ -900,6 +853,18 @@ sudo true
 
 ansible-playbook playbooks/site.yml --limit lvrt-lcl-system
 ```
+
+The former will also enable masquerading with [nftables][nftables] or [iptables][iptables] (if [nftables][nftables] is
+unavailable) on your bare-metal system for both ip subnets `192.168.157.0/24` and `192.168.158.0/24`.
+The [nftables][nftables] / [iptables][iptables] are defined in Ansible variable `iptables_config` in
+[`inventory/host_vars/lvrt-lcl-system.yml`][inventory-lvrt-lcl-system].
+
+**NOTE:** The changes applied to [nftables][nftables] and [iptables][iptables] are not persistant and will not survive
+reboots. Please refer to your operating system's documentation on how to store [nftables][nftables] or [iptables][
+iptables] rules persistently. Or run `playbooks/site.yml` again after rebooting.
+
+[nftables]: https://wiki.archlinux.org/title/Nftables
+[iptables]: https://wiki.archlinux.org/title/Iptables
 
 Run playbook `playbooks/site.yml` for host `lvrt-lcl-session` to prepare the libvirt session of your local user, e.g. to
 prepare a default libvirt storage pool and preload OS images for host provisioning.

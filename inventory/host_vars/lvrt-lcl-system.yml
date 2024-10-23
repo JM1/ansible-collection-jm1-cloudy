@@ -26,6 +26,53 @@ files_config_early: []
 # Undo changes from group_vars/all.yml
 groups_config: []
 
+iptables_config:
+- # Enable masquerading for internet connectivity from libvirt domains on networks route-0-dhcp and route-1-no-dhcp
+  # NOTE: The changes to nftables and iptables below are not persistant and will not survive reboots. Containerized
+  #       setups with Docker oder Podman will run playbooks/site.yml and the following commands on each container start.
+  #       But for non-containerized setups please refer to your operating system's documentation on how to store
+  #       nftables / iptables rules persistently. Or run playbooks/site.yml again after rebooting.
+  ansible.builtin.shell:
+    argv:
+      - sh
+    stdin: |
+      if command -v nft >/dev/null ; then
+          if ! nft list chain ip nat POSTROUTING_CLOUDY >/dev/null 2>&1; then
+              nft --file - << '________EOF'
+      table ip nat {
+          chain POSTROUTING_CLOUDY {
+              type nat hook postrouting priority srcnat; policy accept;
+
+              meta l4proto tcp ip saddr 192.168.157.0/24 ip daddr != 192.168.157.0/24 masquerade to :1024-65535
+              meta l4proto udp ip saddr 192.168.157.0/24 ip daddr != 192.168.157.0/24 masquerade to :1024-65535
+              ip saddr 192.168.157.0/24 ip daddr != 192.168.157.0/24 masquerade
+
+              meta l4proto tcp ip saddr 192.168.158.0/24 ip daddr != 192.168.158.0/24 masquerade to :1024-65535
+              meta l4proto udp ip saddr 192.168.158.0/24 ip daddr != 192.168.158.0/24 masquerade to :1024-65535
+              ip saddr 192.168.158.0/24 ip daddr != 192.168.158.0/24 masquerade
+          }
+      }
+      ________EOF
+          fi
+      else
+          if ! iptables -t nat -C POSTROUTING -j POSTROUTING_CLOUDY >/dev/null 2>&1; then
+              iptables-restore  << '________EOF'
+      *nat
+
+      :POSTROUTING_CLOUDY ACCEPT [0:0]
+      -A POSTROUTING_CLOUDY -s 192.168.157.0/24 ! -d 192.168.157.0/24 -p tcp -j MASQUERADE --to-ports 1024-65535
+      -A POSTROUTING_CLOUDY -s 192.168.157.0/24 ! -d 192.168.157.0/24 -p udp -j MASQUERADE --to-ports 1024-65535
+      -A POSTROUTING_CLOUDY -s 192.168.157.0/24 ! -d 192.168.157.0/24 -j MASQUERADE
+      -A POSTROUTING_CLOUDY -s 192.168.158.0/24 ! -d 192.168.158.0/24 -p tcp -j MASQUERADE --to-ports 1024-65535
+      -A POSTROUTING_CLOUDY -s 192.168.158.0/24 ! -d 192.168.158.0/24 -p udp -j MASQUERADE --to-ports 1024-65535
+      -A POSTROUTING_CLOUDY -s 192.168.158.0/24 ! -d 192.168.158.0/24 -j MASQUERADE
+
+      -A POSTROUTING -j POSTROUTING_CLOUDY
+      COMMIT
+      ________EOF
+          fi
+      fi
+
 libvirt_images: []
 
 libvirt_networks:

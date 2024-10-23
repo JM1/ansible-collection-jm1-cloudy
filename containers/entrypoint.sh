@@ -203,39 +203,6 @@ trap "trap - INT TERM && kill -- -$$" INT TERM
             --limit lvrt-lcl-system \
             --skip-tags "jm1.kvm_nested_virtualization"
 
-    # Enable masquerading for internet connectivity from libvirt domains on networks route-0-dhcp and route-1-no-dhcp
-    if command -v nft >/dev/null; then
-        nft --file - << '________EOF'
-table ip nat {
-    chain POSTROUTING {
-        type nat hook postrouting priority srcnat; policy accept;
-
-        meta l4proto tcp ip saddr 192.168.157.0/24 ip daddr != 192.168.157.0/24 masquerade to :1024-65535
-        meta l4proto udp ip saddr 192.168.157.0/24 ip daddr != 192.168.157.0/24 masquerade to :1024-65535
-        ip saddr 192.168.157.0/24 ip daddr != 192.168.157.0/24 masquerade
-
-        meta l4proto tcp ip saddr 192.168.158.0/24 ip daddr != 192.168.158.0/24 masquerade to :1024-65535
-        meta l4proto udp ip saddr 192.168.158.0/24 ip daddr != 192.168.158.0/24 masquerade to :1024-65535
-        ip saddr 192.168.158.0/24 ip daddr != 192.168.158.0/24 masquerade
-    }
-}
-________EOF
-    else
-        iptables-restore  << '________EOF'
-*nat
-
-:POSTROUTING ACCEPT [0:0]
--A POSTROUTING -s 192.168.157.0/24 ! -d 192.168.157.0/24 -p tcp -j MASQUERADE --to-ports 1024-65535
--A POSTROUTING -s 192.168.157.0/24 ! -d 192.168.157.0/24 -p udp -j MASQUERADE --to-ports 1024-65535
--A POSTROUTING -s 192.168.157.0/24 ! -d 192.168.157.0/24 -j MASQUERADE
--A POSTROUTING -s 192.168.158.0/24 ! -d 192.168.158.0/24 -p tcp -j MASQUERADE --to-ports 1024-65535
--A POSTROUTING -s 192.168.158.0/24 ! -d 192.168.158.0/24 -p udp -j MASQUERADE --to-ports 1024-65535
--A POSTROUTING -s 192.168.158.0/24 ! -d 192.168.158.0/24 -j MASQUERADE
-
-COMMIT
-________EOF
-    fi
-
     if ! groups cloudy | grep -q -w kvm; then
         sudo -u cloudy killall libvirtd || true
         usermod --append --groups kvm cloudy
