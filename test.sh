@@ -2,7 +2,7 @@
 # vim:set tabstop=8 shiftwidth=4 expandtab:
 # kate: space-indent on; indent-width 4;
 #
-# Copyright (c) 2023 Jakob Meng, <jakobmeng@web.de>
+# Copyright (c) 2023-2024 Jakob Meng, <jakobmeng@web.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 set -euo pipefail
 
 # Environment variables
+ANSIBLE_INVENTORY=${ANSIBLE_INVENTORY:-}
 DEBUG=${DEBUG:=no}
 SSH_AUTH_SOCK=${SSH_AUTH_SOCK:-}
 

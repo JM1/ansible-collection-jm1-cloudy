@@ -10,6 +10,7 @@ services:
     devices:
       - '/dev/kvm:/dev/kvm'
     environment:
+      - ANSIBLE_INVENTORY
       - DEBUG=${DEBUG:-no}
       - DEBUG_SHELL=${DEBUG_SHELL:-no}
     init: true

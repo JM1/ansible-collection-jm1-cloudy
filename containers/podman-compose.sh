@@ -21,6 +21,7 @@
 set -euo pipefail
 
 # Environment variables
+ANSIBLE_INVENTORY=${ANSIBLE_INVENTORY:-}
 DEBUG=${DEBUG:=no}
 
 if [ "$DEBUG" = "yes" ] || [ "$DEBUG" = "true" ]; then
@@ -285,6 +286,7 @@ ________EOF
             --name "${project_name}" \
             -e "DEBUG=${DEBUG:=no}" \
             -e "DEBUG_SHELL=${DEBUG_SHELL:=no}" \
+            -e "ANSIBLE_INVENTORY" \
             --network "${project_name}" \
             --device '/dev/kvm:/dev/kvm' \
             --sysctl "net.ipv4.conf.eth0.proxy_arp=1" \

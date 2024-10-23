@@ -23,6 +23,7 @@
 set -eu
 
 # Environment variables
+ANSIBLE_INVENTORY=${ANSIBLE_INVENTORY:-}
 DEBUG=${DEBUG:=no}
 DEBUG_SHELL=${DEBUG_SHELL:=no}
 SSH_AUTH_SOCK=${SSH_AUTH_SOCK:-}
@@ -145,11 +146,11 @@ trap "trap - INT TERM && kill -- -$$" INT TERM
     sudo -u cloudy --set-home ansible-galaxy collection install --requirements-file "$requirements"
     sudo -u cloudy --set-home ansible-galaxy role install --role-file "$requirements"
 
-    sudo -u cloudy --set-home \
+    sudo -u cloudy --set-home --preserve-env=ANSIBLE_INVENTORY \
         ansible-playbook "$playbook_setup" \
             --limit lvrt-lcl-system
 
-    sudo -u cloudy --set-home \
+    sudo -u cloudy --set-home --preserve-env=ANSIBLE_INVENTORY \
         ansible-playbook "$playbook_site" \
             --limit lvrt-lcl-system \
             --skip-tags "jm1.kvm_nested_virtualization" \
@@ -197,7 +198,7 @@ trap "trap - INT TERM && kill -- -$$" INT TERM
             /home/cloudy/.config/libvirt/libvirtd.conf
     fi
 
-    sudo -u cloudy --set-home \
+    sudo -u cloudy --set-home --preserve-env=ANSIBLE_INVENTORY \
         ansible-playbook "$playbook_site" \
             --limit lvrt-lcl-system \
             --skip-tags "jm1.kvm_nested_virtualization"
@@ -243,15 +244,15 @@ ________EOF
     # Start libvirt session daemon
     pgrep --uid "$(id -u cloudy)" --exact libvirtd || sudo -u cloudy --set-home /usr/sbin/libvirtd --daemon --listen
 
-    sudo -u cloudy --set-home \
+    sudo -u cloudy --set-home --preserve-env=ANSIBLE_INVENTORY \
         ansible-playbook "$playbook_site" \
             --limit lvrt-lcl-session \
             --skip-tags "jm1.kvm_nested_virtualization"
 
     if [ $# -eq 0 ]; then
-        sudo -u cloudy --set-home --preserve-env=SSH_AUTH_SOCK bash --login
+        sudo -u cloudy --set-home --preserve-env=SSH_AUTH_SOCK,ANSIBLE_INVENTORY bash --login
     else
-        sudo -u cloudy --set-home --preserve-env=SSH_AUTH_SOCK env -- "$@"
+        sudo -u cloudy --set-home --preserve-env=SSH_AUTH_SOCK,ANSIBLE_INVENTORY env -- "$@"
 
         # Wait until libvirt domains have been shutdown
         while [ -n "$(sudo -u cloudy --set-home virsh list --name)" ]; do

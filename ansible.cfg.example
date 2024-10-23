@@ -1,4 +1,4 @@
-;; Copyright (c) 2020-2021 Jakob Meng, <jakobmeng@web.de>
+;; Copyright (c) 2020-2024 Jakob Meng, <jakobmeng@web.de>
 ;;
 ;; Ansible Configuration Settings
 ;;
@@ -16,7 +16,13 @@
 
 ;enable_task_debugger = True
 
-inventory = ./inventory/hosts.yml
+;; Comma-separated list of paths to Ansible inventories. In this case it points to the example inventory in project's
+;; subdirectory 'inventory'. Instead of defining inventories statically here, they can also be passed with environment
+;; variable ANSIBLE_INVENTORY. The docker-compose.yml.* files and the podman-compose.sh script in directory 'containers'
+;; and the test.sh script pass ANSIBLE_INVENTORY to Ansible commands properly.
+;;
+;; Ref.: https://docs.ansible.com/ansible/latest/reference_appendices/config.html
+inventory = ./inventory/
 
 nocows = 1
 
