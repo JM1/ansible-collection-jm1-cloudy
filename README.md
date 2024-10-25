@@ -502,7 +502,7 @@ To remove all bridges, networks and nftables/iptables chains, run:
 
 ```sh
 # Delete bridges and ip networks
-for i in $(seq 0 7); do sudo ip link name "virbr-local-$i"; done
+for i in $(seq 0 7); do sudo ip link del "virbr-local-$i"; done
 
 # Delete nftables chain
 nft delete chain ip nat POSTROUTING_CLOUDY
@@ -629,7 +629,7 @@ To remove all bridges, networks and nftables/iptables chains, run:
 
 ```sh
 # Delete bridges and ip networks
-for i in $(seq 0 7); do sudo ip link name "virbr-local-$i"; done
+for i in $(seq 0 7); do sudo ip link del "virbr-local-$i"; done
 
 # Delete nftables chain
 nft delete chain ip nat POSTROUTING_CLOUDY
