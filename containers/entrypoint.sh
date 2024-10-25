@@ -192,7 +192,7 @@ trap "trap - INT TERM && kill -- -$$" INT TERM
         sed -i \
             -e 's/^[#]*listen_tls = .*/listen_tls = 0/g' \
             -e 's/^[#]*listen_tcp = .*/listen_tcp = 1/g' \
-            -e 's/^[#]*listen_addr = .*/listen_addr = "192.168.153.1"/g' \
+            -e 's/^[#]*listen_addr = .*/listen_addr = "0.0.0.0"/g' \
             -e 's/^[#]*auth_tcp = .*/auth_tcp = "none"/g' \
             -e 's/^unix_sock_/#unix_sock_/g' \
             /home/cloudy/.config/libvirt/libvirtd.conf
