@@ -90,8 +90,7 @@ iptables_config:
               type filter hook input priority filter; policy accept;
 
               iifname "lo" tcp dport 16509 accept
-              ip saddr 192.168.157.0/24 tcp dport 16509 accept
-              ip saddr 192.168.158.0/24 tcp dport 16509 accept
+              ip saddr 192.168.153.0/24 tcp dport 16509 accept
               tcp dport 16509 drop
               udp dport 16509 drop
           }
@@ -105,8 +104,7 @@ iptables_config:
 
       :INPUT_CLOUDY ACCEPT [0:0]
       -A INPUT_CLOUDY -i lo -p tcp --dport 16509 -j ACCEPT
-      -A INPUT_CLOUDY -s 192.168.157.0/24 -p tcp --dport 16509 -j ACCEPT
-      -A INPUT_CLOUDY -s 192.168.158.0/24 -p tcp --dport 16509 -j ACCEPT
+      -A INPUT_CLOUDY -s 192.168.153.0/24 -p tcp --dport 16509 -j ACCEPT
       -A INPUT_CLOUDY -p tcp --dport 16509 -j DROP
       -A INPUT_CLOUDY -p udp --dport 16509 -j DROP
 

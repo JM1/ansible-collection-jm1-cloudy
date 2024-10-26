@@ -426,9 +426,9 @@ not present at the Docker host before running `docker-compose`.
 **NOTE:** The libvirt daemon running inside the container allows unprivileged access on TCP port 16509. It is exposed on
 the network because the container shares the [host's networking namespace][docker-network-host]. The
 [example inventory][inventory-example] creates [nftables][nftables]/[iptables][iptables] rules (in chains `INPUT` and
-`INPUT_CLOUDY`) to only allow access for legit traffic from localhost and ip networks `192.168.157.0/24` and
-`192.168.158.0/24`. Ensure to update the ruleset when changing the inventory, in particular Ansible variable
-`iptables_config` in [`inventory/host_vars/lvrt-lcl-system.yml`][inventory-lvrt-lcl-system].
+`INPUT_CLOUDY`) to only allow access for legit traffic from localhost and ip network `192.168.153.0/24`. Ensure to
+update the ruleset when changing the inventory, in particular Ansible variable `iptables_config` in
+[`inventory/host_vars/lvrt-lcl-system.yml`][inventory-lvrt-lcl-system].
 
 **NOTE:** Bridges `virbr-local-0` to `virbr-local-7`, ip networks `192.168.152.0/24` up to `192.168.158.0/24`, and
 [iptables][iptables]/[nftables][nftables] chains `INPUT`, `INPUT_CLOUDY`, `POSTROUTING` and `POSTROUTING_CLOUDY` in
@@ -560,9 +560,9 @@ are not present at the container host before running [`podman-compose.sh`][podma
 **NOTE:** The libvirt daemon running inside the container allows unprivileged access on TCP port 16509. It is exposed on
 the network because the container shares the [host's networking namespace][podman-networking]. The
 [example inventory][inventory-example] creates [nftables][nftables]/[iptables][iptables] rules (in chains `INPUT` and
-`INPUT_CLOUDY`) to only allow access for legit traffic from localhost and ip networks `192.168.157.0/24` and
-`192.168.158.0/24`. Ensure to update the ruleset when changing the inventory, in particular Ansible variable
-`iptables_config` in [`inventory/host_vars/lvrt-lcl-system.yml`][inventory-lvrt-lcl-system].
+`INPUT_CLOUDY`) to only allow access for legit traffic from localhost and ip network `192.168.153.0/24`. Ensure to
+update the ruleset when changing the inventory, in particular Ansible variable `iptables_config` in
+[`inventory/host_vars/lvrt-lcl-system.yml`][inventory-lvrt-lcl-system].
 
 **NOTE:** Bridges `virbr-local-0` to `virbr-local-7`, ip networks `192.168.152.0/24` up to `192.168.158.0/24`, and
 [iptables][iptables]/[nftables][nftables] chains `INPUT`, `INPUT_CLOUDY`, `POSTROUTING` and `POSTROUTING_CLOUDY` in
