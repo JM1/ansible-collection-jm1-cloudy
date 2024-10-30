@@ -72,6 +72,47 @@ iptables_config:
       ________EOF
           fi
       fi
+- # Restrict unprivileged TCP connections to the libvirt daemon which manages virtual machines, storage volumes and
+  # host networks
+  # NOTE: The changes to nftables and iptables below are not persistant and will not survive reboots. Containerized
+  #       setups with Docker oder Podman will run playbooks/site.yml and the following commands on each container start.
+  #       But for non-containerized setups please refer to your operating system's documentation on how to store
+  #       nftables / iptables rules persistently. Or run playbooks/site.yml again after rebooting.
+  ansible.builtin.shell:
+    argv:
+      - sh
+    stdin: |
+      if command -v nft >/dev/null ; then
+          if ! nft list chain ip filter INPUT_CLOUDY >/dev/null 2>&1; then
+              nft --file - << '________EOF'
+      table ip filter {
+          chain INPUT_CLOUDY {
+              type filter hook input priority filter; policy accept;
+
+              iifname "lo" tcp dport 16509 accept
+              ip saddr 192.168.153.0/24 tcp dport 16509 accept
+              tcp dport 16509 drop
+              udp dport 16509 drop
+          }
+      }
+      ________EOF
+          fi
+      else
+          if ! iptables -t filter -C INPUT -j INPUT_CLOUDY >/dev/null 2>&1; then
+              iptables-restore --noflush << '________EOF'
+      *filter
+
+      :INPUT_CLOUDY ACCEPT [0:0]
+      -A INPUT_CLOUDY -i lo -p tcp --dport 16509 -j ACCEPT
+      -A INPUT_CLOUDY -s 192.168.153.0/24 -p tcp --dport 16509 -j ACCEPT
+      -A INPUT_CLOUDY -p tcp --dport 16509 -j DROP
+      -A INPUT_CLOUDY -p udp --dport 16509 -j DROP
+
+      -A INPUT -j INPUT_CLOUDY
+      COMMIT
+      ________EOF
+          fi
+      fi
 
 libvirt_images: []
 
