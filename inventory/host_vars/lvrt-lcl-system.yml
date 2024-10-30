@@ -56,7 +56,7 @@ iptables_config:
           fi
       else
           if ! iptables -t nat -C POSTROUTING -j POSTROUTING_CLOUDY >/dev/null 2>&1; then
-              iptables-restore  << '________EOF'
+              iptables-restore --noflush << '________EOF'
       *nat
 
       :POSTROUTING_CLOUDY ACCEPT [0:0]
