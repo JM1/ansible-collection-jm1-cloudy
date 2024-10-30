@@ -423,9 +423,16 @@ not present at the Docker host before running `docker-compose`.
 
 [docker-network-host]: https://docs.docker.com/network/host/
 
+**NOTE:** The libvirt daemon running inside the container allows unprivileged access on TCP port 16509. It is exposed on
+the network because the container shares the [host's networking namespace][docker-network-host]. The
+[example inventory][inventory-example] creates [nftables][nftables]/[iptables][iptables] rules (in chains `INPUT` and
+`INPUT_CLOUDY`) to only allow access for legit traffic from localhost and ip network `192.168.153.0/24`. Ensure to
+update the ruleset when changing the inventory, in particular Ansible variable `iptables_config` in
+[`inventory/host_vars/lvrt-lcl-system.yml`][inventory-lvrt-lcl-system].
+
 **NOTE:** Bridges `virbr-local-0` to `virbr-local-7`, ip networks `192.168.152.0/24` up to `192.168.158.0/24`, and
-[iptables][iptables]/[nftables][nftables] chains `POSTROUTING` and `POSTROUTING_CLOUDY` in table `nat` will not be
-deleted from the Docker host when the Docker container exits. They have to be deleted manually.
+[iptables][iptables]/[nftables][nftables] chains `INPUT`, `INPUT_CLOUDY`, `POSTROUTING` and `POSTROUTING_CLOUDY` in
+table `nat` will not be deleted from the Docker host when the Docker container exits. They have to be deleted manually.
 
 Open a `docker-compose.yml.*` in your copy of the [`containers/`][containers-example] directory which matches the
 distribution of the container host. The following example assumes that the container host is running on
@@ -515,8 +522,12 @@ To remove all bridges, networks and nftables/iptables chains, run:
 for i in $(seq 0 7); do sudo ip link del "virbr-local-$i"; done
 
 # Delete nftables chain
+nft delete chain ip filter INPUT_CLOUDY
 nft delete chain ip nat POSTROUTING_CLOUDY
 # Or delete iptables chain
+iptables -t filter -D INPUT -j INPUT_CLOUDY
+iptables -t filter -F INPUT_CLOUDY
+iptables -t filter -X INPUT_CLOUDY
 iptables -t nat -D POSTROUTING -j POSTROUTING_CLOUDY
 iptables -t nat -F POSTROUTING_CLOUDY
 iptables -t nat -X POSTROUTING_CLOUDY
@@ -556,9 +567,17 @@ several libvirt networks whose bridges `virbr-local-0` to `virbr-local-7` and ip
 `192.168.158.0/24` will be created, visible and accessible on the container host. Ensure those bridges and ip networks
 are not present at the container host before running [`podman-compose.sh`][podman-compose-sh].
 
+**NOTE:** The libvirt daemon running inside the container allows unprivileged access on TCP port 16509. It is exposed on
+the network because the container shares the [host's networking namespace][podman-networking]. The
+[example inventory][inventory-example] creates [nftables][nftables]/[iptables][iptables] rules (in chains `INPUT` and
+`INPUT_CLOUDY`) to only allow access for legit traffic from localhost and ip network `192.168.153.0/24`. Ensure to
+update the ruleset when changing the inventory, in particular Ansible variable `iptables_config` in
+[`inventory/host_vars/lvrt-lcl-system.yml`][inventory-lvrt-lcl-system].
+
 **NOTE:** Bridges `virbr-local-0` to `virbr-local-7`, ip networks `192.168.152.0/24` up to `192.168.158.0/24`, and
-[iptables][iptables]/[nftables][nftables] chains `POSTROUTING` and `POSTROUTING_CLOUDY` in table `nat` will not be
-deleted from the container host when the Podman container exits. They have to be deleted manually.
+[iptables][iptables]/[nftables][nftables] chains `INPUT`, `INPUT_CLOUDY`, `POSTROUTING` and `POSTROUTING_CLOUDY` in
+table `nat` will not be deleted from the container host when the Podman container exits. They have to be deleted
+manually.
 
 [podman-networking]: https://www.redhat.com/sysadmin/container-networking-podman
 
@@ -652,8 +671,12 @@ To remove all bridges, networks and nftables/iptables chains, run:
 for i in $(seq 0 7); do sudo ip link del "virbr-local-$i"; done
 
 # Delete nftables chain
+nft delete chain ip filter INPUT_CLOUDY
 nft delete chain ip nat POSTROUTING_CLOUDY
 # Or delete iptables chain
+iptables -t filter -D INPUT -j INPUT_CLOUDY
+iptables -t filter -F INPUT_CLOUDY
+iptables -t filter -X INPUT_CLOUDY
 iptables -t nat -D POSTROUTING -j POSTROUTING_CLOUDY
 iptables -t nat -F POSTROUTING_CLOUDY
 iptables -t nat -X POSTROUTING_CLOUDY
