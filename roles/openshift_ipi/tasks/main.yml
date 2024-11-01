@@ -25,6 +25,21 @@
   # mandatory filter cannot be used here. Handling undefined variables is done in a separate task before.
   loop: '{{ openshift_ipi_config | default([]) }}'
 
+- name: Verify task definitions which creates, updates or deletes manifests
+  when: item is not mapping
+        or (item.keys() | difference(['become', 'become_exe', 'become_flags', 'become_method', 'become_user',
+                                      'environment', 'when'])) | list | length != 1
+  ansible.builtin.fail:
+    msg: >-
+      Unsupported keyword or multiple module definitions found:
+      {{ (item.keys() | difference(['become', 'become_exe', 'become_flags', 'become_method', 'become_user',
+                                    'environment', 'when'])) | join(', ') }}.
+  # Ansible will evaluate 'loop' when handling conditionals aka 'when'. When openshift_ipi_reconfig is not defined
+  # Ansible's mandatory filter will raise an exception while evaluating 'when' and thus 'loop'. For hosts which are
+  # supposed to skip this role, e.g. because they are not in group svc_openshift_ipi, this is undesired, so the
+  # mandatory filter cannot be used here. Handling undefined variables is done in a separate task before.
+  loop: '{{ openshift_ipi_reconfig | default([]) }}'
+
 - name: Install dependencies of collection jm1.pkg
   ansible.builtin.import_role:
     name: jm1.pkg.setup # If Ansible raises "ERROR! the role 'jm1.pkg.setup' was not found" then you might use the
@@ -166,6 +181,25 @@
     chdir: '{{ openshift_ipi_home_dir }}'
     cmd: openshift-baremetal-install --dir '{{ openshift_ipi_config_dir }}' --log-level debug create manifests
     creates: '{{ openshift_ipi_config_dir }}/manifests'
+
+- name: Create, update or delete manifests for OpenShift Installer-provisioned installation (IPI)
+  # openshift-baremetal-install will delete manifests when cluster has been created
+  when: not openshift_ipi_path_init_marker.stat.exists
+  # Values for 'become' and related keywords will not be inherited from the role's caller when using 'omit' as
+  # default.
+  become: "{{ item['become'] | default(omit) }}"
+  become_exe: "{{ item['become_exe'] | default(omit) }}"
+  become_flags: "{{ item['become_flags'] | default(omit) }}"
+  become_method: "{{ item['become_method'] | default(omit) }}"
+  become_user: "{{ item['become_user'] | default(omit) }}"
+  jm1.ansible.execute_module:
+    name: "{{ (item.keys() | difference(['become', 'become_exe', 'become_flags', 'become_method', 'become_user',
+                                          'environment', 'when'])) | first }}"
+    args: "{{ item[(item.keys() | difference(['become', 'become_exe', 'become_flags', 'become_method', 'become_user',
+                                              'environment', 'when'])) | first] }}"
+    when: "{{ item['when'] | default(omit) }}"
+  environment: "{{ item['environment'] | default(omit) }}"
+  loop: "{{ openshift_ipi_reconfig | default([]) }}"
 
 - name: Run OpenShift Installer-provisioned installation (IPI)
   when: not openshift_ipi_path_bootstrap_marker.stat.exists

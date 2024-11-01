@@ -13,4 +13,6 @@ openshift_ipi_install_dir: '/usr/local/bin'
 
 openshift_ipi_pullsecret_file: '~/pull-secret.txt'
 
+openshift_ipi_reconfig: []
+
 # openshift_ipi_release_image is set in host_vars

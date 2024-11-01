@@ -15,8 +15,10 @@ written to file `openshift_ipi_pullsecret_file`.
 Next, the `openshift-baremetal-install` binary will be extracted from container image defined in
 `openshift_ipi_release_image` to directory `openshift_ipi_install_dir` which defaults to `/usr/local/bin`. To aid
 debugging, the version of `openshift-baremetal-install` will be printed. Afterwards `openshift-baremetal-install` will
-generate the manifests for OpenShift Installer-provisioned installation (IPI) from `install-config.yaml` and other
-manifests and then create the cluster.
+generate manifests for OpenShift Installer-provisioned installation (IPI) from `install-config.yaml` and other manifests
+which had been created previously by tasks in variable `openshift_ipi_config`. Optionally, the generated manifests can
+be changed with variable `openshift_ipi_reconfig` which defines a list of tasks to be run by this role, similar to
+variable `openshift_ipi_config`. Then `openshift-baremetal-install` will create the cluster.
 
 Finally, the role will wait until:
 1. the cluster has been bootstrapped,
@@ -75,6 +77,7 @@ To install these collections you may follow the steps described in [`README.md`]
 | `openshift_ipi_install_dir`     | `/usr/local/bin`    | false    | Directory where `openshift-baremetal-install` will be installed to |
 | `openshift_ipi_pullsecret`      | *undefined*         | false    | [Pull secret][using-image-pull-secrets] downloaded from [Red Hat Cloud Console][rh-console-ipi] which will be used to authenticate with Container registries `Quay.io` and `registry.redhat.io`, which serve the container images for OpenShift Container Platform components. A pull secret is required for OpenShift deployments only, but not for OKD deployments. |
 | `openshift_ipi_pullsecret_file` | `~/pull-secret.txt` | false    | Path to pull secret file |
+| `openshift_ipi_reconfig`        | `[]`                | false    | List of tasks to run in order to create, update or delete manifests which previously have been created by `openshift-baremetal-install` from `install-config.yaml` and other manifests in `openshift_ipi_config_dir` [^example-modules] [^supported-keywords] [^supported-modules] |
 | `openshift_ipi_release_image`   | *undefined*         | true     | Container image from which `openshift-baremetal-install` will be extracted, e.g. `'quay.io/okd/scos-release:4.13.0-0.okd-scos-2023-07-20-165025'` |
 
 [rh-console-ipi]: https://console.redhat.com/openshift/install/metal/installer-provisioned
