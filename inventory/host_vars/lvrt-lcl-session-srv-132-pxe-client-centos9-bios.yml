@@ -21,7 +21,7 @@ kickstart_config: |
   #version=RHEL9
 
   # Kickstart configuration
-  # Ref.: https://docs.centos.org/en-US/centos/install-guide/Kickstart2/
+  # Ref.: https://github.com/CentOS/docs-installation-guide/blob/master/modules/install-guide/pages/Kickstart2.adoc
 
   # Use graphical install
   graphical

@@ -15,11 +15,11 @@ It is possible to provide client-specific Kickstart, Preseed and Autoinstall (e.
 data) files to customize the installation process per host.
 
 [autoinstall]: https://ubuntu.com/server/docs/install/autoinstall-quickstart
-[centos-pxe]: https://docs.centos.org/en-US/centos/install-guide/pxe-server/
+[centos-pxe]: https://github.com/CentOS/docs-installation-guide/blob/master/modules/install-guide/pages/pxe-server.adoc
 [cloud-init-doc]: https://cloudinit.readthedocs.io/
 [debian-pxe]: https://wiki.debian.org/PXEBootInstall
 [grub]: https://www.gnu.org/software/grub/manual/grub/html_node/Network.html
-[kickstart]: https://docs.centos.org/en-US/centos/install-guide/Kickstart2/
+[kickstart]: https://github.com/CentOS/docs-installation-guide/blob/master/modules/install-guide/pages/Kickstart2.adoc
 [preseed]: https://wiki.debian.org/DebianInstaller/Preseed
 [pxelinux]: https://wiki.syslinux.org/wiki/index.php?title=PXELINUX
 [pxe-wiki]: https://en.wikipedia.org/wiki/Preboot_Execution_Environment

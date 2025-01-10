@@ -19,8 +19,8 @@
 # https://wiki.debian.org/DebianInstaller/Preseed
 # https://www.debian.org/releases/stable/amd64/apb.en.html
 # https://ubuntu.com/server/docs/install/netboot-amd64
-# https://docs.centos.org/en-US/centos/install-guide/pxe-server/
-# https://docs.centos.org/en-US/centos/install-guide/Kickstart2/
+# https://github.com/CentOS/docs-installation-guide/blob/master/modules/install-guide/pages/pxe-server.adoc
+# https://github.com/CentOS/docs-installation-guide/blob/master/modules/install-guide/pages/Kickstart2.adoc
 # https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html-single/performing_an_advanced_rhel_installation/index
 
 - name: Install dependencies of collection jm1.pkg
