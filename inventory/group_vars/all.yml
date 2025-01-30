@@ -122,7 +122,7 @@ cloudinit_userdata_default: |
   {% endif %}
   {% if distribution_id in [['Debian', '11'], ['Debian', '12'], ['Ubuntu','20.04'], ['Ubuntu','22.04']] %}
   - python3-apt # Required for Ansible's apt module
-  - gpg # Required for Ansible's apt_key module
+  - gnupg # Required for Ansible's apt_key module
   {% endif %}
   {% if distribution_id | first == 'Debian' and (cloudinit_networkconfig | from_yaml)['bridges'] | default(None) %}
   - bridge-utils # Required for bridge support in ifupdown

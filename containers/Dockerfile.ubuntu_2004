@@ -29,7 +29,7 @@ RUN apt-get update && \
   apt-get install -y --no-install-recommends \
     ansible iproute2 make iptables openssh-client procps python3 python3-pip python3-yaml sudo && \
   apt-get install -y --no-install-recommends \
-    acl gpg hostname python3-libvirt python3-lxml python3-netaddr python3-pip python3-pyghmi python3-selinux && \
+    acl gnupg hostname python3-libvirt python3-lxml python3-netaddr python3-pip python3-pyghmi python3-selinux && \
   rm -rf /var/lib/apt/lists/*
 
 RUN useradd --create-home --shell /bin/bash cloudy && \

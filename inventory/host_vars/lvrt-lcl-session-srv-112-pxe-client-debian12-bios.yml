@@ -434,9 +434,9 @@ preseed_config: |
 
   # Individual additional packages to install
   #d-i pkgsel/include string openssh-server build-essential
-  d-i pkgsel/include string python3-apt gpg
+  d-i pkgsel/include string python3-apt gnupg
   # python3-apt is required for Ansible's apt module
-  # gpg is required for Ansible's apt_key module
+  # gnupg is required for Ansible's apt_key module
 
   # Whether to upgrade packages after debootstrap.
   # Allowed values: none, safe-upgrade, full-upgrade
