@@ -57,7 +57,7 @@ trap "trap - INT TERM && kill -- -$$" INT TERM
     fi
 
     # Ensure user cloudy has full access to mounted directories
-    chown -v cloudy.cloudy /home/cloudy/.local/share/libvirt/images/ /home/cloudy/.ssh/
+    chown -v cloudy:cloudy /home/cloudy/.local/share/libvirt/images/ /home/cloudy/.ssh/
 
     # Ansible requires SSH keys to be able to connect to virtual machines
     sudo -u cloudy --set-home sh -c '
@@ -188,7 +188,7 @@ trap "trap - INT TERM && kill -- -$$" INT TERM
     if [ ! -e /home/cloudy/.config/libvirt/libvirtd.conf ]; then
         sudo -u cloudy mkdir -p /home/cloudy/.config/libvirt/
         cp -av /etc/libvirt/libvirtd.conf /home/cloudy/.config/libvirt/libvirtd.conf
-        chown cloudy.cloudy /home/cloudy/.config/libvirt/libvirtd.conf
+        chown cloudy:cloudy /home/cloudy/.config/libvirt/libvirtd.conf
         sed -i \
             -e 's/^[#]*listen_tls = .*/listen_tls = 0/g' \
             -e 's/^[#]*listen_tcp = .*/listen_tcp = 1/g' \
