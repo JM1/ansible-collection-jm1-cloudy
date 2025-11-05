@@ -29,7 +29,7 @@ FROM quay.io/centos/centos:stream8
 
 # Satisfy Ansible requirements
 RUN dnf install -y \
-    curl iputils man-db psmisc tcpdump tmux vim && \
+    curl iputils jq man-db psmisc tcpdump tmux vim && \
   dnf install -y \
     ansible-core iproute make nftables openssh-clients procps python3 python3-jinja2 python3-pip python3-pyyaml sudo && \
   dnf install -y \

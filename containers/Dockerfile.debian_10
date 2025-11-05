@@ -23,7 +23,7 @@ RUN echo 'deb http://deb.debian.org/debian buster-backports main contrib non-fre
 # Satisfy Ansible requirements
 RUN apt-get update && \
   apt-get install -y \
-    curl iputils-ping man-db psmisc tcpdump tmux vim && \
+    curl iputils-ping jq man-db psmisc tcpdump tmux vim && \
   apt-get install -y -t buster-backports ansible && \
   apt-get install -y --no-install-recommends \
     iproute2 make iptables openssh-client procps python-pip python3 python3-packaging python3-pip python3-yaml sudo && \
