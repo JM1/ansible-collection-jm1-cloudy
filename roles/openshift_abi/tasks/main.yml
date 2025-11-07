@@ -223,6 +223,8 @@
   ansible.builtin.command:
     chdir: '{{ openshift_abi_home_dir }}'
     cmd: openshift-install --dir '{{ openshift_abi_config_dir }}' --log-level debug agent wait-for bootstrap-complete
+  retries: 3
+  delay: 120
 
 - name: Create a marker file to signal bootstrap completion of the rendezvous host (bootstrap host)
   ansible.builtin.copy:
