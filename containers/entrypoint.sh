@@ -117,7 +117,7 @@ trap "trap - INT TERM && kill -- -$$" INT TERM
 
     if ! "$py" -c \
          "import ansible; import sys; from packaging import version;"\
-         "sys.exit(0 if version.parse(ansible.release.__version__) >= version.parse('2.9') else 1);"
+"         sys.exit(0 if version.parse(ansible.release.__version__) >= version.parse('2.9') else 1);"
     then
         error "Ansible 2.9 or newer is required"
         exit 119
@@ -126,19 +126,19 @@ trap "trap - INT TERM && kill -- -$$" INT TERM
     # Use older Ansible collections for compatibility with older Ansible releases
     if "$py" -c \
          "import ansible; import sys; from packaging import version;"\
-         "sys.exit(0 if version.parse(ansible.release.__version__) < version.parse('2.11') else 1);"
+"         sys.exit(0 if version.parse(ansible.release.__version__) < version.parse('2.11') else 1);"
     then
         sudo -u cloudy --set-home ansible-galaxy collection install 'ansible.utils:<3.0.0' 'community.general:<5.0.0' \
             'kubernetes.core:<3.0.0'
     elif "$py" -c \
          "import ansible; import sys; from packaging import version;"\
-         "sys.exit(0 if version.parse(ansible.release.__version__) < version.parse('2.13') else 1);"
+"         sys.exit(0 if version.parse(ansible.release.__version__) < version.parse('2.13') else 1);"
     then
         sudo -u cloudy --set-home ansible-galaxy collection install 'ansible.utils:<3.0.0' 'community.general:<8.0.0' \
             'kubernetes.core:<3.0.0'
     elif "$py" -c \
          "import ansible; import sys; from packaging import version;"\
-         "sys.exit(0 if version.parse(ansible.release.__version__) < version.parse('2.14') else 1);"
+"         sys.exit(0 if version.parse(ansible.release.__version__) < version.parse('2.14') else 1);"
     then
         sudo -u cloudy --set-home ansible-galaxy collection install 'ansible.utils:<3.0.0' 'kubernetes.core:<3.0.0'
     fi
