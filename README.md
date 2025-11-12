@@ -509,6 +509,15 @@ docker attach cloudy
 Inside the container continue with [running playbook `playbooks/site.yml` for all remaining hosts](#usage-and-playbooks)
 from your copy of the [`inventory/`][inventory-example] directory which is available in `/home/cloudy/project`.
 
+**NOTE:** If virtual machines have no internet connectivity, check the host's [iptables][iptables]/[nftables][nftables]
+rules. The [firewalld][firewalld] service often causes this issue because its zones are not accessible from within
+containers, preventing libvirt from [adding bridge interfaces of libvirt virtual networks to firewalld zones][
+libvirt-firewall]. If it is active on the host, [disable firewalld][firewalld-service].
+
+[firewalld]: https://firewalld.org/
+[firewalld-service]: https://firewalld.org/documentation/howto/enable-and-disable-firewalld.html
+[libvirt-firewall]: https://libvirt.org/firewall.html
+
 To connect to the libvirt daemon running inside the container from the container host, run the following command at your
 container host:
 
@@ -575,14 +584,20 @@ line arguments similar to `docker-compose`, run `containers/podman-compose.sh --
 
 [`podman-compose.sh`][podman-compose-sh] will create a [bridged Podman network `cloudy`][podman-networking] which
 libvirt domains (QEMU/KVM based virtual machines) will use to connect to the internet. The bridge has no physical
-network ports attached, because connectivity is established with [ip routing]. The script will also configure ip routes
-for networks `192.168.157.0/24` and `192.168.158.0/24` at the container host which allows to access the libvirt domains
-running inside the containers from the host.
+network ports attached, because connectivity is established with [ip routing][ip-routing]. The script will also
+configure ip routes for networks `192.168.157.0/24` and `192.168.158.0/24` at the container host which allows to access
+the libvirt domains running inside the containers from the host.
 
 [podman-networking]: https://www.redhat.com/sysadmin/container-networking-podman
 
 **NOTE:** Ensure both ip networks `192.168.157.0/24` and `192.168.158.0/24` are not present at the container host before
 executing [`podman-compose.sh`][podman-compose-sh] else the script will fail.
+
+**NOTE:** Adjust the container host's [iptables][iptables]/[nftables][nftables] rules to allow internet connectivity
+from the Podman network. The [firewalld][firewalld] service often causes connectivity issues for virtual machines
+because its zones are not accessible from within containers, preventing libvirt from
+[adding bridge interfaces of libvirt virtual networks to firewalld zones][libvirt-firewall]. If [firewalld][firewalld]
+is active on the host, [disable it][firewalld-service].
 
 The following example shows how to use an example of how to use [`podman-compose.sh`][podman-compose-sh] at a container
 host running on `Debian 11 (Bullseye)`:
@@ -616,6 +631,11 @@ sudo podman attach cloudy
 
 Inside the container continue with [running playbook `playbooks/site.yml` for all remaining hosts](#usage-and-playbooks)
 from your copy of the [`inventory/`][inventory-example] directory which is available in `/home/cloudy/project`.
+
+**NOTE:** If virtual machines have no internet connectivity, check the host's [iptables][iptables]/[nftables][nftables]
+rules. The [firewalld][firewalld] service often causes this issue because its zones are not accessible from within
+containers, preventing libvirt from [adding bridge interfaces of libvirt virtual networks to firewalld zones][
+libvirt-firewall]. If [firewalld][firewalld] is active on the host, [disable it][firewalld-service].
 
 To connect to the libvirt daemon running inside the container from the container host, run the following command at your
 container host:
@@ -904,6 +924,9 @@ of that system which can be used for ssh'ing into it:
 # Establish SSH connection to Ansible host lvrt-lcl-session-srv-020-debian10
 ssh ansible@192.168.158.13
 ```
+
+**NOTE:** If virtual machines have no internet connectivity, check the system's [iptables][iptables]/[nftables][
+nftables] rules.
 
 Besides individual Ansible hosts, you can also use Ansible groups such as `build_level1`, `build_level2` and et cetera
 to set up several systems in parallel.
