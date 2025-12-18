@@ -443,7 +443,7 @@ openshift_abi_config:
             - 192.168.158.55
           ingressVIPs:
             - 192.168.158.56
-      pullSecret: '{{ openshift_abi_pullsecret | default(openshift_abi_pullsecret_default | from_json) | to_json }}'
+      pullSecret: '{{ openshift_abi_pullsecret | default(openshift_abi_pullsecret_default) }}'
       sshKey: '{{ ssh_authorized_keys
                   | selectattr('user', 'equalto', ansible_user)
                   | selectattr('state', 'equalto', 'present')

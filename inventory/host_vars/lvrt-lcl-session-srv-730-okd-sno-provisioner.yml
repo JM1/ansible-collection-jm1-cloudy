@@ -278,7 +278,7 @@ openshift_sno_config:
         none: {}
       bootstrapInPlace:
         installationDisk: "/dev/vda"
-      pullSecret: '{{ openshift_sno_pullsecret | default(openshift_sno_pullsecret_default | from_json) | to_json }}'
+      pullSecret: '{{ openshift_sno_pullsecret | default(openshift_sno_pullsecret_default) }}'
       sshKey: '{{ ssh_authorized_keys
                   | selectattr('user', 'equalto', ansible_user)
                   | selectattr('state', 'equalto', 'present')

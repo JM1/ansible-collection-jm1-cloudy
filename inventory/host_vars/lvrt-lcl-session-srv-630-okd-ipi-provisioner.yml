@@ -227,7 +227,7 @@ openshift_ipi_config:
               bootMACAddress: 52:54:00:aa:bb:26
               rootDeviceHints:
                 deviceName: "/dev/vda"
-      pullSecret: '{{ openshift_ipi_pullsecret | default(openshift_ipi_pullsecret_default | from_json) | to_json }}'
+      pullSecret: '{{ openshift_ipi_pullsecret | default(openshift_ipi_pullsecret_default) }}'
       sshKey: '{{ ssh_authorized_keys
                   | selectattr('user', 'equalto', ansible_user)
                   | selectattr('state', 'equalto', 'present')
