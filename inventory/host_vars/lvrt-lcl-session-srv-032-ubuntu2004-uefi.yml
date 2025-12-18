@@ -19,7 +19,7 @@ libvirt_hardware:
 - disk: "vol='{{ libvirt_pool }}/{{ libvirt_volumes[0]['name'] }}',device=disk,bus=virtio"
 - disk: "vol='{{ libvirt_pool }}/{{ libvirt_configdrive }}',device=disk,bus=virtio,serial='cidata'"
 - machine: 'q35'
-- boot: 'loader=/usr/share/OVMF/OVMF_CODE.fd'
+- boot: 'uefi,firmware.feature0.name=secure-boot,firmware.feature0.enabled=no'
 - os_variant: 'ubuntu18.04' # TODO: Change to 'ubuntu20.04' once supported
 
 libvirt_host_become: false

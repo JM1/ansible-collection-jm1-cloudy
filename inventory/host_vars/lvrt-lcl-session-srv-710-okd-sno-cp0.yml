@@ -24,7 +24,7 @@ libvirt_hardware:
 - network: 'network=route-1-no-dhcp,model=virtio,mac=52:54:00:aa:bb:27'
 - disk: "vol='{{ libvirt_pool }}/{{ libvirt_volumes[0]['name'] }}',device=disk,bus=virtio"
 - machine: 'q35'
-- boot: 'hd,cdrom,loader=/usr/share/OVMF/OVMF_CODE.fd'
+- boot: 'hd,cdrom,uefi,firmware.feature0.name=secure-boot,firmware.feature0.enabled=no'
 - os_variant: 'rhel8.0'
 
 libvirt_host_become: false

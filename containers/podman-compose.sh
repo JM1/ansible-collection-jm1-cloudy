@@ -84,7 +84,10 @@ ________EOF
     cmd_args=()
     detach="no"
     distribution=""
-    distribution_default="debian_11"
+    # Debian 12 (Bookworm) or later is required for virt-manager 4.0.0, which adds firmware-feature support to
+    # virt-install's '--boot' option. This enables automatic selection of firmware without UEFI Secure Boot.
+    # Ref.: https://github.com/virt-manager/virt-manager/commit/b98761310632b68591fe233fc47ee38de8535e90
+    distribution_default="debian_12"
     infra_image=""
     infra_image_default="alpine:latest"
     project=""

@@ -30,7 +30,7 @@ libvirt_hardware:
 - network: 'network=isolated-2-no-dhcp,model=virtio,mac=52:54:00:aa:bb:09'
 - disk: "vol='{{ libvirt_pool }}/{{ libvirt_volumes[0]['name'] }}',device=disk,bus=virtio"
 - machine: 'q35'
-- boot: 'loader=/usr/share/OVMF/OVMF_CODE.fd,hd,network'
+- boot: 'uefi,firmware.feature0.name=secure-boot,firmware.feature0.enabled=no,hd,network'
 - os_variant: 'debian10'
 
 libvirt_host_become: false
