@@ -86,7 +86,7 @@ libvirt_network_template_bridge: |
       <uuid>{{ item.uuid }}</uuid>
       {% endif %}
       <name>{{ item.name }}</name>
-      {% if item.forward.interfaces | default(None) != None %}
+      {% if 'forward' in item and item.forward.interfaces | default(None) != None %}
       <forward mode='bridge'>
         {% for interface in item.forward.interfaces %}
           <interface dev="{{ interface.dev }}"/>
@@ -131,7 +131,7 @@ libvirt_network_template_isolated: |
       {% endif %}
       />
       {% endif %}
-      {% if item.mtu.size | default(None) != None %}
+      {% if 'mtu' in item and item.mtu.size | default(None) != None %}
       <mtu size="{{ item.mtu.size }}"/>
       {% endif %}
       {% if item.ip | default(None) != None %}
@@ -188,7 +188,7 @@ libvirt_network_template_nat: |
       {% endif %}
       />
       {% endif %}
-      {% if item.mtu.size | default(None) != None %}
+      {% if 'mtu' in item and item.mtu.size | default(None) != None %}
       <mtu size="{{ item.mtu.size }}"/>
       {% endif %}
     </network>
@@ -200,7 +200,7 @@ libvirt_network_template_route: |
       {% endif %}
       <name>{{ item.name }}</name>
       <forward mode='route'
-      {% if item.forward.dev | default(None) != None %}
+      {% if 'forward' in item and item.forward.dev | default(None) != None %}
         dev='{{ item.forward.dev }}'
       {% endif %}
       />
@@ -231,7 +231,7 @@ libvirt_network_template_route: |
       {% endif %}
       />
       {% endif %}
-      {% if item.mtu.size | default(None) != None %}
+      {% if 'mtu' in item and item.mtu.size | default(None) != None %}
       <mtu size="{{ item.mtu.size }}"/>
       {% endif %}
     </network>
