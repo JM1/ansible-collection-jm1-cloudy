@@ -123,5 +123,7 @@ libvirt_pools:
   - type: dir
   - target: '{{ ansible_env.HOME }}/.local/share/libvirt/images'
   name: 'default'
+  target:
+    pool: '{{ ansible_env.HOME }}/.local/share/libvirt/images'
 
 libvirt_uri: 'qemu:///session'

@@ -262,6 +262,8 @@ libvirt_pools:
   name: 'default'
   restart_on_change: true
   state: 'active'
+  target:
+    pool: /var/lib/libvirt/images
   xml_var: 'libvirt_pool_template_dir'
 
 # Undo changes from group_vars/all.yml
