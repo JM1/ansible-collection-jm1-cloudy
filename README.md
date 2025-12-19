@@ -803,7 +803,7 @@ You can also include it in a `requirements.yml` file and install it via
 ---
 collections:
   - name: jm1.cloudy
-    version: 2024.11.2
+    version: 2025.12.19
 ```
 
 #### Configure bare-metal system with Ansible
