@@ -154,12 +154,18 @@
     path: '{{ openshift_sno_config_dir }}/.sno-config-complete'
   register: openshift_sno_path_config_marker
 
+- name: Check if live image has been removed from the node
+  ansible.builtin.stat:
+    path: '{{ openshift_sno_config_dir }}/.sno-cleanup-complete'
+  register: openshift_sno_path_cleanup_marker
+
 - name: Ensure markers are consistent
   ansible.builtin.assert:
     that:
       - openshift_sno_path_live_image_marker.stat.exists or not openshift_sno_path_boot_marker.stat.exists
       - openshift_sno_path_boot_marker.stat.exists or not openshift_sno_path_install_marker.stat.exists
       - openshift_sno_path_install_marker.stat.exists or not openshift_sno_path_config_marker.stat.exists
+      - openshift_sno_path_config_marker.stat.exists or not openshift_sno_path_cleanup_marker.stat.exists
 
 - name: Create install-config.yaml and other manifests for openshift-install
   # openshift-install will delete install-config.yaml when generating single-node Ignition config
@@ -369,7 +375,7 @@
     owner: '{{ ansible_user }}'
 
 - name: Remove single-node OpenShift live image
-  when: not openshift_sno_path_install_marker.stat.exists
+  when: not openshift_sno_path_cleanup_marker.stat.exists
   # Values for 'become' and related keywords will not be inherited from the role's caller when using 'omit' as
   # default.
   become: "{{ item['become'] | default(omit) }}"
@@ -385,3 +391,13 @@
     when: "{{ item['when'] | default(omit) }}"
   environment: "{{ item['environment'] | default(omit) }}"
   loop: "{{ openshift_sno_cleanup_code | default([]) }}"
+
+- name: Create a marker file to signal removal of the live image from the node
+  ansible.builtin.copy:
+    content: |
+      # 2023 Jakob Meng, <jakobmeng@web.de>
+      # The live image of single-node OpenShift has been removed from the node.
+    dest: '{{ openshift_sno_config_dir }}/.sno-cleanup-complete'
+    mode: u=rw,g=r,o=r
+    group: '{{ ansible_user }}'
+    owner: '{{ ansible_user }}'

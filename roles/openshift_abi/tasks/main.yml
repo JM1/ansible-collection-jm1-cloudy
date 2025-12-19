@@ -103,6 +103,11 @@
     path: '{{ openshift_abi_config_dir }}/auth/kubeconfig'
   register: openshift_abi_path_agent_image_marker
 
+- name: Check if cluster nodes have successfully initiated boot using the agent image
+  ansible.builtin.stat:
+    path: '{{ openshift_abi_config_dir }}/.abi-boot-complete'
+  register: openshift_abi_path_boot_marker
+
 - name: Check if bootstrapping of the rendezvous host (bootstrap host) has been completed
   ansible.builtin.stat:
     path: '{{ openshift_abi_config_dir }}/.abi-bootstrap-complete'
@@ -118,12 +123,19 @@
     path: '{{ openshift_abi_config_dir }}/.abi-config-complete'
   register: openshift_abi_path_config_marker
 
+- name: Check if agent image has been removed from cluster nodes
+  ansible.builtin.stat:
+    path: '{{ openshift_abi_config_dir }}/.abi-cleanup-complete'
+  register: openshift_abi_path_cleanup_marker
+
 - name: Ensure markers are consistent
   ansible.builtin.assert:
     that:
-      - openshift_abi_path_agent_image_marker.stat.exists or not openshift_abi_path_bootstrap_marker.stat.exists
+      - openshift_abi_path_agent_image_marker.stat.exists or not openshift_abi_path_boot_marker.stat.exists
+      - openshift_abi_path_boot_marker.stat.exists or not openshift_abi_path_bootstrap_marker.stat.exists
       - openshift_abi_path_bootstrap_marker.stat.exists or not openshift_abi_path_install_marker.stat.exists
       - openshift_abi_path_install_marker.stat.exists or not openshift_abi_path_config_marker.stat.exists
+      - openshift_abi_path_config_marker.stat.exists or not openshift_abi_path_cleanup_marker.stat.exists
 
 - name: Create install-config.yaml, agent-config.yaml and other manifests for openshift-install
   # openshift-install will delete install-config.yaml and agent-config.yaml when generating manifests
@@ -199,7 +211,7 @@
     creates: '{{ openshift_abi_config_dir }}/auth/kubeconfig'
 
 - name: Boot cluster nodes with agent image
-  when: not openshift_abi_path_bootstrap_marker.stat.exists
+  when: not openshift_abi_path_boot_marker.stat.exists
   # Values for 'become' and related keywords will not be inherited from the role's caller when using 'omit' as
   # default.
   become: "{{ item['become'] | default(omit) }}"
@@ -215,6 +227,16 @@
     when: "{{ item['when'] | default(omit) }}"
   environment: "{{ item['environment'] | default(omit) }}"
   loop: "{{ openshift_abi_boot_code | default([]) }}"
+
+- name: Create a marker file to indicate that cluster nodes have successfully initiated boot using the agent image
+  ansible.builtin.copy:
+    content: |
+      # 2023 Jakob Meng, <jakobmeng@web.de>
+      # Boot of the cluster nodes using the OpenShift Agent-based Installer image has been successfully initiated.
+    dest: '{{ openshift_abi_config_dir }}/.abi-boot-complete'
+    mode: u=rw,g=r,o=r
+    group: '{{ ansible_user }}'
+    owner: '{{ ansible_user }}'
 
 - name: Wait for rendezvous host (bootstrap host) to be bootstrapped
   when: not openshift_abi_path_bootstrap_marker.stat.exists
@@ -303,7 +325,7 @@
     owner: '{{ ansible_user }}'
 
 - name: Remove agent image from cluster nodes
-  when: not openshift_abi_path_install_marker.stat.exists
+  when: not openshift_abi_path_cleanup_marker.stat.exists
   # Values for 'become' and related keywords will not be inherited from the role's caller when using 'omit' as
   # default.
   become: "{{ item['become'] | default(omit) }}"
@@ -319,3 +341,13 @@
     when: "{{ item['when'] | default(omit) }}"
   environment: "{{ item['environment'] | default(omit) }}"
   loop: "{{ openshift_abi_cleanup_code | default([]) }}"
+
+- name: Create a marker file to signal removal of the agent image from cluster nodes
+  ansible.builtin.copy:
+    content: |
+      # 2023 Jakob Meng, <jakobmeng@web.de>
+      # The OpenShift Agent-based Installer image has been removed from the cluster nodes.
+    dest: '{{ openshift_abi_config_dir }}/.abi-cleanup-complete'
+    mode: u=rw,g=r,o=r
+    group: '{{ ansible_user }}'
+    owner: '{{ ansible_user }}'
