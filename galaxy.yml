@@ -7,7 +7,7 @@ dependencies:
   "community.crypto": '>=1.0.0'
   "community.general": '>=3.5.0'
   "community.libvirt": '>=1.0.2'
-  "jm1.ansible": '>=2024.5.30'
+  "jm1.ansible": '>=2025.11.26'
   "jm1.libvirt": '>=2024.5.30'
   "jm1.openstack": '>=2024.5.30'
   "jm1.packages": '>=2024.5.30'
