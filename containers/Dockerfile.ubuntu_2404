@@ -29,6 +29,9 @@ RUN apt-get update && \
   rm -rf /var/lib/apt/lists/*
 
 RUN useradd --create-home --shell /bin/bash cloudy && \
+  echo '# Preserve the system-assigned core limit, allowing libvirtd' >> /etc/sudoers.d/cloudy && \
+  echo '# to apply the max_core setting from its qemu.conf' >> /etc/sudoers.d/cloudy && \
+  echo 'Defaults:cloudy rlimit_core=default' >> /etc/sudoers.d/cloudy && \
   echo 'cloudy ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/cloudy && \
   chmod u=r,g=r,o= /etc/sudoers.d/cloudy
 

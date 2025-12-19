@@ -209,7 +209,10 @@ trap "trap - INT TERM && kill -- -$$" INT TERM
     fi
 
     # Start libvirt session daemon
-    pgrep --uid "$(id -u cloudy)" --exact libvirtd || sudo -u cloudy --set-home /usr/sbin/libvirtd --daemon --listen
+    #
+    # Use 'su' instead of 'sudo' to preserve the system-assigned core limit,
+    # allowing libvirtd to apply the max_core setting from its qemu.conf.
+    pgrep --uid "$(id -u cloudy)" --exact libvirtd || su --login cloudy -c '/usr/sbin/libvirtd --daemon --listen'
 
     sudo -u cloudy --set-home --preserve-env=ANSIBLE_INVENTORY \
         ansible-playbook "$playbook_site" \
